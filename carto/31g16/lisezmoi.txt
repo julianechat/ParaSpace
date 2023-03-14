@@ -1,0 +1,30 @@
+*******************************************************************************
+http://www.geogratis.ca/
+Créé le : 2007/04/01
+*******************************************************************************
+
+[AVIS]
+Seul le fichier de métadonnées XML en version anglaise est valide selon le
+schéma XML (W3C) tel que défini par le < Federal Geographic Data Committee >
+(FGDC) (http://www.fgdc.gov). La version française du fichier de métadonnées XML
+ne respecte pas les domaines de valeurs, disponibles uniquement en anglais, de
+certains champs et n’existe donc que pour la présentation des informations.
+
+L’usager doit s’assurer de valider les métadonnées en utilisant le schéma XML
+du FGDC avec la version anglaise des métadonnées XML.
+
+
+[CONTENU DU FICHIER COMPRESSÉ]
+Ce fichier compressé contient les fichiers suivants :
+
+- deux fichiers de métadonnées avec l'extension .xml, en version anglaise et en
+  version française, permettant l'affichage des métadonnées du jeu de données.
+  Une feuille de style, sous la forme d'un fichier .xsl, est disponible pour
+  chaque langue sur le site Géogratis (http://www.geogratis.ca/fgdc/). L'avis
+  énoncé plus haut s'applique à ces fichiers.
+
+- deux fichiers de métadonnées avec l'extension .html, en version anglaise et
+  en version française, permettant l'affichage des métadonnées sur le jeu de
+  données. Les feuilles de style ont déjà été appliquées à ces fichiers.
+
+- Un ou plusieurs fichiers de données.

@@ -1,0 +1,90 @@
+read.csv(dat_jul.csv)
+read.csv(data_jul.csv)
+read.csv("data_jul.csv")
+data <-read.csv("data_jul.csv")
+data.sub <- data[1:10,]
+str(data.sub)
+data <-read.csv("data_jul.csv")
+data.sub <- data[1:10,c(1,6,8,10,13)]
+str(data.sub)
+data.sub
+data.sub$Abundance
+row.names(data.sub)
+rep(row.names(data.sub), data.sub$Abundance)
+dat.expanded <- data.sub[rep(row.names(data.sub), data.sub$Abundance), 1:9]
+dat.expanded <- data.sub[rep(row.names(data.sub), data.sub$Abundance),]
+dat.expanded
+dat.expanded <- data.sub[rep(row.names(data.sub), data.sub$Abundance),1:4]
+dat.expanded
+data <-read.csv("data_jul.csv")
+data.sub <- data[1:10,c(1,6,8,10,13)]
+str(data.sub)
+data.sub
+row.names(data.sub)
+rep(row.names(data.sub), data.sub$Abundance)
+dat.expanded <- data.sub[rep(row.names(data.sub), data.sub$Abundance),1:4]
+dat.expanded
+row.names(dat.expanded) <- 1:length(data.expanded)
+row.names(dat.expanded) <- 1:length(dat.expanded)
+length(dat.expanded)
+str(data.sub)
+data <-read.csv("data_jul.csv")
+str(data)
+data.sub <- data[1:10,c(1,3,4,6,8,10,13)]
+str(data.sub)
+data.sub
+rep(row.names(data.sub), data.sub$Abundance)
+str(data.sub)
+dat.expanded <- data.sub[rep(row.names(data.sub), data.sub$Abundance),1:6]
+dat.expanded
+ata.sub
+rep(row.names(data.sub), data.sub$Abundance)
+data.sub
+dat.expanded <- data.sub[rep(row.names(data.sub), data.sub$Abundance),]
+dat.expanded
+dat.expanded <- data.sub[rep(row.names(data.sub), data.sub$Abundance),1:6]
+dat.expanded
+1:6
+dat.expanded <- data.sub[rep(row.names(data.sub), data.sub$Abundance),c(1,2,3,4,5,6)]
+dat.expanded
+to.data <- "./data/"
+to.script <- "./scripts/"
+to.output <- "./output/"
+to.figs <- "./figs/"
+to.R <- "./R/"
+to.carto <- "./carto/"
+library(cartography)
+library(sf)
+library(stringr)
+library(dplyr)
+library(ggplot2)
+CombinedData <- read.csv(paste0(to.output, "CombinedData.csv"))
+CROM <- st_read(paste0(to.carto, "Lake_shapes/Cromwell.shp"))
+CombinedData <- read.csv(paste0(to.output, "CombinedData.csv"))
+setwd("~/Dropbox/ParaSpace")
+CombinedData <- read.csv(paste0(to.output, "CombinedData.csv"))
+CROM <- st_read(paste0(to.carto, "Lake_shapes/Cromwell.shp"))
+plot(st_geometry(CROM))
+View(CROM)
+View(CROM[[19]][[1]])
+ggplot(data = CROM) + geom_polygon(x = geometry)
+ggplot() + geom_polygon(data = CROM, x = geometry)
+ggplot() + geom_polygon(data = CROM, x = "geometry")
+ggplot() + geom_polygon(data = CROM, x = "geometry", y = "geomtery")
+ggplot() + geom_polygon(data = CROM, x = "geometry", y = "geomtery")
+ggplot() + geom_paths(CROM)
+ggplot() + geom_path(CROM)
+ggplot() + geom_path(mapping = CROM)
+ggplot() + geom_path(mapping = aes(CROM))
+plot(st_geometry(CROM))
+View(CROM[[19]][[1]])
+plot_sf(CROM)
+#Set attribute table#
+attributes <- CombinedData %>%
+select(Sampling_ID, Lake, Sampling_method, Latitude, Longitude, tot_LeGi, inf_LeGi) %>%
+mutate(prev_LeGi = tot_LeGi/inf_LeGi, .keep = "unused")
+install.packages("measurements")
+library(measurements)
+attach(attributes)
+lat <- conv_unit('Latitude', from = "deg_min_sec", to = "dec_deg")
+long <- conv_unit('104 38 26.88' , from = "deg_min_sec", to = "dec_deg")
