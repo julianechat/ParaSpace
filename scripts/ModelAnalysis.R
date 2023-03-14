@@ -1,4 +1,4 @@
-# ---- Script Setup ----
+# ---- Script setup ----
 ## R Setup ----
 
 to.data <- "./data/"
@@ -12,9 +12,15 @@ to.carto <- "./carto/"
 
 ## Loading data ----
 
-
 # ---- Data exploration ----
 ## Outliers ----
+
 ## Collinearity ----
+
 ## Relationships ----
+
+# ---- Data analysis ----
+## 
+
+
 

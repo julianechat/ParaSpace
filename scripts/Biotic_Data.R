@@ -1,7 +1,6 @@
 ## Biotic data transformation ##
 
 # ----- R Setup ----- #
-
 to.data <- "./data/"
 to.script <- "./scripts/"
 to.output <- "./output/"
