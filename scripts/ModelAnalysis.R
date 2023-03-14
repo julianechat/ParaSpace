@@ -11,6 +11,8 @@ to.carto <- "./carto/"
 ## Loading packages ----
 
 ## Loading data ----
+CombinedData <- read.csv(paste0(to.output, "CombinedData.csv"))
+
 
 # ---- Data exploration ----
 ## Outliers ----
