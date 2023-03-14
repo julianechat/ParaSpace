@@ -237,3 +237,31 @@ Exp.Fish <- Fishing_WideData[c(1,8)]
 
 write_xlsx(Exp.Fish, paste0(to.output, "Fishing_UniqueData.xlsx")) #Exporting data frame
 write.csv(Exp.Fish, paste0(to.output, "Fishing_UniqueData.csv"), row.names = FALSE)
+
+
+#### Scale data sets ####
+## Lake scale + Fish ##
+lake.fish.mod <- CombinedData %>% 
+  filter(!Sampling_method == "Transect")
+
+lake.fish.mod$tot_fish <- lake.fish.mod %>% select(starts_with("tot")) %>% rowSums()
+lake.fish.mod$inf_fish <- lake.fish.mod %>% select(starts_with("inf")) %>% rowSums()
+lake.fish.mod <- lake.fish.mod %>% mutate(prev_fish = inf_fish/tot_fish)
+lake.fish.mod <- lake.fish.mod %>% mutate(prev_LeGi = inf_LeGi/tot_LeGi)
+
+lake.fish.mod <- lake.fish.mod %>% 
+  select(Sampling_ID, Lake, Watershed, 
+         inf_LeGi, tot_LeGi, inf_fish, tot_fish,
+         Temp, Cond, DO, Turb, pH, 
+         TOC, TN, TP, 
+         Lake_area, Perimeter, Mean_depth, Max_depth, WRT,
+         Drainage_area, Elevation, Connectivity, 
+         Centrarchids, Species_richness, Diversity)
+
+lake.fish.mod <- lake.fish.mod %>% group_by(Lake) %>% 
+  
+  
+  
+  
+  
+  
