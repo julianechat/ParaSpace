@@ -31,7 +31,7 @@ lake.data <- lake.data %>%
 
 ## Centrarchids ##
 lake.centrarchids <- lake.data %>% #Abundance of Centrarchids species (pumkinseeds excluded)
-  select("tot_AmRu", "tot_MiDo") %>% 
+  select("tot_AmRu", "tot_MiDo", "tot_LeGi") %>% 
   rowSums()
 
 ## Species richness ##
@@ -65,7 +65,7 @@ trans.data <- trans.data %>% select(c(2, 9:13))
 
 ## Centrarchids ##
 trans.centrarchids <- trans.data %>% #Abundance of Centrarchids species (pumkinseeds excluded)
-  select("tot_AmRu", "tot_MiDo") %>% 
+  select("tot_AmRu", "tot_MiDo", "tot_LeGi") %>% 
   rowSums()
 
 ## Species richness ##
