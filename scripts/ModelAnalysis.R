@@ -366,13 +366,14 @@ ggsave(paste0(to.figs, "Relationships_lake.png"), plot = relationships.lake, dpi
 
 # ---- Data analysis ----
 
-#method test on nutrient model
+## Testing method on nutrient model ##
 library(lme4)
 library(performance)
 library(glmmTMB)
 library(MASS)
-library(glmmML)
+library(aod)
 
+### linear models ###
 test.glm <- glm(cbind(inf_fish, tot_fish-inf_fish) ~ TOC.T * TN_TP.T, family = binomial, data = mod.data)
 summary(test.glm)
 #All variables significant
@@ -412,6 +413,30 @@ summary(test4.RI.glmm)
 #AIC = NA
 #Ce genre de modèle prend en compte la sudispersion (pas besoin de regarder phi).
 
+test5.RI.glmm <- glmmPQL(cbind(inf_fish, tot_fish - inf_fish) ~ TOC.T * TN_TP.T, random = ~1|Watershed/Lake, data = mod.data2, family = quasibinomial)
+summary(test5.RI.glmm)
+#No significative at all
+#AIC = NA
+
+test6.RI.glmm <- glmer(cbind(inf_fish, tot_fish - inf_fish) ~ TOC.T * TN_TP.T + (1|Watershed/Lake), family = binomial, data = mod.data)
+summary(test6.RI.glmm)
+#Suggest rescaling values - large eigenvalue ratio
+#All variables significative
+#AIC = 1074.0
+check_overdispersion(test6.RI.glmm)
+overdisp_fun(test6.RI.glmm)
+#Overdispersion detected
+
+test7.RI.glmm <- glmer(cbind(inf_fish, tot_fish - inf_fish) ~ TOC.T * TN_TP.T + (1|Lake/Transect_ID), family = binomial, data = mod.data)
+summary(test7.RI.glmm)
+#Suggest rescaling values - large eigenvalue ratio
+#All variables unsignificatives
+#AIC = 338.6
+check_overdispersion(test7.RI.glmm)
+overdisp_fun(test7.RI.glmm)
+#Test non concluant
+#Donne excatement le même AIC que betabin2 ~Lake....
+
 test1.RIS.glmm <- glmer(cbind(inf_fish, tot_fish - inf_fish) ~ TOC.T * TN_TP.T + (1 + TOC.T|Lake), family = binomial, data = mod.data)
 summary(test1.RIS.glmm)
 #Significant
@@ -439,18 +464,28 @@ check_overdispersion(test3.RIS.glmm)
 #Overdispersion decteted
 
 test.RE.glmm <- glmer(cbind(inf_fish, tot_fish - inf_fish) ~ 1 + (1|Lake), family = binomial, data = mod.data)
-summary(test.RE.glmm) #Best on so far, is it correctly coded ?
+summary(test.RE.glmm)
 #AIC = 1101.5
 overdisp_fun(test.RE.glmm)
 check_overdispersion(test.RE.glmm)
 
-###test with betabinomial
-
-library(aod)
-betabin(cbind(inf_fish, tot_fish - inf_fish) ~ TN_TP.T + TOC.T, ~1, data = mod.data, link = "logit")
-#AIC 344
+test1.betabin <- betabin(cbind(inf_fish, tot_fish - inf_fish) ~ TN_TP.T + TOC.T, ~1, data = mod.data, link = "logit")
+summary(test1.betabin)
+#AIC = 343.1
 #Aucun significatif
 #Pas de surdispersion
 
-glmmTMB(cbind(inf_fish, tot_fish - inf_fish) ~ TN_TP.T * TOC.T + (1|Lake), family = betabinomial, data = mod.data)
-#Très loin d'être significatif
+test2.betabin <- betabin(cbind(inf_fish, tot_fish - inf_fish) ~ TN_TP.T + TOC.T, ~Lake, data = mod.data, link = "logit")
+summary(test2.betabin)
+#AIC = 338.7 (mais AICc supérieur)
+#Aucun significatif
+#Pas de surdispersion
+
+test3.betabin <- glmmTMB(cbind(inf_fish, tot_fish - inf_fish) ~ TN_TP.T * TOC.T + (1|Lake), family = betabinomial, data = mod.data)
+summary(test3.betabin)
+#AIC = 334
+#Aucun significatif
+#Que veut dire dispersion parameter?
+
+### GAM ###
+
