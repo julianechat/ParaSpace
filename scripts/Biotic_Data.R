@@ -90,3 +90,38 @@ TransectsName <- trans.data$Transect_ID
 trans.biotic <- data.frame(Transect_ID = TransectsName, Centrarchids = trans.centrarchids, Species_richness = trans.species_richness, Diversity = trans.diversity) 
 
 write.csv(trans.biotic, paste0(to.output, "Trans_BioticData.csv"), row.names = FALSE) #Exporting data frame
+
+#### ----- lake scale with transect biotic data ----- ####
+lake.trans.data <- na.omit(TransectData) #Deleting sampling with no capture
+
+lake.trans.data <- lake.trans.data %>% 
+  select(c(1, 9:13)) %>% 
+  group_by(Lake) %>% 
+  summarise(across(.cols = everything(), sum))
+
+## Centrarchids ##
+lake.trans.centrarchids <- lake.trans.data %>% #Abundance of Centrarchids species (pumkinseeds excluded)
+  select("tot_AmRu", "tot_MiDo", "tot_LeGi") %>% 
+  rowSums()
+
+## Species richness ##
+lake.trans.species_richness <- lake.trans.data %>% 
+  select(starts_with("tot")) %>% 
+  specnumber()
+
+## Simpson diversity ##
+lake.trans.diversity <- lake.trans.data %>% 
+  select(starts_with("tot")) %>% 
+  diversity(index = "simpson")
+
+## Evenness ## 
+lake.trans.diversity2 <- lake.trans.data %>% 
+  select(starts_with("tot")) %>% 
+  diversity()
+
+lake.trans.evenness <- lake.diversity2/log(lake.species_richness)
+
+##Faire data frame####
+lake.trans.biotic <- data.frame(Lake = lake.trans.data$Lake, Centrarchids = lake.trans.centrarchids, Species_richness = lake.trans.species_richness, Diversity = lake.trans.diversity) 
+
+write.csv(lake.trans.biotic, paste0(to.output, "Lake_Trans_BioticData.csv"), row.names = FALSE) #Exporting data frame
