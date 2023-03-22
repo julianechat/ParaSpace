@@ -488,4 +488,46 @@ summary(test3.betabin)
 #Que veut dire dispersion parameter?
 
 ### GAM ###
+test1.gam <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN_TP.T), family = binomial, data = mod.data, method = "REML")
+summary(test1.gam)
+#Donne adj. R-sq (1.114) et deviance explained (27.4%)
+#Significatif
+plot(test1.gam)
+
+test2.gam <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN_TP.T, bs = "cr"), family = binomial, data = mod.data, method = "REML")
+summary(test2.gam)
+#Adj. R-sq = 0.13
+#Deviance explained = 28.4%
+plot(test2.gam)
+
+test3.gam <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN_TP.T, bs = "cr") + s(TOC.T, bs = "cr"), family = binomial, data = mod.data, method = "REML")
+summary(test3.gam)
+#Adj. R-sq = 0.625
+#Deviance explained = 75.4%
+plot(test3.gam)
+
+test4.gam <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN_TP.T, bs = "cr") + s(TOC.T, bs = "cr"), family = quasibinomial, data = mod.data, method = "REML")
+summary(test4.gam)
+#Adj. R-sq = 0.536
+#Deviance explained = 57.1%
+#Est-ce qu'il faut regarder sur dispersion dans un gam ?
+#REML bcp plus petit (mieux) que test3.gam
+plot(test4.gam)
+gam.check(test4.gam) #Interprétation ?
+library(AICcmodavg)
+
+test5.gam <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(TN_TP.T) + cs(TOC.T), family = BB, data = mod.data2)
+summary(test5.gam)
+#Pas sur de coprendre la sortie
+#AIC = 334.3 (comme betabin3)
+
+test5.gam <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(TN_TP.T) + cs(TOC.T), family = ZABB, data = mod.data)
+summary(test5.gam)
+#Pas sur de coprendre la sortie
+#AIC = 334.3 (comme betabin3)
+
+
+
+
+
 
