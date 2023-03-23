@@ -372,6 +372,9 @@ library(performance)
 library(glmmTMB)
 library(MASS)
 library(aod)
+library(mgcv)
+library(gamlss)
+library(gratia)
 
 ### linear models ###
 test.glm <- glm(cbind(inf_fish, tot_fish-inf_fish) ~ TOC.T * TN_TP.T, family = binomial, data = mod.data)
@@ -505,6 +508,7 @@ summary(test3.gam)
 #Adj. R-sq = 0.625
 #Deviance explained = 75.4%
 plot(test3.gam)
+check_overdispersion(test3.gam)
 
 test4.gam <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN_TP.T, bs = "cr") + s(TOC.T, bs = "cr"), family = quasibinomial, data = mod.data, method = "REML")
 summary(test4.gam)
@@ -514,20 +518,50 @@ summary(test4.gam)
 #REML bcp plus petit (mieux) que test3.gam
 plot(test4.gam)
 gam.check(test4.gam) #Interprétation ?
-library(AICcmodavg)
+check_overdispersion(test4.gam) #Améliore un peu la sudispersion...
+appraise(test4.gam, method = "simulate")
 
 test5.gam <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(TN_TP.T) + cs(TOC.T), family = BB, data = mod.data2)
 summary(test5.gam)
 #Pas sur de coprendre la sortie
 #AIC = 334.3 (comme betabin3)
 
-test5.gam <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(TN_TP.T) + cs(TOC.T), family = ZABB, data = mod.data)
-summary(test5.gam)
-#Pas sur de coprendre la sortie
-#AIC = 334.3 (comme betabin3)
+test1.gamm <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ cs(TN_TP.T) + cs(TOC.T), random = ~1, family = binomial, data = mod.data, method = "REML")
+summary(test1.gamm)
+#All significatives
+#Adj. R-sq. = 0.302
+#Deviance explained = 29.8
 
+test2.gamm <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ cs(TN_TP.T) + cs(TOC.T), random = ~Lake, family = binomial, data = mod.data, method = "REML")
+summary(test2.gamm)
+#All significatives
+#Adj. R-sq. = 0.302
+#Deviance explained = 29.8
+#Exactement la même sortie...
+check_overdispersion(test2.gamm)
 
+test3.gamm <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ cs(TN_TP.T) + cs(TOC.T), random = ~1, family = quasibinomial, data = mod.data, method = "REML")
+summary(test3.gamm)
+#TOC significatif
+#Adj. R-sq. = 0.302
+#Deviance explained = 29.8
+#MAIIS REML beaucoup plus bas (donc better fit ?)
 
+test4.gamm <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ cs(TN_TP.T) + cs(TOC.T), random = ~Lake, family = quasibinomial, data = mod.data, method = "REML")
+summary(test4.gamm)
+#TOC significatif
+#Adj. R-sq. = 0.302
+#Deviance explained = 29.8
+#Comme test3.gamm
+check_overdispersion(test4.gamm)
+#mmmh dispersion ratio encore plus haut que binomial sans effet aléatoire. Bizzare
+gam.check(test4.gamm)
+library(gratia)
+appraise(test4.gamm, method = "simulate")
 
-
+test5.gamm <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(TN_TP.T) + cs(TOC.T), random = ~Lake, family = BB, data = mod.data2)
+summary(test5.gamm)
+#No significatif
+#AIC = 334.3
+#Exactement même sortie que sans l'effet aléatoire (test5.gam)
 
