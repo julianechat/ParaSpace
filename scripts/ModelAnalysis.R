@@ -14,8 +14,12 @@ library(dplyr)
 library(vegan)
 library(ggplot2)
 library(cowplot)
+library(patchwork)
+library(tools)
 
 source(paste0(to.R, "rquery.cormat.R"))
+source(paste0(to.R, "gratia/R/utililties.R"))
+source(paste0(to.R, "gratia/R/diagnose.R"))
 
 ## Loading data ----
 
@@ -375,8 +379,10 @@ library(aod)
 library(mgcv)
 library(gamlss)
 library(gratia)
+library(gamlss)
 
-### linear models ###
+### Linear models ###
+#Binomial glm
 test.glm <- glm(cbind(inf_fish, tot_fish-inf_fish) ~ TOC.T * TN_TP.T, family = binomial, data = mod.data)
 summary(test.glm)
 #All variables significant
@@ -384,6 +390,7 @@ summary(test.glm)
 check_overdispersion(test.glm)
 #Overdispersion detected
 
+#Binomial glmm (random = Lake) - Random intercept
 test1.RI.glmm <- glmer(cbind(inf_fish, tot_fish - inf_fish) ~ TOC.T * TN_TP.T + (1|Lake), family = binomial, data = mod.data)
 summary(test1.RI.glmm)
 #Suggest rescaling values - large eigenvalue ratio
@@ -393,6 +400,7 @@ check_overdispersion(test1.RI.glmm)
 overdisp_fun(test1.RI.glmm)
 #Overdispersion detected
 
+#Binomial glmm (random = Lake) - scaling TN_TP - Random intercept
 test2.RI.glmm <- glmer(cbind(inf_fish, tot_fish-inf_fish) ~ TOC.T * scale(TN_TP.T) + (1|Lake), family = binomial, data = mod.data)
 summary(test2.RI.glmm)
 #All significative
@@ -401,6 +409,7 @@ check_overdispersion(test2.RI.glmm)
 overdisp_fun(test2.RI.glmm)
 #Overdispersion detected
 
+#Binomial glmm (random = Lake) - log TN_TP - Random intercept
 test3.RI.glmm <- glmer(cbind(inf_fish, tot_fish-inf_fish) ~ TOC.T * log(TN_TP.T) + (1|Lake), family = binomial, data = mod.data)
 summary(test3.RI.glmm)
 #All significative
@@ -409,6 +418,7 @@ check_overdispersion(test3.RI.glmm)
 overdisp_fun(test3.RI.glmm)
 #Overdispersion detected
 
+#Quasibinomial glmm (random = Lake) - Random intercept
 mod.data2 <- mod.data[-2,] #This model doesn't take NA values
 test4.RI.glmm <- glmmPQL(cbind(inf_fish, tot_fish - inf_fish) ~ TOC.T * TN_TP.T, random = ~1|Lake, data = mod.data2, family = quasibinomial)
 summary(test4.RI.glmm)
@@ -416,11 +426,13 @@ summary(test4.RI.glmm)
 #AIC = NA
 #Ce genre de modèle prend en compte la sudispersion (pas besoin de regarder phi).
 
-test5.RI.glmm <- glmmPQL(cbind(inf_fish, tot_fish - inf_fish) ~ TOC.T * TN_TP.T, random = ~1|Watershed/Lake, data = mod.data2, family = quasibinomial)
+#Quasibinomial glmm (random = Lake nested in watershed) - Random intercept
+test5.RI.glmm <- glmmPQL(cbind(inf_fish, tot_fish - inf_fish) ~ TOC.T * TN_TP.T, random = ~1|Watershed/Lake, data = mod.data2, family = binomial)
 summary(test5.RI.glmm)
 #No significative at all
 #AIC = NA
 
+#Binomial glmm (random = Lake nested in watershed) - Random intercept
 test6.RI.glmm <- glmer(cbind(inf_fish, tot_fish - inf_fish) ~ TOC.T * TN_TP.T + (1|Watershed/Lake), family = binomial, data = mod.data)
 summary(test6.RI.glmm)
 #Suggest rescaling values - large eigenvalue ratio
@@ -430,6 +442,7 @@ check_overdispersion(test6.RI.glmm)
 overdisp_fun(test6.RI.glmm)
 #Overdispersion detected
 
+#Binomial glmm (random = transect nested in lake) - Random intercept
 test7.RI.glmm <- glmer(cbind(inf_fish, tot_fish - inf_fish) ~ TOC.T * TN_TP.T + (1|Lake/Transect_ID), family = binomial, data = mod.data)
 summary(test7.RI.glmm)
 #Suggest rescaling values - large eigenvalue ratio
@@ -440,6 +453,32 @@ overdisp_fun(test7.RI.glmm)
 #Test non concluant
 #Donne excatement le même AIC que betabin2 ~Lake....
 
+#Binomial glmm (random = transect nested in lake nested in watershed) - Random intercept
+test8.RI.glmm <- glmer(cbind(inf_fish, tot_fish - inf_fish) ~ TOC.T * TN_TP.T + (1|Watershed/Lake/Transect_ID), family = binomial, data = mod.data)
+summary(test8.RI.glmm)
+#All variables unsignificatives
+#AIC = 340.6
+check_overdispersion(test8.RI.glmm)
+overdisp_fun(test8.RI.glmm)
+#Test non concluant
+
+#Binomial glmm (random = lake) - OLRE method - Random intercept
+test9.RI.glmm <- glmer(cbind(inf_fish, tot_fish - inf_fish) ~ TOC.T * TN_TP.T + (1|Lake) + (1|Transect_ID), family = binomial, data = mod.data)
+summary(test9.RI.glmm)
+#All variables unsignificatives
+#AIC = 351.0
+check_overdispersion(test9.RI.glmm)
+overdisp_fun(test9.RI.glmm)
+#Test non concluant
+
+#Betabinomial glmm (random - Lake) - Random intercept
+test10.RI.glmm <- glmmTMB(cbind(inf_fish, tot_fish - inf_fish) ~ TN_TP.T * TOC.T + (1|Lake), family = betabinomial, data = mod.data)
+summary(test10.RI.glmm)
+#AIC = 334
+#Aucun significatif
+#Que veut dire dispersion parameter?
+
+#Binomial glmm (random = lake) - Random slope & intercept on TOC
 test1.RIS.glmm <- glmer(cbind(inf_fish, tot_fish - inf_fish) ~ TOC.T * TN_TP.T + (1 + TOC.T|Lake), family = binomial, data = mod.data)
 summary(test1.RIS.glmm)
 #Significant
@@ -449,6 +488,7 @@ overdisp_fun(test1.RIS.glmm)
 check_overdispersion(test1.RIS.glmm)
 #Overdispersion detected
 
+#Binomial glmm (random = lake) - Random slope & intercept on TN_TP
 test2.RIS.glmm <- glmer(cbind(inf_fish, tot_fish - inf_fish) ~ TOC.T * TN_TP.T + (1 + TN_TP.T|Lake), family = binomial, data = mod.data)
 summary(test2.RIS.glmm)
 #Significant
@@ -458,6 +498,7 @@ overdisp_fun(test2.RIS.glmm)
 check_overdispersion(test2.RIS.glmm)
 #Overdispersion decteted
 
+#Binomial glmm (random = lake) - Random slope & intercept on TOC & TN_TP
 test3.RIS.glmm <- glmer(cbind(inf_fish, tot_fish - inf_fish) ~ TOC.T * TN_TP.T + (1 + TN_TP.T|Lake) + (1 + TOC.T|Lake), family = binomial, data = mod.data)
 summary(test3.RIS.glmm)#No better
 #Not significant 
@@ -466,50 +507,55 @@ overdisp_fun(test3.RIS.glmm)
 check_overdispersion(test3.RIS.glmm)
 #Overdispersion decteted
 
+#Binomial glmm (random - lake) - Random effect model
 test.RE.glmm <- glmer(cbind(inf_fish, tot_fish - inf_fish) ~ 1 + (1|Lake), family = binomial, data = mod.data)
 summary(test.RE.glmm)
 #AIC = 1101.5
 overdisp_fun(test.RE.glmm)
 check_overdispersion(test.RE.glmm)
+#Overdispersion detected
 
+#Betabinomial model (no random effect)
 test1.betabin <- betabin(cbind(inf_fish, tot_fish - inf_fish) ~ TN_TP.T + TOC.T, ~1, data = mod.data, link = "logit")
 summary(test1.betabin)
 #AIC = 343.1
 #Aucun significatif
 #Pas de surdispersion
 
+#Betabinomial model (random = lake)
 test2.betabin <- betabin(cbind(inf_fish, tot_fish - inf_fish) ~ TN_TP.T + TOC.T, ~Lake, data = mod.data, link = "logit")
 summary(test2.betabin)
 #AIC = 338.7 (mais AICc supérieur)
 #Aucun significatif
 #Pas de surdispersion
 
-test3.betabin <- glmmTMB(cbind(inf_fish, tot_fish - inf_fish) ~ TN_TP.T * TOC.T + (1|Lake), family = betabinomial, data = mod.data)
-summary(test3.betabin)
-#AIC = 334
-#Aucun significatif
-#Que veut dire dispersion parameter?
-
-### GAM ###
+### General additive models ###
+#Binomial gam - TN_TP smooth
 test1.gam <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN_TP.T), family = binomial, data = mod.data, method = "REML")
 summary(test1.gam)
 #Donne adj. R-sq (1.114) et deviance explained (27.4%)
 #Significatif
 plot(test1.gam)
+appraise(test1.gam, method = "simulate")
 
+#Binomial gam - TN_TP cubic regression smooth
 test2.gam <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN_TP.T, bs = "cr"), family = binomial, data = mod.data, method = "REML")
 summary(test2.gam)
 #Adj. R-sq = 0.13
 #Deviance explained = 28.4%
 plot(test2.gam)
+appraise(test2.gam, method = "simulate")
 
+#Binomial gam - TN_TP & TOC cubic regression smooth
 test3.gam <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN_TP.T, bs = "cr") + s(TOC.T, bs = "cr"), family = binomial, data = mod.data, method = "REML")
 summary(test3.gam)
 #Adj. R-sq = 0.625
 #Deviance explained = 75.4%
 plot(test3.gam)
 check_overdispersion(test3.gam)
+appraise(test3.gam, method = "simulate")
 
+#Quasibinomial gam - TN_TP & TOC cubic regression smooth
 test4.gam <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN_TP.T, bs = "cr") + s(TOC.T, bs = "cr"), family = quasibinomial, data = mod.data, method = "REML")
 summary(test4.gam)
 #Adj. R-sq = 0.536
@@ -521,17 +567,21 @@ gam.check(test4.gam) #Interprétation ?
 check_overdispersion(test4.gam) #Améliore un peu la sudispersion...
 appraise(test4.gam, method = "simulate")
 
+#Betabinomial gam - TN_TP & TOC cubic regression smooth
 test5.gam <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(TN_TP.T) + cs(TOC.T), family = BB, data = mod.data2)
 summary(test5.gam)
 #Pas sur de coprendre la sortie
 #AIC = 334.3 (comme betabin3)
 
+#Binomial gamm (no random effect)
 test1.gamm <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ cs(TN_TP.T) + cs(TOC.T), random = ~1, family = binomial, data = mod.data, method = "REML")
 summary(test1.gamm)
 #All significatives
 #Adj. R-sq. = 0.302
 #Deviance explained = 29.8
+appraise(test1.gamm, method = "simulate")
 
+#Binomial gamm (random = Lake)
 test2.gamm <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ cs(TN_TP.T) + cs(TOC.T), random = ~Lake, family = binomial, data = mod.data, method = "REML")
 summary(test2.gamm)
 #All significatives
@@ -539,14 +589,18 @@ summary(test2.gamm)
 #Deviance explained = 29.8
 #Exactement la même sortie...
 check_overdispersion(test2.gamm)
+appraise(test2.gamm, method = "simulate")
 
+#Quasibinomial gamm (no random effect)
 test3.gamm <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ cs(TN_TP.T) + cs(TOC.T), random = ~1, family = quasibinomial, data = mod.data, method = "REML")
 summary(test3.gamm)
 #TOC significatif
 #Adj. R-sq. = 0.302
-#Deviance explained = 29.8
+#Deviance explained = 29.8%
 #MAIIS REML beaucoup plus bas (donc better fit ?)
+appraise(test3.gamm, method = "simulate")
 
+#Quasibinomial gamm (random effect = lake)
 test4.gamm <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ cs(TN_TP.T) + cs(TOC.T), random = ~Lake, family = quasibinomial, data = mod.data, method = "REML")
 summary(test4.gamm)
 #TOC significatif
@@ -556,12 +610,19 @@ summary(test4.gamm)
 check_overdispersion(test4.gamm)
 #mmmh dispersion ratio encore plus haut que binomial sans effet aléatoire. Bizzare
 gam.check(test4.gamm)
-library(gratia)
 appraise(test4.gamm, method = "simulate")
 
+#Betabinomial gamm (no random effect)
 test5.gamm <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(TN_TP.T) + cs(TOC.T), random = ~Lake, family = BB, data = mod.data2)
 summary(test5.gamm)
 #No significatif
 #AIC = 334.3
 #Exactement même sortie que sans l'effet aléatoire (test5.gam)
 
+#Binomial gamm (OLRE random effect)
+test6.gamm <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ cs(TN_TP.T) + cs(TOC.T), random = ~Lake + Transect_ID, family = quasibinomial, data = mod.data, method = "REML")
+summary(test6.gamm)
+#Adj. R-sq. = 0.309
+#Deviance explained =29.8%
+#Significatif
+appraise(test6.gamm, method = "simulate")
