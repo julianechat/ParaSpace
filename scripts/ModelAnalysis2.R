@@ -40,6 +40,7 @@ sub2 <- site.scores[,2] #PCA2 - sub2 explains most of the variation in percentag
 #Adjusting data frame
 mod.data <- ParaSpaceMod %>% 
   mutate(TN_TP.T = TN.T / TP.T) %>% relocate(TN_TP.T, .after = "TOC.T") %>% 
+  mutate(TN_TP.L = TN.L /TP.L) %>% relocate(TN_TP.L, .after = "TOC.L") %>% 
   mutate(Area_Perimeter = (Lake_area*1000000/Perimeter)) %>% relocate(Area_Perimeter, .before = "Mean_depth") %>% 
   mutate(Sub1 = sub1) %>% relocate(Sub1, .before = "Macrophyte") %>% 
   mutate(Sub2 = sub2)  %>% relocate(Sub2, .before = "Macrophyte")
@@ -376,6 +377,11 @@ gam.check(TNTP.GAMM3)
 TNTP.GAMM3$sp
 appraise(TNTP.GAMM3)
 
+#lake
+TNTP.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN_TP.L, bs = "cr") + s(Lake, bs = "re"),
+                  family = quasibinomial, data = mod.data2, method = "REML")
+summary(TNTP.GAMM.L) #unsignificative
+
 #Nitrogen
 TN.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN.T, bs = "cr") + s(Lake, bs = "re"),
                   family = quasibinomial, data = mod.data2, method = "REML")
@@ -397,6 +403,11 @@ TN.GAMM2 <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(TN.T) + random(Lake
                     family = BB, data = mod.data2, REML = TRUE, method = mixed())
 summary(TN.GAMM2)
 
+#lake
+TN.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN.L, bs = "cr") + s(Lake, bs = "re"),
+               family = quasibinomial, data = mod.data2, method = "REML")
+summary(TN.GAMM.L) #unsignificative
+
 #Phosphorus
 TP.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TP.T, bs = "cr") + s(Lake, bs = "re"),
                family = quasibinomial, data = mod.data2, method = "REML")
@@ -413,6 +424,11 @@ plot.TP <- plot(TP.GAMM, trans = plogis, residuals = TRUE,
 draw.TP <- draw(TP.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
 draw.TP
 
+#lake
+TP.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TP.L, bs = "cr") + s(Lake, bs = "re"),
+                 family = quasibinomial, data = mod.data2, method = "REML")
+summary(TP.GAMM.L) #unsignificative
+
 #Carbon
 TOC.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TOC.T, bs = "cs") + s(Lake, bs = "re"),
                family = quasibinomial, data = mod.data2, method = "REML")
@@ -428,6 +444,11 @@ plot.TOC <- plot(TOC.GAMM, trans = plogis, residuals = TRUE,
                 select =1)
 draw.TOC <- draw(TOC.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
 draw.TOC
+
+#lake
+TOC.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TOC.L, bs = "cr") + s(Lake, bs = "re"),
+                 family = quasibinomial, data = mod.data2, method = "REML")
+summary(TOC.GAMM.L) #unsignificative
 
 #Sub 1
 SUB1.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Sub1, bs = "cs") + s(Lake, bs = "re"),
@@ -525,6 +546,11 @@ plot.TEMP <- plot(TEMP.GAMM, trans = plogis, residuals = TRUE,
 draw.TEMP <- draw(TEMP.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
 draw.TEMP
 
+#lake
+TEMP.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Temp.L, bs = "cr") + s(Lake, bs = "re"),
+                 family = quasibinomial, data = mod.data2, method = "REML")
+summary(TEMP.GAMM.L) #unsignificative
+
 #Turbidity
 TURB.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Turb.T, bs = "cs") + s(Lake, bs = "re"),
                   family = quasibinomial, data = mod.data2, method = "REML")
@@ -540,6 +566,11 @@ plot.TURB <- plot(TURB.GAMM, trans = plogis, residuals = TRUE,
                    select = 1)
 draw.TURB <- draw(TURB.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
 draw.TURB
+
+#lake
+TURB.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Turb.L, bs = "cr") + s(Lake, bs = "re"),
+                 family = quasibinomial, data = mod.data2, method = "REML")
+summary(TURB.GAMM.L) #unsignificative
 
 #pH
 PH.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(pH.T, bs = "cs") + s(Lake, bs = "re"),
@@ -557,6 +588,11 @@ plot.PH <- plot(PH.GAMM, trans = plogis, residuals = TRUE,
 draw.PH <- draw(PH.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
 draw.PH
 
+#lake
+PH.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(pH.L, bs = "cr") + s(Lake, bs = "re"),
+                 family = quasibinomial, data = mod.data2, method = "REML")
+summary(PH.GAMM.L) #significative
+
 #Oxygen
 DO.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(DO.T, bs = "cs") + s(Lake, bs = "re"),
                   family = quasibinomial, data = mod.data2, method = "REML")
@@ -573,6 +609,11 @@ plot.DO <- plot(DO.GAMM, trans = plogis, residuals = TRUE,
 draw.DO <- draw(DO.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
 draw.DO
 
+#lake
+DO.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(DO.L, bs = "cr") + s(Lake, bs = "re"),
+                 family = quasibinomial, data = mod.data2, method = "REML")
+summary(DO.GAMM.L) #unsignificative
+
 #Conductivity
 COND.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Cond.T, bs = "cs") + s(Lake, bs = "re"),
                   family = quasibinomial, data = mod.data2, method = "REML")
@@ -588,6 +629,11 @@ plot.COND <- plot(COND.GAMM, trans = plogis, residuals = TRUE,
                    select = 1)
 draw.COND <- draw(COND.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
 draw.COND
+
+#lake
+COND.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Cond.L, bs = "cr") + s(Lake, bs = "re"),
+                 family = quasibinomial, data = mod.data2, method = "REML")
+summary(COND.GAMM.L) #significative
 
 #Area:Perimeter
 AREAPERI.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Area_Perimeter, bs = "cs") + s(Lake, bs = "re"),
@@ -717,6 +763,11 @@ plot.CENT <- plot(CENT.GAMM, trans = plogis, residuals = TRUE,
 draw.CENT <- draw(CENT.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
 draw.CENT
 
+#lake
+CENT.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Centrarchids.L, bs = "cr") + s(Lake, bs = "re"),
+                 family = quasibinomial, data = mod.data2, method = "REML")
+summary(CENT.GAMM.L) #unsignificative
+
 #Species richness
 SP.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Species_richness.T, bs = "cs", k = 5) + s(Lake, bs = "re"),
                   family = quasibinomial, data = mod.data2, method = "REML")
@@ -732,6 +783,12 @@ plot.SP <- plot(SP.GAMM, trans = plogis, residuals = TRUE,
                    select = 1)
 draw.SP <- draw(SP.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
 draw.SP
+
+#lake
+SP.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Species_richness.L, bs = "cr", k = 4) + s(Lake, bs = "re"),
+                 family = quasibinomial, data = mod.data2, method = "REML")
+summary(SP.GAMM.L) #significative
+draw(SP.GAMM.L, residuals = TRUE)
 
 #Diversity
 DIVERS.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Diversity.T, bs = "cs") + s(Lake, bs = "re"),
@@ -749,131 +806,194 @@ plot.DIVERS <- plot(DIVERS.GAMM, trans = plogis, residuals = TRUE,
 draw.DIVERS <- draw(DIVERS.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
 draw.DIVERS
 
+#lake
+DIVERS.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Diversity.L, bs = "cr") + s(Lake, bs = "re"),
+                 family = quasibinomial, data = mod.data2, method = "REML")
+summary(DIVERS.GAMM.L) #unsignificative
+
 #All model plots
+#Setting colors for lakes
+color_pallete_function <- colorRampPalette(
+  colors = c("red", "orange", "blue", "green"),
+  space = "Lab")
+
+num_colors <- nlevels(mod.data2$Lake)
+lake_colors <- color_pallete_function(num_colors)
+
+#Plot grid
 pdf(paste0(to.figs, "GAM_plots.pdf"), width = 20, height = 15)
-par(mfrow = c(4, 6), mar = c(3,3,5.5,1))
-plot.gam(TNTP.GAMM3, trans = plogis, residuals = TRUE, 
+par(mfrow = c(4, 6), mar = c(2,2,2,1), xpd = TRUE)
+plot.gam(TNTP.GAMM3, trans = plogis,
                   shift = coef(TNTP.GAMM)[1], seWithMean = TRUE, 
                   pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
                   ylab = "Prevalence",
-                  select = 1, main = "TN:TP", col = "red")
+                  select = 1, main = "TN:TP", col = "red",  ylim = c(0,1))
+points(x = mod.data2$TN_TP.T, y = mod.data2$prev_fish, pch = 1, col = lake_colors[mod.data2$Lake])
 
-plot(TN.GAMM, trans = plogis, residuals = TRUE, 
+plot(TN.GAMM, trans = plogis,
                 shift = coef(TN.GAMM)[1], seWithMean = TRUE, 
                 pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-                select = 1, main = "TN")
+                select = 1, main = "TN", ylim = c(0,1))
+points(x = mod.data2$TN.T, y = mod.data2$prev_fish, pch = 1, col = lake_colors[mod.data2$Lake])
 
-plot(TP.GAMM, trans = plogis, residuals = TRUE, 
+plot(TP.GAMM, trans = plogis,
                 shift = coef(TP.GAMM)[1], seWithMean = TRUE, 
                 pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-                select = 1, main = "TP")
+                select = 1, main = "TP",  ylim = c(0,1))
+points(x = mod.data2$TP.T, y = mod.data2$prev_fish, pch = 1, col = lake_colors[mod.data2$Lake])
 
-plot(TOC.GAMM, trans = plogis, residuals = TRUE, 
+plot(TOC.GAMM, trans = plogis,
                  shift = coef(TOC.GAMM)[1], seWithMean = TRUE, 
                  pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-                 select  =1, main = "TOC")
+                 select  =1, main = "TOC", ylim = c(0,1))
+points(x = mod.data2$TOC.T, y = mod.data2$prev_fish, pch = 1, col = lake_colors[mod.data2$Lake])
 
-plot(SUB1.GAMM, trans = plogis, residuals = TRUE, 
+plot(SUB1.GAMM, trans = plogis,
                   shift = coef(SUB1.GAMM)[1], seWithMean = TRUE, 
                   pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-                  select = 1, main = "SUB1")
+                  select = 1, main = "SUB1",  ylim = c(0,1))
+points(x = mod.data2$Sub1, y = mod.data2$prev_fish, pch = 1, col = lake_colors[mod.data2$Lake])
 
-plot(SUB2.GAMM, trans = plogis, residuals = TRUE, 
+plot(SUB2.GAMM, trans = plogis,
                   shift = coef(SUB2.GAMM)[1], seWithMean = TRUE, 
                   pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-                  select = 1, main = "SUB2")
+                  select = 1, main = "SUB2",  ylim = c(0,1))
+points(x = mod.data2$Sub2, y = mod.data2$prev_fish, pch = 1, col = lake_colors[mod.data2$Lake])
 
-plot(MACRO.GAMM, trans = plogis, residuals = TRUE, 
+plot(MACRO.GAMM, trans = plogis,
                    shift = coef(MACRO.GAMM)[1], seWithMean = TRUE, 
                    pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
                    ylab = "Prevalence",
-                   select = 1, main = "MACROPHYTE", col = "red")
+                   select = 1, main = "MACROPHYTE", col = "red",  ylim = c(0,1))
+points(x = mod.data2$Macrophyte, y = mod.data2$prev_fish, pch = 1, col = lake_colors[mod.data2$Lake])
 
-plot(DEPTH.GAMM, trans = plogis, residuals = TRUE, 
+plot(DEPTH.GAMM, trans = plogis,
                    shift = coef(DEPTH.GAMM)[1], seWithMean = TRUE, 
                    pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-                   select = 1, main = "DEPTH")
+                   select = 1, main = "DEPTH",  ylim = c(0,1))
+points(x = mod.data2$Depth, y = mod.data2$prev_fish, pch = 1, col = lake_colors[mod.data2$Lake])
 
-plot(TRUNK.GAMM, trans = plogis, residuals = TRUE, 
+plot(TRUNK.GAMM, trans = plogis, 
                    shift = coef(TRUNK.GAMM)[1], seWithMean = TRUE, 
                    pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-                   select = 1, main = "TRUNK")
+                   select = 1, main = "TRUNK",  ylim = c(0,1))
+points(x = mod.data2$Trunk, y = mod.data2$prev_fish, pch = 1, col = lake_colors[mod.data2$Lake])
 
-plot(TEMP.GAMM, trans = plogis, residuals = TRUE, 
+plot(TEMP.GAMM, trans = plogis,
                   shift = coef(TEMP.GAMM)[1], seWithMean = TRUE, 
                   pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-                  select = 1, main = "TEMPERATURE", col = "red")
+                  select = 1, main = "TEMPERATURE", col = "red",  ylim = c(0,1))
+points(x = mod.data2$Temp.T, y = mod.data2$prev_fish, pch = 1, col = lake_colors[mod.data2$Lake])
 
-plot(TURB.GAMM, trans = plogis, residuals = TRUE, 
+plot(TURB.GAMM, trans = plogis, 
                   shift = coef(TURB.GAMM)[1], seWithMean = TRUE, 
                   pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-                  select = 1, main = "TURBIDITY", col = "red")
+                  select = 1, main = "TURBIDITY", col = "red",  ylim = c(0,1))
+points(x = mod.data2$Turb.T, y = mod.data2$prev_fish, pch = 1, col = lake_colors[mod.data2$Lake])
 
-plot(PH.GAMM, trans = plogis, residuals = TRUE, 
+plot(PH.GAMM, trans = plogis,
                 shift = coef(PH.GAMM)[1], seWithMean = TRUE, 
                 pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-                select = 1, main = "PH", col = "red")
+                select = 1, main = "PH", col = "red",  ylim = c(0,1))
+points(x = mod.data2$pH.T, y = mod.data2$prev_fish, pch = 1, col = lake_colors[mod.data2$Lake])
 
-plot(DO.GAMM, trans = plogis, residuals = TRUE, 
+plot(DO.GAMM, trans = plogis,
                 shift = coef(DO.GAMM)[1], seWithMean = TRUE, 
                 pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
                 ylab = "Prevalence", 
-                select = 1, main = "DO", col = "red")
+                select = 1, main = "DO", col = "red",  ylim = c(0,1))
+points(x = mod.data2$DO.T, y = mod.data2$prev_fish, pch = 1, col = lake_colors[mod.data2$Lake])
 
-plot(COND.GAMM, trans = plogis, residuals = TRUE, 
+plot(COND.GAMM, trans = plogis,
                   shift = coef(COND.GAMM)[1], seWithMean = TRUE, 
                   pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-                  select = 1, main = "CONDUCTIVITY", col = "red")
+                  select = 1, main = "CONDUCTIVITY", col = "red",  ylim = c(0,1))
+points(x = mod.data2$Cond.T, y = mod.data2$prev_fish, pch = 1, col = lake_colors[mod.data2$Lake])
 
-plot(AREAPERI.GAMM, trans = plogis, residuals = TRUE, 
+plot(AREAPERI.GAMM, trans = plogis,
                       shift = coef(AREAPERI.GAMM)[1], seWithMean = TRUE, 
                       pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-                      select = 1, main = "AREA:PERIMETER", col = "red")
+                      select = 1, main = "AREA:PERIMETER", col = "red",  ylim = c(0,1))
+points(x = mod.data2$Area_Perimeter, y = mod.data2$prev_fish, pch = 1, col = lake_colors[mod.data2$Lake])
 
-plot(AREA.GAMM, trans = plogis, residuals = TRUE, 
+plot(AREA.GAMM, trans = plogis,
                   shift = coef(AREA.GAMM)[1], seWithMean = TRUE, 
                   pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-                  select = 1, main = "AREA")
+                  select = 1, main = "AREA",  ylim = c(0,1))
+points(x = mod.data2$Lake_area, y = mod.data2$prev_fish, pch = 1, col = lake_colors[mod.data2$Lake])
 
-plot(PERI.GAMM, trans = plogis, residuals = TRUE, 
+plot(PERI.GAMM, trans = plogis,
                   shift = coef(PERI.GAMM)[1], seWithMean = TRUE, 
                   pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-                  select = 1, main = "PERIMETER", col = "red")
+                  select = 1, main = "PERIMETER", col = "red",  ylim = c(0,1))
+points(x = mod.data2$Perimeter, y = mod.data2$prev_fish, pch = 1, col = lake_colors[mod.data2$Lake])
 
-plot(MDEPTH.GAMM, trans = plogis, residuals = TRUE, 
+plot(MDEPTH.GAMM, trans = plogis,
                     shift = coef(MDEPTH.GAMM)[1], seWithMean = TRUE, 
                     pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-                    select = 1, main = "MEAN_DEPTH")
+                    select = 1, main = "MEAN_DEPTH",  ylim = c(0,1))
+points(x = mod.data2$Mean_depth, y = mod.data2$prev_fish, pch = 1, col = lake_colors[mod.data2$Lake])
 
-plot(WRT.GAMM, trans = plogis, residuals = TRUE, 
+plot(WRT.GAMM, trans = plogis,
                  shift = coef(WRT.GAMM)[1], seWithMean = TRUE, 
                  pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
                  ylab = "Prevalence",
-                 select = 1, main = "WTR")
+                 select = 1, main = "WTR",  ylim = c(0,1))
+points(x = mod.data2$WRT, y = mod.data2$prev_fish, pch = 1, col = lake_colors[mod.data2$Lake])
 
-plot(DRAIN.GAMM, trans = plogis, residuals = TRUE, 
+plot(DRAIN.GAMM, trans = plogis,
                    shift = coef(DRAIN.GAMM)[1], seWithMean = TRUE, 
                    pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-                   select = 1, main = "DRAINAGE_AREA")
+                   select = 1, main = "DRAINAGE_AREA",  ylim = c(0,1))
+points(x = mod.data2$Drainage_area, y = mod.data2$prev_fish, pch = 1, col = lake_colors[mod.data2$Lake])
 
-plot(ELEV.GAMM, trans = plogis, residuals = TRUE, 
+plot(ELEV.GAMM, trans = plogis,
                   shift = coef(ELEV.GAMM)[1], seWithMean = TRUE, 
                   pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-                  select = 1, main = "ELEVATION")
+                  select = 1, main = "ELEVATION",  ylim = c(0,1))
+points(x = mod.data2$Elevation, y = mod.data2$prev_fish, pch = 1, col = lake_colors[mod.data2$Lake])
 
-plot(CENT.GAMM, trans = plogis, residuals = TRUE, 
+plot(CENT.GAMM, trans = plogis,
                   shift = coef(CENT.GAMM)[1], seWithMean = TRUE, 
                   pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-                  select = 1, main = "CENTRARCHIDS")
+                  select = 1, main = "CENTRARCHIDS",  ylim = c(0,1))
+points(x = mod.data2$Centrarchids.T, y = mod.data2$prev_fish, pch = 1, col = lake_colors[mod.data2$Lake])
 
-plot(SP.GAMM, trans = plogis, residuals = TRUE, 
+plot(SP.GAMM, trans = plogis,
                 shift = coef(SP.GAMM)[1], seWithMean = TRUE, 
                 pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-                select = 1, main = "SP_RICHNESS")
+                select = 1, main = "SP_RICHNESS", ylim = c(0,1))
+points(x = mod.data2$Species_richness.T, y = mod.data2$prev_fish, pch = 1, col = lake_colors[mod.data2$Lake])
 
-plot(DIVERS.GAMM, trans = plogis, residuals = TRUE, 
+plot(DIVERS.GAMM, trans = plogis,
                     shift = coef(DIVERS.GAMM)[1], seWithMean = TRUE, 
                     pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-                    select = 1, main = "DIVERSITY", col = "red")
-mtext("Red = Significative; Black = Non Significative", side = 3, line = -2, cex = 0.5, col = "black", outer = TRUE)
+                    select = 1, main = "DIVERSITY", col = "red",  ylim = c(0,1))
+points(x = mod.data2$Diversity.T, y = mod.data2$prev_fish, pch = 1, col = lake_colors[mod.data2$Lake])
+#legend("topright",
+       #legend = levels(mod.data2$Lake),
+       #inset = c(5, 0),
+       #col = lake_colors,
+       #pch = 1,
+       #cex = .7)
+#mtext("Significative smooths are in red\n Non significative smooths are in black\n Colors represent different lakes", side = 3, line = -4, cex = 0.75, col = "black", outer = TRUE)
 dev.off()
+
+# ---- Lake scale GAMs ---- 
+#La plupart du temps, prendre les moyennes déperissent les modèles
+#pH, Cond et Species Richness sont signfificatif avec les données à l'échelle du lac
+
+#morpho
+lake.morpho.gam1 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Area_Perimeter, bs = "cr") + s(Mean_depth, bs = "cr") + s(Lake, bs = "re"), 
+                family = quasibinomial, data = mod.data2, method = "REML")
+summary(lake.morpho.gam1) #both significative
+
+#space
+lake.space.gam1 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Elevation, bs = "cr") + s(Drainage_area, bs = "cr") + s(Lake, bs = "re"), 
+                      family = quasibinomial, data = mod.data2, method = "REML")
+summary(lake.space.gam1)#nope
+
+lake.space.gam2 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Elevation, bs = "cr") + s(WRT, bs = "cr") + s(Lake, bs = "re"), 
+                       family = quasibinomial, data = mod.data2, method = "REML")
+summary(lake.space.gam2)#nope
+       
