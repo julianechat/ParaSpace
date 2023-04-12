@@ -15,11 +15,10 @@ library(vegan)
 library(ggplot2)
 library(cowplot)
 library(patchwork)
-library(tools)
+library(gratia)
 
 source(paste0(to.R, "rquery.cormat.R"))
-source(paste0(to.R, "gratia/R/utililties.R"))
-source(paste0(to.R, "gratia/R/diagnose.R"))
+source(paste0(to.R, "glmm_funs.R"))
 
 ## Loading data ----
 
@@ -378,8 +377,6 @@ library(MASS)
 library(aod)
 library(mgcv)
 library(gamlss)
-library(gratia)
-library(gamlss)
 
 ### Linear models ###
 #Binomial glm
@@ -564,6 +561,7 @@ summary(test4.gam)
 #REML bcp plus petit (mieux) que test3.gam
 plot(test4.gam)
 gam.check(test4.gam) #Interprétation ?
+
 check_overdispersion(test4.gam) #Améliore un peu la sudispersion...
 appraise(test4.gam, method = "simulate")
 
@@ -601,7 +599,7 @@ summary(test3.gamm)
 appraise(test3.gamm, method = "simulate")
 
 #Quasibinomial gamm (random effect = lake)
-test4.gamm <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ cs(TN_TP.T) + cs(TOC.T), random = ~Lake, family = quasibinomial, data = mod.data, method = "REML")
+test4.gamm <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN_TP.T, bs = "cr") + s(TOC.T, bs = "cr"), random = ~Lake, family = quasibinomial, data = mod.data2, method = "REML")
 summary(test4.gamm)
 #TOC significatif
 #Adj. R-sq. = 0.302
@@ -626,3 +624,81 @@ summary(test6.gamm)
 #Deviance explained =29.8%
 #Significatif
 appraise(test6.gamm, method = "simulate")
+
+
+### Unique var gamm ###
+TNTP.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN_TP.T, bs = "cr"), random = ~Lake, family = binomial, data = mod.data, method = "REML")
+summary(TNTP.GAMM)
+k.check(TNTP.GAMM) #smaller the better
+TNTP.GAMM$scale #sould be 1
+plot.TNTP <- draw(TNTP.GAMM)
+
+TOC.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TOC.T, bs = "cr"), random = ~Lake, family = binomial, data = mod.data, method = "REML")
+summary(TOC.GAMM)
+plot.TOC <- draw(TOC.GAMM)
+
+SUB1.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Sub1, bs = "cr"), random = ~Lake, family = binomial, data = mod.data, method = "REML")
+summary(SUB1.GAMM)
+plot.SUB1 <- draw(SUB1.GAMM)
+
+SUB2.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Sub2, bs = "cr"), random = ~Lake, family = binomial, data = mod.data, method = "REML")
+summary(SUB2.GAMM)
+plot.SUB2 <- draw(SUB2.GAMM)
+
+MACRO.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Macrophyte, bs = "cr"), random = ~Lake, family = binomial, data = mod.data, method = "REML")
+summary(MACRO.GAMM)
+plot.MACRO <- draw(MACRO.GAMM)
+
+DEPTH.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Depth, bs = "cr"), random = ~Lake, family = binomial, data = mod.data, method = "REML")
+summary(DEPTH.GAMM)
+plot.DEPTH <- draw(DEPTH.GAMM)
+
+TRUNK.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Trunk, bs = "cr"), random = ~Lake, family = binomial, data = mod.data, method = "REML")
+summary(TRUNK.GAMM)
+plot.TRUNK <- draw(TRUNK.GAMM)
+
+TEMP.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Temp.T, bs = "cr"), random = ~Lake, family = binomial, data = mod.data, method = "REML")
+summary(TEMP.GAMM)
+plot.TEMP <- draw(TEMP.GAMM)
+
+TURB.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Turb.T, bs = "cr"), random = ~Lake, family = binomial, data = mod.data, method = "REML")
+summary(TURB.GAMM)
+plot.TURB <- draw(TURB.GAMM)
+
+PH.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(pH.T, bs = "cr"), random = ~Lake, family = binomial, data = mod.data, method = "REML")
+summary(PH.GAMM)
+plot.PH <- draw(PH.GAMM)
+
+AREAPER.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Area_Perimeter, bs = "cr"), random = ~Lake, family = binomial, data = mod.data, method = "REML")
+summary(AREAPER.GAMM)
+plot.AREAPER <- draw(AREAPER.GAMM)
+
+MDEPTH.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Mean_depth, bs = "cr"), random = ~Lake, family = binomial, data = mod.data, method = "REML")
+summary(MDEPTH.GAMM)
+plot.MDEPTH <- draw(MDEPTH.GAMM)
+
+WRT.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(WRT, bs = "cr"), random = ~Lake, family = binomial, data = mod.data, method = "REML")
+summary(WRT.GAMM)
+plot.WRT <- draw(WRT.GAMM)
+
+DRAIN.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Drainage_area, bs = "cr"), random = ~Lake, family = binomial, data = mod.data, method = "REML")
+summary(DRAIN.GAMM)
+plot.DRAIN <-draw(DRAIN.GAMM)
+ 
+ELEV.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Elevation, bs = "cr"), random = ~Lake, family = binomial, data = mod.data, method = "REML")
+summary(ELEV.GAMM)
+plot.ELEV <- draw(ELEV.GAMM)
+
+CENT.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Centrarchids.T, bs = "cr"), random = ~Lake, family = binomial, data = mod.data, method = "REML")
+summary(CENT.GAMM)
+plot.CENT <- draw(CENT.GAMM)
+
+SP.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Species_richness.T, bs = "cr", k = 5), random = ~Lake, family = binomial, data = mod.data, method = "REML")
+summary(SP.GAMM)
+plot.SP <- draw(SP.GAMM)
+
+DIVER.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Diversity.T, bs = "cr"), random = ~Lake, family = binomial, data = mod.data, method = "REML")
+summary(DIVER.GAMM)
+plot.DIVER <- draw(DIVER.GAMM)
+
+plot.SP + plot.CENT + plot.DIVER + plot_layout(ncol = 2, nrow = 2)

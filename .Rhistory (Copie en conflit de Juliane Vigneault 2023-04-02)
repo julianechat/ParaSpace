@@ -1,0 +1,512 @@
+plot.SP <- draw(SP.GAMM)
+plot.SP
+plot.DIVERS <- draw(DIVER.GAMM) + geom_point()
+plot.DIVERS
+plot.DIVERS <- draw(DIVER.GAMM) + geom_point(aes(x= Diversity.T, y = prev_fish), data = mod.data)
+plot.DIVERS
+fitted_values(DIVERS.GAMM)
+fv <- fitted_values(DIVERS.GAMM, data = mod.data, scale = "response")
+ggplot(fv, aes(x = Diversity.T, y = fitted)) +
+geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.2) +
+geom_line(data = south, aes(c.month, co2), col = 'red') +
+geom_line(alpha = 0.4)
+ggplot(fv, aes(x = Diversity.T, y = fitted)) +
+geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.2) +
+geom_line(data = mod.data, aes(Diversity.T, prev_fish), col = 'red') +
+geom_line(alpha = 0.4)
+ggplot(fv, aes(x = Diversity.T, y = fitted)) +
+geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.2) +
+geom_line(data = mod.data, aes(Diversity.T, prev_fish), col = 'red') +
+geom_line(alpha = 0.4) +
+geom_point(aes(Diversity.T, prev_fish), data = mod.data)
+ggplot(fv, aes(x = Diversity.T, y = fitted)) +
+geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.2) +
+geom_smooth(data = mod.data, aes(Diversity.T, prev_fish), col = 'red') +
+geom_line(alpha = 0.4) +
+geom_point(aes(Diversity.T, prev_fish), data = mod.data)
+ggplot(fv, aes(x = Diversity.T, y = fitted)) +
+geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.2) +
+geom_smooth(data = mod.data, aes(Diversity.T, prev_fish), col = 'red') +
+geom_smooth(alpha = 0.4) +
+geom_point(aes(Diversity.T, prev_fish), data = mod.data)
+fv <- fitted_values(DIVERS.GAMM, data = mod.data2, scale = "response")
+ggplot(fv, aes(x = Diversity.T, y = fitted)) +
+geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.2) +
+geom_smooth(data = mod.data, aes(Diversity.T, prev_fish), col = 'red') +
+geom_smooth(alpha = 0.4) +
+geom_point(aes(Diversity.T, prev_fish), data = mod.data)
+fv <- fitted_values(DIVERS.GAMM, data = mod.data, scale = "response")
+ggplot(fv, aes(x = Diversity.T, y = fitted)) +
+geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.2) +
+geom_smooth(data = mod.data, aes(Diversity.T, prev_fish), col = 'red') +
+geom_smooth(alpha = 0.4) +
+geom_point(aes(Diversity.T, prev_fish), data = mod.data)
+ggplot(fv, aes(x = Diversity.T, y = fitted))
+ggplot(fv, aes(x = Diversity.T, y = fitted)) +
+geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.2)
+plot.DIVERS
+plot.DIVERS <- draw(DIVER.GAMM)
+plot.DIVERS
+ggplot(fv, aes(x = Diversity.T, y = fitted)) +
+geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.2) +
+geom_smooth(alpha = 0.4)
+ggplot(fv, aes(x = Diversity.T, y = fitted)) +
+geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.2) +
+geom_line(alpha = 0.4)
+ggplot(fv, aes(x = Diversity.T, y = fitted)) +
+geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.2) +
+geom_line(alpha = 0.4) +
+geom_point(aes(Diversity.T, prev_fish), data = mod.data)
+plot.DIVERS <- draw(DIVER.GAMM)
+plot.DIVERS
+plot.DIVERS <- draw(DIVER.GAMM, rug = TRUE)
+plot.DIVERS
+plot.DIVERS <- draw(DIVER.GAMM, residuals = TRUE)
+plot.DIVERS
+plot.DIVERS <- draw(DIVER.GAMM, unconditional =  = TRUE)
+plot.DIVERS <- draw(DIVER.GAMM, unconditional = TRUE)
+plot.DIVERS
+plot.DIVERS <- draw(DIVER.GAMM, unconditional = FALSE)
+plot.DIVERS
+plot.DIVERS <- draw(DIVER.GAMM)
+install.packages("gamm4")
+library(gamm4)
+DIVERS.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Diversity.T, bs = "cr"), random = ~Lake, family = binomial, data = mod.data, method = "REML")
+summary(DIVER.GAMM)
+DIVERS.GAMM <- gamm(cbind(inf_fish, tot_fish - inf_fish) ~ s(Diversity.T, bs = "cr"), random = ~Lake, family = binomial, data = mod.data, method = "REML")
+DIVERS.GAMM <- gamm4(cbind(inf_fish, tot_fish - inf_fish) ~ s(Diversity.T, bs = "cr"), random = ~Lake, family = binomial, data = mod.data, method = "REML")
+summary(DIVER.GAMM)
+DIVERS.GAMM <- gamm4(cbind(inf_fish, tot_fish - inf_fish) ~ s(Diversity.T, bs = "cr") + s(Lake, bs = "re"), family = binomial, data = mod.data, method = "REML")
+DIVERS.GAMM <- gamm4(cbind(inf_fish, tot_fish - inf_fish) ~ s(Diversity.T, bs = "cr"), random = (1|Lake), family = binomial, data = mod.data, method = "REML")
+DIVERS.GAMM <- gamm4(cbind(inf_fish, tot_fish - inf_fish) ~ s(Diversity.T, bs = "cr"), random = ~(1|Lake), family = binomial, data = mod.data, method = "REML")
+DIVERS.GAMM <- gamm4(cbind(inf_fish, tot_fish - inf_fish) ~ s(Diversity.T, bs = "cr"), random = ~(1|Lake), family = binomial, data = mod.data)
+summary(DIVER.GAMM)
+summary(DIVERS.GAMM)
+DIVERS.GAMM <- gamm4(cbind(inf_fish, tot_fish - inf_fish) ~ s(Diversity.T, bs = "cr"), random = ~(1|Lake), family = binomial, data = mod.data)
+summary(DIVERS.GAMM)
+plot.(DIVERS.GAMM$gam)
+plot(DIVERS.GAMM$gam)
+plot.DIVERS <- draw(DIVER.GAMM)
+plot.DIVERS
+plot.DIVERS <- draw(DIVERS.GAMM)
+DIVERS.GAMM <- gamm4(cbind(inf_fish, tot_fish - inf_fish) ~ s(Diversity.T, bs = "cr"), random = ~(1|Lake), family = binomial, data = mod.data)
+plot.DIVERS <- draw(DIVERS.GAMM)
+plot.DIVERS <- draw(DIVERS.GAMM$gam)
+plot.DIVERS
+### Unique var gamm ###
+TNTP.GAMM <- gamm4(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN_TP.T, bs = "cr"), random = ~(1|Lake), family = binomial, data = mod.data, method = "REML")
+summary(TNTP.GAMM)
+plot.TNTP <- draw(TNTP.GAMM$gam)
+plot.TNTP
+k.check(TNTP.GAMM) #smaller the better
+TNTP.GAMM$scale #sould be 1
+plot.TNTP <- draw(TNTP.GAMM)
+plot.TNTP <- draw(TNTP.GAMM$mer)
+plot.TNTP <- draw(TNTP.GAMM$gam)
+TN.GAMM <- gamm4(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN.T, bs = "cr"), random = ~(1|Lake), family = binomial, data = mod.data, method = "REML")
+summary(TN.GAMM)
+plot.TN <- draw(TN.GAMM$gam)
+plot.TN
+TP.GAMM <- gamm4(cbind(inf_fish, tot_fish - inf_fish) ~ s(TP.T, bs = "cr"), random = ~(1|Lake), family = binomial, data = mod.data, method = "REML")
+summary(TP.GAMM)
+plot.TP <- draw(TP.GAMM)
+plot.TP <- draw(TP.GAMM$gam)
+TOC.GAMM <- gamm4(cbind(inf_fish, tot_fish - inf_fish) ~ s(TOC.T, bs = "cr"), random = ~(1|Lake), family = binomial, data = mod.data, method = "REML")
+summary(TOC.GAMM)
+plot.TOC <- draw(TOC.GAMM$gam)
+SUB1.GAMM <- gamm4(cbind(inf_fish, tot_fish - inf_fish) ~ s(Sub1, bs = "cr"), random = ~(1|Lake), family = binomial, data = mod.data, method = "REML")
+summary(SUB1.GAMM)
+plot.SUB1 <- draw(SUB1.GAMM$gam)
+plot.SUB2 <- draw(SUB2.GAMM$gam)
+SUB2.GAMM <- gamm4(cbind(inf_fish, tot_fish - inf_fish) ~ s(Sub2, bs = "cr"), random = ~(1|Lake), family = binomial, data = mod.data, method = "REML")
+summary(SUB2.GAMM)
+plot.SUB2 <- draw(SUB2.GAMM$gam)
+AREAPER.GAMM <- gamm4(cbind(inf_fish, tot_fish - inf_fish) ~ s(Area_Perimeter, bs = "cr"), random = ~(1|Lake), family = binomial, data = mod.data, method = "REML")
+plot.AREAPER <- draw(AREAPER.GAMM$gam)
+plot.AREAPER
+plot.AREAPER <- draw(AREAPER.GAMM$gam, residuals = TRUE)
+plot.AREAPER
+plot.CENT <- draw(CENT.GAMM$gam, residuals = TRUE)
+CENT.GAMM <- gamm4(cbind(inf_fish, tot_fish - inf_fish) ~ s(Centrarchids.T, bs = "cr"), random = ~(1|Lake), family = binomial, data = mod.data, method = "REML")
+summary(CENT.GAMM)
+plot.CENT <- draw(CENT.GAMM$gam, residuals = TRUE)
+plot.CENT
+plot.CENT <- draw(CENT.GAMM$gam)
+plot.CENT
+SP.GAMM <- gamm4(cbind(inf_fish, tot_fish - inf_fish) ~ s(Species_richness.T, bs = "cr", k = 6), random = ~(1|Lake), family = binomial, data = mod.data, method = "REML")
+summary(SP.GAMM)
+plot.SP <- draw(SP.GAMM$gam, residuals = TRUE)
+DIVERS.GAMM <- gamm4(cbind(inf_fish, tot_fish - inf_fish) ~ s(Diversity.T, bs = "cr"), random = ~(1|Lake), family = binomial, data = mod.data, method = "REML")
+summary(DIVERS.GAMM)
+plot(DIVERS.GAMM$gam)
+plot.DIVERS <- draw(DIVERS.GAMM$gam, residuals = TRUE)
+plot.DIVERS
+fv <- fitted_values(DIVERS.GAMM, data = mod.data, scale = "response")
+ggplot(fv, aes(x = Diversity.T, y = fitted)) +
+geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.2) +
+geom_line(alpha = 0.4) +
+geom_point(aes(Diversity.T, prev_fish), data = mod.data)
+summary(TNTP.GAMM$mer)
+summary(TNTP.GAMM$gam)
+summary(TNTP.GAMM$mer)
+k.check(TNTP.GAMM) #smaller the better
+k.check(TNTP.GAMM$gam) #smaller the better
+TNTP.GAMM$gam$scale #sould be 1
+(TNTP.GAMM$gam)$scale #sould be 1
+summary(TNTP.GAMM$gam)
+TNTP.GAMM <- gamm4(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN_TP.T, bs = "cr"), random = ~(1|Lake), family = binomial, data = mod.data, method = "REML")
+summary(TNTP.GAMM$mer)
+summary(TNTP.GAMM$gam)
+k.check(TNTP.GAMM$gam) #smaller the better
+plot.TNTP <- draw(TNTP.GAMM$gam, residuals = TRUE)
+TN.GAMM <- gamm4(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN.T, bs = "cr"), random = ~(1|Lake), family = binomial, data = mod.data, method = "REML")
+summary(TN.GAMM$mer)
+summary(TN.GAMM$gam)
+plot.TN <- draw(TN.GAMM$gam, residuals = TRUE)
+TP.GAMM <- gamm4(cbind(inf_fish, tot_fish - inf_fish) ~ s(TP.T, bs = "cr"), random = ~(1|Lake), family = binomial, data = mod.data, method = "REML")
+summary(TP.GAMM$mer)
+summary(TP.GAMM$gam)
+plot.TP <- draw(TP.GAMM$gam, residuals = TRUE)
+TOC.GAMM <- gamm4(cbind(inf_fish, tot_fish - inf_fish) ~ s(TOC.T, bs = "cr"), random = ~(1|Lake), family = binomial, data = mod.data, method = "REML")
+summary(TOC.GAMM$mer)
+summary(TOC.GAMM$gam)
+plot.TOC <- draw(TOC.GAMM$gam, residuals = TRUE)
+SUB1.GAMM <- gamm4(cbind(inf_fish, tot_fish - inf_fish) ~ s(Sub1, bs = "cr"), random = ~(1|Lake), family = binomial, data = mod.data, method = "REML")
+summary(SUB1.GAMM$mer)
+summary(SUB1.GAMM$gam)
+plot.SUB1 <- draw(SUB1.GAMM$gam, residuals = TRUE)
+SUB2.GAMM <- gamm4(cbind(inf_fish, tot_fish - inf_fish) ~ s(Sub2, bs = "cr"), random = ~(1|Lake), family = binomial, data = mod.data, method = "REML")
+summary(SUB2.GAMM$mer)
+summary(SUB2.GAMM$gam)
+plot.SUB2 <- draw(SUB2.GAMM$gam, residuals = TRUE)
+MACRO.GAMM <- gamm4(cbind(inf_fish, tot_fish - inf_fish) ~ s(Macrophyte, bs = "cr"), random = ~(1|Lake), family = binomial, data = mod.data, method = "REML")
+summary(MACRO.GAMM$mer)
+summary(MACRO.GAMM$gam)
+plot.MACRO <- draw(MACRO.GAMM$gam, residuals = TRUE)
+DEPTH.GAMM <- gamm4(cbind(inf_fish, tot_fish - inf_fish) ~ s(Depth, bs = "cr"), random = ~(1|Lake), family = binomial, data = mod.data, method = "REML")
+summary(DEPTH.GAMM$mer)
+summary(DEPTH.GAMM$gam)
+plot.DEPTH <- draw(DEPTH.GAMM$gam, residuals = TRUE)
+TRUNK.GAMM <- gamm4(cbind(inf_fish, tot_fish - inf_fish) ~ s(Trunk, bs = "cr"), random = ~(1|Lake), family = binomial, data = mod.data, method = "REML")
+summary(TRUNK.GAMM$mer)
+summary(TRUNK.GAMM$gam)
+plot.TRUNK <- draw(TRUNK.GAMM$gam, residuals = TRUE)
+TEMP.GAMM <- gamm4(cbind(inf_fish, tot_fish - inf_fish) ~ s(Temp.T, bs = "cr"), random = ~(1|Lake), family = binomial, data = mod.data, method = "REML")
+summary(TEMP.GAMM$mer)
+summary(TEMP.GAMM$gam)
+plot.TEMP <- draw(TEMP.GAMM$gam, residuals = TRUE)
+TURB.GAMM <- gamm4(cbind(inf_fish, tot_fish - inf_fish) ~ s(Turb.T, bs = "cr"), random = ~(1|Lake), family = binomial, data = mod.data, method = "REML")
+summary(TURB.GAMM$mer)
+summary(TURB.GAMM$gam)
+plot.TURB <- draw(TURB.GAMM$gam, residuals = TRUE)
+summary(PH.GAMM$mer)
+PH.GAMM <- gamm4(cbind(inf_fish, tot_fish - inf_fish) ~ s(pH.T, bs = "cr"), random = ~(1|Lake), family = binomial, data = mod.data, method = "REML")
+summary(PH.GAMM$mer)
+summary(PH.GAMM$gam)
+plot.PH <- draw(PH.GAMM$gam, residuals = TRUE)
+COND.GAMM <- gamm4(cbind(inf_fish, tot_fish - inf_fish) ~ s(Cond.T, bs = "cr"), random = ~(1|Lake), family = binomial, data = mod.data, method = "REML")
+summary(COND.GAMM$mer)
+summary(COND.GAMM$gam)
+plot.COND <- draw(COND.GAMM$gam, residuals = TRUE)
+plot.COND
+AREAPER.GAMM <- gamm4(cbind(inf_fish, tot_fish - inf_fish) ~ s(Area_Perimeter, bs = "cr"), random = ~(1|Lake), family = binomial, data = mod.data, method = "REML")
+summary(AREAPER.GAMM$mer)
+summary(AREAPER.GAMM$gam)
+plot.AREAPER <- draw(AREAPER.GAMM$gam, residuals = TRUE)
+AREA.GAMM <- gamm4(cbind(inf_fish, tot_fish - inf_fish) ~ s(Lake_area, bs = "cr"), random = ~(1|Lake), family = binomial, data = mod.data, method = "REML")
+summary(AREA.GAMM$mer)
+summary(AREA.GAMM$gam)
+plot.AREA <- draw(AREA.GAMM$gam, residuals = TRUE)
+PERI.GAMM <- gamm4(cbind(inf_fish, tot_fish - inf_fish) ~ s(Perimeter, bs = "cr"), random = ~(1|Lake), family = binomial, data = mod.data, method = "REML")
+summary(PERI.GAMM$mer)
+summary(PERI.GAMM$gam)
+plot.PERI <- draw(PERI.GAMM$gam, residuals = TRUE)
+MDEPTH.GAMM <- gamm4(cbind(inf_fish, tot_fish - inf_fish) ~ s(Mean_depth, bs = "cr"), random = ~(1|Lake), family = binomial, data = mod.data, method = "REML")
+summary(MDEPTH.GAMM$mer)
+summary(MDEPTH.GAMM$gam)
+plot.MDEPTH <- draw(MDEPTH.GAMM$gam, residuals = TRUE)
+WRT.GAMM <- gamm4(cbind(inf_fish, tot_fish - inf_fish) ~ s(WRT, bs = "cr"), random = ~(1|Lake), family = binomial, data = mod.data, method = "REML")
+summary(WRT.GAMM$mer)
+summary(WRT.GAMM$gam)
+plot.WRT <- draw(WRT.GAMM$gam, residuals -= TRUE)
+WRT.GAMM <- gamm4(cbind(inf_fish, tot_fish - inf_fish) ~ s(WRT, bs = "cr"), random = ~(1|Lake), family = binomial, data = mod.data, method = "REML")
+summary(WRT.GAMM$mer)
+summary(WRT.GAMM$gam)
+plot.WRT <- draw(WRT.GAMM$gam, residuals = TRUE)
+DRAIN.GAMM <- gamm4(cbind(inf_fish, tot_fish - inf_fish) ~ s(Drainage_area, bs = "cr"), random = ~(1|Lake), family = binomial, data = mod.data, method = "REML")
+summary(DRAIN.GAMM$mer)
+summary(DRAIN.GAMM$gam)
+plot.DRAIN <-draw(DRAIN.GAMM$gam, residuals = TRUE)
+ELEV.GAMM <- gamm4(cbind(inf_fish, tot_fish - inf_fish) ~ s(Elevation, bs = "cr"), random = ~(1|Lake), family = binomial, data = mod.data, method = "REML")
+summary(ELEV.GAMM$mer)
+summary(ELEV.GAMM$gam)
+plot.ELEV <- draw(ELEV.GAMM$gam, residuals = TRUE)
+CENT.GAMM <- gamm4(cbind(inf_fish, tot_fish - inf_fish) ~ s(Centrarchids.T, bs = "cr"), random = ~(1|Lake), family = binomial, data = mod.data, method = "REML")
+summary(CENT.GAMM$mer)
+summary(CENT.GAMM$gam)
+plot.CENT <- draw(CENT.GAMM$gam, residuals = TRUE)
+SP.GAMM <- gamm4(cbind(inf_fish, tot_fish - inf_fish) ~ s(Species_richness.T, bs = "cr", k = 6), random = ~(1|Lake), family = binomial, data = mod.data, method = "REML")
+summary(SP.GAMM$mer)
+summary(SP.GAMM$gam)
+plot.SP <- draw(SP.GAMM$gam, residuals = TRUE)
+DIVERS.GAMM <- gamm4(cbind(inf_fish, tot_fish - inf_fish) ~ s(Diversity.T, bs = "cr"), random = ~(1|Lake), family = binomial, data = mod.data, method = "REML")
+summary(DIVERS.GAMM$mer)
+summary(DIVERS.GAMM$gam)
+plot.DIVERS <- draw(DIVERS.GAMM$gam, residuals = TRUE)
+gamm.wrap <- plot.TN + plot.TP + plot.TNTP + plot.TOC +
+plot.TEMP + plot.TURB + plot.PH + plot.DO + plot.COND +
+plot.WRT + plot.ELEV + plot.DRAIN +
+plot.PERI + plot.AREA +  plot.AREAPER + plot.MDEPTH +
+plot.TRUNK + plot.SUB1 + plot.SUB2 + plot.MACRO + plot.DEPTH +
+plot.SP + plot.CENT + plot.DIVERS + plot_layout(ncol = 4, nrow = 6)
+ggsave(paste0(to.figs, "GAMM_wrap.png"), plot = gamm.wrap, dpi = 500, width = 20, height = 10)
+ggsave(paste0(to.figs, "GAMM_residuals_wrap.png"), plot = gamm.resids_wrap, dpi = 500, width = 20, height = 10)
+gamm.resids_wrap <- plot.TN + plot.TP + plot.TNTP + plot.TOC +
+plot.TEMP + plot.TURB + plot.PH + plot.DO + plot.COND +
+plot.WRT + plot.ELEV + plot.DRAIN +
+plot.PERI + plot.AREA +  plot.AREAPER + plot.MDEPTH +
+plot.TRUNK + plot.SUB1 + plot.SUB2 + plot.MACRO + plot.DEPTH +
+plot.SP + plot.CENT + plot.DIVERS + plot_layout(ncol = 4, nrow = 6)
+ggsave(paste0(to.figs, "GAMM_residuals_wrap.png"), plot = gamm.resids_wrap, dpi = 500, width = 20, height = 10)
+plot.TNTP <- draw(TNTP.GAMM$gam)
+plot.TN <- draw(TN.GAMM$gam)
+plot.TP <- draw(TP.GAMM$gam)
+plot.TOC <- draw(TOC.GAMM$gam)
+plot.SUB1 <- draw(SUB1.GAMM$gam)
+plot.SUB2 <- draw(SUB2.GAMM$gam)
+plot.MACRO <- draw(MACRO.GAMM$gam)
+plot.DEPTH <- draw(DEPTH.GAMM$gam)
+plot.TRUNK <- draw(TRUNK.GAMM$gam)
+plot.TEMP <- draw(TEMP.GAMM$gam)
+plot.TURB <- draw(TURB.GAMM$gam)
+plot.PH <- draw(PH.GAMM$gam)
+plot.DO <- draw(DO.GAMM$gam)
+DO.GAMM <- gamm4(cbind(inf_fish, tot_fish - inf_fish) ~ s(DO.T, bs = "cr"), random = ~(1|Lake), family = binomial, data = mod.data, method = "REML")
+summary(DO.GAMM$mer)
+summary(DO.GAMM$gam)
+plot.DO <- draw(DO.GAMM$gam, residuals = TRUE)
+plot.DO <- draw(DO.GAMM$gam)
+plot.TNTP <- draw(TNTP.GAMM$gam)
+plot.TN <- draw(TN.GAMM$gam)
+plot.TP <- draw(TP.GAMM$gam)
+plot.TOC <- draw(TOC.GAMM$gam)
+plot.SUB1 <- draw(SUB1.GAMM$gam)
+plot.SUB2 <- draw(SUB2.GAMM$gam)
+plot.MACRO <- draw(MACRO.GAMM$gam)
+plot.DEPTH <- draw(DEPTH.GAMM$gam)
+plot.TRUNK <- draw(TRUNK.GAMM$gam)
+plot.TEMP <- draw(TEMP.GAMM$gam)
+plot.TURB <- draw(TURB.GAMM$gam)
+plot.PH <- draw(PH.GAMM$gam)
+plot.DO <- draw(DO.GAMM$gam)
+plot.COND <- draw(COND.GAMM$gam)
+plot.AREAPER <- draw(AREAPER.GAMM)
+plot.TNTP <- draw(TNTP.GAMM$gam)
+plot.TN <- draw(TN.GAMM$gam)
+plot.TP <- draw(TP.GAMM$gam)
+plot.TOC <- draw(TOC.GAMM$gam)
+plot.SUB1 <- draw(SUB1.GAMM$gam)
+plot.SUB2 <- draw(SUB2.GAMM$gam)
+plot.MACRO <- draw(MACRO.GAMM$gam)
+plot.DEPTH <- draw(DEPTH.GAMM$gam)
+plot.TRUNK <- draw(TRUNK.GAMM$gam)
+plot.TEMP <- draw(TEMP.GAMM$gam)
+plot.TURB <- draw(TURB.GAMM$gam)
+plot.PH <- draw(PH.GAMM$gam)
+plot.DO <- draw(DO.GAMM$gam)
+plot.COND <- draw(COND.GAMM$gam)
+plot.AREAPER <- draw(AREAPER.GAMM$gam)
+plot.AREA <- draw(AREA.GAMM$gam)
+plot.PERI <- draw(PERI.GAMM$gam)
+plot.MDEPTH <- draw(MDEPTH.GAMM$gam)
+plot.WRT <- draw(WRT.GAMM$gam)
+plot.DRAIN <-draw(DRAIN.GAMM$gam)
+plot.ELEV <- draw(ELEV.GAMM$gam)
+plot.CENT <- draw(CENT.GAMM$gam)
+plot.SP <- draw(SP.GAMM$gam)
+plot.DIVERS <- draw(DIVERS.GAMM$gam)
+gamm_wrap <- plot.TN + plot.TP + plot.TNTP + plot.TOC +
+plot.TEMP + plot.TURB + plot.PH + plot.DO + plot.COND +
+plot.WRT + plot.ELEV + plot.DRAIN +
+plot.PERI + plot.AREA +  plot.AREAPER + plot.MDEPTH +
+plot.TRUNK + plot.SUB1 + plot.SUB2 + plot.MACRO + plot.DEPTH +
+plot.SP + plot.CENT + plot.DIVERS + plot_layout(ncol = 4, nrow = 6)
+ggsave(paste0(to.figs, "GAMM_wrap.png"), plot = gamm_wrap, dpi = 500, width = 20, height = 10)
+fv <- fitted_values(DIVERS.GAMM, data = mod.data, scale = "response")
+#
+fv <- fitted_values(DIVERS.GAMM$gam, data = mod.data, scale = "response")
+ggplot(fv, aes(x = Diversity.T, y = fitted)) +
+geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.2) +
+geom_line(alpha = 0.4) +
+geom_point(aes(Diversity.T, prev_fish), data = mod.data)
+fv <- fitted_values(DIVERS.GAMM$gam, data = mod.data, scale = "response")
+ggplot(fv, aes(x = Diversity.T, y = fitted)) +
+geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.2) +
+geom_smooth(alpha = 0.4) +
+geom_point(aes(Diversity.T, prev_fish), data = mod.data)
+ggplot(fv, aes(x = Diversity.T, y = fitted)) +
+geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.2) +
+geom_smooth(alpha = 0.4, formula = DIVERS.GAMM) +
+geom_point(aes(Diversity.T, prev_fish), data = mod.data)
+ggplot(fv, aes(x = Diversity.T, y = fitted)) +
+geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.2) +
+geom_line(alpha = 0.4, formula = DIVERS.GAMM) +
+geom_point(aes(Diversity.T, prev_fish), data = mod.data)
+gam.check(TNTP.GAMM$gam)
+gam.check(TNTP.GAMM)
+gam.check(TNTP.GAMM$gam)
+### Unique var gamm ###
+TNTP.GAMM <- gamm4(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN_TP.T, bs = "cr", k = 10), random = ~(1|Lake), family = binomial, data = mod.data, method = "REML")
+gam.check(TNTP.GAMM$gam) #suggest that k is too low.
+### Unique var gamm ###
+TNTP.GAMM <- gamm4(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN_TP.T, bs = "cr", k = 100), random = ~(1|Lake), family = binomial, data = mod.data, method = "REML")
+### Unique var gamm ###
+TNTP.GAMM <- gamm4(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN_TP.T, bs = "cr", k = 50), random = ~(1|Lake), family = binomial, data = mod.data, method = "REML")
+### Unique var gamm ###
+TNTP.GAMM <- gamm4(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN_TP.T, bs = "cr", k = 20), random = ~(1|Lake), family = binomial, data = mod.data, method = "REML")
+gam.check(TNTP.GAMM$gam) #suggest that k is too low.
+### Unique var gamm ###
+TNTP.GAMM <- gamm4(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN_TP.T, bs = "cr", k = 6), random = ~(1|Lake), family = binomial, data = mod.data, method = "REML")
+gam.check(TNTP.GAMM$gam) #suggest that k is too low.
+k.check(TNTP.GAMM$gam) #smaller the better
+zk.check(TNTP.GAMM$gam) #smaller the betterz
+k.check(TNTP.GAMM$gam) #smaller the betterz
+gam.check(TNTP.GAMM$gam) #suggest that k is too low...
+res <- resid(TNTP.GAMM, type = "deviance")
+res_model <- gam(res ~ s(TN_TP.T, bs = "cr", k = 10),
+method = "REML",
+family = quasi(link = "identity", variance = "constant"))
+res_model <- gam(res ~ s(TN_TP.T, bs = "cr", k = 10),
+method = "REML",
+family = quasi(link = "identity", variance = "constant"),
+data = mod.data)
+res
+appraise(TNTP.GAMM)
+res <- resid(TNTP.GAMM$gam, type = "deviance")
+res_model <- gam(res ~ s(TN_TP.T, bs = "cr", k = 10),
+method = "REML",
+family = quasi(link = "identity", variance = "constant"),
+data = mod.data)
+edf(res_model)
+res_model <- gam(res ~ s(TN_TP.T, bs = "cr", k = 10),
+method = "ML",
+family = quasi(link = "identity", variance = "constant"),
+data = mod.data)
+edf(res_model)
+res_model <- gam(res ~ s(TN_TP.T, bs = "cr", k = 10),
+method = "ML",
+family = quasi(link = "logit", variance = "constant"),
+data = mod.data)
+res <- resid(TNTP.GAMM$gam, type = "deviance")
+res_model <- gam(res ~ s(TN_TP.T, bs = "cr", k = 10),
+method = "ML",
+family = quasi(link = "logit", variance = "constant"),
+data = mod.data)
+edf(res_model)
+fv <- fitted_values(DIVERS.GAMM$gam, data = mod.data, scale = "response")
+ggplot(fv, aes(x = Diversity.T, y = fitted)) +
+geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.2) +
+geom_line(alpha = 0.4) +
+geom_point(aes(Diversity.T, prev_fish), data = mod.data)
+ggplot(fv, aes(x = Diversity.T, y = fitted)) +
+geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.2) +
+geom_smooth(alpha = 0.4, method = "gam") +
+geom_point(aes(Diversity.T, prev_fish), data = mod.data)
+ggplot(data = mod.data) + geom_point(aes(Diversity.T, prev_fish)) + geom_smooth(method = "gam")
+ggplot(data = mod.data) + geom_point(aes(Diversity.T, prev_fish)) + geom_smooth(aes(Diversity.T, prev_fish) method = "gam")
+geom_smooth(aes(Diversity.T, prev_fish), method = "gam")
+#
+fv <- fitted_values(DIVERS.GAMM$gam, data = mod.data, scale = "response")
+ggplot(fv, aes(x = Diversity.T, y = fitted)) +
+geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.2) +
+geom_smooth(alpha = 0.4, method = "gam") +
+geom_point(aes(Diversity.T, prev_fish), data = mod.data)
+ggplot(data = mod.data, aes(Diversity.T, prev_fish)) +
+geom_point() +
+geom_smooth(method = "gam")
+ggplot(data = mod.data, aes(Diversity.T, prev_fish)) +
+geom_point() +
+geom_smooth(method = "gam", formula = prev_fish ~ s(Diversity.T, bs = "cr"))
+ggplot(data = mod.data, aes(Diversity.T, prev_fish)) +
+geom_point() +
+geom_smooth(method = "gam", formula = y ~ s(x, bs = "cr"))
+ggplot(data = mod.data, aes(Diversity.T, prev_fish)) +
+geom_point() +
+geom_smooth(method = "gam", formula = y ~ s(x, bs = "cr", k = 10))
+ggplot(data = mod.data, aes(Diversity.T, prev_fish)) +
+geom_point() +
+geom_smooth(method = "gam", formula = y ~ s(x, bs = "cr", random = ~(1|Lake), k = 10))
+ggplot(data = mod.data, aes(Diversity.T, prev_fish)) +
+geom_point() +
+geom_smooth(method = "gam", formula = y ~ s(x, bs = "cr", random = ~Lake, k = 10))
+ggplot(fv, aes(x = Diversity.T, y = fitted)) +
+geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.2) +
+geom_smooth(alpha = 0.4, method = "gam") +
+geom_point(aes(Diversity.T, prev_fish), data = mod.data)
+appraise(TNTP.GAMM$gam)
+plot(TN.GAMM$gam, residuals = TRUE, pch = 1, shift = coef(TN.GAMM$gam)[1],
+seWithMean = TRUE, # Adds the error associated with the mean to the se
+shade = TRUE, # Makes 95% confidence interval into shaded area
+xlab = "TN"))
+plot(TN.GAMM$gam, residuals = TRUE, pch = 1, shift = coef(TN.GAMM$gam)[1],
+seWithMean = TRUE, # Makes 95% confidence interval into shaded area
+xlab = "TN"))
+plot(TN.GAMM$gam, residuals = TRUE, pch = 1, shift = coef(TN.GAMM$gam)[1],
+seWithMean = TRUE, xlab = "TN"))
+plot(TN.GAMM$gam, residuals = TRUE, pch = 1, shift = coef(TN.GAMM$gam)[1],
+seWithMean = TRUE, xlab = "TN")
+plot.TN <- draw(TN.GAMM$gam, residuals = TRUE)
+plot.TN
+fv <- fitted_values(TN.GAMM$gam, data = mod.data, scale = "response")
+ggplot(fv, aes(x = TN.T, y = fitted)) +
+geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.2) +
+geom_smooth(alpha = 0.4, method = "gam") +
+geom_point(aes(TN.T, prev_fish), data = mod.data)
+plot(TN.GAMM$gam, residuals = TRUE, pch = 1, shift = coef(TN.GAMM$gam)[1],
+seWithMean = TRUE, shade = TRUE, xlab = "TN")
+ggplot(mod.data, # Data frame that has our data
+aes(x = TN.T, # Our x variable
+y = cbind(inf_fish, tot_fish - inf_fish))) + # Our y variable
+geom_point() + # Choosing to plot our data in the form of points
+geom_smooth(method = "gam", # geom_smooth allows for GAM modeling in plot
+formula = y ~ s(x, # Specifies formula of our model
+k = 10), # Number of basis functions
+se = TRUE, # Whether we want the gray 95% CI or not (we do!)
+method.args = list(family = "binomial")) + # Error distribution
+labs(x = "TN", # Customizing x and y axis labels
+y = "Prev_fish") + # Text between ~~ will be subscript (markdown syntax)
+theme_classic() + # Removes gray grid in background and adds lines to axes
+theme(axis.title = element_text(size = 12), # Font size for all axis titles
+axis.title.y = element_markdown(), # Allows markdown in y axis label
+axis.text = element_text(size = 10)) # Font size for all axis text
+ggplot(mod.data, # Data frame that has our data
+aes(x = TN.T, # Our x variable
+y = cbind(inf_fish, tot_fish - inf_fish))) + # Our y variable
+geom_point() + # Choosing to plot our data in the form of points
+geom_smooth(method = "gam", # geom_smooth allows for GAM modeling in plot
+formula = y ~ s(x, # Specifies formula of our model
+k = 10), # Number of basis functions
+se = TRUE, # Whether we want the gray 95% CI or not (we do!)
+method.args = list(family = "binomial")) + # Error distribution
+labs(x = "TN", # Customizing x and y axis labels
+y = "Prev_fish") + # Text between ~~ will be subscript (markdown syntax)
+theme_classic() + # Removes gray grid in background and adds lines to axes
+theme(axis.title = element_text(size = 12), # Font size for all axis titles
+axis.text = element_text(size = 10)) # Font size for all axis text
+ggplot(mod.data, # Data frame that has our data
+aes(x = TN.T, # Our x variable
+y = prev_fish))) + # Our y variable
+ggplot(mod.data, # Data frame that has our data
+aes(x = TN.T, # Our x variable
+y = prev_fish)) + # Our y variable
+geom_point() + # Choosing to plot our data in the form of points
+geom_smooth(method = "gam", # geom_smooth allows for GAM modeling in plot
+formula = y ~ s(x, # Specifies formula of our model
+k = 10), # Number of basis functions
+se = TRUE, # Whether we want the gray 95% CI or not (we do!)
+method.args = list(family = "binomial")) + # Error distribution
+labs(x = "TN", # Customizing x and y axis labels
+y = "Prev_fish") + # Text between ~~ will be subscript (markdown syntax)
+theme_classic() + # Removes gray grid in background and adds lines to axes
+theme(axis.title = element_text(size = 12), # Font size for all axis titles
+axis.text = element_text(size = 10)) # Font size for all axis text
