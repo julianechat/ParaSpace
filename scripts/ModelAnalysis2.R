@@ -996,4 +996,109 @@ summary(lake.space.gam1)#nope
 lake.space.gam2 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Elevation, bs = "cr") + s(WRT, bs = "cr") + s(Lake, bs = "re"), 
                        family = quasibinomial, data = mod.data2, method = "REML")
 summary(lake.space.gam2)#nope
-       
+
+# ---- Transect scale GAMs ----
+#nutrients
+trans.nutrient.gam <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN_TP.T, bs = "cr") + s(TOC.T, bs = "cr") + s(Lake, bs = "re"), 
+                          family = quasibinomial, data = mod.data2, method = "REML")
+summary(trans.nutrient.gam) #TN_TP significative
+
+#physico
+trans.physico.gam1 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Turb.T, bs = "cr") + s(Temp.T, bs = "cr") + s(Lake, bs = "re"), 
+                          family = quasibinomial, data = mod.data2, method = "REML")
+summary(trans.physico.gam1) #Turb > Temp significative
+
+trans.physico.gam2 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Turb.T, bs = "cr") + s(pH.T, bs = "cr") + s(Lake, bs = "re"), 
+                          family = quasibinomial, data = mod.data2, method = "REML")
+summary(trans.physico.gam2) #Turb > pH significative
+
+trans.physico.gam3 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Temp.T, bs = "cr") + s(pH.T, bs = "cr") + s(Lake, bs = "re"), 
+                          family = quasibinomial, data = mod.data2, method = "REML")
+summary(trans.physico.gam3) #Temp significative
+
+trans.physico.gam4 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Turb.T, bs = "cr") + s(DO.T, bs = "cr") + s(Lake, bs = "re"), 
+                          family = quasibinomial, data = mod.data2, method = "REML")
+summary(trans.physico.gam4) #Turb significative
+
+trans.physico.gam5 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Turb.T, bs = "cr") + s(Cond.T, bs = "cr") + s(Lake, bs = "re"), 
+                          family = quasibinomial, data = mod.data2, method = "REML")
+summary(trans.physico.gam5) #Turb & Temp significative
+
+trans.physico.gam6 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Temp.T, bs = "cr") + s(DO.T, bs = "cr") + s(Lake, bs = "re"), 
+                          family = quasibinomial, data = mod.data2, method = "REML")
+summary(trans.physico.gam6) #Temp significative
+
+trans.physico.gam7 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Turb.T, bs = "cr") + s(Cond.T, bs = "cr") + s(Lake, bs = "re"), 
+                          family = quasibinomial, data = mod.data2, method = "REML")
+summary(trans.physico.gam7) #Turb & significative
+
+trans.physico.gam8 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Cond.T, bs = "cr") + s(DO.T, bs = "cr") + s(Lake, bs = "re"), 
+                          family = quasibinomial, data = mod.data2, method = "REML")
+summary(trans.physico.gam8) #DO significative
+
+#Habitat
+trans.habitat.gam1 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Macrophyte, bs = "cr") + s(Sub1, bs = "cr") + s(Lake, bs = "re"), 
+                     family = quasibinomial, data = mod.data2, method = "REML")
+summary(trans.habitat.gam1) #Macrophyte & Sub1 significative
+
+trans.habitat.gam2 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Macrophyte, bs = "cr") + s(Sub2, bs = "cr") + s(Lake, bs = "re"), 
+                          family = quasibinomial, data = mod.data2, method = "REML")
+summary(trans.habitat.gam2) #Macrophyte & Sub2 significative
+
+trans.habitat.gam3 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Macrophyte, bs = "cr") + s(Depth, bs = "cr") + s(Lake, bs = "re"), 
+                          family = quasibinomial, data = mod.data2, method = "REML")
+summary(trans.habitat.gam3) #Macrophyte significative
+
+trans.habitat.gam4 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Macrophyte, bs = "cr") + s(Trunk, bs = "cr") + s(Lake, bs = "re"), 
+                          family = quasibinomial, data = mod.data2, method = "REML")
+summary(trans.habitat.gam4) #Macrophyte significative
+
+trans.habitat.gam5 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Sub1, bs = "cr") + s(Depth, bs = "cr") + s(Lake, bs = "re"), 
+                          family = quasibinomial, data = mod.data2, method = "REML")
+summary(trans.habitat.gam5) #Non significative
+
+trans.habitat.gam6 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Sub1, bs = "cr") + s(Trunk, bs = "cr") + s(Lake, bs = "re"), 
+                          family = quasibinomial, data = mod.data2, method = "REML")
+summary(trans.habitat.gam6) #Non significative
+
+trans.habitat.gam7 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Sub2, bs = "cr") + s(Depth, bs = "cr") + s(Lake, bs = "re"), 
+                          family = quasibinomial, data = mod.data2, method = "REML")
+summary(trans.habitat.gam7) #Sub2 & Depth lightly significative
+
+trans.habitat.gam8 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Sub2, bs = "cr") + s(Trunk, bs = "cr") + s(Lake, bs = "re"), 
+                          family = quasibinomial, data = mod.data2, method = "REML")
+summary(trans.habitat.gam8) #Non significative
+
+trans.habitat.gam9 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Depth, bs = "cr") + s(Trunk, bs = "cr") + s(Lake, bs = "re"), 
+                          family = quasibinomial, data = mod.data2, method = "REML")
+summary(trans.habitat.gam9) #Depth significative
+
+#biotic
+trans.biotic.gam1 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Diversity.T, bs = "cr") + s(Species_richness.T, bs = "cr", k = 5) + s(Lake, bs = "re"), 
+                          family = quasibinomial, data = mod.data2, method = "REML")
+summary(trans.biotic.gam1) #Non significative
+
+trans.biotic.gam2 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Diversity.T, bs = "cr") + s(Centrarchids.T, bs = "cr") + s(Lake, bs = "re"), 
+                         family = quasibinomial, data = mod.data2, method = "REML")
+summary(trans.biotic.gam2) #Diversity & Centrarchids significative
+
+trans.biotic.gam3 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Species_richness.T, bs = "cr", k = 5) + s(Centrarchids.T, bs = "cr") + s(Lake, bs = "re"), 
+                         family = quasibinomial, data = mod.data2, method = "REML")
+summary(trans.biotic.gam3) #Non significative
+
+#--- Model selection with QAICc
+library(MuMIn)
+chat1 = deviance(trans.biotic.gam1) / df.residual(trans.biotic.gam1)
+chat2 = deviance(trans.biotic.gam2) / df.residual(trans.biotic.gam2)
+chat3 = deviance(trans.biotic.gam1) / df.residual(trans.biotic.gam3)
+options(na.action = "na.fail")
+
+as.data.frame(model.sel(trans.biotic.gam1, trans.biotic.gam2, trans.biotic.gam3, 
+          rank = "QAICc", 
+          rank.args = alist(chat = chat)))
+
+options(na.action = "na.omit")
+QAICc(trans.biotic.gam1, trans.biotic.gam2, trans.biotic.gam3, chat = chat3)
+
+
+
