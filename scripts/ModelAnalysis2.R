@@ -17,6 +17,17 @@ library(cowplot)
 library(patchwork)
 library(gratia)
 
+library(lme4)
+library(performance)
+library(glmmTMB)
+library(MASS)
+library(aod)
+library(mgcv)
+library(gamlss)
+library(gamm4)
+library(DHARMa)
+library(mgcViz)
+
 source(paste0(to.R, "rquery.cormat.R"))
 source(paste0(to.R, "glmm_funs.R"))
 
@@ -50,16 +61,6 @@ mod.data <- within(mod.data, rm("Silt", "Sand", "Rock", "Block"))
 # ---- Data analysis ----
 
 ## Testing method on nutrient model ##
-library(lme4)
-library(performance)
-library(glmmTMB)
-library(MASS)
-library(aod)
-library(mgcv)
-library(gamlss)
-library(gamm4)
-library(DHARMa)
-library(mgcViz)
 
 ### Linear models ###
 #Binomial glm
@@ -329,7 +330,7 @@ summary(TNTP.GAMM)
 
 #Binomial gam 
 TNTP.GAMM2 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN_TP.T, bs = "cr") + s(Lake, bs = "re"),
-                  family = binomial, data = mod.data2, method = "REML")
+                  family = binomial, data = mod.data2, method = "ML")
 summary(TNTP.GAMM2)
 appraise(TNTP.GAMM2, method = "simulate")
 testDispersion(TNTP.GAMM2)
@@ -338,7 +339,7 @@ gam.check(TNTP.GAMM2)
 
 #Quasibinomial gam - correcting for overdispersion
 TNTP.GAMM3 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN_TP.T, bs = "cr") + s(Lake, bs = "re"),
-                  family = quasibinomial, data = mod.data2, method = "REML")
+                  family = quasibinomial, data = mod.data2, method = "ML")
 summary(TNTP.GAMM3)
 appraise(TNTP.GAMM3, method = "simulate")
 check_overdispersion(TNTP.GAMM3)
@@ -379,12 +380,18 @@ appraise(TNTP.GAMM3)
 
 #lake
 TNTP.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN_TP.L, bs = "cr") + s(Lake, bs = "re"),
-                  family = quasibinomial, data = mod.data2, method = "REML")
+                  family = quasibinomial, data = mod.data2, method = "ML")
 summary(TNTP.GAMM.L) #unsignificative
+
+#Null
+NULL.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Lake, bs = "re"),
+                  family = quasibinomial, data = mod.data2, method = "ML")
+summary(NULL.GAMM)
+appraise(NULL.GAMM)
 
 #Nitrogen
 TN.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN.T, bs = "cr") + s(Lake, bs = "re"),
-                  family = quasibinomial, data = mod.data2, method = "REML")
+                  family = quasibinomial, data = mod.data2, method = "ML")
 summary(TN.GAMM) #unsignificative
 appraise(TN.GAMM)
 check_overdispersion(TN.GAMM)
@@ -405,12 +412,12 @@ summary(TN.GAMM2)
 
 #lake
 TN.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN.L, bs = "cr") + s(Lake, bs = "re"),
-               family = quasibinomial, data = mod.data2, method = "REML")
+               family = quasibinomial, data = mod.data2, method = "ML")
 summary(TN.GAMM.L) #unsignificative
 
 #Phosphorus
 TP.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TP.T, bs = "cr") + s(Lake, bs = "re"),
-               family = quasibinomial, data = mod.data2, method = "REML")
+               family = quasibinomial, data = mod.data2, method = "ML")
 summary(TP.GAMM) #unsignificative
 appraise(TP.GAMM)
 check_overdispersion(TP.GAMM)
@@ -426,12 +433,12 @@ draw.TP
 
 #lake
 TP.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TP.L, bs = "cr") + s(Lake, bs = "re"),
-                 family = quasibinomial, data = mod.data2, method = "REML")
+                 family = quasibinomial, data = mod.data2, method = "ML")
 summary(TP.GAMM.L) #unsignificative
 
 #Carbon
 TOC.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TOC.T, bs = "cs") + s(Lake, bs = "re"),
-               family = quasibinomial, data = mod.data2, method = "REML")
+               family = quasibinomial, data = mod.data2, method = "ML")
 summary(TOC.GAMM) #unsignificative
 appraise(TOC.GAMM)
 check_overdispersion(TOC.GAMM)
@@ -447,12 +454,12 @@ draw.TOC
 
 #lake
 TOC.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TOC.L, bs = "cr") + s(Lake, bs = "re"),
-                 family = quasibinomial, data = mod.data2, method = "REML")
+                 family = quasibinomial, data = mod.data2, method = "ML")
 summary(TOC.GAMM.L) #unsignificative
 
 #Sub 1
 SUB1.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Sub1, bs = "cs") + s(Lake, bs = "re"),
-                family = quasibinomial, data = mod.data2, method = "REML")
+                family = quasibinomial, data = mod.data2, method = "ML")
 summary(SUB1.GAMM) #unsignificative
 appraise(SUB1.GAMM)
 check_overdispersion(SUB1.GAMM)
@@ -468,7 +475,7 @@ draw.SUB1
 
 #Sub 2
 SUB2.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Sub2, bs = "cs") + s(Lake, bs = "re"),
-                 family = quasibinomial, data = mod.data2, method = "REML")
+                 family = quasibinomial, data = mod.data2, method = "ML")
 summary(SUB2.GAMM) #unsignificative
 appraise(SUB2.GAMM)
 check_overdispersion(SUB2.GAMM)
@@ -484,7 +491,7 @@ draw.SUB2
 
 #Macrophyte
 MACRO.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Macrophyte, bs = "cs") + s(Lake, bs = "re"),
-                  family = quasibinomial, data = mod.data2, method = "REML")
+                  family = quasibinomial, data = mod.data2, method = "ML")
 summary(MACRO.GAMM) #significative
 appraise(MACRO.GAMM)
 check_overdispersion(MACRO.GAMM)
@@ -500,7 +507,7 @@ draw.MACRO
 
 #Depth
 DEPTH.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Depth, bs = "cs") + s(Lake, bs = "re"),
-                  family = quasibinomial, data = mod.data2, method = "REML")
+                  family = quasibinomial, data = mod.data2, method = "ML")
 summary(DEPTH.GAMM) #unsignificative
 appraise(DEPTH.GAMM)
 check_overdispersion(DEPTH.GAMM)
@@ -516,7 +523,7 @@ draw.DEPTH
 
 #Trunk
 TRUNK.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Trunk, bs = "cs") + s(Lake, bs = "re"),
-                  family = quasibinomial, data = mod.data2, method = "REML")
+                  family = quasibinomial, data = mod.data2, method = "ML")
 summary(TRUNK.GAMM) #unsignificative
 appraise(TRUNK.GAMM) #some residual patterns
 check_overdispersion(TRUNK.GAMM)
@@ -532,7 +539,7 @@ draw.TRUNK
 
 #Temperature
 TEMP.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Temp.T, bs = "cs") + s(Lake, bs = "re"),
-                  family = quasibinomial, data = mod.data2, method = "REML")
+                  family = quasibinomial, data = mod.data2, method = "ML")
 summary(TEMP.GAMM) #significative
 appraise(TEMP.GAMM)
 check_overdispersion(TEMP.GAMM)
@@ -548,12 +555,12 @@ draw.TEMP
 
 #lake
 TEMP.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Temp.L, bs = "cr") + s(Lake, bs = "re"),
-                 family = quasibinomial, data = mod.data2, method = "REML")
+                 family = quasibinomial, data = mod.data2, method = "ML")
 summary(TEMP.GAMM.L) #unsignificative
 
 #Turbidity
 TURB.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Turb.T, bs = "cs") + s(Lake, bs = "re"),
-                  family = quasibinomial, data = mod.data2, method = "REML")
+                  family = quasibinomial, data = mod.data2, method = "ML")
 summary(TURB.GAMM) #significative
 appraise(TURB.GAMM) #pretty good
 check_overdispersion(TURB.GAMM)
@@ -569,12 +576,12 @@ draw.TURB
 
 #lake
 TURB.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Turb.L, bs = "cr") + s(Lake, bs = "re"),
-                 family = quasibinomial, data = mod.data2, method = "REML")
+                 family = quasibinomial, data = mod.data2, method = "ML")
 summary(TURB.GAMM.L) #unsignificative
 
 #pH
 PH.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(pH.T, bs = "cs") + s(Lake, bs = "re"),
-                  family = quasibinomial, data = mod.data2, method = "REML")
+                  family = quasibinomial, data = mod.data2, method = "ML")
 summary(PH.GAMM) #significative
 appraise(PH.GAMM)
 check_overdispersion(PH.GAMM)
@@ -590,12 +597,13 @@ draw.PH
 
 #lake
 PH.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(pH.L, bs = "cr") + s(Lake, bs = "re"),
-                 family = quasibinomial, data = mod.data2, method = "REML")
+                 family = quasibinomial, data = mod.data2, method = "ML")
 summary(PH.GAMM.L) #significative
+draw(PH.GAMM.L)
 
 #Oxygen
 DO.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(DO.T, bs = "cs") + s(Lake, bs = "re"),
-                  family = quasibinomial, data = mod.data2, method = "REML")
+                  family = quasibinomial, data = mod.data2, method = "ML")
 summary(DO.GAMM) #significative
 appraise(DO.GAMM, method = "simulate")
 check_overdispersion(DO.GAMM)
@@ -611,12 +619,12 @@ draw.DO
 
 #lake
 DO.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(DO.L, bs = "cr") + s(Lake, bs = "re"),
-                 family = quasibinomial, data = mod.data2, method = "REML")
+                 family = quasibinomial, data = mod.data2, method = "ML")
 summary(DO.GAMM.L) #unsignificative
 
 #Conductivity
 COND.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Cond.T, bs = "cs") + s(Lake, bs = "re"),
-                  family = quasibinomial, data = mod.data2, method = "REML")
+                  family = quasibinomial, data = mod.data2, method = "ML")
 summary(COND.GAMM) #significative (but not for Lake)
 appraise(COND.GAMM) #meh
 check_overdispersion(COND.GAMM)
@@ -632,12 +640,12 @@ draw.COND
 
 #lake
 COND.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Cond.L, bs = "cr") + s(Lake, bs = "re"),
-                 family = quasibinomial, data = mod.data2, method = "REML")
+                 family = quasibinomial, data = mod.data2, method = "ML")
 summary(COND.GAMM.L) #significative
 
 #Area:Perimeter
 AREAPERI.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Area_Perimeter, bs = "cs") + s(Lake, bs = "re"),
-                  family = quasibinomial, data = mod.data2, method = "REML")
+                  family = quasibinomial, data = mod.data2, method = "ML")
 summary(AREAPERI.GAMM) #significative (but not lake)
 appraise(AREAPERI.GAMM)
 check_overdispersion(AREAPERI.GAMM)
@@ -653,7 +661,7 @@ draw.AREAPERI
 
 #Area
 AREA.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Lake_area, bs = "cs") + s(Lake, bs = "fs"),
-                  family = quasibinomial, data = mod.data2, method = "REML")
+                  family = quasibinomial, data = mod.data2, method = "ML")
 summary(AREA.GAMM) #unsignificative
 appraise(AREA.GAMM)
 check_overdispersion(AREA.GAMM)
@@ -669,7 +677,7 @@ draw.AREA
 
 #Perimeter
 PERI.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Perimeter, bs = "cs") + s(Lake, bs = "re"),
-                  family = quasibinomial, data = mod.data2, method = "REML")
+                  family = quasibinomial, data = mod.data2, method = "ML")
 summary(PERI.GAMM) #significative (but not lake)
 appraise(PERI.GAMM)
 check_overdispersion(PERI.GAMM)
@@ -685,7 +693,7 @@ draw.PERI
 
 #Mean depth
 MDEPTH.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Mean_depth, bs = "cs") + s(Lake, bs = "re"),
-                  family = quasibinomial, data = mod.data2, method = "REML")
+                  family = quasibinomial, data = mod.data2, method = "ML")
 summary(MDEPTH.GAMM) #unsignificative
 appraise(MDEPTH.GAMM)
 check_overdispersion(MDEPTH.GAMM)
@@ -701,7 +709,7 @@ draw.MDEPTH
 
 #Water residence time
 WRT.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(WRT, bs = "cs") + s(Lake, bs = "re"),
-                  family = quasibinomial, data = mod.data2, method = "REML")
+                  family = quasibinomial, data = mod.data2, method = "ML")
 summary(WRT.GAMM) #unsignificative
 appraise(WRT.GAMM)
 check_overdispersion(WRT.GAMM)
@@ -717,7 +725,7 @@ draw.WRT
 
 #Drainage area
 DRAIN.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Drainage_area, bs = "cs") + s(Lake, bs = "re"),
-                  family = quasibinomial, data = mod.data2, method = "REML")
+                  family = quasibinomial, data = mod.data2, method = "ML")
 summary(DRAIN.GAMM) #unsignificative
 appraise(DRAIN.GAMM)
 check_overdispersion(DRAIN.GAMM)
@@ -731,9 +739,17 @@ plot.DRAIN <- plot(DRAIN.GAMM, trans = plogis, residuals = TRUE,
 draw.DRAIN <- draw(DRAIN.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
 draw.DRAIN
 
+#without achigan
+mod.data3 <- mod.data2 %>% filter(!(Lake == "Achigan"))
+DRAIN.GAMM2 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Drainage_area, bs = "cs") + s(Lake, bs = "re"),
+                  family = quasibinomial, data = mod.data3, method = "ML")
+summary(DRAIN.GAMM2) #unsignificative
+appraise(DRAIN.GAMM2)
+draw(DRAIN.GAMM2)
+
 #Elevation
 ELEV.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Elevation, bs = "cs") + s(Lake, bs = "re"),
-                  family = quasibinomial, data = mod.data2, method = "REML")
+                  family = quasibinomial, data = mod.data2, method = "ML")
 summary(ELEV.GAMM) #unsignificative
 appraise(ELEV.GAMM)
 check_overdispersion(ELEV.GAMM)
@@ -749,7 +765,7 @@ draw.ELEV
 
 #Centrarchids
 CENT.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Centrarchids.T, bs = "cs") + s(Lake, bs = "re"),
-                  family = quasibinomial, data = mod.data2, method = "REML")
+                  family = quasibinomial, data = mod.data2, method = "ML")
 summary(CENT.GAMM) #unsignificative
 appraise(CENT.GAMM)
 check_overdispersion(CENT.GAMM)
@@ -765,12 +781,12 @@ draw.CENT
 
 #lake
 CENT.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Centrarchids.L, bs = "cr") + s(Lake, bs = "re"),
-                 family = quasibinomial, data = mod.data2, method = "REML")
+                 family = quasibinomial, data = mod.data2, method = "ML")
 summary(CENT.GAMM.L) #unsignificative
 
 #Species richness
 SP.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Species_richness.T, bs = "cs", k = 5) + s(Lake, bs = "re"),
-                  family = quasibinomial, data = mod.data2, method = "REML")
+                  family = quasibinomial, data = mod.data2, method = "ML")
 summary(SP.GAMM) #unsignificative
 appraise(SP.GAMM)
 check_overdispersion(SP.GAMM)
@@ -786,13 +802,13 @@ draw.SP
 
 #lake
 SP.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Species_richness.L, bs = "cr", k = 4) + s(Lake, bs = "re"),
-                 family = quasibinomial, data = mod.data2, method = "REML")
+                 family = quasibinomial, data = mod.data2, method = "ML")
 summary(SP.GAMM.L) #significative
 draw(SP.GAMM.L, residuals = TRUE)
 
 #Diversity
 DIVERS.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Diversity.T, bs = "cs") + s(Lake, bs = "re"),
-                  family = quasibinomial, data = mod.data2, method = "REML")
+                  family = quasibinomial, data = mod.data2, method = "ML")
 summary(DIVERS.GAMM) #significative
 appraise(DIVERS.GAMM)
 check_overdispersion(DIVERS.GAMM)
@@ -808,7 +824,7 @@ draw.DIVERS
 
 #lake
 DIVERS.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Diversity.L, bs = "cr") + s(Lake, bs = "re"),
-                 family = quasibinomial, data = mod.data2, method = "REML")
+                 family = quasibinomial, data = mod.data2, method = "ML")
 summary(DIVERS.GAMM.L) #unsignificative
 
 #All model plots
@@ -985,16 +1001,16 @@ dev.off()
 
 #morpho
 lake.morpho.gam1 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Area_Perimeter, bs = "cr") + s(Mean_depth, bs = "cr") + s(Lake, bs = "re"), 
-                family = quasibinomial, data = mod.data2, method = "REML")
+                family = quasibinomial, data = mod.data2, method = "ML")
 summary(lake.morpho.gam1) #both significative
-
+draw(lake.morpho.gam1)
 #space
 lake.space.gam1 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Elevation, bs = "cr") + s(Drainage_area, bs = "cr") + s(Lake, bs = "re"), 
-                      family = quasibinomial, data = mod.data2, method = "REML")
-summary(lake.space.gam1)#nope
+                      family = quasibinomial, data = mod.data2, method = "ML")
+summary(lake.space.gam1)
 
 lake.space.gam2 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Elevation, bs = "cr") + s(WRT, bs = "cr") + s(Lake, bs = "re"), 
-                       family = quasibinomial, data = mod.data2, method = "REML")
+                       family = quasibinomial, data = mod.data2, method = "ML")
 summary(lake.space.gam2)#nope
 
 # ---- Transect scale GAMs ----
@@ -1005,85 +1021,85 @@ summary(trans.nutrient.gam) #TN_TP significative
 
 #physico
 trans.physico.gam1 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Turb.T, bs = "cr") + s(Temp.T, bs = "cr") + s(Lake, bs = "re"), 
-                          family = quasibinomial, data = mod.data2, method = "REML")
+                          family = quasibinomial, data = mod.data2, method = "ML")
 summary(trans.physico.gam1) #Turb > Temp significative
 
 trans.physico.gam2 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Turb.T, bs = "cr") + s(pH.T, bs = "cr") + s(Lake, bs = "re"), 
-                          family = quasibinomial, data = mod.data2, method = "REML")
+                          family = quasibinomial, data = mod.data2, method = "ML")
 summary(trans.physico.gam2) #Turb > pH significative
 
 trans.physico.gam3 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Temp.T, bs = "cr") + s(pH.T, bs = "cr") + s(Lake, bs = "re"), 
-                          family = quasibinomial, data = mod.data2, method = "REML")
+                          family = quasibinomial, data = mod.data2, method = "ML")
 summary(trans.physico.gam3) #Temp significative
 
 trans.physico.gam4 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Turb.T, bs = "cr") + s(DO.T, bs = "cr") + s(Lake, bs = "re"), 
-                          family = quasibinomial, data = mod.data2, method = "REML")
+                          family = quasibinomial, data = mod.data2, method = "ML")
 summary(trans.physico.gam4) #Turb significative
 
 trans.physico.gam5 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Turb.T, bs = "cr") + s(Cond.T, bs = "cr") + s(Lake, bs = "re"), 
-                          family = quasibinomial, data = mod.data2, method = "REML")
-summary(trans.physico.gam5) #Turb & Temp significative
+                          family = quasibinomial, data = mod.data2, method = "ML")
+summary(trans.physico.gam5) #Turb significative
 
 trans.physico.gam6 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Temp.T, bs = "cr") + s(DO.T, bs = "cr") + s(Lake, bs = "re"), 
-                          family = quasibinomial, data = mod.data2, method = "REML")
+                          family = quasibinomial, data = mod.data2, method = "ML")
 summary(trans.physico.gam6) #Temp significative
 
-trans.physico.gam7 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Turb.T, bs = "cr") + s(Cond.T, bs = "cr") + s(Lake, bs = "re"), 
-                          family = quasibinomial, data = mod.data2, method = "REML")
-summary(trans.physico.gam7) #Turb & significative
+trans.physico.gam7 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Temp.T, bs = "cr") + s(Cond.T, bs = "cr") + s(Lake, bs = "re"), 
+                          family = quasibinomial, data = mod.data2, method = "ML")
+summary(trans.physico.gam7) #Temp significative
 
 trans.physico.gam8 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Cond.T, bs = "cr") + s(DO.T, bs = "cr") + s(Lake, bs = "re"), 
-                          family = quasibinomial, data = mod.data2, method = "REML")
+                          family = quasibinomial, data = mod.data2, method = "ML")
 summary(trans.physico.gam8) #DO significative
 
 #Habitat
 trans.habitat.gam1 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Macrophyte, bs = "cr") + s(Sub1, bs = "cr") + s(Lake, bs = "re"), 
-                     family = quasibinomial, data = mod.data2, method = "REML")
+                     family = quasibinomial, data = mod.data2, method = "ML")
 summary(trans.habitat.gam1) #Macrophyte & Sub1 significative
 
 trans.habitat.gam2 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Macrophyte, bs = "cr") + s(Sub2, bs = "cr") + s(Lake, bs = "re"), 
-                          family = quasibinomial, data = mod.data2, method = "REML")
+                          family = quasibinomial, data = mod.data2, method = "ML")
 summary(trans.habitat.gam2) #Macrophyte & Sub2 significative
 
 trans.habitat.gam3 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Macrophyte, bs = "cr") + s(Depth, bs = "cr") + s(Lake, bs = "re"), 
-                          family = quasibinomial, data = mod.data2, method = "REML")
+                          family = quasibinomial, data = mod.data2, method = "ML")
 summary(trans.habitat.gam3) #Macrophyte significative
 
 trans.habitat.gam4 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Macrophyte, bs = "cr") + s(Trunk, bs = "cr") + s(Lake, bs = "re"), 
-                          family = quasibinomial, data = mod.data2, method = "REML")
+                          family = quasibinomial, data = mod.data2, method = "ML")
 summary(trans.habitat.gam4) #Macrophyte significative
 
 trans.habitat.gam5 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Sub1, bs = "cr") + s(Depth, bs = "cr") + s(Lake, bs = "re"), 
-                          family = quasibinomial, data = mod.data2, method = "REML")
+                          family = quasibinomial, data = mod.data2, method = "ML")
 summary(trans.habitat.gam5) #Non significative
 
 trans.habitat.gam6 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Sub1, bs = "cr") + s(Trunk, bs = "cr") + s(Lake, bs = "re"), 
-                          family = quasibinomial, data = mod.data2, method = "REML")
+                          family = quasibinomial, data = mod.data2, method = "ML")
 summary(trans.habitat.gam6) #Non significative
 
 trans.habitat.gam7 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Sub2, bs = "cr") + s(Depth, bs = "cr") + s(Lake, bs = "re"), 
-                          family = quasibinomial, data = mod.data2, method = "REML")
+                          family = quasibinomial, data = mod.data2, method = "ML")
 summary(trans.habitat.gam7) #Sub2 & Depth lightly significative
 
 trans.habitat.gam8 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Sub2, bs = "cr") + s(Trunk, bs = "cr") + s(Lake, bs = "re"), 
-                          family = quasibinomial, data = mod.data2, method = "REML")
+                          family = quasibinomial, data = mod.data2, method = "ML")
 summary(trans.habitat.gam8) #Non significative
 
 trans.habitat.gam9 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Depth, bs = "cr") + s(Trunk, bs = "cr") + s(Lake, bs = "re"), 
-                          family = quasibinomial, data = mod.data2, method = "REML")
+                          family = quasibinomial, data = mod.data2, method = "ML")
 summary(trans.habitat.gam9) #Depth significative
 
 #biotic
 trans.biotic.gam1 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Diversity.T, bs = "cr") + s(Species_richness.T, bs = "cr", k = 5) + s(Lake, bs = "re"), 
-                          family = quasibinomial, data = mod.data2, method = "REML")
+                          family = quasibinomial, data = mod.data2, method = "ML")
 summary(trans.biotic.gam1) #Non significative
 
 trans.biotic.gam2 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Diversity.T, bs = "cr") + s(Centrarchids.T, bs = "cr") + s(Lake, bs = "re"), 
-                         family = quasibinomial, data = mod.data2, method = "REML")
+                         family = quasibinomial, data = mod.data2, method = "ML")
 summary(trans.biotic.gam2) #Diversity & Centrarchids significative
 
 trans.biotic.gam3 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Species_richness.T, bs = "cr", k = 5) + s(Centrarchids.T, bs = "cr") + s(Lake, bs = "re"), 
-                         family = quasibinomial, data = mod.data2, method = "REML")
+                         family = quasibinomial, data = mod.data2, method = "ML")
 summary(trans.biotic.gam3) #Non significative
 
 #--- Model selection with QAICc
@@ -1093,12 +1109,150 @@ chat2 = deviance(trans.biotic.gam2) / df.residual(trans.biotic.gam2)
 chat3 = deviance(trans.biotic.gam1) / df.residual(trans.biotic.gam3)
 options(na.action = "na.fail")
 
+
+
 as.data.frame(model.sel(trans.biotic.gam1, trans.biotic.gam2, trans.biotic.gam3, 
           rank = "QAICc", 
           rank.args = alist(chat = chat)))
 
 options(na.action = "na.omit")
-QAICc(trans.biotic.gam1, trans.biotic.gam2, trans.biotic.gam3, chat = chat3)
+QAICc(trans.biotic.gam1, chat = chat1)
 
 
+trans.biotic.gam2 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Diversity.T, bs = "cr") + s(Centrarchids.T, bs = "cr") + s(Lake, bs = "re"), 
+                         family = quasibinomial, data = mod.data2, method = "ML")
+summary(trans.biotic.gam2) #Diversity & Centrarchids significative
 
+trans.biotic.gam2.1 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Diversity.T) + s(Centrarchids.T) + s(Lake, bs = "re"), 
+                         family = quasibinomial, data = mod.data2, method = "ML", select = TRUE)
+summary(trans.biotic.gam2.1) #Diversity & Centrarchids significative
+
+trans.biotic.gam2.2 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Diversity.T) + s(Centrarchids.T) + s(Lake, bs = "re"), 
+                           family = quasibinomial, data = mod.data2, method = "REML", select = TRUE)
+summary(trans.biotic.gam2.2) #Diversity & Centrarchids significative
+summary(trans.biotic.gam2)
+anova.gam(trans.biotic.gam2)
+anova.gam(trans.biotic.gam1, trans.biotic.gam2, trans.biotic.gam3, test = "LRT")
+
+
+trans.biotic.gam1 <- update(trans.biotic.gam1,family="quasibinomial", na.action=na.fail) 
+
+dredge(trans.biotic.gam1, rank="QAICc", chat=chat1)
+gg
+QAICc(trans.biotic.gam1, chat = chat1, k = 2, REML = FALSE)
+
+##works !
+sei.gam0.1 <- update(trans.biotic.gam1, family=binomial(link="logit"))
+sei.gam0.2 <- update(trans.physico.gam2, family=binomial(link="logit"))
+dredge(sei.gam0.1, rank="QAICc", chat=chat1)
+
+
+anova(trans.biotic.gam1, trans.physico.gam2, test = "Chisq")
+
+
+#-- Mixed variables models
+trans.mix.gam1 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN_TP.T, bs = "cr") + s(Macrophyte, bs = "cr") + s(Lake, bs = "re"), 
+                         family = quasibinomial, data = mod.data2, method = "ML")
+summary(trans.mix.gam1)  
+
+trans.mix.gam2 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN_TP.T, bs = "cr") + s(Temp.T, bs = "cr") + s(Lake, bs = "re"), 
+                      family = quasibinomial, data = mod.data2, method = "ML")
+summary(trans.mix.gam2)  
+
+trans.mix.gam3 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN_TP.T, bs = "cr") + s(Turb.T, bs = "cr") + s(Lake, bs = "re"), 
+                      family = quasibinomial, data = mod.data2, method = "ML")
+summary(trans.mix.gam3)
+draw(trans.mix.gam3)
+appraise(trans.mix.gam3, method = "simulate")
+
+trans.mix.gam4 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN_TP.T, bs = "cr") + s(pH.T, bs = "cr") + s(Lake, bs = "re"), 
+                      family = quasibinomial, data = mod.data2, method = "ML")
+summary(trans.mix.gam4)  
+
+trans.mix.gam5 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN_TP.T, bs = "cr") + s(DO.T, bs = "cr") + s(Lake, bs = "re"), 
+                      family = quasibinomial, data = mod.data2, method = "ML")
+summary(trans.mix.gam5)  
+
+trans.mix.gam6 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN_TP.T, bs = "cr") + s(Cond.T, bs = "cr") + s(Lake, bs = "re"), 
+                      family = quasibinomial, data = mod.data2, method = "ML")
+summary(trans.mix.gam6)  
+
+trans.mix.gam7 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN_TP.T, bs = "cr") + s(Area_Perimeter, bs = "cr") + s(Lake, bs = "re"), 
+                      family = quasibinomial, data = mod.data2, method = "ML")
+summary(trans.mix.gam7)  
+
+trans.mix.gam8 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN_TP.T, bs = "cr") + s(Diversity.T, bs = "cr") + s(Lake, bs = "re"), 
+                      family = quasibinomial, data = mod.data2, method = "ML")
+summary(trans.mix.gam8)  
+
+trans.mix.gam9 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Macrophyte, bs = "cr") + s(Temp.T, bs = "cr") + s(Lake, bs = "re"), 
+                      family = quasibinomial, data = mod.data2, method = "ML")
+summary(trans.mix.gam9)  
+
+trans.mix.gam10 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Macrophyte, bs = "cr") + s(Turb.T, bs = "cr") + s(Lake, bs = "re"), 
+                      family = quasibinomial, data = mod.data2, method = "ML")
+summary(trans.mix.gam10)  
+
+trans.mix.gam11 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Macrophyte, bs = "cr") + s(pH.T, bs = "cr") + s(Lake, bs = "re"), 
+                      family = quasibinomial, data = mod.data2, method = "ML")
+summary(trans.mix.gam11)  
+
+trans.mix.gam12 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Macrophyte, bs = "cr") + s(DO.T, bs = "cr") + s(Lake, bs = "re"), 
+                      family = quasibinomial, data = mod.data2, method = "ML")
+summary(trans.mix.gam12)  
+
+trans.mix.gam13 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Macrophyte, bs = "cr") + s(Cond.T, bs = "cr") + s(Lake, bs = "re"), 
+                      family = quasibinomial, data = mod.data2, method = "ML")
+summary(trans.mix.gam13)  
+
+trans.mix.gam14 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Macrophyte, bs = "cr") + s(Area_Perimeter, bs = "cr") + s(Lake, bs = "re"), 
+                      family = quasibinomial, data = mod.data2, method = "ML")
+summary(trans.mix.gam14)  
+
+trans.mix.gam15 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Macrophyte, bs = "cr") + s(Diversity.T, bs = "cr") + s(Lake, bs = "re"), 
+                      family = quasibinomial, data = mod.data2, method = "ML")
+summary(trans.mix.gam15)  
+
+trans.mix.gam16 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Temp.T, bs = "cr") + s(Area_Perimeter, bs = "cr") + s(Lake, bs = "re"), 
+                      family = quasibinomial, data = mod.data2, method = "ML")
+summary(trans.mix.gam16)  
+
+trans.mix.gam17 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Temp.T, bs = "cr") + s(Diversity.T, bs = "cr") + s(Lake, bs = "re"), 
+                       family = quasibinomial, data = mod.data2, method = "ML")
+summary(trans.mix.gam17)  
+
+trans.mix.gam18 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Turb.T, bs = "cr") + s(Area_Perimeter, bs = "cr") + s(Lake, bs = "re"), 
+                       family = quasibinomial, data = mod.data2, method = "ML")
+summary(trans.mix.gam18)  
+
+trans.mix.gam19 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Turb.T, bs = "cr") + s(Diversity.T, bs = "cr") + s(Lake, bs = "re"), 
+                       family = quasibinomial, data = mod.data2, method = "ML")
+summary(trans.mix.gam19)  
+
+trans.mix.gam20 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(pH.T, bs = "cr") + s(Area_Perimeter, bs = "cr") + s(Lake, bs = "re"), 
+                       family = quasibinomial, data = mod.data2, method = "ML")
+summary(trans.mix.gam20)  
+
+trans.mix.gam21 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(pH.T, bs = "cr") + s(Diversity.T, bs = "cr") + s(Lake, bs = "re"), 
+                       family = quasibinomial, data = mod.data2, method = "ML")
+summary(trans.mix.gam21)  
+
+trans.mix.gam22 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(DO.T, bs = "cr") + s(Area_Perimeter, bs = "cr") + s(Lake, bs = "re"), 
+                       family = quasibinomial, data = mod.data2, method = "ML")
+summary(trans.mix.gam22)  
+
+trans.mix.gam23 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(DO.T, bs = "cr") + s(Diversity.T, bs = "cr") + s(Lake, bs = "re"), 
+                       family = quasibinomial, data = mod.data2, method = "ML")
+summary(trans.mix.gam23)  
+
+trans.mix.gam24 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Cond.T, bs = "cr") + s(Area_Perimeter, bs = "cr") + s(Lake, bs = "re"), 
+                       family = quasibinomial, data = mod.data2, method = "ML")
+summary(trans.mix.gam24)  
+
+trans.mix.gam25 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Cond.T, bs = "cr") + s(Diversity.T, bs = "cr") + s(Lake, bs = "re"), 
+                       family = quasibinomial, data = mod.data2, method = "ML")
+summary(trans.mix.gam25)  
+
+trans.mix.gam26 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Area_Perimeter, bs = "cr") + s(Diversity.T, bs = "cr") + s(Lake, bs = "re"), 
+                       family = quasibinomial, data = mod.data2, method = "ML")
+summary(trans.mix.gam26)  
