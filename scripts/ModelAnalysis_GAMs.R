@@ -28,6 +28,7 @@ library(mgcv)
 library(gamlss)
 
 source(paste0(to.R, "rquery.cormat.R"))
+source(paste0(to.R, "inverse_logit_trans.R"))
 
 ## Loading data ----
 
@@ -50,6 +51,7 @@ summary(NULL.GAMM) #Variable significant
 #Deviance explained = 68.6%
 
 appraise(NULL.GAMM)
+gam.check(NULL.GAMM)
 #Model validation not so good. Probably due to missing predictors.
 
 ### TN:TP ----
@@ -70,15 +72,9 @@ gam.check(TNTP.GAMM)
 #Model validation OK.
 
 #### Visualizing partial effects
-draw.TNTP <- draw(TNTP.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
+draw.TNTP <- draw(TNTP.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
+  scale_y_continuous(trans = inverse_logit_trans)
 draw.TNTP
-
-plot.TNTP <- plot(TNTP.GAMM, trans = plogis, residuals = TRUE, 
-                  shift = coef(TNTP.GAMM)[1], seWithMean = TRUE, 
-                  pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-                  ylab = "Prevalence", xlab = "TN:TP", 
-                  select = 1)
-plot.TNTP
 
 #### Visualizing summed effects
 
@@ -86,7 +82,6 @@ plot.TNTP
 TNTP.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN_TP.L, bs = "cr") + s(Lake, bs = "re"),
                    family = quasibinomial, data = mod.data, method = "ML")
 summary(TNTP.GAMM.L) #unsignificative
-
 
 ### Nitrogen ----
 #### Model
@@ -99,7 +94,6 @@ summary(TN.GAMM) #TN unsignificative
 TN.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(TN.T) + random(Lake), 
                      family = BB, data = mod.data, REML = TRUE, method = mixed())
 summary(TN.GAMM.BB)
-plot(TN.GAMM.BB)
 
 #### Model validation
 appraise(TN.GAMM)
@@ -107,19 +101,9 @@ gam.check(TN.GAMM)
 #Model validation shows some residual patterns
 
 #### Visualizing partial effects
-plot.TN <- plot(TN.GAMM, trans = plogis, residuals = TRUE, 
-                shift = coef(TN.GAMM)[1], seWithMean = TRUE, 
-                pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-                ylab = "Prevalence", xlab = "TN", 
-                select = 1)
-
-draw.TN <- draw(TN.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
+draw.TN <- draw(TN.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
+  scale_y_continuous(trans = inverse_logit_trans)
 draw.TN
-
-TN.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(TN.T) + random(Lake), 
-                   family = BB, data = mod.data, REML = TRUE, method = mixed())
-summary(TN.GAMM.BB)
-plot(TN.GAMM.BB)
 
 #### Lake mean model
 TN.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN.L, bs = "cr") + s(Lake, bs = "re"),
@@ -144,19 +128,14 @@ gam.check(TP.GAMM)
 #Model validation shows some residual patterns
 
 #### Visualizing partial effects
-plot.TP <- plot(TP.GAMM, trans = plogis, residuals = TRUE, 
-                shift = coef(TP.GAMM)[1], seWithMean = TRUE, 
-                pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-                ylab = "Prevalence", xlab = "TP", 
-                select = 1)
-draw.TP <- draw(TP.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
+draw.TP <- draw(TP.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
+  scale_y_continuous(trans = inverse_logit_trans)
 draw.TP
 
 #### Lake mean model
 TP.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TP.L, bs = "cr") + s(Lake, bs = "re"),
                  family = quasibinomial, data = mod.data, method = "ML")
 summary(TP.GAMM.L) #unsignificative
-
 
 ### Carbon ----
 #### Model
@@ -176,12 +155,8 @@ gam.check(TOC.GAMM)
 #Model validation shows some residual patterns
 
 #### Visualizing partial effects
-plot.TOC <- plot(TOC.GAMM, trans = plogis, residuals = TRUE, 
-                 shift = coef(TOC.GAMM)[1], seWithMean = TRUE, 
-                 pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-                 ylab = "Prevalence", xlab = "TOC", 
-                 select =1)
-draw.TOC <- draw(TOC.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
+draw.TOC <- draw(TOC.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) +
+  scale_y_continuous(trans = inverse_logit_trans)
 draw.TOC
 
 #### Lake mean model
@@ -193,7 +168,7 @@ summary(TOC.GAMM.L) #unsignificative
 #### Model
 SUB1.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Sub1, bs = "cs") + s(Lake, bs = "re"),
                  family = quasibinomial, data = mod.data, method = "ML")
-summary(SUB1.GAMM) #Sub1 not significant
+summary(SUB1.GAMM) #Sub1 is not significant
 #Adj. R-sq. = 0.62
 #Deviance explained  = 69.6%
 
@@ -207,12 +182,8 @@ gam.check(SUB1.GAMM)
 #Model validation shows some residual patterns
 
 #### Visualizing partial effects
-plot.SUB1 <- plot(SUB1.GAMM, trans = plogis, residuals = TRUE, 
-                  shift = coef(SUB1.GAMM)[1], seWithMean = TRUE, 
-                  pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-                  ylab = "Prevalence", xlab = "SUB1", 
-                  select = 1)
-draw.SUB1 <- draw(SUB1.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
+draw.SUB1 <- draw(SUB1.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) +
+  scale_y_continuous(trans = inverse_logit_trans)
 draw.SUB1
 
 ### Sub 2 ----
@@ -233,18 +204,14 @@ gam.check(SUB2.GAMM)
 #Model validation shows some residual patterns
 
 #### Visualizing partial effects
-plot.SUB2 <- plot(SUB2.GAMM, trans = plogis, residuals = TRUE, 
-                  shift = coef(SUB2.GAMM)[1], seWithMean = TRUE, 
-                  pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-                  ylab = "Prevalence", xlab = "SUB2", 
-                  select = 1)
-draw.SUB2 <- draw(SUB2.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
+draw.SUB2 <- draw(SUB2.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
+  scale_y_continuous(trans = inverse_logit_trans)
 draw.SUB2
 
 ### Macrophyte ----
 MACRO.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Macrophyte, bs = "cs") + s(Lake, bs = "re"),
                   family = quasibinomial, data = mod.data, method = "ML")
-summary(MACRO.GAMM) #All variable significant
+summary(MACRO.GAMM) #All variables are significant
 #Adj. R-sq. = 0.813
 #Deviance explained = 84.2%
 
@@ -258,14 +225,15 @@ gam.check(MACRO.GAMM)
 #Could be better...
 
 #### Visualizing partial effects
-plot.MACRO <- plot(MACRO.GAMM, trans = plogis, residuals = TRUE, 
-                   shift = coef(MACRO.GAMM)[1], seWithMean = TRUE, 
-                   pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-                   ylab = "Prevalence", xlab = "MACRO", 
-                   select = 1)
+#plot.MACRO <- plot(MACRO.GAMM, trans = plogis, residuals = TRUE, 
+                  #shift = coef(MACRO.GAMM)[1], seWithMean = TRUE, 
+                   #pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
+                   #ylab = "Prevalence", xlab = "MACRO", 
+                   #select = 1)
 #Signiticativity OK
 
-draw.MACRO <- draw(MACRO.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
+draw.MACRO <- draw(MACRO.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
+  scale_y_continuous(trans = inverse_logit_trans)
 draw.MACRO
 
 #### Visualizing summed effects
@@ -288,13 +256,8 @@ gam.check(DEPTH.GAMM)
 #Model validation shows some residual patterns
 
 #### Visualizing partial effects
-plot.DEPTH <- plot(DEPTH.GAMM, trans = plogis, residuals = TRUE, 
-                   shift = coef(DEPTH.GAMM)[1], seWithMean = TRUE, 
-                   pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-                   ylab = "Prevalence", xlab = "DEPTH", 
-                   select = 1)
-
-draw.DEPTH <- draw(DEPTH.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
+draw.DEPTH <- draw(DEPTH.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
+  scale_y_continuous(trans = inverse_logit_trans)
 draw.DEPTH
 
 ### Trunk ----
@@ -314,12 +277,9 @@ appraise(TRUNK.GAMM)
 gam.check(TRUNK.GAMM)
 #Model validation shows some residual patterns
 
-plot.TRUNK <- plot(TRUNK.GAMM, trans = plogis, residuals = TRUE, 
-                   shift = coef(TRUNK.GAMM)[1], seWithMean = TRUE, 
-                   pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-                   ylab = "Prevalence", xlab = "TRUNK", 
-                   select = 1)
-draw.TRUNK <- draw(TRUNK.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
+#### Visualizing partial effects
+draw.TRUNK <- draw(TRUNK.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
+  scale_y_continuous(trans = inverse_logit_trans)
 draw.TRUNK
 
 ### Temperature ----
@@ -340,12 +300,8 @@ gam.check(TEMP.GAMM)
 #Validation is fine
 
 #### Visualizing partial effects
-plot.TEMP <- plot(TEMP.GAMM, trans = plogis, residuals = TRUE, 
-                  shift = coef(TEMP.GAMM)[1], seWithMean = TRUE, 
-                  pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-                  ylab = "Prevalence", xlab = "TEMP", 
-                  select = 1)
-draw.TEMP <- draw(TEMP.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
+draw.TEMP <- draw(TEMP.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
+  scale_y_continuous(trans = inverse_logit_trans)
 draw.TEMP
 
 #### Lake mean effect
@@ -371,13 +327,8 @@ gam.check(TURB.GAMM)
 #Model validation is fine
 
 #### Visualizing partial effects
-plot.TURB <- plot(TURB.GAMM, trans = plogis, residuals = TRUE, 
-                  shift = coef(TURB.GAMM)[1], seWithMean = TRUE, 
-                  pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-                  ylab = "Prevalence", xlab = "TURB", 
-                  select = 1)
-
-draw.TURB <- draw(TURB.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
+draw.TURB <- draw(TURB.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
+  scale_y_continuous(trans = inverse_logit_trans)
 draw.TURB
 
 #### Visualizing summed effects
@@ -391,7 +342,7 @@ summary(TURB.GAMM.L) #unsignificative
 #### Model
 PH.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(pH.T, bs = "cs") + s(Lake, bs = "re"),
                family = quasibinomial, data = mod.data, method = "ML")
-summary(PH.GAMM) #All variable significant
+summary(PH.GAMM) #All variables are significant
 #Adj. R-sq. = 0.649
 #Deviance explained = 70.5%
 
@@ -405,13 +356,8 @@ gam.check(PH.GAMM)
 #Model validation is fine
 
 #### Visualizing partial effects
-plot.PH <- plot(PH.GAMM, trans = plogis, residuals = TRUE, 
-                shift = coef(PH.GAMM)[1], seWithMean = TRUE, 
-                pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-                ylab = "Prevalence", xlab = "PH", 
-                select = 1)
-
-draw.PH <- draw(PH.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
+draw.PH <- draw(PH.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) +
+  scale_y_continuous(trans = inverse_logit_trans)
 draw.PH
 
 #### Visualizing summed effects
@@ -439,12 +385,8 @@ gam.check(DO.GAMM)
 #Some residual patterns, but OK
 
 #### Visualizing partial effects
-plot.DO <- plot(DO.GAMM, trans = plogis, residuals = TRUE, 
-                shift = coef(DO.GAMM)[1], seWithMean = TRUE, 
-                pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-                ylab = "Prevalence", xlab = "DO", 
-                select = 1)
-draw.DO <- draw(DO.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
+draw.DO <- draw(DO.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
+  scale_y_continuous(trans = inverse_logit_trans)
 draw.DO
 
 #### Visualizing summed effects
@@ -465,7 +407,7 @@ summary(COND.GAMM) #Conductivity is significant (but not Lake)
 COND.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(Cond.T) + random(Lake), 
                      family = BB, data = mod.data, REML = TRUE, method = mixed())
 summary(COND.GAMM.BB) #All variables are significant
-
+plot(COND.GAMM.BB)
 #### Model validation
 appraise(COND.GAMM)
 gam.check(COND.GAMM)
@@ -473,13 +415,8 @@ gam.check(COND.GAMM)
 #Model has to be exclude
 
 #### Visualizing partial effects
-plot.COND <- plot(COND.GAMM, trans = plogis, residuals = TRUE, 
-                  shift = coef(COND.GAMM)[1], seWithMean = TRUE, 
-                  pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-                  ylab = "Prevalence", xlab = "COND", 
-                  select = 1)
-
-draw.COND <- draw(COND.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
+draw.COND <- draw(COND.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
+  scale_y_continuous(trans = inverse_logit_trans)
 draw.COND
 
 #### Lake mean model
@@ -505,13 +442,8 @@ gam.check(AREAPERI.GAMM)
 #Model validation shows some residual patterns
 
 #### Visualizing partial effects
-plot.AREAPERI <- plot(AREAPERI.GAMM, trans = plogis, residuals = TRUE, 
-                      shift = coef(AREAPERI.GAMM)[1], seWithMean = TRUE, 
-                      pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-                      ylab = "Prevalence", xlab = "AREAPERI", 
-                      select = 1)
-
-draw.AREAPERI <- draw(AREAPERI.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
+draw.AREAPERI <- draw(AREAPERI.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
+  scale_y_continuous(trans = inverse_logit_trans)
 draw.AREAPERI
 
 ### Area ----
@@ -532,13 +464,8 @@ gam.check(AREA.GAMM)
 #Model validation show some residual patterns
 
 #### Visualizing partial effects
-plot.AREA <- plot(AREA.GAMM, trans = plogis, residuals = TRUE, 
-                  shift = coef(AREA.GAMM)[1], seWithMean = TRUE, 
-                  pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-                  ylab = "Prevalence", xlab = "AREA", 
-                  select = 1)
-
-draw.AREA <- draw(AREA.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
+draw.AREA <- draw(AREA.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
+  scale_y_continuous(trans = inverse_logit_trans)
 draw.AREA
 
 ### Perimeter ----
@@ -559,13 +486,8 @@ gam.check(PERI.GAMM)
 #Model validation shows some residual patterns
 
 #### Visualizing partial effects
-plot.PERI <- plot(PERI.GAMM, trans = plogis, residuals = TRUE, 
-                  shift = coef(PERI.GAMM)[1], seWithMean = TRUE, 
-                  pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-                  ylab = "Prevalence", xlab = "PERI", 
-                  select = 1)
-
-draw.PERI <- draw(PERI.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
+draw.PERI <- draw(PERI.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
+  scale_y_continuous(trans = inverse_logit_trans)
 draw.PERI
 
 ### Mean depth ----
@@ -585,13 +507,8 @@ gam.check(MDEPTH.GAMM)
 #Model validation show some residual patterns
 
 #### Visualizing partial effects
-plot.MDEPTH <- plot(MDEPTH.GAMM, trans = plogis, residuals = TRUE, 
-                    shift = coef(MDEPTH.GAMM)[1], seWithMean = TRUE, 
-                    pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-                    ylab = "Prevalence", xlab = "MDEPTH", 
-                    select = 1)
-
-draw.MDEPTH <- draw(MDEPTH.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
+draw.MDEPTH <- draw(MDEPTH.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
+  scale_y_continuous(trans = inverse_logit_trans)
 draw.MDEPTH
 
 ### Maximum depth ----
@@ -611,19 +528,14 @@ gam.check(XDEPTH.GAMM)
 #Model validation show some residual patterns
 
 #### Visualizing partial effects
-plot.XDEPTH <- plot(MDEPTH.GAMM, trans = plogis, residuals = TRUE, 
-                    shift = coef(XDEPTH.GAMM)[1], seWithMean = TRUE, 
-                    pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-                    ylab = "Prevalence", xlab = "MDEPTH", 
-                    select = 1)
-
-draw.XDEPTH <- draw(XDEPTH.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
+draw.XDEPTH <- draw(XDEPTH.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
+  scale_y_continuous(trans = inverse_logit_trans)
 draw.XDEPTH
 
 ### Water residence time ----
 #### Model
 WRT.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(WRT, bs = "cs") + s(Lake, bs = "re"),
-                family = quasibinomial, data = mod.data, method = "ML")
+                family = quasibinomial, data = mod.data, method = "ML") 
 summary(WRT.GAMM) #WRT is not significant
 #Adj. R-sq. = 0.62
 #Deviance explained = 69.6%
@@ -638,13 +550,8 @@ gam.check(WRT.GAMM)
 #Model validation show some residual patterns
 
 #### Visualizing partial effects
-plot.WRT <- plot(WRT.GAMM, trans = plogis, residuals = TRUE, 
-                 shift = coef(WRT.GAMM)[1], seWithMean = TRUE, 
-                 pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-                 ylab = "Prevalence", xlab = "WRT", 
-                 select = 1)
-
-draw.WRT <- draw(WRT.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
+draw.WRT <- draw(WRT.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
+  scale_y_continuous(trans = inverse_logit_trans)
 draw.WRT
 
 ### Drainage area ----
@@ -665,13 +572,8 @@ gam.check(DRAIN.GAMM)
 #Model validation shows some residual patterns
 
 #### Visualizing partial effects
-plot.DRAIN <- plot(DRAIN.GAMM, trans = plogis, residuals = TRUE, 
-                   shift = coef(DRAIN.GAMM)[1], seWithMean = TRUE, 
-                   pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-                   ylab = "Prevalence", xlab = "DRAIN", 
-                   select = 1)
-
-draw.DRAIN <- draw(DRAIN.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
+draw.DRAIN <- draw(DRAIN.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
+  scale_y_continuous(trans = inverse_logit_trans)
 draw.DRAIN
 
 ### Elevation ----
@@ -692,13 +594,8 @@ gam.check(ELEV.GAMM)
 #Model validation shows some residual patterns
 
 #### Visualizing partial effects
-plot.ELEV <- plot(ELEV.GAMM, trans = plogis, residuals = TRUE, 
-                  shift = coef(ELEV.GAMM)[1], seWithMean = TRUE, 
-                  pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-                  ylab = "Prevalence", xlab = "ELEV", 
-                  select = 1)
-
-draw.ELEV <- draw(ELEV.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
+draw.ELEV <- draw(ELEV.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
+  scale_y_continuous(trans = inverse_logit_trans)
 draw.ELEV
 
 ### Centrarchids ----
@@ -717,13 +614,8 @@ gam.check(CENT.GAMM)
 #Model validation shows some residual patterns
 
 #### Visualizing partial effects
-plot.CENT <- plot(CENT.GAMM, trans = plogis, residuals = TRUE, 
-                  shift = coef(CENT.GAMM)[1], seWithMean = TRUE, 
-                  pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-                  ylab = "Prevalence", xlab = "CENT", 
-                  select = 1)
-
-draw.CENT <- draw(CENT.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
+draw.CENT <- draw(CENT.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
+  scale_y_continuous(trans = inverse_logit_trans)
 draw.CENT
 
 #### Lake mean model
@@ -749,13 +641,8 @@ gam.check(SP.GAMM)
 #Model validation shows some patterns
 
 #### Visualizing partial effects
-plot.SP <- plot(SP.GAMM, trans = plogis, residuals = TRUE, 
-                shift = coef(SP.GAMM)[1], seWithMean = TRUE, 
-                pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-                ylab = "Prevalence", xlab = "SP", 
-                select = 1)
-
-draw.SP <- draw(SP.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
+draw.SP <- draw(SP.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
+  scale_y_continuous(trans = inverse_logit_trans)
 draw.SP
 
 #### Lake mean model
@@ -780,12 +667,8 @@ gam.check(DIVERS.GAMM)
 #Model validation shows some residual patterns, but OK. 
 
 #### Visualizing partial effects
-plot.DIVERS <- plot(DIVERS.GAMM, trans = plogis, residuals = TRUE, 
-                    shift = coef(DIVERS.GAMM)[1], seWithMean = TRUE, 
-                    pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-                    ylab = "Prevalence", xlab = "DIVERS", 
-                    select = 1)
-draw.DIVERS <- draw(DIVERS.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
+draw.DIVERS <- draw(DIVERS.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
+  scale_y_continuous(trans = inverse_logit_trans)
 draw.DIVERS
 
 #### Visualizing summed effects
@@ -795,6 +678,7 @@ DIVERS.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Diversity.L, bs = 
                      family = quasibinomial, data = mod.data, method = "ML")
 summary(DIVERS.GAMM.L) #unsignificative
 
+#### HERE ####
 #All model plots
 #Setting colors for lakes
 color_pallete_function <- colorRampPalette(
