@@ -20,7 +20,8 @@ to.carto <- "./carto/"
 
 library(dplyr)
 library(ggplot2)
-library(patchwork)
+library(vegan)
+library(cowplot)
 
 source(paste0(to.R, "rquery.cormat.R"))
 
@@ -314,6 +315,36 @@ rquery.cormat(lake.corr.all, type = "full")
 #Mean depth & Max depth ; We will keep Mean depth as it has a potentially more meaningful impact on host-parasite ecology.
 #DO & pH + Cond & pH; We will keep pH as it has a potentially more meaningful impact on host-parasite ecology.
 
+#### Ordination ----
+
+lake.rda.data <- data.frame(lake.corr.all, row.names = ParaSpaceMod$Transect_ID)
+
+lake.rda <- rda(lake.rda.data, scale = TRUE) #Data must be scaled because variables have different units
+summary(lake.rda)
+
+par(mfrow = c(1, 1), mar = c(3, 3, 3, 1)) #Visualization of rda plots
+biplot(lake.rda, scaling = 1)
+biplot(lake.rda, scaling = 2)
+
+#Incorporating k-means groups to rda
+lake.groups <- cascadeKM(dist(scale(lake.rda.data)), 2, 4, criterion = "ssi")
+plot(lake.groups)
+
+lake.grKM <- as.vector(lake.groups$partition[,3]) #Extracting groups to add on rda plot
+lake.grKM <- as.factor(lake.grKM)
+col.groups <- c("yellowgreen","forestgreen","orange","dodgerblue")
+
+pdf(paste0(to.figs, "KmeansPCA_lake.pdf"), width = 20, height = 15)
+
+plot(lake.rda, scaling = 1, type = "n", main = "PCA + k-means cluster") #Visualization of k-means groups
+with(lake.rda.data, points(lake.rda, display = "sites", col = col.groups[lake.grKM], scaling = 1, pch = 21, bg = col.groups[lake.grKM]))
+arrows(0, 0, scores(lake.rda, scaling = 1 )$species[,1], scores(lake.rda, scaling = 1)$species[,2], col="black", code = 2, length = 0.05)
+ordiellipse(lake.rda, groups = lake.grKM, display = "sites", conf = 0.95, scaling = 1, col = col.groups, lwd = 2)
+text(scores(lake.rda, scaling = 1)$sites, row.names(lake.rda.data), cex=0.5,pos=3, col="black")
+text(lake.rda, display = "species", scaling = 1, cex = 0.5, col = "black", pos = 2)
+
+dev.off()
+
 ### Relationships ----
 
 lake.temp <- ggplot(data = ParaSpaceMod) + 
@@ -444,5 +475,8 @@ ggsave(paste0(to.figs, "Relationships_newvars.pdf"), plot = relationships.newvar
 
 ## Saving new data set ----
 
+mod.data$Lake <- as.factor(mod.data$Lake)
+mod.data$Transect_ID <- as.factor(mod.data$Transect_ID)
+mod.data$Watershed <- as.factor(mod.data$Watershed)
 write.csv(mod.data, paste0(to.output, "ModelAnalysis_Df.csv"), row.names = FALSE) #This data frame is ready and cleaned for model analysis
 

@@ -83,6 +83,10 @@ trans.mod <- trans.mod %>% #Relocating columns
   relocate("Species_richness.L", .after = "Species_richness.T") %>% 
   relocate("Diversity.L", .after = "Diversity.T")
 
+trans.mod$Lake <- as.factor(trans.mod$Lake)
+trans.mod$Transect_ID <- as.factor(trans.mod$Transect_ID)
+trans.mod$Watershed <- as.factor(trans.mod$Watershed)
+
 write.csv(trans.mod, paste0(to.output, "Transects_Lake_Data.csv"), row.names = FALSE) #Saving data set
 
 # ---- Modelling test ----

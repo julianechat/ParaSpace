@@ -25,80 +25,125 @@ library(cowplot)
 library(patchwork)
 library(gratia)
 library(mgcv)
+library(gamlss)
 
 source(paste0(to.R, "rquery.cormat.R"))
 
 ## Loading data ----
 
-ParaSpaceMod <- read.csv(paste0(to.output, "Transects_Lake_Data.csv"))
+mod.data <- read.csv(paste0(to.output, "ModelAnalysis_Df.csv"))
 
 # ---- Data analysis ----
+
 mod.data$Lake <- as.factor(mod.data$Lake)
-mod.data2 <- na.omit(mod.data)
-mod.data2$Lake <- as.factor(mod.data2$Lake)
+mod.data$Watershed <- as.factor(mod.data$Watershed)
+mod.data$Transect_ID <- as.factor(mod.data$Transect_ID)
 
-## ---- One predictor GAMs ----
-TNTP.GAMM3 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN_TP.T, bs = "cr") + s(Lake, bs = "re"),
-                  family = quasibinomial, data = mod.data2, method = "ML")
-summary(TNTP.GAMM3)
-appraise(TNTP.GAMM3, method = "simulate")
+## ---- One predictor GAMMs ----
 
-draw.TNTP <- draw(TNTP.GAMM3, unconditional = TRUE, overall_uncertainty = TRUE)
+### Null ----
+#Our null model is a random effects model
+NULL.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Lake, bs = "re"),
+                 family = quasibinomial, data = mod.data, method = "ML")
+summary(NULL.GAMM) #Variable significant
+#Adj. R-sq. = 0.62
+#Deviance explained = 68.6%
+
+appraise(NULL.GAMM)
+#Model validation not so good. Probably due to missing predictors.
+
+### TN:TP ----
+#### Model
+TNTP.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN_TP.T, bs = "cr") + s(Lake, bs = "re"),
+                  family = quasibinomial, data = mod.data, method = "ML")
+summary(TNTP.GAMM) #All variable significant
+#Adj. R-sq. = 0.845
+#Deviance explained = 87.1%
+
+TNTP.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(TN_TP.T) + random(Lake), 
+                     family = BB, data = mod.data, REML = TRUE)
+#Cannot converge
+
+#### Model validation
+appraise(TNTP.GAMM, method = "simulate")
+gam.check(TNTP.GAMM)
+#Model validation OK.
+
+#### Visualizing partial effects
+draw.TNTP <- draw(TNTP.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
 draw.TNTP
-#Visualizing with plot()
-plot.TNTP <- plot(TNTP.GAMM3, trans = plogis, residuals = TRUE, 
+
+plot.TNTP <- plot(TNTP.GAMM, trans = plogis, residuals = TRUE, 
                   shift = coef(TNTP.GAMM)[1], seWithMean = TRUE, 
                   pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
                   ylab = "Prevalence", xlab = "TN:TP", 
                   select = 1)
 plot.TNTP
 
+#### Visualizing summed effects
 
-#lake
+#### Lake mean model
 TNTP.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN_TP.L, bs = "cr") + s(Lake, bs = "re"),
-                   family = quasibinomial, data = mod.data2, method = "ML")
+                   family = quasibinomial, data = mod.data, method = "ML")
 summary(TNTP.GAMM.L) #unsignificative
 
-#Null
-NULL.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Lake, bs = "re"),
-                 family = quasibinomial, data = mod.data2, method = "ML")
-summary(NULL.GAMM)
-appraise(NULL.GAMM)
 
-#Nitrogen
+### Nitrogen ----
+#### Model
 TN.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN.T, bs = "cr") + s(Lake, bs = "re"),
-               family = quasibinomial, data = mod.data2, method = "ML")
-summary(TN.GAMM) #unsignificative
+               family = quasibinomial, data = mod.data, method = "ML")
+summary(TN.GAMM) #TN unsignificative
+#Adj. R-sq. = 0.65
+#Deviance explained = 72.6%
+
+TN.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(TN.T) + random(Lake), 
+                     family = BB, data = mod.data, REML = TRUE, method = mixed())
+summary(TN.GAMM.BB)
+plot(TN.GAMM.BB)
+
+#### Model validation
 appraise(TN.GAMM)
-check_overdispersion(TN.GAMM)
 gam.check(TN.GAMM)
+#Model validation shows some residual patterns
 
-
+#### Visualizing partial effects
 plot.TN <- plot(TN.GAMM, trans = plogis, residuals = TRUE, 
                 shift = coef(TN.GAMM)[1], seWithMean = TRUE, 
                 pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
                 ylab = "Prevalence", xlab = "TN", 
                 select = 1)
+
 draw.TN <- draw(TN.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
 draw.TN
 
-TN.GAMM2 <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(TN.T) + random(Lake), 
-                   family = BB, data = mod.data2, REML = TRUE, method = mixed())
-summary(TN.GAMM2)
+TN.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(TN.T) + random(Lake), 
+                   family = BB, data = mod.data, REML = TRUE, method = mixed())
+summary(TN.GAMM.BB)
+plot(TN.GAMM.BB)
 
-#lake
+#### Lake mean model
 TN.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN.L, bs = "cr") + s(Lake, bs = "re"),
-                 family = quasibinomial, data = mod.data2, method = "ML")
+                 family = quasibinomial, data = mod.data, method = "ML")
 summary(TN.GAMM.L) #unsignificative
 
-#Phosphorus
+### Phosphorus ----
+#### Model
 TP.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TP.T, bs = "cr") + s(Lake, bs = "re"),
-               family = quasibinomial, data = mod.data2, method = "ML")
-summary(TP.GAMM) #unsignificative
-appraise(TP.GAMM)
-check_overdispersion(TP.GAMM)
-gam.check(TP.GAMM)
+               family = quasibinomial, data = mod.data, method = "ML")
+summary(TP.GAMM) #TP not significative
+#Adj. R-sq. = 0.667
+#Deviance explained = 73.5%
 
+TP.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(TP.T) + random(Lake), 
+                     family = BB, data = mod.data, REML = TRUE, method = mixed())
+#Cannot converge
+
+#### Model validation
+appraise(TP.GAMM)
+gam.check(TP.GAMM)
+#Model validation shows some residual patterns
+
+#### Visualizing partial effects
 plot.TP <- plot(TP.GAMM, trans = plogis, residuals = TRUE, 
                 shift = coef(TP.GAMM)[1], seWithMean = TRUE, 
                 pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
@@ -107,19 +152,30 @@ plot.TP <- plot(TP.GAMM, trans = plogis, residuals = TRUE,
 draw.TP <- draw(TP.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
 draw.TP
 
-#lake
+#### Lake mean model
 TP.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TP.L, bs = "cr") + s(Lake, bs = "re"),
-                 family = quasibinomial, data = mod.data2, method = "ML")
+                 family = quasibinomial, data = mod.data, method = "ML")
 summary(TP.GAMM.L) #unsignificative
 
-#Carbon
-TOC.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TOC.T, bs = "cs") + s(Lake, bs = "re"),
-                family = quasibinomial, data = mod.data2, method = "ML")
-summary(TOC.GAMM) #unsignificative
-appraise(TOC.GAMM)
-check_overdispersion(TOC.GAMM)
-gam.check(TOC.GAMM) #TOC should be linear
 
+### Carbon ----
+#### Model
+TOC.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TOC.T, bs = "cs") + s(Lake, bs = "re"),
+                family = quasibinomial, data = mod.data, method = "ML")
+summary(TOC.GAMM) #TOC not significant
+#Adj. R-sq. = 0.62
+#Deviance explained = 69.6%
+
+TOC.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(TOC.T) + random(Lake), 
+                      family = BB, data = mod.data, REML = TRUE, method = mixed())
+#Cannot converge
+
+#### Model validation
+appraise(TOC.GAMM)
+gam.check(TOC.GAMM)
+#Model validation shows some residual patterns
+
+#### Visualizing partial effects
 plot.TOC <- plot(TOC.GAMM, trans = plogis, residuals = TRUE, 
                  shift = coef(TOC.GAMM)[1], seWithMean = TRUE, 
                  pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
@@ -128,19 +184,29 @@ plot.TOC <- plot(TOC.GAMM, trans = plogis, residuals = TRUE,
 draw.TOC <- draw(TOC.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
 draw.TOC
 
-#lake
+#### Lake mean model
 TOC.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TOC.L, bs = "cr") + s(Lake, bs = "re"),
-                  family = quasibinomial, data = mod.data2, method = "ML")
+                  family = quasibinomial, data = mod.data, method = "ML")
 summary(TOC.GAMM.L) #unsignificative
 
-#Sub 1
+### Sub 1 ----
+#### Model
 SUB1.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Sub1, bs = "cs") + s(Lake, bs = "re"),
-                 family = quasibinomial, data = mod.data2, method = "ML")
-summary(SUB1.GAMM) #unsignificative
-appraise(SUB1.GAMM)
-check_overdispersion(SUB1.GAMM)
-gam.check(SUB1.GAMM)
+                 family = quasibinomial, data = mod.data, method = "ML")
+summary(SUB1.GAMM) #Sub1 not significant
+#Adj. R-sq. = 0.62
+#Deviance explained  = 69.6%
 
+SUB1.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(Sub1) + random(Lake), 
+                      family = BB, data = mod.data, REML = TRUE, method = mixed())
+#Cannot converge
+
+#### Model validation
+appraise(SUB1.GAMM)
+gam.check(SUB1.GAMM)
+#Model validation shows some residual patterns
+
+#### Visualizing partial effects
 plot.SUB1 <- plot(SUB1.GAMM, trans = plogis, residuals = TRUE, 
                   shift = coef(SUB1.GAMM)[1], seWithMean = TRUE, 
                   pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
@@ -149,14 +215,24 @@ plot.SUB1 <- plot(SUB1.GAMM, trans = plogis, residuals = TRUE,
 draw.SUB1 <- draw(SUB1.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
 draw.SUB1
 
-#Sub 2
+### Sub 2 ----
+#### Model
 SUB2.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Sub2, bs = "cs") + s(Lake, bs = "re"),
-                 family = quasibinomial, data = mod.data2, method = "ML")
-summary(SUB2.GAMM) #unsignificative
-appraise(SUB2.GAMM)
-check_overdispersion(SUB2.GAMM)
-gam.check(SUB2.GAMM)
+                 family = quasibinomial, data = mod.data, method = "ML")
+summary(SUB2.GAMM) #Sub2 not significant
+#Adj. R-sq. = 0.62
+#Deviance explaine = 69.6%
 
+SUB2.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(Sub2) + random(Lake), 
+                       family = BB, data = mod.data, REML = TRUE, method = mixed())
+#Cannot converge
+
+#### Model validation
+appraise(SUB2.GAMM)
+gam.check(SUB2.GAMM)
+#Model validation shows some residual patterns
+
+#### Visualizing partial effects
 plot.SUB2 <- plot(SUB2.GAMM, trans = plogis, residuals = TRUE, 
                   shift = coef(SUB2.GAMM)[1], seWithMean = TRUE, 
                   pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
@@ -165,45 +241,78 @@ plot.SUB2 <- plot(SUB2.GAMM, trans = plogis, residuals = TRUE,
 draw.SUB2 <- draw(SUB2.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
 draw.SUB2
 
-#Macrophyte
+### Macrophyte ----
 MACRO.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Macrophyte, bs = "cs") + s(Lake, bs = "re"),
-                  family = quasibinomial, data = mod.data2, method = "ML")
-summary(MACRO.GAMM) #significative
-appraise(MACRO.GAMM)
-check_overdispersion(MACRO.GAMM)
-gam.check(MACRO.GAMM)
+                  family = quasibinomial, data = mod.data, method = "ML")
+summary(MACRO.GAMM) #All variable significant
+#Adj. R-sq. = 0.813
+#Deviance explained = 84.2%
 
+MACRO.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(Macrophyte) + random(Lake), 
+                       family = BB, data = mod.data, REML = TRUE, method = mixed())
+#Cannot converge
+
+#### Model validation
+appraise(MACRO.GAMM)
+gam.check(MACRO.GAMM)
+#Could be better...
+
+#### Visualizing partial effects
 plot.MACRO <- plot(MACRO.GAMM, trans = plogis, residuals = TRUE, 
                    shift = coef(MACRO.GAMM)[1], seWithMean = TRUE, 
                    pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
                    ylab = "Prevalence", xlab = "MACRO", 
                    select = 1)
+#Signiticativity OK
+
 draw.MACRO <- draw(MACRO.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
 draw.MACRO
 
-#Depth
-DEPTH.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Depth, bs = "cs") + s(Lake, bs = "re"),
-                  family = quasibinomial, data = mod.data2, method = "ML")
-summary(DEPTH.GAMM) #unsignificative
-appraise(DEPTH.GAMM)
-check_overdispersion(DEPTH.GAMM)
-gam.check(DEPTH.GAMM)
+#### Visualizing summed effects
 
+### Transect depth ----
+#### Model
+DEPTH.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Depth, bs = "cs") + s(Lake, bs = "re"),
+                  family = quasibinomial, data = mod.data, method = "ML")
+summary(DEPTH.GAMM) #Depth not significant
+#Adj. R- sq. = 0.62
+#Deviance explained = 69.6%
+
+DEPTH.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(Depth) + random(Lake), 
+                        family = BB, data = mod.data, REML = TRUE, method = mixed())
+summary(DEPTH.GAMM.BB) #Not significant
+
+#### Model validation
+appraise(DEPTH.GAMM)
+gam.check(DEPTH.GAMM)
+#Model validation shows some residual patterns
+
+#### Visualizing partial effects
 plot.DEPTH <- plot(DEPTH.GAMM, trans = plogis, residuals = TRUE, 
                    shift = coef(DEPTH.GAMM)[1], seWithMean = TRUE, 
                    pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
                    ylab = "Prevalence", xlab = "DEPTH", 
                    select = 1)
+
 draw.DEPTH <- draw(DEPTH.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
 draw.DEPTH
 
-#Trunk
+### Trunk ----
+#### Model
 TRUNK.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Trunk, bs = "cs") + s(Lake, bs = "re"),
-                  family = quasibinomial, data = mod.data2, method = "ML")
-summary(TRUNK.GAMM) #unsignificative
-appraise(TRUNK.GAMM) #some residual patterns
-check_overdispersion(TRUNK.GAMM)
+                  family = quasibinomial, data = mod.data, method = "ML")
+summary(TRUNK.GAMM) #Trunk not significant
+# Adj. R-sq. = 0.62
+#Deviance explained = 69.6%
+
+TRUNK.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(Trunk) + random(Lake), 
+                        family = BB, data = mod.data, REML = TRUE, method = mixed())
+summary(TRUNK.GAMM.BB) #Not significant
+
+#### Model validation
+appraise(TRUNK.GAMM)
 gam.check(TRUNK.GAMM)
+#Model validation shows some residual patterns
 
 plot.TRUNK <- plot(TRUNK.GAMM, trans = plogis, residuals = TRUE, 
                    shift = coef(TRUNK.GAMM)[1], seWithMean = TRUE, 
@@ -213,15 +322,24 @@ plot.TRUNK <- plot(TRUNK.GAMM, trans = plogis, residuals = TRUE,
 draw.TRUNK <- draw(TRUNK.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
 draw.TRUNK
 
-#Temperature
+### Temperature ----
+#### Model
 TEMP.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Temp.T, bs = "cs") + s(Lake, bs = "re"),
-                 family = quasibinomial, data = mod.data2, method = "ML")
-summary(TEMP.GAMM) #significative
+                 family = quasibinomial, data = mod.data, method = "ML")
+summary(TEMP.GAMM) #All variable significant
+#Adj. R-sq. = 0.745
+#Deviance explained = 79.5%
+
+TEMP.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(Temp.T) + random(Lake), 
+                        family = BB, data = mod.data, REML = TRUE, method = mixed())
+summary(TEMP.GAMM.BB) #Not significant
+
+#### Model validation
 appraise(TEMP.GAMM)
 gam.check(TEMP.GAMM)
-check_overdispersion(TEMP.GAMM)
-gam.check(TEMP.GAMM)
+#Validation is fine
 
+#### Visualizing partial effects
 plot.TEMP <- plot(TEMP.GAMM, trans = plogis, residuals = TRUE, 
                   shift = coef(TEMP.GAMM)[1], seWithMean = TRUE, 
                   pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
@@ -230,62 +348,97 @@ plot.TEMP <- plot(TEMP.GAMM, trans = plogis, residuals = TRUE,
 draw.TEMP <- draw(TEMP.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
 draw.TEMP
 
-#lake
+#### Lake mean effect
 TEMP.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Temp.L, bs = "cr") + s(Lake, bs = "re"),
                    family = quasibinomial, data = mod.data2, method = "ML")
 summary(TEMP.GAMM.L) #unsignificative
 
-#Turbidity
+### Turbidity ----
+#### Model
 TURB.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Turb.T, bs = "cs") + s(Lake, bs = "re"),
-                 family = quasibinomial, data = mod.data2, method = "ML")
-summary(TURB.GAMM) #significative
-appraise(TURB.GAMM) #pretty good
-check_overdispersion(TURB.GAMM)
-gam.check(TURB.GAMM)
+                 family = quasibinomial, data = mod.data, method = "ML")
+summary(TURB.GAMM) #All variable significant
+#Adj. R-sq. = 0.853
+#Deviance explained = 88.7%
 
+TURB.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(Turb.T) + random(Lake), 
+                       family = BB, data = mod.data, REML = TRUE, method = mixed())
+#Cannot converge
+
+#### Model validation
+appraise(TURB.GAMM) #pretty good
+gam.check(TURB.GAMM)
+#Model validation is fine
+
+#### Visualizing partial effects
 plot.TURB <- plot(TURB.GAMM, trans = plogis, residuals = TRUE, 
                   shift = coef(TURB.GAMM)[1], seWithMean = TRUE, 
                   pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
                   ylab = "Prevalence", xlab = "TURB", 
                   select = 1)
+
 draw.TURB <- draw(TURB.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
 draw.TURB
 
-#lake
+#### Visualizing summed effects
+
+#### Lake mean model
 TURB.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Turb.L, bs = "cr") + s(Lake, bs = "re"),
-                   family = quasibinomial, data = mod.data2, method = "ML")
+                   family = quasibinomial, data = mod.data, method = "ML")
 summary(TURB.GAMM.L) #unsignificative
 
-#pH
+### pH ----
+#### Model
 PH.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(pH.T, bs = "cs") + s(Lake, bs = "re"),
-               family = quasibinomial, data = mod.data2, method = "ML")
-summary(PH.GAMM) #significative
-appraise(PH.GAMM)
-check_overdispersion(PH.GAMM)
-gam.check(PH.GAMM) #almost linear
+               family = quasibinomial, data = mod.data, method = "ML")
+summary(PH.GAMM) #All variable significant
+#Adj. R-sq. = 0.649
+#Deviance explained = 70.5%
 
+PH.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(pH.T) + random(Lake), 
+                       family = BB, data = mod.data, REML = TRUE, method = mixed())
+summary(PH.GAMM.BB) #All variable significant
+
+#### Model validation
+appraise(PH.GAMM)
+gam.check(PH.GAMM)
+#Model validation is fine
+
+#### Visualizing partial effects
 plot.PH <- plot(PH.GAMM, trans = plogis, residuals = TRUE, 
                 shift = coef(PH.GAMM)[1], seWithMean = TRUE, 
                 pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
                 ylab = "Prevalence", xlab = "PH", 
                 select = 1)
+
 draw.PH <- draw(PH.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
 draw.PH
 
-#lake
+#### Visualizing summed effects
+
+#### Lake mean model
 PH.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(pH.L, bs = "cr") + s(Lake, bs = "re"),
-                 family = quasibinomial, data = mod.data2, method = "ML")
+                 family = quasibinomial, data = mod.data, method = "ML")
 summary(PH.GAMM.L) #significative
-draw(PH.GAMM.L)
 
-#Oxygen
+### Oxygen ----
+#### Model
 DO.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(DO.T, bs = "cs") + s(Lake, bs = "re"),
-               family = quasibinomial, data = mod.data2, method = "ML")
-summary(DO.GAMM) #significative
-appraise(DO.GAMM, method = "simulate")
-check_overdispersion(DO.GAMM)
-gam.check(DO.GAMM)
+               family = quasibinomial, data = mod.data, method = "ML")
+summary(DO.GAMM) #All variables significant
+#Adj. R-sq. = 0.683
+#Deviance explained = 75.3%
 
+DO.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(DO.T) + random(Lake), 
+                     family = BB, data = mod.data, REML = TRUE, method = mixed())
+#Connot converge
+
+#### Model validation
+appraise(DO.GAMM, method = "simulate")
+gam.check(DO.GAMM)
+#Some residual patterns, but OK
+
+#### Visualizing partial effects
 plot.DO <- plot(DO.GAMM, trans = plogis, residuals = TRUE, 
                 shift = coef(DO.GAMM)[1], seWithMean = TRUE, 
                 pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
@@ -294,203 +447,339 @@ plot.DO <- plot(DO.GAMM, trans = plogis, residuals = TRUE,
 draw.DO <- draw(DO.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
 draw.DO
 
-#lake
+#### Visualizing summed effects
+
+#### Lake mean model
 DO.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(DO.L, bs = "cr") + s(Lake, bs = "re"),
-                 family = quasibinomial, data = mod.data2, method = "ML")
+                 family = quasibinomial, data = mod.data, method = "ML")
 summary(DO.GAMM.L) #unsignificative
 
-#Conductivity
+### Conductivity ----
+#### Model
 COND.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Cond.T, bs = "cs") + s(Lake, bs = "re"),
-                 family = quasibinomial, data = mod.data2, method = "ML")
-summary(COND.GAMM) #significative (but not for Lake)
-appraise(COND.GAMM) #meh
-check_overdispersion(COND.GAMM)
-gam.check(COND.GAMM)
+                 family = quasibinomial, data = mod.data, method = "ML")
+summary(COND.GAMM) #Conductivity is significant (but not Lake)
+#Adj. R-sq. = 0.536
+#Deviance explained = 56.4%
 
+COND.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(Cond.T) + random(Lake), 
+                     family = BB, data = mod.data, REML = TRUE, method = mixed())
+summary(COND.GAMM.BB) #All variables are significant
+
+#### Model validation
+appraise(COND.GAMM)
+gam.check(COND.GAMM)
+#Model validation is not good
+#Model has to be exclude
+
+#### Visualizing partial effects
 plot.COND <- plot(COND.GAMM, trans = plogis, residuals = TRUE, 
                   shift = coef(COND.GAMM)[1], seWithMean = TRUE, 
                   pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
                   ylab = "Prevalence", xlab = "COND", 
                   select = 1)
+
 draw.COND <- draw(COND.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
 draw.COND
 
-#lake
+#### Lake mean model
 COND.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Cond.L, bs = "cr") + s(Lake, bs = "re"),
-                   family = quasibinomial, data = mod.data2, method = "ML")
+                   family = quasibinomial, data = mod.data, method = "ML")
 summary(COND.GAMM.L) #significative
 
-#Area:Perimeter
+### Area:Perimeter ----
+#### Model
 AREAPERI.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Area_Perimeter, bs = "cs") + s(Lake, bs = "re"),
-                     family = quasibinomial, data = mod.data2, method = "ML")
-summary(AREAPERI.GAMM) #significative (but not lake)
-appraise(AREAPERI.GAMM)
-check_overdispersion(AREAPERI.GAMM)
-gam.check(AREAPERI.GAMM)
+                     family = quasibinomial, data = mod.data, method = "ML")
+summary(AREAPERI.GAMM) #Area:Perimeter is significant (but not lake)
+#Adj. R-sq. = 0.63
+#Deviance explained = 67.8%
 
+AREAPERI.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(Area_Perimeter) + random(Lake), 
+                       family = BB, data = mod.data, REML = TRUE, method = mixed())
+summary(AREAPERI.GAMM.BB) #Area:Perimeter is significant
+
+#### Model validation
+appraise(AREAPERI.GAMM)
+gam.check(AREAPERI.GAMM)
+#Model validation shows some residual patterns
+
+#### Visualizing partial effects
 plot.AREAPERI <- plot(AREAPERI.GAMM, trans = plogis, residuals = TRUE, 
                       shift = coef(AREAPERI.GAMM)[1], seWithMean = TRUE, 
                       pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
                       ylab = "Prevalence", xlab = "AREAPERI", 
                       select = 1)
+
 draw.AREAPERI <- draw(AREAPERI.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
 draw.AREAPERI
 
-#Area
+### Area ----
+#### Model
 AREA.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Lake_area, bs = "cs") + s(Lake, bs = "fs"),
-                 family = quasibinomial, data = mod.data2, method = "ML")
-summary(AREA.GAMM) #unsignificative
-appraise(AREA.GAMM)
-check_overdispersion(AREA.GAMM)
-gam.check(AREA.GAMM)
+                 family = quasibinomial, data = mod.data, method = "ML")
+summary(AREA.GAMM) #Lake area is not significant
+#Adj. R-sq. = 0.62
+#Deviance explained = 69.6%
 
+AREA.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(Lake_area) + random(Lake), 
+                           family = BB, data = mod.data, REML = TRUE, method = mixed())
+#Model cannot converge
+
+#### Model validation
+appraise(AREA.GAMM)
+gam.check(AREA.GAMM)
+#Model validation show some residual patterns
+
+#### Visualizing partial effects
 plot.AREA <- plot(AREA.GAMM, trans = plogis, residuals = TRUE, 
                   shift = coef(AREA.GAMM)[1], seWithMean = TRUE, 
                   pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
                   ylab = "Prevalence", xlab = "AREA", 
                   select = 1)
+
 draw.AREA <- draw(AREA.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
 draw.AREA
 
-#Perimeter
+### Perimeter ----
+#### Model 
 PERI.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Perimeter, bs = "cs") + s(Lake, bs = "re"),
-                 family = quasibinomial, data = mod.data2, method = "ML")
-summary(PERI.GAMM) #significative (but not lake)
-appraise(PERI.GAMM)
-check_overdispersion(PERI.GAMM)
-gam.check(PERI.GAMM)
+                 family = quasibinomial, data = mod.data, method = "ML")
+summary(PERI.GAMM) #Perimeter is significant (but not lake)
+#Adj. R-sq. = 0.63
+#Deviance explained = 69.9%
 
+PERI.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(Perimeter) + random(Lake), 
+                       family = BB, data = mod.data, REML = TRUE, method = mixed())
+#Model cannot converge
+
+#### Mode validation
+appraise(PERI.GAMM)
+gam.check(PERI.GAMM)
+#Model validation shows some residual patterns
+
+#### Visualizing partial effects
 plot.PERI <- plot(PERI.GAMM, trans = plogis, residuals = TRUE, 
                   shift = coef(PERI.GAMM)[1], seWithMean = TRUE, 
                   pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
                   ylab = "Prevalence", xlab = "PERI", 
                   select = 1)
+
 draw.PERI <- draw(PERI.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
 draw.PERI
 
-#Mean depth
+### Mean depth ----
 MDEPTH.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Mean_depth, bs = "cs") + s(Lake, bs = "re"),
-                   family = quasibinomial, data = mod.data2, method = "ML")
-summary(MDEPTH.GAMM) #unsignificative
-appraise(MDEPTH.GAMM)
-check_overdispersion(MDEPTH.GAMM)
-gam.check(MDEPTH.GAMM)
+                   family = quasibinomial, data = mod.data, method = "ML")
+summary(MDEPTH.GAMM) #Mean depth is not significant
+#Adj. R-sq. = 0.62
+#Deviance explained = 69.6%
 
+MDEPTH.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(Mean_depth) + random(Lake), 
+                       family = BB, data = mod.data, REML = TRUE, method = mixed())
+summary(MDEPTH.GAMM.BB) #Model is not significant
+
+#### Model validation
+appraise(MDEPTH.GAMM)
+gam.check(MDEPTH.GAMM)
+#Model validation show some residual patterns
+
+#### Visualizing partial effects
 plot.MDEPTH <- plot(MDEPTH.GAMM, trans = plogis, residuals = TRUE, 
                     shift = coef(MDEPTH.GAMM)[1], seWithMean = TRUE, 
                     pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
                     ylab = "Prevalence", xlab = "MDEPTH", 
                     select = 1)
+
 draw.MDEPTH <- draw(MDEPTH.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
 draw.MDEPTH
 
-#Water residence time
-WRT.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(WRT, bs = "cs") + s(Lake, bs = "re"),
-                family = quasibinomial, data = mod.data2, method = "ML")
-summary(WRT.GAMM) #unsignificative
-appraise(WRT.GAMM)
-check_overdispersion(WRT.GAMM)
-gam.check(WRT.GAMM)
+### Maximum depth ----
+XDEPTH.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Max_depth, bs = "cs") + s(Lake, bs = "re"),
+                   family = quasibinomial, data = mod.data, method = "ML")
+summary(XDEPTH.GAMM) #Maximum depth is not significant
+#Adj. R-sq. = 0.62
+#Deviance explained = 69.6%
 
+XDEPTH.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(Max_depth) + random(Lake), 
+                         family = BB, data = mod.data, REML = TRUE, method = mixed())
+summary(XDEPTH.GAMM.BB) #Model is not significant
+
+#### Model validation
+appraise(XDEPTH.GAMM)
+gam.check(XDEPTH.GAMM)
+#Model validation show some residual patterns
+
+#### Visualizing partial effects
+plot.XDEPTH <- plot(MDEPTH.GAMM, trans = plogis, residuals = TRUE, 
+                    shift = coef(XDEPTH.GAMM)[1], seWithMean = TRUE, 
+                    pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
+                    ylab = "Prevalence", xlab = "MDEPTH", 
+                    select = 1)
+
+draw.XDEPTH <- draw(XDEPTH.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
+draw.XDEPTH
+
+### Water residence time ----
+#### Model
+WRT.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(WRT, bs = "cs") + s(Lake, bs = "re"),
+                family = quasibinomial, data = mod.data, method = "ML")
+summary(WRT.GAMM) #WRT is not significant
+#Adj. R-sq. = 0.62
+#Deviance explained = 69.6%
+
+WRT.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(WRT) + random(Lake), 
+                         family = BB, data = mod.data, REML = TRUE, method = mixed())
+#Model cannot converge
+
+#### Model validation
+appraise(WRT.GAMM)
+gam.check(WRT.GAMM)
+#Model validation show some residual patterns
+
+#### Visualizing partial effects
 plot.WRT <- plot(WRT.GAMM, trans = plogis, residuals = TRUE, 
                  shift = coef(WRT.GAMM)[1], seWithMean = TRUE, 
                  pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
                  ylab = "Prevalence", xlab = "WRT", 
                  select = 1)
+
 draw.WRT <- draw(WRT.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
 draw.WRT
 
-#Drainage area
+### Drainage area ----
+#### Model
 DRAIN.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Drainage_area, bs = "cs") + s(Lake, bs = "re"),
-                  family = quasibinomial, data = mod.data2, method = "ML")
-summary(DRAIN.GAMM) #unsignificative
-appraise(DRAIN.GAMM)
-check_overdispersion(DRAIN.GAMM)
-gam.check(DRAIN.GAMM)
+                  family = quasibinomial, data = mod.data, method = "ML")
+summary(DRAIN.GAMM) #Drainage area is not significant
+#Adj. R-sq. = 0.621
+#Deviance explained = 69.7%
 
+DRAIN.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(Drainage_area) + random(Lake), 
+                      family = BB, data = mod.data, REML = TRUE, method = mixed())
+#Model cannot converge
+
+#### Model validation
+appraise(DRAIN.GAMM)
+gam.check(DRAIN.GAMM)
+#Model validation shows some residual patterns
+
+#### Visualizing partial effects
 plot.DRAIN <- plot(DRAIN.GAMM, trans = plogis, residuals = TRUE, 
                    shift = coef(DRAIN.GAMM)[1], seWithMean = TRUE, 
                    pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
                    ylab = "Prevalence", xlab = "DRAIN", 
                    select = 1)
+
 draw.DRAIN <- draw(DRAIN.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
 draw.DRAIN
 
-#without achigan
-mod.data3 <- mod.data2 %>% filter(!(Lake == "Achigan"))
-DRAIN.GAMM2 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Drainage_area, bs = "cs") + s(Lake, bs = "re"),
-                   family = quasibinomial, data = mod.data3, method = "ML")
-summary(DRAIN.GAMM2) #unsignificative
-appraise(DRAIN.GAMM2)
-draw(DRAIN.GAMM2)
-
-#Elevation
+### Elevation ----
+#### Model
 ELEV.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Elevation, bs = "cs") + s(Lake, bs = "re"),
-                 family = quasibinomial, data = mod.data2, method = "ML")
-summary(ELEV.GAMM) #unsignificative
-appraise(ELEV.GAMM)
-check_overdispersion(ELEV.GAMM)
-gam.check(ELEV.GAMM)
+                 family = quasibinomial, data = mod.data, method = "ML")
+summary(ELEV.GAMM) #Elevation is not significant
+#Adj. R-sq. = 0.62
+#Deviance explained = 69.6%
 
+ELEV.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(Elevation) + random(Lake), 
+                        family = BB, data = mod.data, REML = TRUE, method = mixed())
+#Model cannot converge
+
+#### Model validation
+appraise(ELEV.GAMM)
+gam.check(ELEV.GAMM)
+#Model validation shows some residual patterns
+
+#### Visualizing partial effects
 plot.ELEV <- plot(ELEV.GAMM, trans = plogis, residuals = TRUE, 
                   shift = coef(ELEV.GAMM)[1], seWithMean = TRUE, 
                   pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
                   ylab = "Prevalence", xlab = "ELEV", 
                   select = 1)
+
 draw.ELEV <- draw(ELEV.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
 draw.ELEV
 
-#Centrarchids
+### Centrarchids ----
+#### Model
 CENT.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Centrarchids.T, bs = "cs") + s(Lake, bs = "re"),
-                 family = quasibinomial, data = mod.data2, method = "ML")
-summary(CENT.GAMM) #unsignificative
-appraise(CENT.GAMM)
-check_overdispersion(CENT.GAMM)
-gam.check(CENT.GAMM)
+                 family = quasibinomial, data = mod.data, method = "ML")
+summary(CENT.GAMM) #Centrarchids is not significant
 
+CENT.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(Centrarchids.T) + random(Lake), 
+                        family = BB, data = mod.data, REML = TRUE, method = mixed())
+#Model cannot converge
+
+#### Model validation
+appraise(CENT.GAMM)
+gam.check(CENT.GAMM)
+#Model validation shows some residual patterns
+
+#### Visualizing partial effects
 plot.CENT <- plot(CENT.GAMM, trans = plogis, residuals = TRUE, 
                   shift = coef(CENT.GAMM)[1], seWithMean = TRUE, 
                   pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
                   ylab = "Prevalence", xlab = "CENT", 
                   select = 1)
+
 draw.CENT <- draw(CENT.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
 draw.CENT
 
-#lake
+#### Lake mean model
 CENT.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Centrarchids.L, bs = "cr") + s(Lake, bs = "re"),
-                   family = quasibinomial, data = mod.data2, method = "ML")
+                   family = quasibinomial, data = mod.data, method = "ML")
 summary(CENT.GAMM.L) #unsignificative
 
-#Species richness
+### Species richness ----
+#### Model
 SP.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Species_richness.T, bs = "cs", k = 5) + s(Lake, bs = "re"),
-               family = quasibinomial, data = mod.data2, method = "ML")
-summary(SP.GAMM) #unsignificative
-appraise(SP.GAMM)
-check_overdispersion(SP.GAMM)
-gam.check(SP.GAMM)
+               family = quasibinomial, data = mod.data, method = "ML")
+summary(SP.GAMM) #Species richness is not significant
+#Adj. R-sq. = 0.664
+#Deviance explained = 73.6%
 
+SP.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(Species_richness.T) + random(Lake), 
+                      family = BB, data = mod.data, REML = TRUE, method = mixed())
+summary(SP.GAMM.BB) #Model is not significant
+
+#### Model validation
+appraise(SP.GAMM)
+gam.check(SP.GAMM)
+#Model validation shows some patterns
+
+#### Visualizing partial effects
 plot.SP <- plot(SP.GAMM, trans = plogis, residuals = TRUE, 
                 shift = coef(SP.GAMM)[1], seWithMean = TRUE, 
                 pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
                 ylab = "Prevalence", xlab = "SP", 
                 select = 1)
+
 draw.SP <- draw(SP.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
 draw.SP
 
-#lake
+#### Lake mean model
 SP.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Species_richness.L, bs = "cr", k = 4) + s(Lake, bs = "re"),
-                 family = quasibinomial, data = mod.data2, method = "ML")
-summary(SP.GAMM.L) #significative
-draw(SP.GAMM.L, residuals = TRUE)
+                 family = quasibinomial, data = mod.data, method = "ML")
+summary(SP.GAMM.L) #Species richness is significant
 
-#Diversity
+### Diversity ----
 DIVERS.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Diversity.T, bs = "cs") + s(Lake, bs = "re"),
-                   family = quasibinomial, data = mod.data2, method = "ML")
-summary(DIVERS.GAMM) #significative
-appraise(DIVERS.GAMM)
-check_overdispersion(DIVERS.GAMM)
-gam.check(DIVERS.GAMM)
+                   family = quasibinomial, data = mod.data, method = "ML")
+summary(DIVERS.GAMM) #All variables are significant
+#Adj. R-sq. = 0.743
+#Deviance explained = 79.7%
 
+DIVERS.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(Diversity.T) + random(Lake), 
+                     family = BB, data = mod.data, REML = TRUE, method = mixed())
+#Model cannot converge
+
+#### Model validation
+appraise(DIVERS.GAMM)
+gam.check(DIVERS.GAMM)
+#Model validation shows some residual patterns, but OK. 
+
+#### Visualizing partial effects
 plot.DIVERS <- plot(DIVERS.GAMM, trans = plogis, residuals = TRUE, 
                     shift = coef(DIVERS.GAMM)[1], seWithMean = TRUE, 
                     pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
@@ -499,9 +788,11 @@ plot.DIVERS <- plot(DIVERS.GAMM, trans = plogis, residuals = TRUE,
 draw.DIVERS <- draw(DIVERS.GAMM, unconditional = TRUE, overall_uncertainty = TRUE)
 draw.DIVERS
 
-#lake
+#### Visualizing summed effects
+
+#### Lake mean model
 DIVERS.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Diversity.L, bs = "cr") + s(Lake, bs = "re"),
-                     family = quasibinomial, data = mod.data2, method = "ML")
+                     family = quasibinomial, data = mod.data, method = "ML")
 summary(DIVERS.GAMM.L) #unsignificative
 
 #All model plots
