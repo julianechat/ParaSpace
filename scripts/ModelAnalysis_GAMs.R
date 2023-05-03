@@ -26,6 +26,7 @@ library(patchwork)
 library(gratia)
 library(mgcv)
 library(gamlss)
+library(itsadug)
 
 source(paste0(to.R, "rquery.cormat.R"))
 source(paste0(to.R, "inverse_logit_trans.R"))
@@ -43,6 +44,7 @@ mod.data$Transect_ID <- as.factor(mod.data$Transect_ID)
 ## ---- One predictor GAMMs ----
 
 ### Null ----
+#### Model
 #Our null model is a random effects model
 NULL.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Lake, bs = "re"),
                  family = quasibinomial, data = mod.data, method = "ML")
@@ -50,6 +52,7 @@ summary(NULL.GAMM) #Variable significant
 #Adj. R-sq. = 0.62
 #Deviance explained = 68.6%
 
+#### Model validation
 appraise(NULL.GAMM)
 gam.check(NULL.GAMM)
 #Model validation not so good. Probably due to missing predictors.
@@ -69,7 +72,8 @@ TNTP.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(TN_TP.T) + rand
 #### Model validation
 appraise(TNTP.GAMM, method = "simulate")
 gam.check(TNTP.GAMM)
-#Model validation OK.
+TNTP.GAMM$scale
+#Model validation is OK
 
 #### Visualizing partial effects
 draw.TNTP <- draw(TNTP.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
@@ -77,6 +81,13 @@ draw.TNTP <- draw(TNTP.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, s
 draw.TNTP
 
 #### Visualizing summed effects
+plot_smooth(TNTP.GAMM, view = "TN_TP.T", rm.ranef = FALSE, 
+            transform = plogis, 
+            ylim = c(0,1)) 
+
+plot_smooth(TNTP.GAMM, view = "TN_TP.T", rm.ranef = FALSE, plot_all = "Lake",
+            transform = plogis, 
+            ylim = c(0,1)) 
 
 #### Lake mean model
 TNTP.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN_TP.L, bs = "cr") + s(Lake, bs = "re"),
@@ -98,6 +109,8 @@ summary(TN.GAMM.BB)
 #### Model validation
 appraise(TN.GAMM)
 gam.check(TN.GAMM)
+TN.GAMM$scale
+library(DHARMa)
 #Model validation shows some residual patterns
 
 #### Visualizing partial effects
@@ -125,6 +138,7 @@ TP.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(TP.T) + random(La
 #### Model validation
 appraise(TP.GAMM)
 gam.check(TP.GAMM)
+TP.GAMM$scale
 #Model validation shows some residual patterns
 
 #### Visualizing partial effects
@@ -152,6 +166,7 @@ TOC.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(TOC.T) + random(
 #### Model validation
 appraise(TOC.GAMM)
 gam.check(TOC.GAMM)
+TOC.GAMM$scale
 #Model validation shows some residual patterns
 
 #### Visualizing partial effects
@@ -179,6 +194,7 @@ SUB1.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(Sub1) + random(
 #### Model validation
 appraise(SUB1.GAMM)
 gam.check(SUB1.GAMM)
+SUB1.GAMM$scale
 #Model validation shows some residual patterns
 
 #### Visualizing partial effects
@@ -190,7 +206,7 @@ draw.SUB1
 #### Model
 SUB2.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Sub2, bs = "cs") + s(Lake, bs = "re"),
                  family = quasibinomial, data = mod.data, method = "ML")
-summary(SUB2.GAMM) #Sub2 not significant
+summary(SUB2.GAMM) #Sub2 is not significant
 #Adj. R-sq. = 0.62
 #Deviance explaine = 69.6%
 
@@ -201,6 +217,7 @@ SUB2.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(Sub2) + random(
 #### Model validation
 appraise(SUB2.GAMM)
 gam.check(SUB2.GAMM)
+SUB2.GAMM$scale
 #Model validation shows some residual patterns
 
 #### Visualizing partial effects
@@ -222,27 +239,29 @@ MACRO.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(Macrophyte) + 
 #### Model validation
 appraise(MACRO.GAMM)
 gam.check(MACRO.GAMM)
+MACRO.GAMM$scale
 #Could be better...
 
 #### Visualizing partial effects
-#plot.MACRO <- plot(MACRO.GAMM, trans = plogis, residuals = TRUE, 
-                  #shift = coef(MACRO.GAMM)[1], seWithMean = TRUE, 
-                   #pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-                   #ylab = "Prevalence", xlab = "MACRO", 
-                   #select = 1)
-#Signiticativity OK
-
 draw.MACRO <- draw(MACRO.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
   scale_y_continuous(trans = inverse_logit_trans)
 draw.MACRO
+#Signiticativity OK
 
 #### Visualizing summed effects
+plot_smooth(MACRO.GAMM, view = "Macrophyte", rm.ranef = FALSE, 
+            transform = plogis, 
+            ylim = c(0,1)) 
+
+plot_smooth(MACRO.GAMM, view = "Macrophyte", rm.ranef = FALSE, plot_all = "Lake",
+            transform = plogis, 
+            ylim = c(0,1)) 
 
 ### Transect depth ----
 #### Model
 DEPTH.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Depth, bs = "cs") + s(Lake, bs = "re"),
                   family = quasibinomial, data = mod.data, method = "ML")
-summary(DEPTH.GAMM) #Depth not significant
+summary(DEPTH.GAMM) #Depth is not significant
 #Adj. R- sq. = 0.62
 #Deviance explained = 69.6%
 
@@ -253,6 +272,7 @@ summary(DEPTH.GAMM.BB) #Not significant
 #### Model validation
 appraise(DEPTH.GAMM)
 gam.check(DEPTH.GAMM)
+DEPTH.GAMM$scale
 #Model validation shows some residual patterns
 
 #### Visualizing partial effects
@@ -264,7 +284,7 @@ draw.DEPTH
 #### Model
 TRUNK.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Trunk, bs = "cs") + s(Lake, bs = "re"),
                   family = quasibinomial, data = mod.data, method = "ML")
-summary(TRUNK.GAMM) #Trunk not significant
+summary(TRUNK.GAMM) #Trunk is not significant
 # Adj. R-sq. = 0.62
 #Deviance explained = 69.6%
 
@@ -275,6 +295,7 @@ summary(TRUNK.GAMM.BB) #Not significant
 #### Model validation
 appraise(TRUNK.GAMM)
 gam.check(TRUNK.GAMM)
+TRUNK.GAMM$scale
 #Model validation shows some residual patterns
 
 #### Visualizing partial effects
@@ -286,7 +307,7 @@ draw.TRUNK
 #### Model
 TEMP.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Temp.T, bs = "cs") + s(Lake, bs = "re"),
                  family = quasibinomial, data = mod.data, method = "ML")
-summary(TEMP.GAMM) #All variable significant
+summary(TEMP.GAMM) #All variables are significant
 #Adj. R-sq. = 0.745
 #Deviance explained = 79.5%
 
@@ -297,12 +318,22 @@ summary(TEMP.GAMM.BB) #Not significant
 #### Model validation
 appraise(TEMP.GAMM)
 gam.check(TEMP.GAMM)
+TEMP.GAMM$scale
 #Validation is fine
 
 #### Visualizing partial effects
 draw.TEMP <- draw(TEMP.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
   scale_y_continuous(trans = inverse_logit_trans)
 draw.TEMP
+
+#### Visualizing summed effect
+plot_smooth(TEMP.GAMM, view = "Temp.T", rm.ranef = FALSE, 
+            transform = plogis, 
+            ylim = c(0,1)) 
+
+plot_smooth(TEMP.GAMM, view = "Temp.T", rm.ranef = FALSE, plot_all = "Lake",
+            transform = plogis, 
+            ylim = c(0,1)) 
 
 #### Lake mean effect
 TEMP.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Temp.L, bs = "cr") + s(Lake, bs = "re"),
@@ -313,7 +344,7 @@ summary(TEMP.GAMM.L) #unsignificative
 #### Model
 TURB.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Turb.T, bs = "cs") + s(Lake, bs = "re"),
                  family = quasibinomial, data = mod.data, method = "ML")
-summary(TURB.GAMM) #All variable significant
+summary(TURB.GAMM) #All variables are significant
 #Adj. R-sq. = 0.853
 #Deviance explained = 88.7%
 
@@ -324,6 +355,7 @@ TURB.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(Turb.T) + rando
 #### Model validation
 appraise(TURB.GAMM) #pretty good
 gam.check(TURB.GAMM)
+TURB.GAMM$scale
 #Model validation is fine
 
 #### Visualizing partial effects
@@ -332,6 +364,13 @@ draw.TURB <- draw(TURB.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, s
 draw.TURB
 
 #### Visualizing summed effects
+plot_smooth(TURB.GAMM, view = "Turb.T", rm.ranef = FALSE, 
+            transform = plogis, 
+            ylim = c(0,1)) 
+
+plot_smooth(TURB.GAMM, view = "Turb.T", rm.ranef = FALSE, plot_all = "Lake",
+            transform = plogis, 
+            ylim = c(0,1)) 
 
 #### Lake mean model
 TURB.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Turb.L, bs = "cr") + s(Lake, bs = "re"),
@@ -353,6 +392,7 @@ summary(PH.GAMM.BB) #All variable significant
 #### Model validation
 appraise(PH.GAMM)
 gam.check(PH.GAMM)
+PH.GAMM$scale
 #Model validation is fine
 
 #### Visualizing partial effects
@@ -361,6 +401,13 @@ draw.PH <- draw(PH.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, selec
 draw.PH
 
 #### Visualizing summed effects
+plot_smooth(PH.GAMM, view = "pH.T", rm.ranef = FALSE, 
+            transform = plogis,
+            ylim = c(0,1)) 
+
+plot_smooth(PH.GAMM, view = "pH.T", rm.ranef = FALSE, plot_all = "Lake",
+            transform = plogis, 
+            ylim = c(0,1)) 
 
 #### Lake mean model
 PH.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(pH.L, bs = "cr") + s(Lake, bs = "re"),
@@ -371,7 +418,7 @@ summary(PH.GAMM.L) #significative
 #### Model
 DO.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(DO.T, bs = "cs") + s(Lake, bs = "re"),
                family = quasibinomial, data = mod.data, method = "ML")
-summary(DO.GAMM) #All variables significant
+summary(DO.GAMM) #All variables are significant
 #Adj. R-sq. = 0.683
 #Deviance explained = 75.3%
 
@@ -382,6 +429,7 @@ DO.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(DO.T) + random(La
 #### Model validation
 appraise(DO.GAMM, method = "simulate")
 gam.check(DO.GAMM)
+DO.GAMM$scale
 #Some residual patterns, but OK
 
 #### Visualizing partial effects
@@ -390,6 +438,13 @@ draw.DO <- draw(DO.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, selec
 draw.DO
 
 #### Visualizing summed effects
+plot_smooth(DO.GAMM, view = "DO.T", rm.ranef = FALSE, 
+            transform = plogis, 
+            ylim = c(0,1)) 
+
+plot_smooth(DO.GAMM, view = "DO.T", rm.ranef = FALSE, plot_all = "Lake",
+            transform = plogis, 
+            ylim = c(0,1)) 
 
 #### Lake mean model
 DO.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(DO.L, bs = "cr") + s(Lake, bs = "re"),
@@ -408,16 +463,26 @@ COND.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(Cond.T) + rando
                      family = BB, data = mod.data, REML = TRUE, method = mixed())
 summary(COND.GAMM.BB) #All variables are significant
 plot(COND.GAMM.BB)
+
 #### Model validation
 appraise(COND.GAMM)
 gam.check(COND.GAMM)
+COND.GAMM$scale
 #Model validation is not good
-#Model has to be exclude
 
 #### Visualizing partial effects
 draw.COND <- draw(COND.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
   scale_y_continuous(trans = inverse_logit_trans)
 draw.COND
+
+#### Visualizing summed effect
+plot_smooth(COND.GAMM, view = "Cond.T", rm.ranef = FALSE, 
+            transform = plogis, 
+            ylim = c(0,1)) 
+
+plot_smooth(COND.GAMM, view = "Cond.T", rm.ranef = FALSE, plot_all = "Lake",
+            transform = plogis, 
+            ylim = c(0,1)) 
 
 #### Lake mean model
 COND.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Cond.L, bs = "cr") + s(Lake, bs = "re"),
@@ -439,12 +504,22 @@ summary(AREAPERI.GAMM.BB) #Area:Perimeter is significant
 #### Model validation
 appraise(AREAPERI.GAMM)
 gam.check(AREAPERI.GAMM)
+AREAPERI.GAMM$scale
 #Model validation shows some residual patterns
 
 #### Visualizing partial effects
 draw.AREAPERI <- draw(AREAPERI.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
   scale_y_continuous(trans = inverse_logit_trans)
 draw.AREAPERI
+
+#### Visualizng summed effect
+plot_smooth(AREAPERI.GAMM, view = "Area_Perimeter", rm.ranef = FALSE, 
+            transform = plogis, 
+            ylim = c(0,1)) 
+
+plot_smooth(AREAPERI.GAMM, view = "Area_Perimeter", rm.ranef = FALSE, plot_all = "Lake",
+            transform = plogis, 
+            ylim = c(0,1)) 
 
 ### Area ----
 #### Model
@@ -461,6 +536,7 @@ AREA.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(Lake_area) + ra
 #### Model validation
 appraise(AREA.GAMM)
 gam.check(AREA.GAMM)
+AREA.GAMM$scale
 #Model validation show some residual patterns
 
 #### Visualizing partial effects
@@ -483,12 +559,22 @@ PERI.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(Perimeter) + ra
 #### Mode validation
 appraise(PERI.GAMM)
 gam.check(PERI.GAMM)
+PERI.GAMM$scale
 #Model validation shows some residual patterns
 
 #### Visualizing partial effects
 draw.PERI <- draw(PERI.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
   scale_y_continuous(trans = inverse_logit_trans)
 draw.PERI
+
+#### Visualizing summed effect
+plot_smooth(PERI.GAMM, view = "Perimeter", rm.ranef = FALSE, 
+            transform = plogis, 
+            ylim = c(0,1)) 
+
+plot_smooth(PERI.GAMM, view = "Perimeter", rm.ranef = FALSE, plot_all = "Lake",
+            transform = plogis, 
+            ylim = c(0,1)) 
 
 ### Mean depth ----
 MDEPTH.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Mean_depth, bs = "cs") + s(Lake, bs = "re"),
@@ -504,6 +590,7 @@ summary(MDEPTH.GAMM.BB) #Model is not significant
 #### Model validation
 appraise(MDEPTH.GAMM)
 gam.check(MDEPTH.GAMM)
+MDEPTH.GAMM$scale
 #Model validation show some residual patterns
 
 #### Visualizing partial effects
@@ -525,6 +612,7 @@ summary(XDEPTH.GAMM.BB) #Model is not significant
 #### Model validation
 appraise(XDEPTH.GAMM)
 gam.check(XDEPTH.GAMM)
+XDEPTH.GAMM$scale
 #Model validation show some residual patterns
 
 #### Visualizing partial effects
@@ -547,6 +635,7 @@ WRT.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(WRT) + random(La
 #### Model validation
 appraise(WRT.GAMM)
 gam.check(WRT.GAMM)
+WRT.GAMM$scale
 #Model validation show some residual patterns
 
 #### Visualizing partial effects
@@ -569,6 +658,7 @@ DRAIN.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(Drainage_area)
 #### Model validation
 appraise(DRAIN.GAMM)
 gam.check(DRAIN.GAMM)
+DRAIN.GAMM$scale
 #Model validation shows some residual patterns
 
 #### Visualizing partial effects
@@ -591,6 +681,7 @@ ELEV.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(Elevation) + ra
 #### Model validation
 appraise(ELEV.GAMM)
 gam.check(ELEV.GAMM)
+ELEV.GAMM$scale
 #Model validation shows some residual patterns
 
 #### Visualizing partial effects
@@ -611,6 +702,7 @@ CENT.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(Centrarchids.T)
 #### Model validation
 appraise(CENT.GAMM)
 gam.check(CENT.GAMM)
+CENT.GAMM$scale
 #Model validation shows some residual patterns
 
 #### Visualizing partial effects
@@ -638,6 +730,7 @@ summary(SP.GAMM.BB) #Model is not significant
 #### Model validation
 appraise(SP.GAMM)
 gam.check(SP.GAMM)
+SP.GAMM$scale
 #Model validation shows some patterns
 
 #### Visualizing partial effects
@@ -664,6 +757,7 @@ DIVERS.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(Diversity.T) 
 #### Model validation
 appraise(DIVERS.GAMM)
 gam.check(DIVERS.GAMM)
+DIVERS.GAMM$scale
 #Model validation shows some residual patterns, but OK. 
 
 #### Visualizing partial effects
@@ -672,13 +766,25 @@ draw.DIVERS <- draw(DIVERS.GAMM, unconditional = TRUE, overall_uncertainty = TRU
 draw.DIVERS
 
 #### Visualizing summed effects
+DIVERS.fv <- fitted_values(DIVERS.GAMM, data = mod.data, scale = "response")
+ggplot(DIVERS.fv) +
+  geom_point(aes(x = Diversity.T, y = fitted, color = Lake)) + 
+  geom_smooth(aes(x = Diversity.T, y = fitted), color = "black", method = "gam", formula = y~s(x, bs = "cr"))
+
+plot_smooth(DIVERS.GAMM, view = "Diversity.T", rm.ranef = FALSE, 
+            transform = plogis, 
+            ylim = c(0,1)) 
+
+plot_smooth(DIVERS.GAMM, view = "Diversity.T", rm.ranef = FALSE, plot_all = "Lake",
+            transform = plogis, 
+            ylim = c(0,1)) 
 
 #### Lake mean model
 DIVERS.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Diversity.L, bs = "cr") + s(Lake, bs = "re"),
                      family = quasibinomial, data = mod.data, method = "ML")
 summary(DIVERS.GAMM.L) #unsignificative
 
-#### HERE ####
+#### ---- HERE ---- ####
 #All model plots
 #Setting colors for lakes
 color_pallete_function <- colorRampPalette(
