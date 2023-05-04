@@ -31,7 +31,7 @@ col.pal <- c("chocolate", "goldenrod", "olivedrab")
 ## Attribute table ##
 
 attributes <- CombinedData %>% 
-  select(Sampling_ID, Lake, Sampling_method, Latitude, Longitude, tot_LeGi, inf_LeGi) %>% 
+  select_("Sampling_ID", "Lake", "Sampling_method", "Latitude", "Longitude", "tot_LeGi", "inf_LeGi") %>% 
   mutate(prev_LeGi = inf_LeGi/tot_LeGi, .keep = "unused") 
 
 # Coordinates conversion #

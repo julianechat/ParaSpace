@@ -41,7 +41,7 @@ mod.data$Lake <- as.factor(mod.data$Lake)
 mod.data$Watershed <- as.factor(mod.data$Watershed)
 mod.data$Transect_ID <- as.factor(mod.data$Transect_ID)
 
-## ---- One predictor GAMMs ----
+## One predictor GAMMs ----
 
 ### Null ----
 #### Model
@@ -83,11 +83,18 @@ draw.TNTP
 #### Visualizing summed effects
 plot_smooth(TNTP.GAMM, view = "TN_TP.T", rm.ranef = FALSE, 
             transform = plogis, 
-            ylim = c(0,1)) 
+            ylim = c(0,1), ylab = "Infection prevalence",
+            xlim = c(25,55), xlab = "TN:TP",
+            col = "orange",
+            rug = FALSE, 
+            hide.label = TRUE) 
 
 plot_smooth(TNTP.GAMM, view = "TN_TP.T", rm.ranef = FALSE, plot_all = "Lake",
             transform = plogis, 
-            ylim = c(0,1)) 
+            ylim = c(0,1), ylab = "Infection prevalence",
+            xlim = c(25,55), xlab = "TN:TP",
+            rug = FALSE, 
+            hide.label = TRUE) 
 
 #### Lake mean model
 TNTP.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN_TP.L, bs = "cr") + s(Lake, bs = "re"),
@@ -110,7 +117,6 @@ summary(TN.GAMM.BB)
 appraise(TN.GAMM)
 gam.check(TN.GAMM)
 TN.GAMM$scale
-library(DHARMa)
 #Model validation shows some residual patterns
 
 #### Visualizing partial effects
@@ -251,11 +257,18 @@ draw.MACRO
 #### Visualizing summed effects
 plot_smooth(MACRO.GAMM, view = "Macrophyte", rm.ranef = FALSE, 
             transform = plogis, 
-            ylim = c(0,1)) 
+            ylim = c(0,1), ylab = "Infection prevalence",
+            xlim = c(0,80),
+            col = "orange",
+            rug = FALSE, 
+            hide.label = TRUE) 
 
 plot_smooth(MACRO.GAMM, view = "Macrophyte", rm.ranef = FALSE, plot_all = "Lake",
             transform = plogis, 
-            ylim = c(0,1)) 
+            ylim = c(0,1), ylab = "Infection prevalence",
+            xlim = c(0,80),
+            rug = FALSE, 
+            hide.label = TRUE) 
 
 ### Transect depth ----
 #### Model
@@ -329,15 +342,22 @@ draw.TEMP
 #### Visualizing summed effect
 plot_smooth(TEMP.GAMM, view = "Temp.T", rm.ranef = FALSE, 
             transform = plogis, 
-            ylim = c(0,1)) 
+            ylim = c(0,1), ylab = "Infection prevalence",
+            xlim = c(19,26), xlab = "Temperature",
+            col = "orange",
+            rug = FALSE, 
+            hide.label = TRUE) 
 
 plot_smooth(TEMP.GAMM, view = "Temp.T", rm.ranef = FALSE, plot_all = "Lake",
             transform = plogis, 
-            ylim = c(0,1)) 
+            ylim = c(0,1), ylab = "Infection prevalence",
+            xlim = c(19,26), xlab = "Temperature",
+            rug = FALSE, 
+            hide.label = TRUE) 
 
 #### Lake mean effect
 TEMP.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Temp.L, bs = "cr") + s(Lake, bs = "re"),
-                   family = quasibinomial, data = mod.data2, method = "ML")
+                   family = quasibinomial, data = mod.data, method = "ML")
 summary(TEMP.GAMM.L) #unsignificative
 
 ### Turbidity ----
@@ -366,11 +386,18 @@ draw.TURB
 #### Visualizing summed effects
 plot_smooth(TURB.GAMM, view = "Turb.T", rm.ranef = FALSE, 
             transform = plogis, 
-            ylim = c(0,1)) 
+            ylim = c(0,1), ylab = "Infection prevalence",
+            xlim = c(0,5), xlab = "Turbidity",
+            col = "orange",
+            rug = FALSE, 
+            hide.label = TRUE) 
 
 plot_smooth(TURB.GAMM, view = "Turb.T", rm.ranef = FALSE, plot_all = "Lake",
             transform = plogis, 
-            ylim = c(0,1)) 
+            ylim = c(0,1), ylab = "Infection prevalence",
+            xlim = c(0,5), xlab = "Turbidity",
+            rug = FALSE, 
+            hide.label = TRUE) 
 
 #### Lake mean model
 TURB.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Turb.L, bs = "cr") + s(Lake, bs = "re"),
@@ -403,11 +430,18 @@ draw.PH
 #### Visualizing summed effects
 plot_smooth(PH.GAMM, view = "pH.T", rm.ranef = FALSE, 
             transform = plogis,
-            ylim = c(0,1)) 
+            ylim = c(0,1), ylab = "Infection prevalence",
+            xlim = c(5,8.5), xlab = "pH",
+            col = "orange",
+            rug = FALSE, 
+            hide.label = TRUE) 
 
 plot_smooth(PH.GAMM, view = "pH.T", rm.ranef = FALSE, plot_all = "Lake",
             transform = plogis, 
-            ylim = c(0,1)) 
+            ylim = c(0,1), ylab = "Infection prevalence",
+            xlim = c(5,8.5), xlab = "pH",
+            rug = FALSE, 
+            hide.label = TRUE) 
 
 #### Lake mean model
 PH.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(pH.L, bs = "cr") + s(Lake, bs = "re"),
@@ -440,11 +474,18 @@ draw.DO
 #### Visualizing summed effects
 plot_smooth(DO.GAMM, view = "DO.T", rm.ranef = FALSE, 
             transform = plogis, 
-            ylim = c(0,1)) 
+            ylim = c(0,1), ylab = "Infection prevalence",
+            xlim = c(4,10), xlab = "DO",
+            col = "orange",
+            rug = FALSE, 
+            hide.label = TRUE) 
 
 plot_smooth(DO.GAMM, view = "DO.T", rm.ranef = FALSE, plot_all = "Lake",
             transform = plogis, 
-            ylim = c(0,1)) 
+            ylim = c(0,1), ylab = "Infection prevalence",
+            xlim = c(5,8.5), xlab = "DO",
+            rug = FALSE, 
+            hide.label = TRUE) 
 
 #### Lake mean model
 DO.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(DO.L, bs = "cr") + s(Lake, bs = "re"),
@@ -478,11 +519,18 @@ draw.COND
 #### Visualizing summed effect
 plot_smooth(COND.GAMM, view = "Cond.T", rm.ranef = FALSE, 
             transform = plogis, 
-            ylim = c(0,1)) 
+            ylim = c(0,1), ylab = "Infection prevalence",
+            xlim = c(0,200), xlab = "Conductivity",
+            col = "orange",
+            rug = FALSE, 
+            hide.label = TRUE) 
 
 plot_smooth(COND.GAMM, view = "Cond.T", rm.ranef = FALSE, plot_all = "Lake",
             transform = plogis, 
-            ylim = c(0,1)) 
+            ylim = c(0,1), ylab = "Infection prevalence",
+            xlim = c(0,200), xlab = "Conductivity",
+            rug = FALSE, 
+            hide.label = TRUE) 
 
 #### Lake mean model
 COND.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Cond.L, bs = "cr") + s(Lake, bs = "re"),
@@ -515,11 +563,18 @@ draw.AREAPERI
 #### Visualizng summed effect
 plot_smooth(AREAPERI.GAMM, view = "Area_Perimeter", rm.ranef = FALSE, 
             transform = plogis, 
-            ylim = c(0,1)) 
+            ylim = c(0,1), ylab = "Infection prevalence",
+            xlim = c(0, 250), xlab = "Area:Perimeter",
+            col = "orange",
+            rug = FALSE, 
+            hide.label = TRUE) 
 
 plot_smooth(AREAPERI.GAMM, view = "Area_Perimeter", rm.ranef = FALSE, plot_all = "Lake",
             transform = plogis, 
-            ylim = c(0,1)) 
+            ylim = c(0,1), ylab = "Infection prevalence",
+            xlim = c(0, 250), xlab = "Area:Perimeter",
+            rug = FALSE, 
+            hide.label = TRUE) 
 
 ### Area ----
 #### Model
@@ -570,11 +625,18 @@ draw.PERI
 #### Visualizing summed effect
 plot_smooth(PERI.GAMM, view = "Perimeter", rm.ranef = FALSE, 
             transform = plogis, 
-            ylim = c(0,1)) 
+            ylim = c(0,1), ylab = "Infection prevalence",
+            xlim = c(0, 25000), xlab = "Perimeter",
+            col = "orange",
+            rug = FALSE, 
+            hide.label = TRUE) 
 
 plot_smooth(PERI.GAMM, view = "Perimeter", rm.ranef = FALSE, plot_all = "Lake",
             transform = plogis, 
-            ylim = c(0,1)) 
+            ylim = c(0,1), ylab = "Infection prevalence",
+            xlim = c(0, 25000), xlab = "Perimeter",
+            rug = FALSE, 
+            hide.label = TRUE) 
 
 ### Mean depth ----
 MDEPTH.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Mean_depth, bs = "cs") + s(Lake, bs = "re"),
@@ -773,435 +835,111 @@ ggplot(DIVERS.fv) +
 
 plot_smooth(DIVERS.GAMM, view = "Diversity.T", rm.ranef = FALSE, 
             transform = plogis, 
-            ylim = c(0,1)) 
+            ylim = c(0,1), ylab = "Infection prevalence",
+            xlim = c(0, 0.7), xlab = "Diversity",
+            col = "orange",
+            rug = FALSE, 
+            hide.label = TRUE) 
 
 plot_smooth(DIVERS.GAMM, view = "Diversity.T", rm.ranef = FALSE, plot_all = "Lake",
             transform = plogis, 
-            ylim = c(0,1)) 
+            ylim = c(0,1), ylab = "Infection prevalence",
+            xlim = c(0, 0.7), xlab = "Diversity",
+            rug = FALSE, 
+            hide.label = TRUE) 
 
 #### Lake mean model
 DIVERS.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Diversity.L, bs = "cr") + s(Lake, bs = "re"),
                      family = quasibinomial, data = mod.data, method = "ML")
 summary(DIVERS.GAMM.L) #unsignificative
 
-#### ---- HERE ---- ####
-#All model plots
-#Setting colors for lakes
-color_pallete_function <- colorRampPalette(
-  colors = c("red", "orange", "blue", "green"),
-  space = "Lab")
+# ---- Figures ----
+## Significant one variable GAMMs summed plots ----
+pdf(paste0(to.figs, "GAM_SummedEffects.pdf"), width = 30, height = 15)
 
-num_colors <- nlevels(mod.data2$Lake)
-lake_colors <- color_pallete_function(num_colors)
+par(mfrow = c(2, 5), mar = c(5,5,3,1))
 
-#Plot grid
-pdf(paste0(to.figs, "GAM_plots.pdf"), width = 20, height = 15)
-par(mfrow = c(4, 6), mar = c(2,2,2,1), xpd = TRUE)
-plot.gam(TNTP.GAMM3, trans = plogis,
-         shift = coef(TNTP.GAMM)[1], seWithMean = TRUE, 
-         pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-         ylab = "Prevalence",
-         select = 1, main = "TN:TP", col = "red",  ylim = c(0,1))
-points(x = mod.data2$TN_TP.T, y = mod.data2$prev_fish, pch = 1, col = lake_colors[mod.data2$Lake])
+plot_smooth(TNTP.GAMM, view = "TN_TP.T", rm.ranef = FALSE, 
+            transform = plogis, 
+            ylim = c(0,1), ylab = "Infection prevalence",
+            xlim = c(25,55), xlab = "TN:TP",
+            col = "orange",
+            rug = FALSE, 
+            hide.label = TRUE) 
+plot_smooth(MACRO.GAMM, view = "Macrophyte", rm.ranef = FALSE, 
+            transform = plogis, 
+            ylim = c(0,1), ylab = "Infection prevalence",
+            xlim = c(0,80),
+            col = "orange",
+            rug = FALSE, 
+            hide.label = TRUE) 
+plot_smooth(TEMP.GAMM, view = "Temp.T", rm.ranef = FALSE, 
+            transform = plogis, 
+            ylim = c(0,1), ylab = "Infection prevalence",
+            xlim = c(19,26), xlab = "Temperature",
+            col = "orange",
+            rug = FALSE, 
+            hide.label = TRUE) 
+plot_smooth(TURB.GAMM, view = "Turb.T", rm.ranef = FALSE, 
+            transform = plogis, 
+            ylim = c(0,1), ylab = "Infection prevalence",
+            xlim = c(0,5), xlab = "Turbidity",
+            col = "orange",
+            rug = FALSE, 
+            hide.label = TRUE) 
+plot_smooth(PH.GAMM, view = "pH.T", rm.ranef = FALSE, 
+            transform = plogis,
+            ylim = c(0,1), ylab = "Infection prevalence",
+            xlim = c(5,8.5), xlab = "pH",
+            col = "orange",
+            rug = FALSE, 
+            hide.label = TRUE) 
+plot_smooth(DO.GAMM, view = "DO.T", rm.ranef = FALSE, 
+            transform = plogis, 
+            ylim = c(0,1), ylab = "Infection prevalence",
+            xlim = c(4,10), xlab = "DO",
+            col = "orange",
+            rug = FALSE, 
+            hide.label = TRUE) 
+plot_smooth(COND.GAMM, view = "Cond.T", rm.ranef = FALSE, 
+            transform = plogis, 
+            ylim = c(0,1), ylab = "Infection prevalence",
+            xlim = c(0,200), xlab = "Conductivity",
+            col = "orange",
+            rug = FALSE, 
+            hide.label = TRUE) 
+plot_smooth(AREAPERI.GAMM, view = "Area_Perimeter", rm.ranef = FALSE, 
+            transform = plogis, 
+            ylim = c(0,1), ylab = "Infection prevalence",
+            xlim = c(0, 250), xlab = "Area:Perimeter",
+            col = "orange",
+            rug = FALSE, 
+            hide.label = TRUE) 
+plot_smooth(PERI.GAMM, view = "Perimeter", rm.ranef = FALSE, 
+            transform = plogis, 
+            ylim = c(0,1), ylab = "Infection prevalence",
+            xlim = c(0, 25000), xlab = "Perimeter",
+            col = "orange",
+            rug = FALSE, 
+            hide.label = TRUE) 
+plot_smooth(DIVERS.GAMM, view = "Diversity.T", rm.ranef = FALSE, 
+            transform = plogis, 
+            ylim = c(0,1), ylab = "Infection prevalence",
+            xlim = c(0, 0.7), xlab = "Diversity",
+            col = "orange",
+            rug = FALSE, 
+            hide.label = TRUE) 
 
-plot(TN.GAMM, trans = plogis,
-     shift = coef(TN.GAMM)[1], seWithMean = TRUE, 
-     pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-     select = 1, main = "TN", ylim = c(0,1))
-points(x = mod.data2$TN.T, y = mod.data2$prev_fish, pch = 1, col = lake_colors[mod.data2$Lake])
-
-plot(TP.GAMM, trans = plogis,
-     shift = coef(TP.GAMM)[1], seWithMean = TRUE, 
-     pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-     select = 1, main = "TP",  ylim = c(0,1))
-points(x = mod.data2$TP.T, y = mod.data2$prev_fish, pch = 1, col = lake_colors[mod.data2$Lake])
-
-plot(TOC.GAMM, trans = plogis,
-     shift = coef(TOC.GAMM)[1], seWithMean = TRUE, 
-     pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-     select  =1, main = "TOC", ylim = c(0,1))
-points(x = mod.data2$TOC.T, y = mod.data2$prev_fish, pch = 1, col = lake_colors[mod.data2$Lake])
-
-plot(SUB1.GAMM, trans = plogis,
-     shift = coef(SUB1.GAMM)[1], seWithMean = TRUE, 
-     pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-     select = 1, main = "SUB1",  ylim = c(0,1))
-points(x = mod.data2$Sub1, y = mod.data2$prev_fish, pch = 1, col = lake_colors[mod.data2$Lake])
-
-plot(SUB2.GAMM, trans = plogis,
-     shift = coef(SUB2.GAMM)[1], seWithMean = TRUE, 
-     pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-     select = 1, main = "SUB2",  ylim = c(0,1))
-points(x = mod.data2$Sub2, y = mod.data2$prev_fish, pch = 1, col = lake_colors[mod.data2$Lake])
-
-plot(MACRO.GAMM, trans = plogis,
-     shift = coef(MACRO.GAMM)[1], seWithMean = TRUE, 
-     pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-     ylab = "Prevalence",
-     select = 1, main = "MACROPHYTE", col = "red",  ylim = c(0,1))
-points(x = mod.data2$Macrophyte, y = mod.data2$prev_fish, pch = 1, col = lake_colors[mod.data2$Lake])
-
-plot(DEPTH.GAMM, trans = plogis,
-     shift = coef(DEPTH.GAMM)[1], seWithMean = TRUE, 
-     pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-     select = 1, main = "DEPTH",  ylim = c(0,1))
-points(x = mod.data2$Depth, y = mod.data2$prev_fish, pch = 1, col = lake_colors[mod.data2$Lake])
-
-plot(TRUNK.GAMM, trans = plogis, 
-     shift = coef(TRUNK.GAMM)[1], seWithMean = TRUE, 
-     pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-     select = 1, main = "TRUNK",  ylim = c(0,1))
-points(x = mod.data2$Trunk, y = mod.data2$prev_fish, pch = 1, col = lake_colors[mod.data2$Lake])
-
-plot(TEMP.GAMM, trans = plogis,
-     shift = coef(TEMP.GAMM)[1], seWithMean = TRUE, 
-     pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-     select = 1, main = "TEMPERATURE", col = "red",  ylim = c(0,1))
-points(x = mod.data2$Temp.T, y = mod.data2$prev_fish, pch = 1, col = lake_colors[mod.data2$Lake])
-
-plot(TURB.GAMM, trans = plogis, 
-     shift = coef(TURB.GAMM)[1], seWithMean = TRUE, 
-     pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-     select = 1, main = "TURBIDITY", col = "red",  ylim = c(0,1))
-points(x = mod.data2$Turb.T, y = mod.data2$prev_fish, pch = 1, col = lake_colors[mod.data2$Lake])
-
-plot(PH.GAMM, trans = plogis,
-     shift = coef(PH.GAMM)[1], seWithMean = TRUE, 
-     pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-     select = 1, main = "PH", col = "red",  ylim = c(0,1))
-points(x = mod.data2$pH.T, y = mod.data2$prev_fish, pch = 1, col = lake_colors[mod.data2$Lake])
-
-plot(DO.GAMM, trans = plogis,
-     shift = coef(DO.GAMM)[1], seWithMean = TRUE, 
-     pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-     ylab = "Prevalence", 
-     select = 1, main = "DO", col = "red",  ylim = c(0,1))
-points(x = mod.data2$DO.T, y = mod.data2$prev_fish, pch = 1, col = lake_colors[mod.data2$Lake])
-
-plot(COND.GAMM, trans = plogis,
-     shift = coef(COND.GAMM)[1], seWithMean = TRUE, 
-     pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-     select = 1, main = "CONDUCTIVITY", col = "red",  ylim = c(0,1))
-points(x = mod.data2$Cond.T, y = mod.data2$prev_fish, pch = 1, col = lake_colors[mod.data2$Lake])
-
-plot(AREAPERI.GAMM, trans = plogis,
-     shift = coef(AREAPERI.GAMM)[1], seWithMean = TRUE, 
-     pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-     select = 1, main = "AREA:PERIMETER", col = "red",  ylim = c(0,1))
-points(x = mod.data2$Area_Perimeter, y = mod.data2$prev_fish, pch = 1, col = lake_colors[mod.data2$Lake])
-
-plot(AREA.GAMM, trans = plogis,
-     shift = coef(AREA.GAMM)[1], seWithMean = TRUE, 
-     pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-     select = 1, main = "AREA",  ylim = c(0,1))
-points(x = mod.data2$Lake_area, y = mod.data2$prev_fish, pch = 1, col = lake_colors[mod.data2$Lake])
-
-plot(PERI.GAMM, trans = plogis,
-     shift = coef(PERI.GAMM)[1], seWithMean = TRUE, 
-     pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-     select = 1, main = "PERIMETER", col = "red",  ylim = c(0,1))
-points(x = mod.data2$Perimeter, y = mod.data2$prev_fish, pch = 1, col = lake_colors[mod.data2$Lake])
-
-plot(MDEPTH.GAMM, trans = plogis,
-     shift = coef(MDEPTH.GAMM)[1], seWithMean = TRUE, 
-     pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-     select = 1, main = "MEAN_DEPTH",  ylim = c(0,1))
-points(x = mod.data2$Mean_depth, y = mod.data2$prev_fish, pch = 1, col = lake_colors[mod.data2$Lake])
-
-plot(WRT.GAMM, trans = plogis,
-     shift = coef(WRT.GAMM)[1], seWithMean = TRUE, 
-     pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-     ylab = "Prevalence",
-     select = 1, main = "WTR",  ylim = c(0,1))
-points(x = mod.data2$WRT, y = mod.data2$prev_fish, pch = 1, col = lake_colors[mod.data2$Lake])
-
-plot(DRAIN.GAMM, trans = plogis,
-     shift = coef(DRAIN.GAMM)[1], seWithMean = TRUE, 
-     pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-     select = 1, main = "DRAINAGE_AREA",  ylim = c(0,1))
-points(x = mod.data2$Drainage_area, y = mod.data2$prev_fish, pch = 1, col = lake_colors[mod.data2$Lake])
-
-plot(ELEV.GAMM, trans = plogis,
-     shift = coef(ELEV.GAMM)[1], seWithMean = TRUE, 
-     pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-     select = 1, main = "ELEVATION",  ylim = c(0,1))
-points(x = mod.data2$Elevation, y = mod.data2$prev_fish, pch = 1, col = lake_colors[mod.data2$Lake])
-
-plot(CENT.GAMM, trans = plogis,
-     shift = coef(CENT.GAMM)[1], seWithMean = TRUE, 
-     pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-     select = 1, main = "CENTRARCHIDS",  ylim = c(0,1))
-points(x = mod.data2$Centrarchids.T, y = mod.data2$prev_fish, pch = 1, col = lake_colors[mod.data2$Lake])
-
-plot(SP.GAMM, trans = plogis,
-     shift = coef(SP.GAMM)[1], seWithMean = TRUE, 
-     pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-     select = 1, main = "SP_RICHNESS", ylim = c(0,1))
-points(x = mod.data2$Species_richness.T, y = mod.data2$prev_fish, pch = 1, col = lake_colors[mod.data2$Lake])
-
-plot(DIVERS.GAMM, trans = plogis,
-     shift = coef(DIVERS.GAMM)[1], seWithMean = TRUE, 
-     pch = 1, shade = TRUE, shade.col = "azure3", rug = FALSE, 
-     select = 1, main = "DIVERSITY", col = "red",  ylim = c(0,1))
-points(x = mod.data2$Diversity.T, y = mod.data2$prev_fish, pch = 1, col = lake_colors[mod.data2$Lake])
-#legend("topright",
-#legend = levels(mod.data2$Lake),
-#inset = c(5, 0),
-#col = lake_colors,
-#pch = 1,
-#cex = .7)
-#mtext("Significative smooths are in red\n Non significative smooths are in black\n Colors represent different lakes", side = 3, line = -4, cex = 0.75, col = "black", outer = TRUE)
 dev.off()
 
-# ---- Lake scale GAMs ---- 
-#La plupart du temps, prendre les moyennes déperissent les modèles
-#pH, Cond et Species Richness sont signfificatif avec les données à l'échelle du lac
+## Correlation plot of significant variables ----
+significant.data <- mod.data %>% 
+  select_("TN_TP.T", "Macrophyte", "Temp.T", "Turb.T", "pH.T", "DO.T", "Cond.T", "Area_Perimeter", "Perimeter", "Diversity.T")
 
-#morpho
-lake.morpho.gam1 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Area_Perimeter, bs = "cr") + s(Mean_depth, bs = "cr") + s(Lake, bs = "re"), 
-                        family = quasibinomial, data = mod.data2, method = "ML")
-summary(lake.morpho.gam1) #both significative
-draw(lake.morpho.gam1)
-#space
-lake.space.gam1 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Elevation, bs = "cr") + s(Drainage_area, bs = "cr") + s(Lake, bs = "re"), 
-                       family = quasibinomial, data = mod.data2, method = "ML")
-summary(lake.space.gam1)
+par(mfrow = c(1, 1), mar = c(3,3,3,1))
 
-lake.space.gam2 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Elevation, bs = "cr") + s(WRT, bs = "cr") + s(Lake, bs = "re"), 
-                       family = quasibinomial, data = mod.data2, method = "ML")
-summary(lake.space.gam2)#nope
+pdf(paste0(to.figs, "GAM_Corrplot.pdf"), width = 10, height = 10)
 
-# ---- Transect scale GAMs ----
-#nutrients
-trans.nutrient.gam <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN_TP.T, bs = "cr") + s(TOC.T, bs = "cr") + s(Lake, bs = "re"), 
-                          family = quasibinomial, data = mod.data2, method = "REML")
-summary(trans.nutrient.gam) #TN_TP significative
+significant.corrplot <- rquery.cormat(significant.data, type = "full")
 
-#physico
-trans.physico.gam1 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Turb.T, bs = "cr") + s(Temp.T, bs = "cr") + s(Lake, bs = "re"), 
-                          family = quasibinomial, data = mod.data2, method = "ML")
-summary(trans.physico.gam1) #Turb > Temp significative
-
-trans.physico.gam2 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Turb.T, bs = "cr") + s(pH.T, bs = "cr") + s(Lake, bs = "re"), 
-                          family = quasibinomial, data = mod.data2, method = "ML")
-summary(trans.physico.gam2) #Turb > pH significative
-
-trans.physico.gam3 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Temp.T, bs = "cr") + s(pH.T, bs = "cr") + s(Lake, bs = "re"), 
-                          family = quasibinomial, data = mod.data2, method = "ML")
-summary(trans.physico.gam3) #Temp significative
-draw(trans.physico.gam3)
-appraise(trans.physico.gam3)
-
-trans.physico.gam4 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Turb.T, bs = "cr") + s(DO.T, bs = "cr") + s(Lake, bs = "re"), 
-                          family = quasibinomial, data = mod.data2, method = "ML")
-summary(trans.physico.gam4) #Turb significative
-
-trans.physico.gam5 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Turb.T, bs = "cr") + s(Cond.T, bs = "cr") + s(Lake, bs = "re"), 
-                          family = quasibinomial, data = mod.data2, method = "ML")
-summary(trans.physico.gam5) #Turb significative
-
-trans.physico.gam6 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Temp.T, bs = "cr") + s(DO.T, bs = "cr") + s(Lake, bs = "re"), 
-                          family = quasibinomial, data = mod.data2, method = "ML")
-summary(trans.physico.gam6) #Temp significative
-
-trans.physico.gam7 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Temp.T, bs = "cr") + s(Cond.T, bs = "cr") + s(Lake, bs = "re"), 
-                          family = quasibinomial, data = mod.data2, method = "ML")
-summary(trans.physico.gam7) #Temp significative
-
-trans.physico.gam8 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Cond.T, bs = "cr") + s(DO.T, bs = "cr") + s(Lake, bs = "re"), 
-                          family = quasibinomial, data = mod.data2, method = "ML")
-summary(trans.physico.gam8) #DO significative
-
-#Habitat
-trans.habitat.gam1 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Macrophyte, bs = "cr") + s(Sub1, bs = "cr") + s(Lake, bs = "re"), 
-                          family = quasibinomial, data = mod.data2, method = "ML")
-summary(trans.habitat.gam1) #Macrophyte & Sub1 significative
-
-trans.habitat.gam2 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Macrophyte, bs = "cr") + s(Sub2, bs = "cr") + s(Lake, bs = "re"), 
-                          family = quasibinomial, data = mod.data2, method = "ML")
-summary(trans.habitat.gam2) #Macrophyte & Sub2 significative
-
-trans.habitat.gam3 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Macrophyte, bs = "cr") + s(Depth, bs = "cr") + s(Lake, bs = "re"), 
-                          family = quasibinomial, data = mod.data2, method = "ML")
-summary(trans.habitat.gam3) #Macrophyte significative
-
-trans.habitat.gam4 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Macrophyte, bs = "cr") + s(Trunk, bs = "cr") + s(Lake, bs = "re"), 
-                          family = quasibinomial, data = mod.data2, method = "ML")
-summary(trans.habitat.gam4) #Macrophyte significative
-
-trans.habitat.gam5 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Sub1, bs = "cr") + s(Depth, bs = "cr") + s(Lake, bs = "re"), 
-                          family = quasibinomial, data = mod.data2, method = "ML")
-summary(trans.habitat.gam5) #Non significative
-
-trans.habitat.gam6 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Sub1, bs = "cr") + s(Trunk, bs = "cr") + s(Lake, bs = "re"), 
-                          family = quasibinomial, data = mod.data2, method = "ML")
-summary(trans.habitat.gam6) #Non significative
-
-trans.habitat.gam7 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Sub2, bs = "cr") + s(Depth, bs = "cr") + s(Lake, bs = "re"), 
-                          family = quasibinomial, data = mod.data2, method = "ML")
-summary(trans.habitat.gam7) #Sub2 & Depth lightly significative
-
-trans.habitat.gam8 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Sub2, bs = "cr") + s(Trunk, bs = "cr") + s(Lake, bs = "re"), 
-                          family = quasibinomial, data = mod.data2, method = "ML")
-summary(trans.habitat.gam8) #Non significative
-
-trans.habitat.gam9 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Depth, bs = "cr") + s(Trunk, bs = "cr") + s(Lake, bs = "re"), 
-                          family = quasibinomial, data = mod.data2, method = "ML")
-summary(trans.habitat.gam9) #Depth significative
-
-#biotic
-trans.biotic.gam1 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Diversity.T, bs = "cr") + s(Species_richness.T, bs = "cr", k = 5) + s(Lake, bs = "re"), 
-                         family = quasibinomial, data = mod.data2, method = "ML")
-summary(trans.biotic.gam1) #Non significative
-
-trans.biotic.gam2 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Diversity.T, bs = "cr") + s(Centrarchids.T, bs = "cr") + s(Lake, bs = "re"), 
-                         family = quasibinomial, data = mod.data2, method = "ML")
-summary(trans.biotic.gam2) #Diversity & Centrarchids significative
-
-trans.biotic.gam3 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Species_richness.T, bs = "cr", k = 5) + s(Centrarchids.T, bs = "cr") + s(Lake, bs = "re"), 
-                         family = quasibinomial, data = mod.data2, method = "ML")
-summary(trans.biotic.gam3) #Non significative
-
-
-
-## Two predictor GAMs ----
-# Mixed variables models ----
-trans.mix.gam1 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN_TP.T, bs = "cr") + s(Macrophyte, bs = "cr") + s(Lake, bs = "re"), 
-                      family = quasibinomial, data = mod.data2, method = "ML")
-summary(trans.mix.gam1)  
-
-trans.mix.gam2 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN_TP.T, bs = "cr") + s(Temp.T, bs = "cr") + s(Lake, bs = "re"), 
-                      family = quasibinomial, data = mod.data2, method = "ML")
-summary(trans.mix.gam2)  
-
-trans.mix.gam3 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN_TP.T, bs = "cr") + s(Turb.T, bs = "cr") + s(Lake, bs = "re"), 
-                      family = quasibinomial, data = mod.data2, method = "ML")
-summary(trans.mix.gam3)
-draw(trans.mix.gam3)
-appraise(trans.mix.gam3, method = "simulate")
-
-trans.mix.gam4 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN_TP.T, bs = "cr") + s(pH.T, bs = "cr") + s(Lake, bs = "re"), 
-                      family = quasibinomial, data = mod.data2, method = "ML")
-summary(trans.mix.gam4)  
-
-trans.mix.gam5 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN_TP.T, bs = "cr") + s(DO.T, bs = "cr") + s(Lake, bs = "re"), 
-                      family = quasibinomial, data = mod.data2, method = "ML")
-summary(trans.mix.gam5)  
-
-trans.mix.gam6 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN_TP.T, bs = "cr") + s(Cond.T, bs = "cr") + s(Lake, bs = "re"), 
-                      family = quasibinomial, data = mod.data2, method = "ML")
-summary(trans.mix.gam6)  
-
-trans.mix.gam7 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN_TP.T, bs = "cr") + s(Area_Perimeter, bs = "cr") + s(Lake, bs = "re"), 
-                      family = quasibinomial, data = mod.data2, method = "ML")
-summary(trans.mix.gam7)  
-
-trans.mix.gam8 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN_TP.T, bs = "cr") + s(Diversity.T, bs = "cr") + s(Lake, bs = "re"), 
-                      family = quasibinomial, data = mod.data2, method = "ML")
-summary(trans.mix.gam8)  
-
-trans.mix.gam9 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Macrophyte, bs = "cr") + s(Temp.T, bs = "cr") + s(Lake, bs = "re"), 
-                      family = quasibinomial, data = mod.data2, method = "ML")
-summary(trans.mix.gam9)  
-
-trans.mix.gam10 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Macrophyte, bs = "cr") + s(Turb.T, bs = "cr") + s(Lake, bs = "re"), 
-                       family = quasibinomial, data = mod.data2, method = "ML")
-summary(trans.mix.gam10)  
-
-trans.mix.gam11 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Macrophyte, bs = "cr") + s(pH.T, bs = "cr") + s(Lake, bs = "re"), 
-                       family = quasibinomial, data = mod.data2, method = "ML")
-summary(trans.mix.gam11)  
-
-trans.mix.gam12 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Macrophyte, bs = "cr") + s(DO.T, bs = "cr") + s(Lake, bs = "re"), 
-                       family = quasibinomial, data = mod.data2, method = "ML")
-summary(trans.mix.gam12)  
-
-trans.mix.gam13 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Macrophyte, bs = "cr") + s(Cond.T, bs = "cr") + s(Lake, bs = "re"), 
-                       family = quasibinomial, data = mod.data2, method = "ML")
-summary(trans.mix.gam13)  
-
-trans.mix.gam14 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Macrophyte, bs = "cr") + s(Area_Perimeter, bs = "cr") + s(Lake, bs = "re"), 
-                       family = quasibinomial, data = mod.data2, method = "ML")
-summary(trans.mix.gam14)  
-
-trans.mix.gam15 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Macrophyte, bs = "cr") + s(Diversity.T, bs = "cr") + s(Lake, bs = "re"), 
-                       family = quasibinomial, data = mod.data2, method = "ML")
-summary(trans.mix.gam15)  
-
-trans.mix.gam16 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Temp.T, bs = "cr") + s(Area_Perimeter, bs = "cr") + s(Lake, bs = "re"), 
-                       family = quasibinomial, data = mod.data2, method = "ML")
-summary(trans.mix.gam16)  
-
-trans.mix.gam17 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Temp.T, bs = "cr") + s(Diversity.T, bs = "cr") + s(Lake, bs = "re"), 
-                       family = quasibinomial, data = mod.data2, method = "ML")
-summary(trans.mix.gam17)  
-
-trans.mix.gam18 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Turb.T, bs = "cr") + s(Area_Perimeter, bs = "cr") + s(Lake, bs = "re"), 
-                       family = quasibinomial, data = mod.data2, method = "ML")
-summary(trans.mix.gam18)  
-
-trans.mix.gam19 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Turb.T, bs = "cr") + s(Diversity.T, bs = "cr") + s(Lake, bs = "re"), 
-                       family = quasibinomial, data = mod.data2, method = "ML")
-summary(trans.mix.gam19)  
-
-trans.mix.gam20 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(pH.T, bs = "cr") + s(Area_Perimeter, bs = "cr") + s(Lake, bs = "re"), 
-                       family = quasibinomial, data = mod.data2, method = "ML")
-summary(trans.mix.gam20)  
-
-trans.mix.gam21 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(pH.T, bs = "cr") + s(Diversity.T, bs = "cr") + s(Lake, bs = "re"), 
-                       family = quasibinomial, data = mod.data2, method = "ML")
-summary(trans.mix.gam21)  
-
-trans.mix.gam22 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(DO.T, bs = "cr") + s(Area_Perimeter, bs = "cr") + s(Lake, bs = "re"), 
-                       family = quasibinomial, data = mod.data2, method = "ML")
-summary(trans.mix.gam22)  
-
-trans.mix.gam23 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(DO.T, bs = "cr") + s(Diversity.T, bs = "cr") + s(Lake, bs = "re"), 
-                       family = quasibinomial, data = mod.data2, method = "ML")
-summary(trans.mix.gam23)  
-
-trans.mix.gam24 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Cond.T, bs = "cr") + s(Area_Perimeter, bs = "cr") + s(Lake, bs = "re"), 
-                       family = quasibinomial, data = mod.data2, method = "ML")
-summary(trans.mix.gam24)  
-
-trans.mix.gam25 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Cond.T, bs = "cr") + s(Diversity.T, bs = "cr") + s(Lake, bs = "re"), 
-                       family = quasibinomial, data = mod.data2, method = "ML")
-summary(trans.mix.gam25)  
-
-trans.mix.gam26 <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Area_Perimeter, bs = "cr") + s(Diversity.T, bs = "cr") + s(Lake, bs = "re"), 
-                       family = quasibinomial, data = mod.data2, method = "ML")
-summary(trans.mix.gam26)  
-
-
-#--- Model selection with QAICc
-#library(MuMIn)
-#chat1 = deviance(trans.biotic.gam1) / df.residual(trans.biotic.gam1)
-#chat2 = deviance(trans.biotic.gam2) / df.residual(trans.biotic.gam2)
-#chat3 = deviance(trans.biotic.gam1) / df.residual(trans.biotic.gam3)
-#options(na.action = "na.fail")
-
-
-
-#as.data.frame(model.sel(trans.biotic.gam1, trans.biotic.gam2, trans.biotic.gam3, 
-#                        rank = "QAICc", 
- #                       rank.args = alist(chat = chat)))
-
-#options(na.action = "na.omit")
-#QAICc(trans.biotic.gam1, chat = chat1)
-
-#trans.biotic.gam1 <- update(trans.biotic.gam1,family="quasibinomial", na.action=na.fail) 
-
-#dredge(trans.biotic.gam1, rank="QAICc", chat=chat1)
-#gg
-#QAICc(trans.biotic.gam1, chat = chat1, k = 2, REML = FALSE)
-
-##works !
-#sei.gam0.1 <- update(trans.biotic.gam1, family=binomial(link="logit"))
-#sei.gam0.2 <- update(trans.physico.gam2, family=binomial(link="logit"))
-#dredge(sei.gam0.1, rank="QAICc", chat=chat1)
-
-
-#fitted plot avec significatifs
-
-
-#corr plot avec significatifs
+dev.off()

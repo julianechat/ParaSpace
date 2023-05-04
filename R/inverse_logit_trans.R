@@ -1,5 +1,6 @@
 #Function to transform logit values
 library(scales)
+library(functional)
 
 inverse_logit_trans <-
   trans_new("inverse logit",
