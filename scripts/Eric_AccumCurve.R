@@ -1,11 +1,3 @@
-## Script name : Accumulation curves
-
-## Authors : Juliane Vigneault & Éric Harvey
-## Date created : January 11, 2023
-
-## Copyright (c) Juliane Vigneault, 2023 ## je ne suis pas certain du type de copyright qui s'applique sur un script R ?
-## Email: juliane.vigneault@umontreal.ca
-
 # ---- Script setup ----
 
 ## R Setup ----
@@ -22,13 +14,14 @@ to.carto <- "./carto/"
 library(vegan)
 library(ggplot2)
 library(dplyr)
-library(tidyverse)
 
 ## Loading data ----
 
 CombinedData <- read.csv(paste0(to.output, "CombinedData.csv"))
+head(CombinedData)
+str(CombinedData)
 
-# ---- Species accumulation cruves ----
+# ---- Species accumulation curves ----
 
 ## Minnow traps ----
 
@@ -88,7 +81,7 @@ FishingData <- CombinedData %>%
 inf.F.data <- FishingData %>% 
   select(starts_with("inf")) %>% #Selecting infected individuals
   rowSums() #Sum of all species
-  
+
 # We want to randomly sample n fishing sample, 999 times for n = 1:10
 
 # --- TEST --- # 
@@ -440,24 +433,3 @@ prev.acc.plot <- ggplot(df.simulation) +
 
 ggsave(paste0(to.figs, "AccumulationCurves_prevalence.pdf"), plot = prev.acc.plot, dpi = 300, width = 15, height = 10)  
 
-##############
-
-write_csv(df.simulation,paste0(to.output,"Accum.simulation.csv"))
-
-AccumData <- read.csv(paste0(to.output, "Accum.simulation.csv"))
-
-lm.1 <- lm(prev.T.all ~ N, data=AccumData)
-summary(lm.1)
-#INtercept: 0.417*** 
-
-lm.2 <- lm(prev.S.all ~ N, data=AccumData)
-summary(lm.2)
-#INtercept: 0.45*** 
-
-lm.3 <- lm(prev.MT.all ~ N, data=AccumData)
-summary(lm.3)
-#INtercept: 0.446*** 
-
-lm.4 <- lm(prev.F.all ~ N, data=AccumData)
-summary(lm.4)
-#INtercept: 0.44*** 
