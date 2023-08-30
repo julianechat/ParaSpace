@@ -154,7 +154,7 @@ Transects_WideData[2] <- Sampling_ID
 T.Prep1 <- Transects_WideData %>% add_column(Sampling_method = "Transect") %>% #Creating Sampling method column
   relocate("Sampling_method", .after = "Start_time") 
 
-T.Prep2 <- T.Prep1 %>%relocate("Sampling_ID", .before = "Lake") #Relocating Sampling ID column
+T.Prep2 <- T.Prep1 %>% relocate("Sampling_ID", .before = "Lake") #Relocating Sampling ID column
 
 T.Prep3 <- T.Prep2 %>% #Creating total abundance columns for missing fish
   add_column(tot_FuDi = 0) %>% relocate("tot_FuDi", .after = "tot_AmRu") %>%

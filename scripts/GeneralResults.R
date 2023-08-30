@@ -22,14 +22,19 @@ library(dplyr)
 library(gt)
 library(janitor)
 library(webshot2)
+library(tidyr)
+library(splitstackshape)
+library(gtsummary)
 
 ## Loading data ----
 
 CombinedData <- read.csv(paste0(to.output, "CombinedData.csv"))
 FishingData <- read.csv(paste0(to.output, "Fishing_WideData.csv"))
 TransectData <- read.csv(paste0(to.output, "Transects_WideData.csv"))
+FishingRaw <- read.csv(paste0(to.data, "Fishing_RawData.csv"), sep = ";")
 
-# ---- Captures ----
+# ---- Abundance data ----
+## Captures ----
 
 SpCaptured <- FishingData %>% #Selecting capture data
   select(Lake, tot_AmRu, tot_FuDi, tot_MiDo, tot_LeGi, tot_PeFl, tot_PiPr, tot_Chrosomus.sp., tot_PiNo, tot_SeAt, tot_LuCo, tot_AmNe, tot_CaCo, tot_EsMa, tot_UmLi, tot_RhAt)
@@ -64,7 +69,7 @@ SpCaptured_tab <- gt(SpCaptured) %>% #Creating gt tab and editing style
 SpCaptured_tab %>% #Saving gt tab
 gtsave("Summary_captures.png", paste0(to.figs))
 
-# ---- Observations ----
+## Observations ----
 
 SpObserved <- TransectData %>% #Selecting observations
   select(Lake, tot_AmRu, tot_MiDo, tot_LeGi, tot_PeFl, tot_Cyprinidae)
@@ -98,3 +103,43 @@ SpObserved_tab <- gt(SpObserved) %>% #Creating gt tab and editing style
 
 SpObserved_tab %>% #Saving gt tab
   gtsave("Summary_observations.png", paste0(to.figs))
+
+# ---- Length data ----
+
+FishLength <- FishingRaw %>% #Selecting data of interest
+  select(Lake, Species_ID, Length, Abundance) %>% 
+  na.omit() %>% 
+  arrange(Lake, Species_ID) %>% 
+  filter(!(Species_ID == "Centrarchidae")) %>% #Deleting Centrarchidae because not a species level
+  filter(!(Species_ID == "Cyprinidae")) #Deleting Cyprinidae because not a species level
+    
+FishLength <- expandRows(FishLength, "Abundance") #Reshaping data frame for 1 row = 1 individual format
+
+
+
+Fishy1 <- FishLength %>% #Summarizing number of individuals, mean length and sd for each species within each lake
+  group_by(Lake, Species_ID, .add = TRUE) %>% 
+  summarise(N = n(), Mean = mean(Length), sd = sd(Length))
+
+Fishy2 <- Fishy1 %>% 
+  pivot_wider(id_cols = Lake, 
+              names_from = Species_ID, 
+              values_from = Mean) %>% gt()
+  
+Fishy3 <- gt(Fishy1, rowname_col = "Species_ID",  groupname_col = "Lake")
+
+Fishy4 <- tbl_strata(FishLength,
+                     strata = Lake, 
+                    .tbl_fun = tbl_summary(FishLength, 
+                                           by = Species_ID,
+                                           statistic = list(all_continuous()~"{mean}({sd})")))
+Fishy5 <- FishLength %>% tabyl(Lake, Species_ID)
+xtabs(~Species_ID + Lake, data = FishLength, )
+
+Fish6 <- cross_mean_sd_n(
+  FishLength,
+  Length,
+  col_vars = Species_ID,
+  row_vars = Lake)
+
+
