@@ -25,6 +25,7 @@ library(webshot2)
 library(tidyr)
 library(splitstackshape)
 library(gtsummary)
+library(stringr)
 
 ## Loading data ----
 
@@ -115,11 +116,12 @@ FishLength <- FishingRaw %>% #Selecting data of interest
     
 FishLength <- expandRows(FishLength, "Abundance") #Reshaping data frame for 1 row = 1 individual format
 
-
-
 Fishy1 <- FishLength %>% #Summarizing number of individuals, mean length and sd for each species within each lake
   group_by(Lake, Species_ID, .add = TRUE) %>% 
-  summarise(N = n(), Mean = mean(Length), sd = sd(Length))
+  summarise(Mean = mean(Length), sd = sd(Length), N = n())
+
+Fishy1 %>% #Saving gt tab
+  gtsave("Summary_Length.docx", paste0(to.figs))
 
 Fishy2 <- Fishy1 %>% 
   pivot_wider(id_cols = Lake, 
@@ -136,10 +138,99 @@ Fishy4 <- tbl_strata(FishLength,
 Fishy5 <- FishLength %>% tabyl(Lake, Species_ID)
 xtabs(~Species_ID + Lake, data = FishLength, )
 
-Fish6 <- cross_mean_sd_n(
+Fishy6 <- cross_mean_sd_n(
   FishLength,
   Length,
   col_vars = Species_ID,
   row_vars = Lake)
 
 
+Length.TotMean <- FishLength %>% #All data summary statistics
+  select(Length) %>% 
+  summarise(Mean = mean(Length), sd = sd(Length), N = n())
+
+Length.LakeMean <- FishLength %>% #Summary statistic by lake
+  group_by(Lake) %>% 
+  summarise(Mean = mean(Length), sd = sd(Length), N = n())
+
+Length.SpeciesMean <- FishLength %>% #Summary statistic by species
+  group_by(Species_ID) %>% 
+  summarise(Mean = mean(Length), sd = sd(Length), N = n())
+
+# ---- Host specificity ----
+## Regional ----
+
+HostSpec.regional <- CombinedData %>% #Selecting data of interest
+  select(starts_with(c("tot_", "inf_")), -c("tot_Centrarchidae", "tot_Cyprinidae", "inf_Centrarchidae", "inf_Cyprinidae")) %>% 
+  na.omit() 
+
+HostSpec.regional <- HostSpec.regional %>% #Calculating prevalence by species
+  mutate(prev_AmRu = inf_AmRu/tot_AmRu, .keep = "unused") %>% 
+  mutate(prev_FuDi = inf_FuDi/tot_FuDi, .keep = "unused") %>%
+  mutate(prev_MiDo = inf_MiDo/tot_MiDo, .keep = "unused") %>%
+  mutate(prev_LeGi = inf_LeGi/tot_LeGi, .keep = "unused") %>%
+  mutate(prev_PeFl = inf_PeFl/tot_PeFl, .keep = "unused") %>%
+  mutate(prev_PiPr = inf_PiPr/tot_PiPr, .keep = "unused") %>%
+  mutate(prev_ChrosomusSp. = inf_ChrosomusSp./tot_ChrosomusSp., .keep = "unused") %>%
+  mutate(prev_PiNo = inf_PiNo/tot_PiNo, .keep = "unused") %>%
+  mutate(prev_SeAt = inf_SeAt/tot_SeAt, .keep = "unused") %>%
+  mutate(prev_LuCo = inf_LuCo/tot_LuCo, .keep = "unused") %>%
+  mutate(prev_AmNe = inf_AmNe/tot_AmNe, .keep = "unused") %>%
+  mutate(prev_CaCo = inf_CaCo/tot_CaCo, .keep = "unused") %>%
+  mutate(prev_EsMa = inf_EsMa/tot_EsMa, .keep = "unused") %>%
+  mutate(prev_UmLi = inf_UmLi/tot_UmLi, .keep = "unused") %>%
+  mutate(prev_RhAt = inf_RhAt/tot_RhAt, .keep = "unused")
+
+HostSpec.regional <- HostSpec.regional %>% #Calculating mean prevalence by species
+colMeans(na.rm = TRUE) %>% 
+  as.data.frame() 
+
+row.names(HostSpec.regional) <- HostSpec.regional %>% #Changing row names
+  row.names() %>% 
+  str_remove_all("prev_")
+
+colnames(HostSpec.regional) <- HostSpec.regional %>% #Changing column name
+  colnames() %>% 
+  str_replace(".", "Prevalence")
+
+HostSpec.regional <- HostSpec.regional %>% #Arranging species by numerical order of prevalence value
+  arrange(Prevalence)
+
+## Local ----
+
+HostSpec.local <- CombinedData %>% #Selecting data of interest
+  select(Lake, starts_with(c("tot_", "inf_")), -c("tot_Centrarchidae", "tot_Cyprinidae", "inf_Centrarchidae", "inf_Cyprinidae")) %>% 
+  na.omit() 
+
+HostSpec.local <- HostSpec.local %>% #Summarizing abundance data by lake
+  group_by(Lake) %>% 
+  summarise(across(.cols = everything(), sum))
+
+HostSpec.local <- HostSpec.local %>% #Calculating prevalence by species and lake
+  mutate(prev_AmRu = inf_AmRu/tot_AmRu, .keep = "unused") %>% 
+  mutate(prev_FuDi = inf_FuDi/tot_FuDi, .keep = "unused") %>%
+  mutate(prev_MiDo = inf_MiDo/tot_MiDo, .keep = "unused") %>%
+  mutate(prev_LeGi = inf_LeGi/tot_LeGi, .keep = "unused") %>%
+  mutate(prev_PeFl = inf_PeFl/tot_PeFl, .keep = "unused") %>%
+  mutate(prev_PiPr = inf_PiPr/tot_PiPr, .keep = "unused") %>%
+  mutate(prev_ChrosomusSp. = inf_ChrosomusSp./tot_ChrosomusSp., .keep = "unused") %>%
+  mutate(prev_PiNo = inf_PiNo/tot_PiNo, .keep = "unused") %>%
+  mutate(prev_SeAt = inf_SeAt/tot_SeAt, .keep = "unused") %>%
+  mutate(prev_LuCo = inf_LuCo/tot_LuCo, .keep = "unused") %>%
+  mutate(prev_AmNe = inf_AmNe/tot_AmNe, .keep = "unused") %>%
+  mutate(prev_CaCo = inf_CaCo/tot_CaCo, .keep = "unused") %>%
+  mutate(prev_EsMa = inf_EsMa/tot_EsMa, .keep = "unused") %>%
+  mutate(prev_UmLi = inf_UmLi/tot_UmLi, .keep = "unused") %>%
+  mutate(prev_RhAt = inf_RhAt/tot_RhAt, .keep = "unused")
+
+colnames(HostSpec.local) <- HostSpec.local %>% #Changing columns names
+  colnames() %>% 
+  str_remove_all("prev_")
+
+HostSpec.local <- HostSpec.local %>% #Changing format
+  pivot_longer(cols = 2:16, names_to = "Species_ID", values_to = "Prevalence") %>% 
+  na.omit()
+
+HostSpec.local <- HostSpec.local %>% #Arranging species by numerical order of prevalence value within each lake
+  group_by(Lake) %>% 
+  arrange(Prevalence, .by_group = TRUE)
