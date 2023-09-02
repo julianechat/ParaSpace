@@ -24,7 +24,6 @@ library(janitor)
 library(webshot2)
 library(tidyr)
 library(splitstackshape)
-library(gtsummary)
 library(stringr)
 
 ## Loading data ----
@@ -126,7 +125,7 @@ Fishy1 %>% #Saving gt tab
 Fishy2 <- Fishy1 %>% 
   pivot_wider(id_cols = Lake, 
               names_from = Species_ID, 
-              values_from = Mean) %>% gt()
+              values_from = c("Mean", "sd"))
   
 Fishy3 <- gt(Fishy1, rowname_col = "Species_ID",  groupname_col = "Lake")
 
@@ -135,8 +134,9 @@ Fishy4 <- tbl_strata(FishLength,
                     .tbl_fun = tbl_summary(FishLength, 
                                            by = Species_ID,
                                            statistic = list(all_continuous()~"{mean}({sd})")))
+
 Fishy5 <- FishLength %>% tabyl(Lake, Species_ID)
-xtabs(~Species_ID + Lake, data = FishLength, )
+xtabs(~Species_ID + Lake, data = FishLength)
 
 Fishy6 <- cross_mean_sd_n(
   FishLength,
