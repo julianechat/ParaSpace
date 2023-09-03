@@ -104,6 +104,42 @@ SpObserved_tab <- gt(SpObserved) %>% #Creating gt tab and editing style
 SpObserved_tab %>% #Saving gt tab
   gtsave("Summary_observations.png", paste0(to.figs))
 
+## All data ----
+
+SpAll <- CombinedData %>% 
+  select(Lake, tot_AmRu, tot_FuDi, tot_MiDo, tot_LeGi, tot_PeFl, tot_PiPr, tot_ChrosomusSp., tot_PiNo, tot_SeAt, tot_LuCo, tot_AmNe, tot_CaCo, tot_EsMa, tot_UmLi, tot_RhAt) %>% 
+  na.omit()
+
+SpAll <- SpAll %>% 
+  group_by(Lake) %>% 
+  summarise(across(.cols = everything(), sum))
+
+SpAll <- SpAll %>% 
+  adorn_totals(where = c("row", "col"), na.rm = TRUE)
+
+SpAll_tab <- gt(SpAll) %>% #Creating gt tab and editing style
+  cols_label(Lake = md("**Lake**"), tot_AmRu = md("**AmRu**"), tot_FuDi = md("**FuDi**"), tot_MiDo = md("**MiDo**"), tot_LeGi = md("**LeGi**"), tot_PeFl = md("**PeFl**"), tot_PiPr = md("**PiPr**"), tot_ChrosomusSp. = md("**Chrosomus sp.**"), tot_PiNo = md("**PiNo**"), tot_SeAt = md("**SeAt**"), tot_LuCo = md("**LuCo**"), tot_AmNe = md("**AmNe**"), tot_CaCo = md("**CaCo**"), tot_EsMa = md("**EsMa**"), tot_UmLi = md("**UmLi**"), tot_RhAt = md("**RhAt**"), Total = md("**Total**")) %>% 
+  tab_style(style= cell_borders(sides = c("bottom", "top"), weight = px(2)), 
+            location = list(cells_column_labels())) %>% 
+  tab_style(style = cell_borders(sides = "bottom", weight = px(2), color = "lightgrey"),
+            locations =  cells_body(rows = 15)) %>%
+  tab_style(style = cell_borders(sides = "bottom", weight = px(2)),
+            locations =  cells_body(rows = 16)) %>%
+  tab_style(style = cell_text(align = "center"),
+            locations = cells_body(column = everything())) %>% 
+  tab_style(style = cell_text(align = "center"), 
+            locations = cells_column_labels()) %>% 
+  tab_style(style = cell_borders(sides = "left", weight = px(2), color = "lightgrey"),
+            locations =  cells_body(column = 17)) %>% 
+  tab_style(style= cell_borders(sides = "left", weight = px(2), color = "lightgrey"), 
+            location = list(cells_column_labels(column = 17))) %>% 
+  tab_style(style = cell_text(weight = "bold"),
+            locations = cells_body(column = 1)) %>% 
+  sub_values(columns = 1, rows = 12, values = "Pin_rouge", replacement = "Pin rouge")
+
+SpAll_tab %>% #Saving gt tab
+  gtsave("Summary_AllFishes.png", paste0(to.figs))
+
 # ---- Length data ----
 
 FishLength <- FishingRaw %>% #Selecting data of interest
@@ -181,20 +217,22 @@ HostSpec.regional <- HostSpec.regional %>% #Calculating prevalence by species
   mutate(prev_UmLi = inf_UmLi/tot_UmLi, .keep = "unused") %>%
   mutate(prev_RhAt = inf_RhAt/tot_RhAt, .keep = "unused")
 
-HostSpec.regional <- HostSpec.regional %>% #Calculating mean prevalence by species
-colMeans(na.rm = TRUE) %>% 
-  as.data.frame() 
+regionalMeans <- HostSpec.regional %>% #Calculating mean prevalence by species
+  apply(2, mean, na.rm = TRUE)
+regionalSd <- HostSpec.regional %>% 
+  apply(2, sd, na.rm=TRUE)
+regionalN <- as.vector(SpAll[16, c(2:16)])
 
-row.names(HostSpec.regional) <- HostSpec.regional %>% #Changing row names
-  row.names() %>% 
-  str_remove_all("prev_")
+HostSpec.regional <- as.data.frame(regionalMeans, row.names = c("AmRu", "FuDi", "MiDo", "LeGi", "PeFl", "PiPr", "Chrosomus sp.", "PiNo", "SeAt", "LuCo", "AmNe", "CaCo", "EsMa", "UmLi", "RhAt")) %>% 
+  mutate(sd = regionalSd) %>% 
+  mutate(n = regionalN)
 
 colnames(HostSpec.regional) <- HostSpec.regional %>% #Changing column name
   colnames() %>% 
-  str_replace(".", "Prevalence")
+  str_replace("regionalMeans", "mean")
 
 HostSpec.regional <- HostSpec.regional %>% #Arranging species by numerical order of prevalence value
-  arrange(Prevalence)
+  arrange(mean) #####faire tableau
 
 ## Local ----
 
