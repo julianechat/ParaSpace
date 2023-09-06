@@ -1,6 +1,13 @@
-## Field data transformation ##
+## Script name : Data transformation
 
-# ----- R Setup ----- #
+## Authors : Juliane Vigneault
+## Date created : October 11, 2022
+
+## Copyright (c) Juliane Vigneault, 2022
+## Email: juliane.vigneault@umontreal.ca
+
+# ---- Script setup ----
+## R Setup ----- 
 
 to.data <- "./data/"
 to.script <- "./scripts/"
@@ -8,7 +15,7 @@ to.output <- "./output/"
 to.figs <- "./figs/"
 to.R <- "./R/"
 
-# ----- Loading packages ----- #
+## Loading packages -----
 
 library(tidyr)
 library(dplyr)
@@ -16,131 +23,116 @@ library(writexl)
 library(stringr)
 library(tibble)
 
-# ----- Loading data ----- #
+## Loading data -----
 
 Fishing_RawData <- read.csv(paste0(to.data,"Fishing_RawData.csv"), sep=";")
 Transects_RawData <- read.csv(paste0(to.data, "Transects_RawData.csv"), sep=";")
 Lakes_Caracteristics <- read.csv(paste0(to.data, "Lakes_Caracteristics.csv"), sep=";")
 BioticData <- read.csv(paste0(to.output, "Lake_BioticData.csv"))
-
-# ------------------------ #
   
-#### ----- Fishing data ----- ####
+# ---- Fishing data -----
 CleanData <- Fishing_RawData[-c(596,613),] #Deleting lost data (NA Abundance)
 attach(CleanData)
 
-## Long format ##
+## Long format ----
+
 Abund_inf <- ifelse(Intensity_class > 0, Abundance, 0) #Creating new abundance column for infected fish
 Abund_inf <- replace_na(Abund_inf, 0) #Replacing NA by 0's - Meaning there is no infected fish
 
 CompleteData <- mutate(CleanData, Abund_inf) #Inserting the new column in the data frame
 names(CompleteData)[names(CompleteData) == 'Abundance'] <- 'Abund_tot'
 
-# Summarize data #
-Fishing_LongData <- CompleteData %>% #Sum of abundances of species by fishing ID
+#Summarize data
+FishLong <- CompleteData %>% #Sum of abundances of species by fishing ID
   group_by(Fishing_ID, Species_ID,Lake,Date,Latitude,Longitude,Start_time,Gear_type,Gear_ID,Identifier) %>%
   summarise(across(.cols = Abund_inf | Abund_tot, sum)) %>%
   ungroup()
 
-write_xlsx(Fishing_LongData, paste0(to.output, "Fishing_LongData.xlsx")) #Exporting data
-write.csv(Fishing_LongData, paste0(to.output, "Fishing_LongData.csv"), row.names = FALSE)
+write_xlsx(FishLong, paste0(to.output, "Fishing_LongData.xlsx")) #Exporting data
+write.csv(FishLong, paste0(to.output, "Fishing_LongData.csv"), row.names = FALSE)
 
-## Wide format ##
-ComMatrix <- pivot_wider(data = Fishing_LongData, names_from = "Species_ID", values_from = c("Abund_tot", "Abund_inf"), values_fill = 0) #Reshape data
-ComMatrix2 <- ComMatrix[,-c(10,28)] #Deleting NA's abundance columns
+## Wide format ----
 
-ColNames <- str_remove_all(colnames(ComMatrix2), "Abund_") #Changing species columns name
-Fishing_WideData <- `colnames<-`(ComMatrix2, ColNames)
+ComMatrix <- pivot_wider(data = FishLong, names_from = "Species_ID", values_from = c("Abund_tot", "Abund_inf"), values_fill = 0) #Reshape data
+ComMatrix <- ComMatrix[,-c(10,28)] #Deleting NA's abundance columns
 
-write_xlsx(Fishing_WideData, paste0(to.output, "Fishing_WideData.xlsx")) #Exporting data
-write.csv(Fishing_WideData, paste0(to.output, "Fishing_WideData.csv"), row.names = FALSE)
+ColNames <- str_remove_all(colnames(ComMatrix), "Abund_") #Changing species columns name
+FishWide <- `colnames<-`(ComMatrix, ColNames)
 
-#### ----- Transect data ----- ####
-attach(Transects_RawData)
+write_xlsx(FishWide, paste0(to.output, "Fishing_WideData.xlsx")) #Exporting data
+write.csv(FishWide, paste0(to.output, "Fishing_WideData.csv"), row.names = FALSE)
 
-## Summarizing data at transect scale ##
-# Abundance, habitat and water parameters data #
+# ---- Transect data ----
+## Summarizing data ----
 
-LeGi_H <- tapply(LeGi_Health, Transect_ID, sum)
-LeGi_I <- tapply(LeGi_Infected, Transect_ID, sum)
-Cyp_H <-  tapply(Cyp_Health, Transect_ID, sum)
-Cyp_I <-  tapply(Cyp_Infected, Transect_ID, sum)
-MiDo_H <- tapply(MiDo_Health, Transect_ID, sum)
-MiDo_I <- tapply(MiDo_Infected, Transect_ID, sum)
-AmRu_H <- tapply(AmRu_Health, Transect_ID, sum)
-AmRu_I <- tapply(AmRu_Infected, Transect_ID, sum)
-PeFl_H <- tapply(PeFl_Health, Transect_ID, sum)
-PeFl_I <- tapply(PeFl_Infected, Transect_ID, sum)
-Trunk <- tapply(Trunk, Transect_ID, sum)
+#One row = one transect
+Abund.summary <- Transects_RawData %>% 
+  group_by(Transect_ID) %>% 
+  summarise(across(.cols = 11:20, sum))
 
-Silt <- tapply(Silt, Transect_ID, mean)
-Sand <- tapply(Sand, Transect_ID, mean)
-Rock <- tapply(Rock, Transect_ID, mean)
-Block <- tapply(Metric_block, Transect_ID, mean)
-Macrophyte <- tapply(Macrophyte, Transect_ID, mean)
-Depth <- tapply(Mean_depth, Transect_ID, mean)
-Temp <- tapply(Temperature, Transect_ID, mean)
-Cond <- tapply(Conductivity, Transect_ID, mean)
-DO <- tapply(DO, Transect_ID, mean)
-Turb <- tapply(Turbidity, Transect_ID, mean)
-pH <- tapply(pH, Transect_ID, mean)
-TOC <- tapply(TOC, Transect_ID, mean)
-TN <- tapply(TN, Transect_ID, mean)
-TP <- tapply(TP, Transect_ID, mean)
+Trunk.summary <- Transects_RawData %>% 
+  group_by(Transect_ID) %>% 
+  summarise(across(.cols = 27, sum))
 
-Abund.Hab.WP_Trans <- data.frame(cbind(LeGi_I, LeGi_H, Cyp_I, Cyp_H, PeFl_I, PeFl_H, MiDo_I, MiDo_H, AmRu_I, AmRu_H, Silt, Sand, Rock, Block, Macrophyte, Depth, Trunk, Temp, Cond, DO, Turb, pH, TOC, TN, TP), row.names = NULL)
+Enviro.summary <- Transects_RawData %>% 
+  group_by(Transect_ID) %>% 
+  summarise(across(.cols = c(21:26, 28:35), mean))
 
-# Informative data #
+SummaryTrans <- merge(Abund.summary, Trunk.summary, by = "Transect_ID")
+SummaryTrans <- merge(SummaryTrans, Enviro.summary, by = "Transect_ID")  
+
+## Informative data ----
+
 #For this part, we want only one informative row per Transect ID
 #Abundance, habitat and water parameters have been previously summarize
-#Diver and Start_time columns values change through the transect. We will need to bind info of both divers and keep the reel start value of the transect (0-10m segment)
+#Diver and Start_time columns values change through the transect. We will need to bind info of both divers and keep the real start value of the transect (0-10m segment)
 #Position, Sampling_ID, Segment can not be coerce at transect scale
 
-attach(Transects_RawData)
-Clean_Trans <- Transects_RawData %>%
+InfoTrans <- Transects_RawData %>%
   select(c(Lake, Transect_ID, Date, Latitude, Longitude, Cloud_cover, Start_time))
 
-ShortTrans <- Clean_Trans %>% #Creating new data frame containing only the first row of each Transect_ID #This fix the Start_time problem
+InfoTrans <- InfoTrans %>% #Creating new data frame containing only the first row of each Transect_ID
   group_by(Transect_ID) %>%
   slice(1)
 
-DiversTrans <- Transects_RawData %>% #Creating new column Identifier binding both divers for each Transect_ID
+Identifier <- Transects_RawData %>% #Creating new column "Identifier" binding both divers for each Transect_ID
   group_by(Transect_ID) %>% 
   distinct(Diver) %>% 
-  summarize(Diver=paste(Diver,collapse="_"))
-DiversCol <- DiversTrans[2]
-Identifier <- `colnames<-`(DiversCol, "Identifier") 
+  summarize(Diver = paste(Diver, collapse = "_")) %>% 
+  select(Diver)
 
-Info_Trans <- cbind(as.data.frame(ShortTrans), Identifier)
+Identifier <- `colnames<-`(Identifier, "Identifier") 
 
-# Final data frame at transect scale #
-df_TransScale <- cbind(Info_Trans, Abund.Hab.WP_Trans)
+InfoTrans <- cbind(InfoTrans, Identifier)
 
-## Wide format ##
-attach(df_TransScale)
+#Binding summarise data and informative data
+TransData <- merge(InfoTrans, SummaryTrans, by = "Transect_ID")
 
-# Adjusting community matrix # 
-tot_Trans <- df_TransScale %>% #Creating total abundance columns
-  mutate(tot_AmRu = AmRu_H + AmRu_I, tot_MiDo = MiDo_H + MiDo_I, tot_LeGi = LeGi_H + LeGi_I, tot_PeFl = PeFl_H + PeFl_I, tot_Cyprinidae = Cyp_H + Cyp_I) %>% 
-  select(-c("AmRu_H", "MiDo_H", "LeGi_H", "PeFl_H", "Cyp_H")) #Deleting health abundance columns 
+## Wide format ----
 
-colnames(tot_Trans)[c(9:13)] <- c("inf_LeGi", "inf_Cyprinidae", "inf_PeFl", "inf_MiDo", "inf_AmRu") 
+#Adjusting community matrix
+TransWide <- TransData %>% #Creating total abundance columns
+  mutate(tot_AmRu = AmRu_Health + AmRu_Infected, tot_MiDo = MiDo_Health + MiDo_Infected, tot_LeGi = LeGi_Health + LeGi_Infected, tot_PeFl = PeFl_Health + PeFl_Infected, tot_Cyprinidae = Cyp_Health + Cyp_Infected) %>% 
+  select(-c("AmRu_Health", "MiDo_Health", "LeGi_Health", "PeFl_Health", "Cyp_Health")) #Deleting health abundance columns 
 
-Transects_WideData <- tot_Trans %>% relocate(c("tot_AmRu", "tot_MiDo", "tot_LeGi", "tot_PeFl", "tot_Cyprinidae"), .after = "Identifier") %>% #Relocating total abundance community matrix
+colnames(TransWide)[c(9:13)] <- c("inf_LeGi", "inf_Cyprinidae", "inf_PeFl", "inf_MiDo", "inf_AmRu") 
+
+TransWide <- TransWide %>% relocate(c("tot_AmRu", "tot_MiDo", "tot_LeGi", "tot_PeFl", "tot_Cyprinidae"), .after = "Identifier") %>% #Relocating total abundance community matrix
   relocate("inf_PeFl", .before = "inf_Cyprinidae") %>% #Adjusting the column order
   relocate("inf_MiDo", .before = "inf_LeGi") %>%
   relocate("inf_AmRu", .after = "tot_Cyprinidae")
 
-write_xlsx(Transects_WideData, paste0(to.output,"Transects_WideData.xlsx")) #Exporting data frame
-write.csv(Transects_WideData, paste0(to.output, "Transects_WideData.csv"), row.names = FALSE)
+write_xlsx(TransWide, paste0(to.output,"Transects_WideData.xlsx")) #Exporting data frame
+write.csv(TransWide, paste0(to.output, "Transects_WideData.csv"), row.names = FALSE)
 
-#### ----- Combined data ----- ####
-## Prep of Transect data ##
-attach(Transects_WideData)
+# ---- Combined data ---- #
+## Transect data preparation ----
 
-Transects_WideData$Date <- format(as.Date(Transects_WideData$Date, format = "%d/%m/%Y"), "%Y-%m-%d") #Adjusting date format
+attach(TransWide)
 
-Sampling_ID <- str_replace(Transects_WideData$Transect_ID, "1", "_T_01") #Creating a new Sampling_ID column containing Transect_ID info + Method info
+TransWide$Date <- format(as.Date(TransWide$Date, format = "%d/%m/%Y"), "%Y-%m-%d") #Adjusting date format
+
+Sampling_ID <- str_replace(TransWide$Transect_ID, "1", "_T_01") #Creating a new Sampling_ID column containing Transect_ID info + Method info
 Sampling_ID <- str_replace(Sampling_ID, "2", "_T_02")
 Sampling_ID <- str_replace(Sampling_ID, "3", "_T_03")
 Sampling_ID <- str_replace(Sampling_ID, "4", "_T_04")
@@ -148,15 +140,17 @@ Sampling_ID <- str_replace(Sampling_ID, "5", "_T_05")
 Sampling_ID <- str_replace(Sampling_ID, "6", "_T_06")
 
 Sampling_ID <- data.frame(Sampling_ID)
-colnames(Transects_WideData)[2] <- "Sampling_ID"
-Transects_WideData[2] <- Sampling_ID
+colnames(TransWide)[1] <- "Sampling_ID"
+TransWide[1] <- Sampling_ID
 
-T.Prep1 <- Transects_WideData %>% add_column(Sampling_method = "Transect") %>% #Creating Sampling method column
+TransPrep <- TransWide %>% 
+  add_column(Sampling_method = "Transect") %>% #Creating Sampling method column
   relocate("Sampling_method", .after = "Start_time") 
 
-T.Prep2 <- T.Prep1 %>% relocate("Sampling_ID", .before = "Lake") #Relocating Sampling ID column
+TransPrep <- TransPrep %>% 
+  relocate("Sampling_ID", .before = "Lake") #Relocating Sampling ID column
 
-T.Prep3 <- T.Prep2 %>% #Creating total abundance columns for missing fish
+TransPrep <- TransPrep %>% #Creating total abundance columns for missing fish
   add_column(tot_FuDi = 0) %>% relocate("tot_FuDi", .after = "tot_AmRu") %>%
   add_column(tot_Centrarchidae = 0) %>% relocate("tot_Centrarchidae", .after = "tot_MiDo") %>%
   add_column(tot_PiPr = 0) %>% relocate("tot_PiPr", .after = "tot_PeFl") %>%
@@ -170,7 +164,7 @@ T.Prep3 <- T.Prep2 %>% #Creating total abundance columns for missing fish
   add_column(tot_UmLi = 0) %>% relocate("tot_UmLi", .after = "tot_EsMa") %>%
   add_column(tot_RhAt = 0) %>% relocate("tot_RhAt", .after = "tot_UmLi")
 
-T.Prep4 <- T.Prep3 %>% 
+TransPrep <- TransPrep %>% 
   add_column(inf_FuDi = 0) %>% relocate("inf_FuDi", .after = "inf_AmRu") %>%
   add_column(inf_Centrarchidae = 0) %>% relocate("inf_Centrarchidae", .after = "inf_MiDo") %>%
   add_column(inf_PiPr = 0) %>% relocate("inf_PiPr", .after = "inf_PeFl") %>%
@@ -184,40 +178,44 @@ T.Prep4 <- T.Prep3 %>%
   add_column(inf_UmLi = 0) %>% relocate("inf_UmLi", .after = "inf_EsMa") %>%
   add_column(inf_RhAt = 0) %>% relocate("inf_RhAt", .after = "inf_UmLi")
 
-T.Prep4[c(7,8,33:35,43:46), c(9:43)] <- NA #Replacing false 0 created
+TransPrep[c(7,8,33:35,43:46), c(9:43)] <- NA #Replacing false 0 created
 
-T.Prep5 <- T.Prep4[-c(6, 44:50)] #Deleting Cloud cover and habitat data columns 
+TransPrep <- TransPrep[-c(6, 44:50)] #Deleting Cloud cover and habitat data columns 
 
-T.Prep6 <- T.Prep5 %>% #Adjusting water parameters columns to mean values per lake
+TransPrep <- TransPrep %>% #Adjusting water parameters columns to mean values per lake
   group_by(Lake) %>%
-  mutate(across(.cols = Temp | Cond | DO | Turb | pH | TOC | TN | TP, mean))
+  mutate(across(.cols = Temperature | Conductivity | DO | Turbidity | pH | TOC | TN | TP, mean)) %>% 
+  ungroup()
 
-## Prep of Fishing data ## 
-attach(Fishing_WideData)
-colnames(Fishing_WideData)[1] <- "Sampling_ID" #Changing the name of Fishing_ID column
-colnames(Fishing_WideData)[7] <- "Sampling_method" #Changing the name of Gear_type column
-colnames(Fishing_WideData)[c(17,34)] <- c("tot_ChrosomusSp.", "inf_ChrosomusSp.") #Changing the name of Chrosomus sp. columns
+## Fishing data preparation ----
 
-F.Prep1 <- Fishing_WideData[-8] #Deleting Gear_ID column
+attach(FishWide)
 
-F.Prep2 <- F.Prep1 %>% 
-  add_column(Temp = NA) %>% relocate("Temp", .after = "inf_RhAt") %>%
-  add_column(Cond = NA) %>% relocate("Cond", .after = "Temp") %>%
-  add_column(DO = NA) %>% relocate("DO", .after = "Cond") %>%
-  add_column(Turb = NA) %>% relocate("Turb", .after = "DO") %>%
-  add_column(pH = NA) %>% relocate("pH", .after = "Turb") %>%
+colnames(FishWide)[1] <- "Sampling_ID" #Changing the name of Fishing_ID column
+colnames(FishWide)[7] <- "Sampling_method" #Changing the name of Gear_type column
+colnames(FishWide)[c(17,34)] <- c("tot_ChrosomusSp.", "inf_ChrosomusSp.") #Changing the name of Chrosomus sp. columns
+
+FishPrep <- FishWide[-8] #Deleting Gear_ID column
+
+FishPrep <- FishPrep %>% 
+  add_column(Temperature = NA) %>% relocate("Temperature", .after = "inf_RhAt") %>%
+  add_column(Conductivity = NA) %>% relocate("Conductivity", .after = "Temperature") %>%
+  add_column(DO = NA) %>% relocate("DO", .after = "Conductivity") %>%
+  add_column(Turbidity = NA) %>% relocate("Turbidity", .after = "DO") %>%
+  add_column(pH = NA) %>% relocate("pH", .after = "Turbidity") %>%
   add_column(TOC = NA) %>% relocate("TOC", .after = "pH") %>%
   add_column(TN = NA) %>% relocate("TN", .after = "TOC") %>%
   add_column(TP = NA) %>% relocate("TP", .after = "TN")
 
-## Binding both data set ##
-df.Comb <- rbind.data.frame(T.Prep6, F.Prep2)
+## Binding data sets ----
 
-df.Comb2 <- df.Comb %>% #Filling NA's water parameters values by lake means
+CombinedData <- rbind(TransPrep, FishPrep)
+
+CombinedData <- CombinedData %>% #Filling NA's water parameters values by lake means
   group_by(Lake) %>% 
-  mutate_each(funs(replace(., which(is.na(.)), mean(., na.rm=TRUE))), c("Temp", "Cond", "DO", "Turb", "pH", "TOC", "TN", "TP"))
+  mutate_each(funs(replace(., which(is.na(.)), mean(., na.rm=TRUE))), c("Temperature", "Conductivity", "DO", "Turbidity", "pH", "TOC", "TN", "TP"))
 
-CombinedData <- merge(df.Comb2, Lakes_Caracteristics, by.x = "Lake") #Merging lake characteristic data to field data
+CombinedData <- merge(CombinedData, Lakes_Caracteristics, by.x = "Lake") #Merging lake characteristic data to field data
 CombinedData <- merge(CombinedData, BioticData, by.x = "Lake") #Merging biotic data
 
 colnames(CombinedData)[c(43:50)] <- c("Temp", "Cond", "DO", "Turb", "pH", "TOC", "TN", "TP") #Changing column names
@@ -225,19 +223,18 @@ colnames(CombinedData)[c(43:50)] <- c("Temp", "Cond", "DO", "Turb", "pH", "TOC",
 write_xlsx(CombinedData, paste0(to.output, "CombinedData.xlsx")) #Exporting data frame
 write.csv(CombinedData, paste0(to.output, "CombinedData.csv"), row.names = FALSE)
 
-#### ----- Explicative data sets ----- #### 
-## Transect data ##
-Exp.Trans <- Transects_WideData[-c(1, 3:5, 7:18)] #Deleting common variables between fishing and transect data
+# ----- Explicative data sets -----
+## Transect data ----
+
+Exp.Trans <- TransWide[-c(1, 3:5, 7:18)] #Deleting common variables between fishing and transect data
 
 write_xlsx(Exp.Trans, paste0(to.output, "Transects_UniqueData.xlsx")) #Exporting data frame
 write.csv(Exp.Trans, paste0(to.output, "Transects_UniqueData.csv"), row.names = FALSE)
 
-## Fishing data ##
-Exp.Fish <- Fishing_WideData[c(1,8)]
+## Fishing data ----
+
+Exp.Fish <- FishWide[c(1,8)]
 
 write_xlsx(Exp.Fish, paste0(to.output, "Fishing_UniqueData.xlsx")) #Exporting data frame
 write.csv(Exp.Fish, paste0(to.output, "Fishing_UniqueData.csv"), row.names = FALSE)
-  
-  
-  
   

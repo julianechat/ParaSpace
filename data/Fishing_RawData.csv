@@ -131,7 +131,7 @@ Beaver;2022-07-07;45°55.431';74°03.901';16:29;Minnow_trap;N3;BEAV_N_03;Charles
 Beaver;2022-07-07;45°55.431';74°03.901';16:29;Minnow_trap;N3;BEAV_N_03;Charles;Chrosomus sp.;0;4;18
 Beaver;2022-07-07;45°55.431';74°03.901';16:29;Minnow_trap;N3;BEAV_N_03;Charles;Chrosomus sp.;0;5;9
 Beaver;2022-07-07;45°55.431';74°03.901';16:29;Minnow_trap;N3;BEAV_N_03;Charles;PiPr;1;4;1
-Beaver;2022-07-07;45°55.423';74°03.933';16:31;Minnow_trap;N6;BEAV_N_06;Charles;NA;NA;NA;NA
+Beaver;2022-07-07;45°55.423';74°03.933';16:31;Minnow_trap;N9;BEAV_N_09;NA;NA;NA;NA;0
 Beaver;2022-07-07;45°55.454';74°03.919';16:33;Minnow_trap;N5;BEAV_N_05;Charles;PiPr;0;3;9
 Beaver;2022-07-07;45°55.454';74°03.919';16:33;Minnow_trap;N5;BEAV_N_05;Charles;PiPr;0;4;20
 Beaver;2022-07-07;45°55.454';74°03.919';16:33;Minnow_trap;N5;BEAV_N_05;Charles;PiPr;0;5;3
@@ -148,7 +148,7 @@ Beaver;2022-07-07;45°55.500';74°03.913';16:37;Minnow_trap;N15;BEAV_N_15;Charle
 Beaver;2022-07-07;45°55.500';74°03.913';16:37;Minnow_trap;N15;BEAV_N_15;Charles;Chrosomus sp.;0;4;43
 Beaver;2022-07-07;45°55.500';74°03.913';16:37;Minnow_trap;N15;BEAV_N_15;Charles;Chrosomus sp.;0;5;9
 Beaver;2022-07-07;45°55.500';74°03.913';16:37;Minnow_trap;N15;BEAV_N_15;Charles;PiPr;0;8;1
-Beaver;2022-07-07;45°55.517';74°03.882';16:38;Minnow_trap;N11;BEAV_N_11;Charles;NA;NA;NA;NA
+Beaver;2022-07-07;45°55.517';74°03.882';16:38;Minnow_trap;N11;BEAV_N_11;NA;NA;NA;NA;0
 Beaver;2022-07-07;45°55.536';74°03.862';16:40;Minnow_trap;N1;BEAV_N_01;Charles;PiPr;0;3;2
 Beaver;2022-07-07;45°55.536';74°03.862';16:40;Minnow_trap;N1;BEAV_N_01;Charles;PiPr;0;4;10
 Beaver;2022-07-07;45°55.536';74°03.862';16:40;Minnow_trap;N1;BEAV_N_01;Charles;PiPr;0;5;3
@@ -833,7 +833,7 @@ Fournelle;2022-07-14;45°54.863';74°02.752';16:40;Minnow_trap;N7;FOUR_N_07;NA;N
 Fournelle;2022-07-14;45°54.910';74°02.308';16:53;Minnow_trap;N9;FOUR_N_09;Juliane;LeGi;3;9;1
 Fournelle;2022-07-14;45°54.831';74°02.399';16:28;Minnow_trap;N11;FOUR_N_11;NA;NA;NA;NA;0
 Fournelle;2022-07-14;45°54.779';74°02.166';16:19;Minnow_trap;N12;FOUR_N_12;Juliane;MiDo;0;4;3
-Fournelle;2022-07-14;45°54.942';74°02.428';16:50;Minnow_trap;N13;FOUR_N_13;Juliane;NA;NA;NA;0
+Fournelle;2022-07-14;45°54.942';74°02.428';16:50;Minnow_trap;N13;FOUR_N_13;NA;NA;NA;NA;0
 Fournelle;2022-07-14;45°54.941';74°02.366';16:31;Minnow_trap;N14;FOUR_N_14;Juliane;LeGi;2;7;1
 Fournelle;2022-07-14;45°54.901';74°02.698';16:43;Minnow_trap;N15;FOUR_N_15;NA;NA;NA;NA;0
 Fournelle;2022-07-14;45°54.811';74°02.263';16:15;Minnow_trap;N16;FOUR_N_16;NA;NA;NA;NA;0
@@ -1141,9 +1141,9 @@ St-Onge;2022-06-20;45°54.910';73°57.744';16:03;Minnow_trap;N1;STON_N_01;NA;NA;
 St-Onge;2022-06-20;45°54.836';73°57.766';16:10;Minnow_trap;N2;STON_N_02;NA;NA;NA;NA;0
 St-Onge;2022-06-20;45°54.920';73°57.693';16:18;Minnow_trap;N3;STON_N_03;NA;NA;NA;NA;0
 St-Onge;2022-06-20;45°54.920';73°57.719';16:00;Minnow_trap;N4;STON_N_04;Lea;PeFl;0;12;2
-St-Onge;2022-06-20;45°54.922';73°57.699';16:18;Minnow_trap;N5;STON_N_05;Lea;NA;NA;NA;0
+St-Onge;2022-06-20;45°54.922';73°57.699';16:18;Minnow_trap;N5;STON_N_05;NA;NA;NA;NA;0
 St-Onge;2022-06-20;45°54.918';73°57.729';16:02;Minnow_trap;N6;STON_N_06;Lea;PeFl;0;13;2
-St-Onge;2022-06-20;45°54.828';73°57.740';16:11;Minnow_trap;N7;STON_N_07;Lea;NA;NA;NA;0
+St-Onge;2022-06-20;45°54.828';73°57.740';16:11;Minnow_trap;N7;STON_N_07;NA;NA;NA;NA;0
 St-Onge;2022-06-20;45°54.913';73°57.735';16:03;Minnow_trap;N8;STON_N_08;Lea;AmNe;0;16;1
 St-Onge;2022-06-20;45°54.913';73°57.735';16:03;Minnow_trap;N8;STON_N_08;Lea;PeFl;0;12;1
 St-Onge;2022-06-20;45°54.913';73°57.735';16:03;Minnow_trap;N8;STON_N_08;Lea;PeFl;0;14;1
@@ -1197,10 +1197,10 @@ Triton;2022-06-29;45°59.299';74°00.407';11:20;Seine;S1;TRIT_S_02;Charles;LeGi;
 Triton;2022-06-29;45°59.297';74°00.377';10:55;Seine;S1;TRIT_S_01;Juliane;LeGi;0;4;7
 Triton;2022-06-29;45°59.297';74°00.377';10:55;Seine;S1;TRIT_S_01;Juliane;LeGi;0;3;20
 Triton;2022-06-29;45°59.297';74°00.377';10:55;Seine;S1;TRIT_S_01;Juliane;LeGi;0;5;1
-Triton;2022-06-29;45°59.270';74°00.529';16:05;Minnow_trap;N1;TRIT_N_01;Lea;NA;NA;NA;0
+Triton;2022-06-29;45°59.270';74°00.529';16:05;Minnow_trap;N1;TRIT_N_01;NA;NA;NA;NA;0
 Triton;2022-06-29;45°59.272';74°00.409';16:15;Minnow_trap;N2;TRIT_N_02;Lea;LeGi;0;3;3
 Triton;2022-06-29;45°59.272';74°00.409';16:15;Minnow_trap;N2;TRIT_N_02;Lea;LeGi;0;10;1
-Triton;2022-06-29;45°59.233';74°00.524';16:09;Minnow_trap;N3;TRIT_N_03;Lea;NA;NA;NA;0
+Triton;2022-06-29;45°59.233';74°00.524';16:09;Minnow_trap;N3;TRIT_N_03;NA;NA;NA;NA;0
 Triton;2022-06-29;45°59.294';74°00.424';16:00;Minnow_trap;N4;TRIT_N_04;Lea;LeGi;0;3;6
 Triton;2022-06-29;45°59.294';74°00.424';16:00;Minnow_trap;N4;TRIT_N_04;Lea;Chrosomus sp.;0;7;1
 Triton;2022-06-29;45°59.294';74°00.424';16:00;Minnow_trap;N4;TRIT_N_04;Lea;Chrosomus sp.;0;5;1
