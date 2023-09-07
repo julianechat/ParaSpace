@@ -22,9 +22,8 @@ to.carto <- "./carto/"
 library(vegan)
 library(ggplot2)
 library(dplyr)
-#library(tidyverse)
 library(colorspace)
-library(ggpubr)
+library(patchwork)
 
 ## Loading data ----
 
@@ -198,11 +197,6 @@ df.simulation <- df.simulation %>%
 ## Plotting simulation ----
 diverging_hcl(7, palette = "Tofino")
 
-#install.packages("extrafont")
-#library(extrafont)
-#font_import()
-#loadfonts(dev = "all")
-
 inf.acc.plot <- ggplot(df.simulation) + 
   scale_x_continuous(breaks = round(seq(min(N), max(N), by = 1), 1)) +
   scale_y_continuous(breaks = round(seq(0, 1000, by = 50), 1)) +
@@ -210,11 +204,16 @@ inf.acc.plot <- ggplot(df.simulation) +
   stat_summary(aes(x = N, y = inf.T.all), fun = mean, color = "#8892C8", size = 0.5, shape = 5) + 
   stat_summary(aes(x = N, y = inf.S.all), fun = mean, color = "#111111", size = 0.5, shape = 5) + 
   stat_summary(aes(x = N, y = inf.MT.all), fun = mean, color = "#669157", size = 0.5, shape = 5) + 
-  geom_smooth(aes(x = N, y = inf.T.all), method = "lm", se = TRUE, color = "#8892C8", fill = "#8892C8", alpha = 0.2, lineend = "round") + 
+  geom_smooth(aes(x = N, y = inf.T.all, color = "Transect"), method = "lm", se = TRUE, fill = "#8892C8", alpha = 0.2, lineend = "round") + 
   #geom_smooth(aes(x= N, y = inf.F.all), method = "lm", se = TRUE, color = "purple") +
-  geom_smooth(aes(x = N, y = inf.S.all), method = "lm", se = TRUE,  color = "#111111", fill = "#111111", alpha = 0.2, lineend = "round") + 
-  geom_smooth(aes(x= N, y = inf.MT.all), method = "lm", se = TRUE, color = "#669157", fill = "#669157", alpha = 0.2, lineend = "round") +
+  geom_smooth(aes(x = N, y = inf.S.all, color = "Seine net"), method = "lm", se = TRUE, fill = "#111111", alpha = 0.2, lineend = "round") + 
+  geom_smooth(aes(x= N, y = inf.MT.all, color = "Minnow trap"), method = "lm", se = TRUE, fill = "#669157", alpha = 0.2, lineend = "round") +
   labs(x = "Number of samplings", y = "Number of infected fishes", tag = "A") +
+  scale_color_manual(name = "Sampling method",
+                     breaks = c("Transect", "Seine net", "Minnow trap"),
+                     values = c("Transect" = "#7A84B5", "Seine net" = "#111111", "Minnow trap" = "#669157"), 
+                     guide = "legend", 
+                     aesthetics = c("colour", "fill")) +
   theme(text = element_text(size = 20, family = "Calibri Light", color = "black"),
         axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
         axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
@@ -225,7 +224,9 @@ inf.acc.plot <- ggplot(df.simulation) +
         axis.line.y = element_line(color = "black", lineend = "round"),
         #panel.grid.major = element_line(color = "#e0e0e0")
         #panel.border = element_rect(fill = NA, color = "black")
-        )
+        ) +
+  guides(fill = guide_legend(override.aes = list(fill = NA))) +
+  theme(legend.key = element_rect(fill = NA))
 
 ggsave(paste0(to.figs, "AccumulationCurves_infection.png"), plot = inf.acc.plot, dpi = 300, width = 15, height = 10)  
 
@@ -336,11 +337,16 @@ tot.acc.plot <- ggplot(df.simulation) +
   stat_summary(aes(x = N, y = tot.T.all), fun = mean, color = "#7A84B5", size = 0.5, shape = 5) + 
   stat_summary(aes(x = N, y = tot.S.all), fun = mean, color = "#111111", size = 0.5, shape = 5) + 
   stat_summary(aes(x = N, y = tot.MT.all), fun = mean, color = "#669157", size = 0.5, shape = 5) + 
-  geom_smooth(aes(x = N, y = tot.T.all), method = "lm", se = TRUE, color = "#7A84B5", fill = "#7A84B5", alpha = 0.2, lineend = "round") + 
+  geom_smooth(aes(x = N, y = tot.T.all, color = "Transect"), method = "lm", se = TRUE, fill = "#7A84B5", alpha = 0.2, lineend = "round") + 
   #geom_smooth(aes(x= N, y = tot.F.all), method = "lm", se = TRUE, color = "purple") +
-  geom_smooth(aes(x = N, y = tot.S.all), method = "lm", se = TRUE,  color = "#111111", fill = "#111111", alpha = 0.2, lineend = "round") + 
-  geom_smooth(aes(x= N, y = tot.MT.all), method = "lm", se = TRUE, color = "#669157", fill = "#669157", alpha = 0.2, lineend = "round") +
+  geom_smooth(aes(x = N, y = tot.S.all, color = "Seine net"), method = "lm", se = TRUE, fill = "#111111", alpha = 0.2, lineend = "round") + 
+  geom_smooth(aes(x= N, y = tot.MT.all, color = "Minnow trap"), method = "lm", se = TRUE, fill = "#669157", alpha = 0.2, lineend = "round") +
   labs(x = "Number of samplings", y = "Number of fishes", tag ="B") +
+  scale_color_manual(name = "Sampling method",
+                     breaks = c("Transect", "Seine net", "Minnow trap"),
+                     values = c("Transect" = "#7A84B5", "Seine net" = "#111111", "Minnow trap" = "#669157"), 
+                     guide = "legend", 
+                     aesthetics = c("colour", "fill")) +
   theme(text = element_text(size = 20, family = "Calibri Light", color = "black"),
         axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
         axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
@@ -351,7 +357,9 @@ tot.acc.plot <- ggplot(df.simulation) +
         axis.line.y = element_line(color = "black", lineend = "round"),
         #panel.grid.major = element_line(color = "#e0e0e0")
         #panel.border = element_rect(fill = NA, color = "black")
-  )
+  ) +
+  guides(fill = guide_legend(override.aes = list(fill = NA))) +
+  theme(legend.key = element_rect(fill = NA))
 
 ggsave(paste0(to.figs, "AccumulationCurves_individuals.png"), plot = tot.acc.plot, dpi = 300, width = 15, height = 10)  
 
@@ -485,17 +493,11 @@ ggsave(paste0(to.figs, "AccumulationCurves_prevalence.png"), plot = prev.acc.plo
 
 # ---- Summary figure ----
 
-summary.acc.plot <- ggarrange(inf.acc.plot, tot.acc.plot, prev.acc.plot,
-          font.label =  list(size = 20, family = "Calibri Light", face = "bold"),
-          align = "v",
-          ncol = 1, 
-          label_size = 20,
-          common_legend = TRUE,
-          legend = "bottom") +
-  guides(fill = guide_legend(override.aes = list(fill = NA))) +
-  theme(legend.key = element_rect(fill = NA))
-
-  
+summary.acc.plot <- inf.acc.plot + tot.acc.plot + prev.acc.plot +
+  plot_layout(ncol = 1,
+              nrow = 3, 
+              guides = "collect") &
+  theme(legend.position = "bottom")
 
 ggsave(paste0(to.figs, "AccumulationCurves_summary.png"), plot = summary.acc.plot, dpi = 300, width = 12, height = 30)
 
