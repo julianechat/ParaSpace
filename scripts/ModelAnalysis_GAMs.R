@@ -27,6 +27,7 @@ library(gratia)
 library(mgcv)
 library(gamlss)
 library(itsadug)
+library(colorspace)
 
 source(paste0(to.R, "rquery.cormat.R"))
 source(paste0(to.R, "inverse_logit_trans.R"))
@@ -76,9 +77,59 @@ TNTP.GAMM$scale
 #Model validation is OK
 
 #### Visualizing partial effects
+sequential_hcl(5, palette ="YlOrBr")
+"#682714" "#C75C00" "#F2A400" "#FAE094""#FEFEE3"
+
 draw.TNTP <- draw(TNTP.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
-  scale_y_continuous(trans = inverse_logit_trans)
+  scale_y_continuous(trans = inverse_logit_trans) +
+  labs(x = "TN:TP", y = "Prevalence", tag = "A") +
+  theme(text = element_text(size = 20, 
+                            family = "Calibri Light", 
+                            color = "black"),
+        axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
+        axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
+        axis.text.x = element_text(color = "black"),
+        axis.text.y = element_text(color = "black"),
+        panel.background = element_blank(),
+        axis.line.x = element_line(color = "black", 
+                                   lineend = "round"),
+        axis.line.y = element_line(color = "black", 
+                                   lineend = "round"),
+        plot.caption = element_blank(),
+        plot.title = element_blank())
+
 draw.TNTP
+
+TNTP.sm <- smooth_estimates(TNTP.GAMM) %>%
+  add_confint()
+TNTP.pr <- mod.data %>%
+  add_partial_residuals(TNTP.GAMM)
+TNTP.pe <- TNTP.sm %>%
+  filter(smooth == "s(TN_TP.T)") %>%
+  ggplot( unconditional = TRUE, overall_uncertainty = TRUE) +
+  geom_rug(aes(x = TN_TP.T),
+           data = TNTP.pr,
+           sides = "b", length = grid::unit(0.02, "npc")) +
+  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = TN_TP.T), fill = "#682714", alpha = 0.5) +
+  geom_line(aes(x = TN_TP.T, y = est), color = "#682714", lwd = 1.2) +
+  scale_y_continuous(trans = inverse_logit_trans) +
+  labs(x = "TN:TP", y = "Prevalence", tag = "A") +
+  theme(text = element_text(size = 20, 
+                            family = "Calibri Light", 
+                            color = "black"),
+        axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
+        axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
+        axis.text.x = element_text(color = "black"),
+        axis.text.y = element_text(color = "black"),
+        panel.background = element_blank(),
+        axis.line.x = element_line(color = "black", 
+                                   lineend = "round"),
+        axis.line.y = element_line(color = "black", 
+                                   lineend = "round"),
+        plot.caption = element_blank(),
+        plot.title = element_blank())
+
+
 
 #### Visualizing summed effects
 plot_smooth(TNTP.GAMM, view = "TN_TP.T", rm.ranef = FALSE, 
@@ -250,7 +301,22 @@ MACRO.GAMM$scale
 
 #### Visualizing partial effects
 draw.MACRO <- draw(MACRO.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
-  scale_y_continuous(trans = inverse_logit_trans)
+  scale_y_continuous(trans = inverse_logit_trans) +
+  labs(y = "Prevalence", tag = "B") + 
+  theme(text = element_text(size = 20, 
+                            family = "Calibri Light", 
+                            color = "black"),
+        axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
+        axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
+        axis.text.x = element_text(color = "black"),
+        axis.text.y = element_text(color = "black"),
+        panel.background = element_blank(),
+        axis.line.x = element_line(color = "black", 
+                                   lineend = "round"),
+        axis.line.y = element_line(color = "black", 
+                                   lineend = "round"),
+        plot.caption = element_blank(),
+        plot.title = element_blank())
 draw.MACRO
 #Signiticativity OK
 
@@ -336,8 +402,52 @@ TEMP.GAMM$scale
 
 #### Visualizing partial effects
 draw.TEMP <- draw(TEMP.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
-  scale_y_continuous(trans = inverse_logit_trans)
+  scale_y_continuous(trans = inverse_logit_trans) + 
+  labs(x = "Temperature", y = "Prevalence", tag = "C") + 
+  theme(text = element_text(size = 20, 
+                            family = "Calibri Light", 
+                            color = "black"),
+        axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
+        axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
+        axis.text.x = element_text(color = "black"),
+        axis.text.y = element_text(color = "black"),
+        panel.background = element_blank(),
+        axis.line.x = element_line(color = "black", 
+                                   lineend = "round"),
+        axis.line.y = element_line(color = "black", 
+                                   lineend = "round"),
+        plot.caption = element_blank(),
+        plot.title = element_blank())
 draw.TEMP
+
+TEMP.sm <- smooth_estimates(TEMP.GAMM) %>%
+  add_confint()
+TEMP.pr <- mod.data %>%
+  add_partial_residuals(TEMP.GAMM)
+TEMP.pe <- TEMP.sm %>%
+  filter(smooth == "s(Temp.T)") %>%
+  ggplot( unconditional = TRUE, overall_uncertainty = TRUE) +
+  geom_rug(aes(x = Temp.T),
+           data = TEMP.pr,
+           sides = "b", length = grid::unit(0.02, "npc")) +
+  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = Temp.T), fill = "#682714", alpha = 0.5) +
+  geom_line(aes(x = Temp.T, y = est), color = "#682714", lwd = 1.2) +
+  scale_y_continuous(trans = inverse_logit_trans) +
+  labs(x = "Temperature", y = "Prevalence", tag = "C") +
+  theme(text = element_text(size = 20, 
+                            family = "Calibri Light", 
+                            color = "black"),
+        axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
+        axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
+        axis.text.x = element_text(color = "black"),
+        axis.text.y = element_text(color = "black"),
+        panel.background = element_blank(),
+        axis.line.x = element_line(color = "black", 
+                                   lineend = "round"),
+        axis.line.y = element_line(color = "black", 
+                                   lineend = "round"),
+        plot.caption = element_blank(),
+        plot.title = element_blank())
 
 #### Visualizing summed effect
 plot_smooth(TEMP.GAMM, view = "Temp.T", rm.ranef = FALSE, 
@@ -380,8 +490,52 @@ TURB.GAMM$scale
 
 #### Visualizing partial effects
 draw.TURB <- draw(TURB.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
-  scale_y_continuous(trans = inverse_logit_trans)
+  scale_y_continuous(trans = inverse_logit_trans) + 
+  labs(x = "Turbidity", y = "Prevalence", tag = "D") +
+  theme(text = element_text(size = 20, 
+                            family = "Calibri Light", 
+                            color = "black"),
+        axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
+        axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
+        axis.text.x = element_text(color = "black"),
+        axis.text.y = element_text(color = "black"),
+        panel.background = element_blank(),
+        axis.line.x = element_line(color = "black", 
+                                   lineend = "round"),
+        axis.line.y = element_line(color = "black", 
+                                   lineend = "round"),
+        plot.caption = element_blank(),
+        plot.title = element_blank())
 draw.TURB
+
+TURB.sm <- smooth_estimates(TURB.GAMM) %>%
+  add_confint()
+TURB.pr <- mod.data %>%
+  add_partial_residuals(TURB.GAMM)
+TURB.pe <- TURB.sm %>%
+  filter(smooth == "s(Turb.T)") %>%
+  ggplot( unconditional = TRUE, overall_uncertainty = TRUE) +
+  geom_rug(aes(x = Turb.T),
+           data = TURB.pr,
+           sides = "b", length = grid::unit(0.02, "npc")) +
+  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = Turb.T), fill = "#682714", alpha = 0.5) +
+  geom_line(aes(x = Turb.T, y = est), color = "#682714", lwd = 1.2) +
+  scale_y_continuous(trans = inverse_logit_trans) +
+  labs(x = "Turbidity", y = "Prevalence", tag = "D") +
+  theme(text = element_text(size = 20, 
+                            family = "Calibri Light", 
+                            color = "black"),
+        axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
+        axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
+        axis.text.x = element_text(color = "black"),
+        axis.text.y = element_text(color = "black"),
+        panel.background = element_blank(),
+        axis.line.x = element_line(color = "black", 
+                                   lineend = "round"),
+        axis.line.y = element_line(color = "black", 
+                                   lineend = "round"),
+        plot.caption = element_blank(),
+        plot.title = element_blank())
 
 #### Visualizing summed effects
 plot_smooth(TURB.GAMM, view = "Turb.T", rm.ranef = FALSE, 
@@ -424,8 +578,52 @@ PH.GAMM$scale
 
 #### Visualizing partial effects
 draw.PH <- draw(PH.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) +
-  scale_y_continuous(trans = inverse_logit_trans)
+  scale_y_continuous(trans = inverse_logit_trans) + 
+  labs(x = "pH", y = "Prevalence", tag = "E") +
+  theme(text = element_text(size = 20, 
+                            family = "Calibri Light", 
+                            color = "black"),
+        axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
+        axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
+        axis.text.x = element_text(color = "black"),
+        axis.text.y = element_text(color = "black"),
+        panel.background = element_blank(),
+        axis.line.x = element_line(color = "black", 
+                                   lineend = "round"),
+        axis.line.y = element_line(color = "black", 
+                                   lineend = "round"),
+        plot.caption = element_blank(),
+        plot.title = element_blank())
 draw.PH
+
+PH.sm <- smooth_estimates(PH.GAMM) %>%
+  add_confint()
+PH.pr <- mod.data %>%
+  add_partial_residuals(PH.GAMM)
+PH.pe <- PH.sm %>%
+  filter(smooth == "s(pH.T)") %>%
+  ggplot( unconditional = TRUE, overall_uncertainty = TRUE) +
+  geom_rug(aes(x = pH.T),
+           data = PH.pr,
+           sides = "b", length = grid::unit(0.02, "npc")) +
+  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = pH.T), fill = "#682714", alpha = 0.5) +
+  geom_line(aes(x = pH.T, y = est), color = "#682714", lwd = 1.2) +
+  scale_y_continuous(trans = inverse_logit_trans) +
+  labs(x = "pH", y = "Prevalence", tag = "E") +
+  theme(text = element_text(size = 20, 
+                            family = "Calibri Light", 
+                            color = "black"),
+        axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
+        axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
+        axis.text.x = element_text(color = "black"),
+        axis.text.y = element_text(color = "black"),
+        panel.background = element_blank(),
+        axis.line.x = element_line(color = "black", 
+                                   lineend = "round"),
+        axis.line.y = element_line(color = "black", 
+                                   lineend = "round"),
+        plot.caption = element_blank(),
+        plot.title = element_blank())
 
 #### Visualizing summed effects
 plot_smooth(PH.GAMM, view = "pH.T", rm.ranef = FALSE, 
@@ -468,9 +666,52 @@ DO.GAMM$scale
 
 #### Visualizing partial effects
 draw.DO <- draw(DO.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
-  scale_y_continuous(trans = inverse_logit_trans)
+  scale_y_continuous(trans = inverse_logit_trans) + 
+  labs(x = "DO", y = "Prevalence", tag = "F") +
+  theme(text = element_text(size = 20, 
+                            family = "Calibri Light", 
+                            color = "black"),
+        axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
+        axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
+        axis.text.x = element_text(color = "black"),
+        axis.text.y = element_text(color = "black"),
+        panel.background = element_blank(),
+        axis.line.x = element_line(color = "black", 
+                                   lineend = "round"),
+        axis.line.y = element_line(color = "black", 
+                                   lineend = "round"),
+        plot.caption = element_blank(),
+        plot.title = element_blank())
 draw.DO
 
+DO.sm <- smooth_estimates(DO.GAMM) %>%
+  add_confint()
+DO.pr <- mod.data %>%
+  add_partial_residuals(DO.GAMM)
+DO.pe <- DO.sm %>%
+  filter(smooth == "s(DO.T)") %>%
+  ggplot(unconditional = TRUE, overall_uncertainty = TRUE) +
+  geom_rug(aes(x = DO.T),
+           data = DO.pr,
+           sides = "b", length = grid::unit(0.02, "npc")) +
+  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = DO.T), fill = "#682714", alpha = 0.5) +
+  geom_line(aes(x = DO.T, y = est), color = "#682714", lwd = 1.2) +
+  scale_y_continuous(trans = inverse_logit_trans) +
+  labs(x = "DO", y = "Prevalence", tag = "F") +
+  theme(text = element_text(size = 20, 
+                            family = "Calibri Light", 
+                            color = "black"),
+        axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
+        axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
+        axis.text.x = element_text(color = "black"),
+        axis.text.y = element_text(color = "black"),
+        panel.background = element_blank(),
+        axis.line.x = element_line(color = "black", 
+                                   lineend = "round"),
+        axis.line.y = element_line(color = "black", 
+                                   lineend = "round"),
+        plot.caption = element_blank(),
+        plot.title = element_blank())
 #### Visualizing summed effects
 plot_smooth(DO.GAMM, view = "DO.T", rm.ranef = FALSE, 
             transform = plogis, 
@@ -513,7 +754,22 @@ COND.GAMM$scale
 
 #### Visualizing partial effects
 draw.COND <- draw(COND.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
-  scale_y_continuous(trans = inverse_logit_trans)
+  scale_y_continuous(trans = inverse_logit_trans) + 
+  labs(x = "Conductivity", y = "Prevalence", tag = "G") +
+  theme(text = element_text(size = 20, 
+                            family = "Calibri Light", 
+                            color = "black"),
+        axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
+        axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
+        axis.text.x = element_text(color = "black"),
+        axis.text.y = element_text(color = "black"),
+        panel.background = element_blank(),
+        axis.line.x = element_line(color = "black", 
+                                   lineend = "round"),
+        axis.line.y = element_line(color = "black", 
+                                   lineend = "round"),
+        plot.caption = element_blank(),
+        plot.title = element_blank())
 draw.COND
 
 #### Visualizing summed effect
@@ -557,7 +813,22 @@ AREAPERI.GAMM$scale
 
 #### Visualizing partial effects
 draw.AREAPERI <- draw(AREAPERI.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
-  scale_y_continuous(trans = inverse_logit_trans)
+  scale_y_continuous(trans = inverse_logit_trans) +
+  labs(x = "Area:Perimeter", y = "Prevalence", tag = "H") +
+  theme(text = element_text(size = 20, 
+                            family = "Calibri Light", 
+                            color = "black"),
+        axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
+        axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
+        axis.text.x = element_text(color = "black"),
+        axis.text.y = element_text(color = "black"),
+        panel.background = element_blank(),
+        axis.line.x = element_line(color = "black", 
+                                   lineend = "round"),
+        axis.line.y = element_line(color = "black", 
+                                   lineend = "round"),
+        plot.caption = element_blank(),
+        plot.title = element_blank())
 draw.AREAPERI
 
 #### Visualizng summed effect
@@ -619,7 +890,22 @@ PERI.GAMM$scale
 
 #### Visualizing partial effects
 draw.PERI <- draw(PERI.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
-  scale_y_continuous(trans = inverse_logit_trans)
+  scale_y_continuous(trans = inverse_logit_trans) + 
+  labs(x = "Perimeter", y = "Prevalence", tag = "I") +
+  theme(text = element_text(size = 20, 
+                            family = "Calibri Light", 
+                            color = "black"),
+        axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
+        axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
+        axis.text.x = element_text(color = "black"),
+        axis.text.y = element_text(color = "black"),
+        panel.background = element_blank(),
+        axis.line.x = element_line(color = "black", 
+                                   lineend = "round"),
+        axis.line.y = element_line(color = "black", 
+                                   lineend = "round"),
+        plot.caption = element_blank(),
+        plot.title = element_blank())
 draw.PERI
 
 #### Visualizing summed effect
@@ -824,9 +1110,52 @@ DIVERS.GAMM$scale
 
 #### Visualizing partial effects
 draw.DIVERS <- draw(DIVERS.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
-  scale_y_continuous(trans = inverse_logit_trans)
+  scale_y_continuous(trans = inverse_logit_trans) + 
+  labs(x = "Diversity", y = "Prevalence", tag = "J") +
+  theme(text = element_text(size = 20, 
+                            family = "Calibri Light", 
+                            color = "black"),
+        axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
+        axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
+        axis.text.x = element_text(color = "black"),
+        axis.text.y = element_text(color = "black"),
+        panel.background = element_blank(),
+        axis.line.x = element_line(color = "black", 
+                                   lineend = "round"),
+        axis.line.y = element_line(color = "black", 
+                                   lineend = "round"),
+        plot.caption = element_blank(),
+        plot.title = element_blank())
 draw.DIVERS
 
+DIVERS.sm <- smooth_estimates(DIVERS.GAMM) %>%
+  add_confint()
+DIVERS.pr <- mod.data %>%
+  add_partial_residuals(DIVERS.GAMM)
+DIVERS.pe <- DIVERS.sm %>%
+  filter(smooth == "s(Diversity.T)") %>%
+  ggplot(unconditional = TRUE, overall_uncertainty = TRUE) +
+  geom_rug(aes(x = Diversity.T),
+           data = DIVERS.pr,
+           sides = "b", length = grid::unit(0.02, "npc")) +
+  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = Diversity.T), fill = "#682714", alpha = 0.5) +
+  geom_line(aes(x = Diversity.T, y = est), color = "#682714", lwd = 1.2) +
+  scale_y_continuous(trans = inverse_logit_trans) +
+  labs(x = "Diversity", y = "Prevalence", tag = "J") +
+  theme(text = element_text(size = 20, 
+                            family = "Calibri Light", 
+                            color = "black"),
+        axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
+        axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
+        axis.text.x = element_text(color = "black"),
+        axis.text.y = element_text(color = "black"),
+        panel.background = element_blank(),
+        axis.line.x = element_line(color = "black", 
+                                   lineend = "round"),
+        axis.line.y = element_line(color = "black", 
+                                   lineend = "round"),
+        plot.caption = element_blank(),
+        plot.title = element_blank())
 #### Visualizing summed effects
 DIVERS.fv <- fitted_values(DIVERS.GAMM, data = mod.data, scale = "response")
 ggplot(DIVERS.fv) +
@@ -943,3 +1272,15 @@ pdf(paste0(to.figs, "GAM_Corrplot.pdf"), width = 10, height = 10)
 significant.corrplot <- rquery.cormat(significant.data, type = "full")
 
 dev.off()
+
+# ---- Summary figure ----
+
+Summary.plot <- TNTP.pe + draw.MACRO + TEMP.pe + TURB.pe + PH.pe + DO.pe + draw.COND + draw.AREAPERI + draw.PERI + DIVERS.pe +
+  plot_layout(ncol = 5,
+              nrow = 2, 
+              tag_level = "keep")
+ggsave(paste0(to.figs, "GAMMs_summary.png"), plot = Summary.plot, dpi = 300, width = 45, height = 20)  
+  
+  
+  
+  
