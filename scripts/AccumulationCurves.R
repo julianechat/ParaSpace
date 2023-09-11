@@ -21,9 +21,9 @@ to.carto <- "./carto/"
 
 library(vegan)
 library(ggplot2)
-library(dplyr)
 library(colorspace)
 library(patchwork)
+library(dplyr)
 
 ## Loading data ----
 
@@ -33,7 +33,7 @@ CombinedData <- read.csv(paste0(to.output, "CombinedData.csv"))
 ## Minnow traps ----
 
 MTdata <- CombinedData %>% 
-  filter(Sampling_method == "Minnow_trap") #Selecting method
+  filter(Sampling_method == "Minnow_trap") #Selecting method 
 
 MTdata <- MTdata %>% 
   select(starts_with("tot")) #Keeping community matrix (total abundance)
@@ -465,10 +465,10 @@ prev.acc.plot <- ggplot(df.simulation) +
   stat_summary(aes(x = N, y = prev.T.all), fun = mean, color = "#7A84B5", size = 0.5, shape = 5) + 
   stat_summary(aes(x = N, y = prev.S.all), fun = mean, color = "#111111", size = 0.5, shape = 5) + 
   stat_summary(aes(x = N, y = prev.MT.all), fun = mean, color = "#669157", size = 0.5, shape = 5) + 
-  geom_smooth(aes(x = N, y = prev.T.all, color = "Transect"), method = "lm", se = TRUE, fill = "#7A84B5", alpha = 0.2, lineend = "round") + 
+  geom_smooth(aes(x = N, y = prev.T.all, color = "Transect"), method = "gam", se = TRUE, fill = "#7A84B5", alpha = 0.2, lineend = "round") + 
   #geom_smooth(aes(x= N, y = prev.F.all), method = "lm", se = TRUE, color = "purple") +
-  geom_smooth(aes(x = N, y = prev.S.all, color = "Seine net"), method = "lm", se = TRUE, fill = "#111111", alpha = 0.2, lineend = "round") + 
-  geom_smooth(aes(x= N, y = prev.MT.all, color = "Minnow trap"), method = "lm", se = TRUE, fill = "#669157", alpha = 0.2, lineend = "round") +
+  geom_smooth(aes(x = N, y = prev.S.all, color = "Seine net"), method = "gam", se = TRUE, fill = "#111111", alpha = 0.2, lineend = "round") + 
+  geom_smooth(aes(x= N, y = prev.MT.all, color = "Minnow trap"), method = "gam", se = TRUE, fill = "#669157", alpha = 0.2, lineend = "round") +
   labs(x = "Number of samplings", y = "Mean prevalence", tag = "C") +
   scale_color_manual(name = "Sampling method",
                      breaks = c("Transect", "Seine net", "Minnow trap"),
@@ -496,7 +496,15 @@ ggsave(paste0(to.figs, "AccumulationCurves_prevalence.png"), plot = prev.acc.plo
 summary.acc.plot <- inf.acc.plot + tot.acc.plot + prev.acc.plot +
   plot_layout(ncol = 1,
               nrow = 3, 
-              guides = "collect") &
+              guides = "collect") +
+  plot_annotation(title = "Figure 1. Accumulation curves of individuals through increasing sampling intensity. (A) Number of infected individuals. (B) Number of individuals. (C) Mean prevalence.",
+                  theme = list(title = element_text(size = 20, 
+                                  family = "Calibri Light", 
+                                  color = "black"))) +
+  theme(legend.position = "bottom",
+        plot.title = element_text(hjust = 0,
+                                  vjust = -2000),
+        plot.margin = unit(c(0,0,10,0), "mm")) &
   theme(legend.position = "bottom")
 
 ggsave(paste0(to.figs, "AccumulationCurves_summary.png"), plot = summary.acc.plot, dpi = 300, width = 12, height = 30)

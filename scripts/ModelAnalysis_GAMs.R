@@ -78,7 +78,6 @@ TNTP.GAMM$scale
 
 #### Visualizing partial effects
 sequential_hcl(5, palette ="YlOrBr")
-"#682714" "#C75C00" "#F2A400" "#FAE094""#FEFEE3"
 
 draw.TNTP <- draw(TNTP.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
   scale_y_continuous(trans = inverse_logit_trans) +
@@ -1273,12 +1272,20 @@ significant.corrplot <- rquery.cormat(significant.data, type = "full")
 
 dev.off()
 
-# ---- Summary figure ----
+## Summary figure ----
 
 Summary.plot <- TNTP.pe + draw.MACRO + TEMP.pe + TURB.pe + PH.pe + DO.pe + draw.COND + draw.AREAPERI + draw.PERI + DIVERS.pe +
   plot_layout(ncol = 5,
               nrow = 2, 
-              tag_level = "keep")
+              tag_level = "keep") +
+  plot_annotation(title = "Figure 3. Significant univarite GAMMs of prevalence infection. Dark red stand for model validation OK.",
+                  theme = list(title = element_text(size = 20, 
+                                    family = "Calibri Light", 
+                                    color = "black"))) &
+  theme(plot.title = element_text(hjust = 0,
+                                  vjust = -325),
+        plot.margin = unit(c(0,0,10,0), "mm"))
+  
 ggsave(paste0(to.figs, "GAMMs_summary.png"), plot = Summary.plot, dpi = 300, width = 45, height = 20)  
   
   
