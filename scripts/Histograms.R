@@ -138,15 +138,15 @@ Small.prev <- Small.prev %>%
   mutate(prev_fish = inf_fish/tot_fish)
 
 # ---- Histograms ----
-diverging_hcl(7, palette = "Tofino")
+col.pal2 <- c("#7E7E7E", "#2A5676", "#999600", "#966F1E")
+col.pal4 <- c("#7E7E7E", "#005260", "#A4473D", "#A57E00")
 
 ## All methods ----
 
 All.plain.hist <- hist(All.prev$prev_fish)
 
 All.hist <- ggplot(All.prev, aes(prev_fish)) + 
-  geom_histogram(bins = 6, fill = "lightgrey", color = "black") +
-  geom_density() +
+  geom_histogram(bins = 6, fill = "#7E7E7E", color = "black") +
   labs(x = "Prevalence", y = "Frequency") + 
   theme(text = element_text(size = 20, family = "Calibri Light", color = "black"),
         axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
@@ -162,8 +162,7 @@ All.hist <- ggplot(All.prev, aes(prev_fish)) +
 Trans.plain.hist <- hist(Trans.prev$prev_fish)
 
 Trans.hist <- ggplot(Trans.prev, aes(prev_fish)) + 
-  geom_histogram(bins = 6, fill = "#7A84B5", color = "black") +
-  geom_density() +
+  geom_histogram(bins = 6, fill = "#005260", color = "black") +
   labs(x = "Prevalence", y = "Frequency") + 
   theme(text = element_text(size = 20, family = "Calibri Light", color = "black"),
         axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
@@ -179,8 +178,7 @@ Trans.hist <- ggplot(Trans.prev, aes(prev_fish)) +
 Seine.plain.hist <- hist(Seine.prev$prev_fish)
 
 Seine.hist <- ggplot(Seine.prev, aes(prev_fish)) + 
-  geom_histogram(bins = 6, fill = "#111111", color = "black") +
-  geom_density(color = "red") +
+  geom_histogram(bins = 6, fill = "#A4473D", color = "black") +
   labs(x = "Prevalence", y = "Frequency") + 
   theme(text = element_text(size = 20, family = "Calibri Light", color = "black"),
         axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
@@ -196,8 +194,7 @@ Seine.hist <- ggplot(Seine.prev, aes(prev_fish)) +
 Trap.plain.hist <- hist(Trap.prev$prev_fish)
 
 Trap.hist <- ggplot(Trap.prev, aes(prev_fish)) + 
-  geom_histogram(bins = 6, fill = "#669157", color = "black") +
-  geom_density() +
+  geom_histogram(bins = 6, fill = "#A57E00", color = "black") +
   labs(x = "Prevalence", y = "Frequency") + 
   theme(text = element_text(size = 20, 
                             family = "Calibri Light", 
@@ -218,7 +215,6 @@ Small.plain.hist <- hist(Small.prev$prev_fish)
 
 Small.hist <- ggplot(Small.prev, aes(prev_fish)) + 
   geom_histogram(bins = 6, fill = "grey", color = "black") +
-  geom_density() +
   labs(x = "Prevalence", y = "Frequency") + 
   theme(text = element_text(size = 20, 
                             family = "Calibri Light", 
@@ -239,7 +235,6 @@ Large.plain.hist <- hist(Large.prev$prev_fish)
 
 Large.hist <- ggplot(Large.prev, aes(prev_fish)) + 
   geom_histogram(bins = 6, fill = "grey", color = "black") +
-  geom_density() +
   labs(x = "Prevalence", y = "Frequency") + 
   theme(text = element_text(size = 20, 
                             family = "Calibri Light", 
@@ -267,7 +262,8 @@ Summary.plot <- All.hist + Trans.hist + Seine.hist + Trap.hist +
                                                     color = "black"))) &
   theme(plot.title = element_text(hjust = 0,
                                   vjust = -240),
-        plot.margin = unit(c(0,0,10,0), "mm"))
+        plot.margin = unit(c(0,0,10,0), "mm")) &
+  ylim(0,5)
               
                   
 ggsave(paste0(to.figs, "FrequencyDistribution_summary.png"), plot = Summary.plot, dpi = 300, width = 15, height = 15)
@@ -286,7 +282,8 @@ Summary.trap <- Trap.hist + Small.hist + Large.hist +
                                                     color = "black"))) &
   theme(plot.title = element_text(hjust = 0,
                                   vjust = -160),
-        plot.margin = unit(c(0,0,10,0), "mm"))
+        plot.margin = unit(c(0,0,10,0), "mm")) &
+  ylim(0, 5)
 
 
 ggsave(paste0(to.figs, "FrequencyDistribution_TrapSummary.png"), plot = Summary.trap, dpi = 300, width = 30, height = 10)
