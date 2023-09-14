@@ -197,7 +197,7 @@ col.pal2 <- c("#7E7E7E", "#2A5676", "#999600", "#966F1E")
 col.pal4 <- c("#7E7E7E", "#005260", "#A4473D", "#A57E00")
 
 inf.acc.plot <- ggplot(df.simulation) + 
-  scale_x_continuous(breaks = c(1,2,3,5,7,10,25,20,25,35)) +
+  scale_x_continuous(breaks = c(1, 2, 3, 5, 7, 10, 25, 20, 25, 35)) +
   scale_y_continuous(breaks = round(seq(0, 2500, by = 200), 1)) +
   stat_summary(aes(x = N, y = inf.A.all), fun = mean, color = "#7E7E7E", size = 0.5, shape = 5) + 
   stat_summary(aes(x = N, y = inf.T.all), fun = mean, color = "#2A5676", size = 0.5, shape = 5) + 
@@ -210,7 +210,7 @@ inf.acc.plot <- ggplot(df.simulation) +
   labs(x = "Number of samplings", y = "Number of infected fishes", tag = "A") +
   scale_color_manual(name = "Sampling method",
                      breaks = c("All", "Transect", "Seine net", "Minnow trap"),
-                     values = c("All" = "#7E7E7E", "Transect" = "#2A5676", "Seine net" =   "#999600", "Minnow trap" = "#966F1E"), 
+                     values = c("All" = "#7E7E7E", "Transect" = "#2A5676", "Seine net" = "#999600", "Minnow trap" = "#966F1E"), 
                      guide = "legend", 
                      aesthetics = c("colour", "fill")) +
   theme(text = element_text(size = 20, family = "Calibri Light", color = "black"),
@@ -220,10 +220,7 @@ inf.acc.plot <- ggplot(df.simulation) +
         axis.text.y = element_text(color = "black"),
         panel.background = element_blank(),
         axis.line.x = element_line(color = "black",lineend = "round"),
-        axis.line.y = element_line(color = "black", lineend = "round"),
-        #panel.grid.major = element_line(color = "#e0e0e0")
-        #panel.border = element_rect(fill = NA, color = "black")
-        ) +
+        axis.line.y = element_line(color = "black", lineend = "round")) +
   guides(fill = guide_legend(override.aes = list(fill = NA))) +
   theme(legend.key = element_rect(fill = NA))
 
@@ -330,20 +327,20 @@ df.simulation <- df.simulation %>%
 ## Plotting simulation ----
 
 tot.acc.plot <- ggplot(df.simulation) + 
-  scale_x_continuous(breaks = c(1,2,3,5,7,10,25,20,25,35)) +
+  scale_x_continuous(breaks = c(1, 2, 3, 5, 7, 10, 25, 20, 25, 35)) +
   scale_y_continuous(breaks = round(seq(0, 6500, by = 500))) +
-  stat_summary(aes(x = N, y = tot.A.all), fun = mean, color = "grey", size = 0.5, shape = 5) + 
-  stat_summary(aes(x = N, y = tot.T.all), fun = mean, color = "#7A84B5", size = 0.5, shape = 5) + 
-  stat_summary(aes(x = N, y = tot.S.all), fun = mean, color = "#111111", size = 0.5, shape = 5) + 
-  stat_summary(aes(x = N, y = tot.MT.all), fun = mean, color = "#669157", size = 0.5, shape = 5) + 
-  geom_smooth(aes(x = N, y = tot.T.all, color = "Transect"), method = "gam", se = TRUE, fill = "#7A84B5", alpha = 0.2, lineend = "round") + 
-  geom_smooth(aes(x= N, y = tot.A.all, color = "All"), method = "gam", se = TRUE, fill = "grey") +
-  geom_smooth(aes(x = N, y = tot.S.all, color = "Seine net"), method = "gam", se = TRUE, fill = "#111111", alpha = 0.2, lineend = "round") + 
-  geom_smooth(aes(x= N, y = tot.MT.all, color = "Minnow trap"), method = "gam", se = TRUE, fill = "#669157", alpha = 0.2, lineend = "round") +
+  stat_summary(aes(x = N, y = tot.A.all), fun = mean, color = "#7E7E7E", size = 0.5, shape = 5) + 
+  stat_summary(aes(x = N, y = tot.T.all), fun = mean, color = "#2A5676", size = 0.5, shape = 5) + 
+  stat_summary(aes(x = N, y = tot.S.all), fun = mean, color = "#999600", size = 0.5, shape = 5) + 
+  stat_summary(aes(x = N, y = tot.MT.all), fun = mean, color = "#966F1E", size = 0.5, shape = 5) + 
+  geom_smooth(aes(x= N, y = tot.A.all, color = "All"), method = "gam", se = TRUE, fill = "#7E7E7E", alpha = 0.2, lineend = "round") +
+  geom_smooth(aes(x = N, y = tot.T.all, color = "Transect"), method = "gam", se = TRUE, fill = "#2A5676", alpha = 0.2, lineend = "round") + 
+  geom_smooth(aes(x = N, y = tot.S.all, color = "Seine net"), method = "gam", se = TRUE, fill = "#999600", alpha = 0.2, lineend = "round") + 
+  geom_smooth(aes(x= N, y = tot.MT.all, color = "Minnow trap"), method = "gam", se = TRUE, fill = "#966F1E", alpha = 0.2, lineend = "round") +
   labs(x = "Number of samplings", y = "Number of fishes", tag ="B") +
   scale_color_manual(name = "Sampling method",
                      breaks = c("All", "Transect", "Seine net", "Minnow trap"),
-                     values = c("All" = "grey", "Transect" = "#7A84B5", "Seine net" = "#111111", "Minnow trap" = "#669157"), 
+                     values = c("All" = "#7E7E7E", "Transect" = "#2A5676", "Seine net" = "#999600", "Minnow trap" = "#966F1E"), 
                      guide = "legend", 
                      aesthetics = c("colour", "fill")) +
   theme(text = element_text(size = 20, family = "Calibri Light", color = "black"),
@@ -353,10 +350,7 @@ tot.acc.plot <- ggplot(df.simulation) +
         axis.text.y = element_text(color = "black"),
         panel.background = element_blank(),
         axis.line.x = element_line(color = "black",lineend = "round"),
-        axis.line.y = element_line(color = "black", lineend = "round"),
-        #panel.grid.major = element_line(color = "#e0e0e0")
-        #panel.border = element_rect(fill = NA, color = "black")
-  ) +
+        axis.line.y = element_line(color = "black", lineend = "round")) +
   guides(fill = guide_legend(override.aes = list(fill = NA))) +
   theme(legend.key = element_rect(fill = NA))
 
@@ -460,18 +454,18 @@ df.simulation <- df.simulation %>%
 
 prev.acc.plot <- ggplot(df.simulation) + 
   scale_x_continuous(breaks = c(1,2,3,5,7,10,25,20,25,35)) +
-  stat_summary(aes(x = N, y = prev.A.all), fun = mean, color = "grey", size = 0.5, shape = 5) + 
-  stat_summary(aes(x = N, y = prev.T.all), fun = mean, color = "#7A84B5", size = 0.5, shape = 5) + 
-  stat_summary(aes(x = N, y = prev.S.all), fun = mean, color = "#111111", size = 0.5, shape = 5) + 
-  stat_summary(aes(x = N, y = prev.MT.all), fun = mean, color = "#669157", size = 0.5, shape = 5) + 
-  geom_smooth(aes(x = N, y = prev.T.all, color = "Transect"), method = "lm", se = TRUE, fill = "#7A84B5", alpha = 0.2, lineend = "round") + 
-  geom_smooth(aes(x= N, y = prev.A.all, color = "All"), method = "lm", se = TRUE, fill = "grey") +
-  geom_smooth(aes(x = N, y = prev.S.all, color = "Seine net"), method = "lm", se = TRUE, fill = "#111111", alpha = 0.2, lineend = "round") + 
-  geom_smooth(aes(x= N, y = prev.MT.all, color = "Minnow trap"), method = "lm", se = TRUE, fill = "#669157", alpha = 0.2, lineend = "round") +
+  stat_summary(aes(x = N, y = prev.A.all), fun = mean, color = "#7E7E7E", size = 0.5, shape = 5) + 
+  stat_summary(aes(x = N, y = prev.T.all), fun = mean, color = "#2A5676", size = 0.5, shape = 5) + 
+  stat_summary(aes(x = N, y = prev.S.all), fun = mean, color = "#999600", size = 0.5, shape = 5) + 
+  stat_summary(aes(x = N, y = prev.MT.all), fun = mean, color = "#966F1E", size = 0.5, shape = 5) + 
+  geom_smooth(aes(x= N, y = prev.A.all, color = "All"), method = "lm", se = TRUE, fill = "#7E7E7E", alpha = 0.2, lineend = "round") +
+  geom_smooth(aes(x = N, y = prev.T.all, color = "Transect"), method = "lm", se = TRUE, fill = "#2A5676", alpha = 0.2, lineend = "round") + 
+  geom_smooth(aes(x = N, y = prev.S.all, color = "Seine net"), method = "lm", se = TRUE, fill = "#999600", alpha = 0.2, lineend = "round") + 
+  geom_smooth(aes(x= N, y = prev.MT.all, color = "Minnow trap"), method = "lm", se = TRUE, fill = "#966F1E", alpha = 0.2, lineend = "round") +
   labs(x = "Number of samplings", y = "Mean prevalence", tag = "C") +
   scale_color_manual(name = "Sampling method",
                      breaks = c("All", "Transect", "Seine net", "Minnow trap"),
-                     values = c("All" = "grey", "Transect" = "#7A84B5", "Seine net" = "#111111", "Minnow trap" = "#669157"), 
+                     values = c("All" = "#7E7E7E", "Transect" = "#2A5676", "Seine net" = "#999600", "Minnow trap" = "#966F1E"), 
                      guide = "legend", 
                      aesthetics = c("colour", "fill")) +
   theme(text = element_text(size = 20, family = "Calibri Light", color = "black"),
@@ -481,10 +475,7 @@ prev.acc.plot <- ggplot(df.simulation) +
         axis.text.y = element_text(color = "black"),
         panel.background = element_blank(),
         axis.line.x = element_line(color = "black",lineend = "round"),
-        axis.line.y = element_line(color = "black", lineend = "round")
-        #panel.grid.major = element_line(color = "#e0e0e0")
-        #panel.border = element_rect(fill = NA, color = "black")
-        ) + 
+        axis.line.y = element_line(color = "black", lineend = "round")) + 
   guides(fill = guide_legend(override.aes = list(fill = NA))) +
   theme(legend.key = element_rect(fill = NA))
 
@@ -498,13 +489,12 @@ summary.acc.plot <- inf.acc.plot + tot.acc.plot + prev.acc.plot +
               guides = "collect") +
   plot_annotation(title = "Figure 1. Accumulation curves of individuals through increasing sampling intensity. (A) Number of infected individuals. (B) Number of individuals. (C) Mean prevalence.",
                   theme = list(title = element_text(size = 20, 
-                                  family = "Calibri Light", 
-                                  color = "black"))) +
-  theme(legend.position = "bottom",
-        plot.title = element_text(hjust = 0,
-                                  vjust = -2000),
-        plot.margin = unit(c(0,0,10,0), "mm")) &
-  theme(legend.position = "bottom")
+                                                    family = "Calibri Light", 
+                                                    color = "black"))) &
+  theme(legend.position = "bottom") &
+  theme(plot.title = element_text(hjust = 0,
+                                  vjust = -490),
+        plot.margin = unit(c(0,0,10,0), "mm"))
 
 ggsave(paste0(to.figs, "AccumulationCurves_summary.png"), plot = summary.acc.plot, dpi = 300, width = 12, height = 30)
 

@@ -162,7 +162,7 @@ All.hist <- ggplot(All.prev, aes(prev_fish)) +
 Trans.plain.hist <- hist(Trans.prev$prev_fish)
 
 Trans.hist <- ggplot(Trans.prev, aes(prev_fish)) + 
-  geom_histogram(bins = 6, fill = "#005260", color = "black") +
+  geom_histogram(bins = 6, fill = "#2A5676", color = "black") +
   labs(x = "Prevalence", y = "Frequency") + 
   theme(text = element_text(size = 20, family = "Calibri Light", color = "black"),
         axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
@@ -178,7 +178,7 @@ Trans.hist <- ggplot(Trans.prev, aes(prev_fish)) +
 Seine.plain.hist <- hist(Seine.prev$prev_fish)
 
 Seine.hist <- ggplot(Seine.prev, aes(prev_fish)) + 
-  geom_histogram(bins = 6, fill = "#A4473D", color = "black") +
+  geom_histogram(bins = 6, fill = "#999600", color = "black") +
   labs(x = "Prevalence", y = "Frequency") + 
   theme(text = element_text(size = 20, family = "Calibri Light", color = "black"),
         axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
@@ -194,7 +194,7 @@ Seine.hist <- ggplot(Seine.prev, aes(prev_fish)) +
 Trap.plain.hist <- hist(Trap.prev$prev_fish)
 
 Trap.hist <- ggplot(Trap.prev, aes(prev_fish)) + 
-  geom_histogram(bins = 6, fill = "#A57E00", color = "black") +
+  geom_histogram(bins = 6, fill = "#966F1E", color = "black") +
   labs(x = "Prevalence", y = "Frequency") + 
   theme(text = element_text(size = 20, 
                             family = "Calibri Light", 
