@@ -115,7 +115,7 @@ TransWide <- TransData %>% #Creating total abundance columns
   mutate(tot_AmRu = AmRu_Health + AmRu_Infected, tot_MiDo = MiDo_Health + MiDo_Infected, tot_LeGi = LeGi_Health + LeGi_Infected, tot_PeFl = PeFl_Health + PeFl_Infected, tot_Cyprinidae = Cyp_Health + Cyp_Infected) %>% 
   select(-c("AmRu_Health", "MiDo_Health", "LeGi_Health", "PeFl_Health", "Cyp_Health")) #Deleting health abundance columns 
 
-colnames(TransWide)[c(9:13)] <- c("inf_LeGi", "inf_Cyprinidae", "inf_PeFl", "inf_MiDo", "inf_AmRu") 
+colnames(TransWide)[c(9:13)] <- c("inf_LeGi", "inf_Cyprinidae", "inf_MiDo", "inf_AmRu","inf_PeFl") 
 
 TransWide <- TransWide %>% relocate(c("tot_AmRu", "tot_MiDo", "tot_LeGi", "tot_PeFl", "tot_Cyprinidae"), .after = "Identifier") %>% #Relocating total abundance community matrix
   relocate("inf_PeFl", .before = "inf_Cyprinidae") %>% #Adjusting the column order

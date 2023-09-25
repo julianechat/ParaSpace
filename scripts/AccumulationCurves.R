@@ -500,22 +500,29 @@ ggsave(paste0(to.figs, "AccumulationCurves_summary.png"), plot = summary.acc.plo
 
 ##############
 
-write_csv(df.simulation,paste0(to.output,"Accum.simulation.csv"))
-
+write.csv(df.simulation,paste0(to.output,"Accum.simulation.csv"))
 AccumData <- read.csv(paste0(to.output, "Accum.simulation.csv"))
 
 lm.1 <- lm(prev.T.all ~ N, data=AccumData)
 summary(lm.1)
-#INtercept: 0.417*** 
+#Intercept: 0.417*** 
+#slope do not differ from 0 (not significative)
+#positive
 
 lm.2 <- lm(prev.S.all ~ N, data=AccumData)
 summary(lm.2)
-#INtercept: 0.45*** 
+#Intercept: 0.45*** 
+#slope do not differ from 0 (not significative)
+#slightly negative
 
 lm.3 <- lm(prev.MT.all ~ N, data=AccumData)
 summary(lm.3)
-#INtercept: 0.446*** 
+#Intercept: 0.446*** 
+#slope do not differ from 0 (not significative)
+#slightly negative
 
-lm.4 <- lm(prev.F.all ~ N, data=AccumData)
+lm.4 <- lm(prev.A.all ~ N, data=AccumData)
 summary(lm.4)
-#INtercept: 0.44*** 
+#Intercept: 0.449***
+#slope do not differ from 0 (not significative)
+#slightly significative

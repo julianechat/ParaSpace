@@ -1,0 +1,6 @@
+﻿Area_classes;Sample_size;Nb_transects;Nb_Seines;Nb_MinnowTraps;Nb_Samplings
+"]0; 0.1[";5;2;4;15;21
+"[0.1; 0.2[";5;3;5;15;23
+"[0.2; 1.0[";3;4;6;15;25
+"[1.0; 2.0[";1;5;7;15;27
+"[2; ...[";1;6;8;15;29
