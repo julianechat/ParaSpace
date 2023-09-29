@@ -26,6 +26,7 @@ library(gt)
 
 LakesCharacteristics <- read.csv(paste0(to.data, "Lakes_Characteristics.csv"), sep = ";")
 SamplingEffort <- read.csv(paste0(to.data, "SamplingEffort_Det.csv"), sep = ";")
+FishingGear <- read.csv(paste0(to.data, "Gear_dimensions.csv"), sep = ";")
 
 
 # ---- Appendix S1 : Study area and sampling ----
@@ -78,6 +79,32 @@ S1.S2 <- gt(SamplingEffort) %>%
 
 S1.S2 %>% #Saving gt tab
   gtsave("Tab_SamplingEffort.png", paste0(to.figs))
+
+## Gear dimensions ----
+
+S1.S3 <- gt(FishingGear) %>% 
+  cols_label(Gear_ID = md("**Gear ID**"), Gear_type = md("**Gear type**"), Length..cm. = md("**Length (cm)**"), Width..cm. = md("**Width (cm)**"), Mesh..cm. = md("**Mesh (cm)**"), Diameter..cm. = md("**Diameter (cm)**"), Opening..cm. = md("**Opening (cm)**")) %>% 
+  tab_header(md("**Table S3.** Fishing gear dimensions.")) %>% 
+  tab_style(cell_text(color = "black", font = "Calibri light", size = 9, align = "left"),
+            locations = cells_title("title")) %>% 
+  tab_options(table.border.top.style = "hidden",
+              heading.border.bottom.color = "black",
+              row.striping.include_table_body = TRUE,
+              page.orientation = "paysage",
+              table.width = pct(100)) %>% 
+  tab_style(cell_text(color = "black", font = "Calibri light", weight = "bold", size = 9, align = "center", v_align = "middle"),
+            locations = cells_column_labels()) %>% 
+  tab_style(cell_text(color = "black", font = "Calibri light", size = 9, align = "center", v_align = "middle"),
+            locations = cells_body()) %>% 
+  tab_style(cell_borders(color = "black", sides = c("top", "bottom"), weight = px(2)),
+            locations = cells_column_labels()) %>% 
+  tab_style(cell_borders(color = "black", sides = "bottom", weight = px(2)),
+            locations = cells_body(rows = 19)) %>% 
+  sub_values(columns = 2, rows = c(1,2), values = "Senne", replacement = "Seine net") %>% 
+  sub_values(columns = 2, rows = c(3:19), values = "Minnow_trap", replacement = "Minnow trap")
+
+S1.S3 %>% #Saving gt tab
+  gtsave("Tab_GearDimensions.png", paste0(to.figs))
 
 
 

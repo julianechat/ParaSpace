@@ -342,26 +342,43 @@ ggsave(paste0(to.figs, "PrevalenceMap_LeGi.png"), plot = Study.LeGi.plot, dpi = 
 Study.fish.plot <- ggplot() + 
   geom_sf(data = cropped.lakes, fill = "lightblue", alpha = 0.5, color = "lightblue") +
   geom_sf(data = cropped.creeks, color = "lightblue", alpha = 0.5) +
-  geom_sf(data = lake.attributes, aes(fill = (prev_fish*100))) +
+  geom_sf(data = lake.attributes, aes(fill = (prev_fish*100)), color = "black", size = 0.5) +
+  scale_fill_continuous_sequential(palette = "YlOrBr") +
+  scale_continuous_identity(aesthetics = c(0, 0.75)) + 
   theme(legend.position = c(0.845, 0.17),
-        legend.text = element_text(color = "#4e4d47", size = 8),
-        legend.title = element_text(color = "#4e4d47", size = 9, face = "bold"), 
-        legend.background = element_rect(fill = NA, color = "#4e4d47", size = 0.4), 
-        panel.background = element_rect(fill = "#f5f5f2", color = "black"),
-        plot.background = element_rect(fill = "#FAFAFA"),
+        legend.text = element_text(color = "black", size = 20, family = "Calibri Light"),
+        legend.title = element_text(color = "black", size = 20, family = "Calibri Bold"),
+        legend.key.size = unit(1.5, "cm"),
+        legend.box.margin = margin(10,10,10,10),
+        legend.key = element_rect(linewidth = 2),
+        legend.background = element_blank(), 
+        legend.box.background = element_rect(fill = NA, color = "black", size = 0.5),
+        panel.background = element_rect(fill = "white", color = "black"),
+        plot.background = element_rect(fill = "white"),
         panel.grid = element_line(NA), 
         axis.ticks = element_blank(),
-        text = element_text(size = 20, family = "Calibri Light", color = "black")) +
-  scale_fill_continuous_sequential(palette = "YlOrBr") +
-  scale_continuous_identity(aesthetics = c(0, 0.75)) +
+        text = element_text(size = 20, family = "Calibri Light", color = "black"),
+        plot.caption = element_text(hjust = 0, vjust = 1, size = 20, family = "Calibri Light", color = "black", margin = margin(15,0,0,0, unit = "pt"))) +
   annotation_scale(location = "tl", 
-                   bar_cols = c("grey60", "white")) + 
+                   bar_cols = c("grey60", "white"),
+                   height = unit(0.5, "cm"),
+                   text_cex = 1.2,
+                   text_family = "Calibri Light") + 
   annotation_north_arrow(location = "tl", 
                          which_north = "true", 
-                         pad_x = unit(0.5, "cm"), 
-                         pad_y = unit(0.7, "cm"), 
-                         style = north_arrow_nautical(fill = c("grey60", "white"), line_col = "#4e4d47")) +
-  labs(fill = "Infection \nprevalence (%)")
+                         pad_x = unit(1.75, "cm"), 
+                         pad_y = unit(1, "cm"), 
+                         style = north_arrow_nautical(fill = c("grey60", "white"), line_col = "black", text_size = 20, text_family = "Calibri Light"),
+                         height = unit(3, "cm"),
+                         width = unit(3, "cm")) +
+  labs(fill = "Infection \nprevalence (%)",
+       caption = "Figure 1. Map of the study area. Sampled lakes are colored according to the prevalence the black spot disease infection in the\nfish communities. The data used to estimate infection prevalence comes from all methods combined.") +
+  guides(fill = guide_colorbar(title = "Infection \nprevalence (%)",
+                               label.position = "right",
+                               title.position = "top", title.vjust = 1,
+                               frame.colour = "black",
+                               frame.linewidth = 0.5))
 Study.fish.plot
 
 ggsave(paste0(to.figs, "PrevalenceMap_Fish.png"), plot = Study.fish.plot, dpi = 300, width = 15, height = 20)
+

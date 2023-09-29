@@ -1,0 +1,20 @@
+﻿Gear_ID;Gear_type;Length (cm);Width (cm);Mesh (cm);Diameter (cm);Opening (cm)
+S1;Senne;1450;84;3.0;NA;NA
+S2;Senne;1840;170;2.0;NA;NA
+N1;Minnow_trap;43;23;0.2;NA;5
+N2;Minnow_trap;40;23;0.2;NA;5
+N3;Minnow_trap;40;23;0.2;NA;5
+N4;Minnow_trap;40;23;0.2;NA;5
+N5;Minnow_trap;40;23;0.2;NA;5
+N6;Minnow_trap;58;NA;1.0;30;13
+N7;Minnow_trap;58;NA;1.0;30;13
+N8;Minnow_trap;58;NA;1.2;30;13
+N9;Minnow_trap;58;NA;1.2;30;13
+N10;Minnow_trap;60;NA;1.3;30;13
+N11;Minnow_trap;59;NA;2.0;30;15
+N12;Minnow_trap;42;23;0.2;NA;5
+N13;Minnow_trap;40;23;0.2;NA;5
+N14;Minnow_trap;42;23;0.2;NA;5
+N15;Minnow_trap;40;23;0.2;NA;5
+N16;Minnow_trap;58;NA;1.0;30;13
+N17;Minnow_trap;58;NA;1.2;30;13
