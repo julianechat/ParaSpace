@@ -153,23 +153,18 @@ FishLength <- FishingRaw %>% #Selecting data of interest
     
 FishLength <- expandRows(FishLength, "Abundance") #Reshaping data frame for 1 row = 1 individual format
 
-#Fishy1 <- FishLength %>% #Summarizing number of individuals, mean length and sd for each species within each lake
-  #group_by(Lake, Species_ID, .add = TRUE) %>% 
-  #summarise(Mean = mean(Length), sd = sd(Length), N = n())
+Fishy1 <- FishLength %>% #Summarizing number of individuals, mean length and sd for each species within each lake
+  group_by(Lake, Species_ID, .add = TRUE) %>% 
+  summarise(Mean = mean(Length), sd = sd(Length), N = n())
 
-#Fishy1 %>% #Saving gt tab
-  #gtsave("Summary_Length.docx", paste0(to.figs))
-
-#Fishy2 <- Fishy1 %>% 
-  #pivot_wider(id_cols = Lake, 
-              #names_from = Species_ID, 
-              #values_from = c("Mean", "sd"))
+Fishy1 <-  %>% gt() #Saving gt tab
+  gtsave("Summary_Length.docx", paste0(to.figs))
   
-#Fishy3 <- gt(Fishy1, rowname_col = "Species_ID",  groupname_col = "Lake")
+Fishy3 <- gt(Fishy1, rowname_col = "Species_ID",  groupname_col = "Lake")
 
-#Fishy4 <- tbl_strata(FishLength,
-                     #strata = Lake, 
-                    #.tbl_fun = tbl_summary(FishLength, 
+Fishy4 <- tbl_strata(FishLength,
+                     strata = Lake, 
+                    .tbl_fun = tbl_summary(FishLength, 
                                            #by = Species_ID,
                                            #statistic = list(all_continuous()~"{mean}({sd})")))
 
