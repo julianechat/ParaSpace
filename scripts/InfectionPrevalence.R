@@ -15,6 +15,7 @@ library(stringr)
 library(ggplot2)
 library(tidyr)
 library(writexl)
+library(splitstackshape)
 
 # ----- Loading data ----- #
 
@@ -162,3 +163,11 @@ Sp.Names <- c("AmRu", "FuDi", "MiDo", "Cenrtrarchidae", "LeGi", "PeFl", "PiPr", 
 
 prev.overall <- data.frame(inf.sum/tot.sum, row.names = (Sp.Names))
 prev.overall <- `colnames<-`(prev.overall, "Overall_Prevalence")
+
+#### Regional prevalence
+
+inf <- inf.matrix %>% 
+  adorn_totals(where = c("row", "col"))
+
+tot <- tot.matrix %>% 
+  adorn_totals(where = c("row", "col"))

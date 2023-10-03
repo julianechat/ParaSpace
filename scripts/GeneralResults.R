@@ -29,7 +29,7 @@ library(tibble)
 
 ## Loading data ----
 
-#CombinedData <- read.csv(paste0(to.output, "CombinedData.csv"))
+CombinedData <- read.csv(paste0(to.output, "CombinedData.csv"))
 FishingData <- read.csv(paste0(to.output, "Fishing_WideData.csv"))
 TransectData <- read.csv(paste0(to.output, "Transects_WideData.csv"))
 FishingRaw <- read.csv(paste0(to.data, "Fishing_RawData.csv"), sep = ";")
@@ -157,27 +157,6 @@ Fishy1 <- FishLength %>% #Summarizing number of individuals, mean length and sd 
   group_by(Lake, Species_ID, .add = TRUE) %>% 
   summarise(Mean = mean(Length), sd = sd(Length), N = n())
 
-Fishy1 <-  %>% gt() #Saving gt tab
-  gtsave("Summary_Length.docx", paste0(to.figs))
-  
-Fishy3 <- gt(Fishy1, rowname_col = "Species_ID",  groupname_col = "Lake")
-
-Fishy4 <- tbl_strata(FishLength,
-                     strata = Lake, 
-                    .tbl_fun = tbl_summary(FishLength, 
-                                           #by = Species_ID,
-                                           #statistic = list(all_continuous()~"{mean}({sd})")))
-
-#Fishy5 <- FishLength %>% tabyl(Lake, Species_ID)
-#xtabs(~Species_ID + Lake, data = FishLength)
-
-#Fishy6 <- cross_mean_sd_n(
-  #FishLength,
-  #Length,
-  #col_vars = Species_ID,
-  #row_vars = Lake)
-
-
 Length.TotMean <- FishLength %>% #All data summary statistics
   select(Length) %>% 
   summarise(Mean = mean(Length), sd = sd(Length), N = n())
@@ -190,12 +169,83 @@ Length.SpeciesMean <- FishLength %>% #Summary statistic by species
   group_by(Species_ID) %>% 
   summarise(Mean = mean(Length), sd = sd(Length), N = n())
 
+# ---- Community prevalence ----
+## Regional
+
+tot.reg <- CombinedData %>% 
+  select(starts_with("tot")) %>% 
+  na.omit()
+tot.reg <- sum(colSums(tot.reg))
+
+inf.reg <- CombinedData %>% 
+  select(starts_with("inf")) %>% 
+  na.omit()
+inf.reg <- sum(colSums(inf.reg))
+
+prev.reg <- inf.reg / tot.reg * 100
+
+## Local
+tot.loc <- CombinedData %>% 
+  select(Lake, starts_with("tot")) %>% 
+  na.omit() 
+
+tot.loc <- tot.loc %>% 
+  group_by(Lake) %>% 
+  summarise(across(everything(), sum))
+
+tot.loc <- tot.loc %>% 
+  adorn_totals(where = "col")
+
+tot.loc <- tot.loc %>% 
+  select(Lake, Total)
+
+inf.loc <- CombinedData %>% 
+  select(Lake, starts_with("inf")) %>% 
+  na.omit() 
+
+inf.loc <- inf.loc %>% 
+  group_by(Lake) %>% 
+  summarise(across(everything(), sum))
+
+inf.loc <- inf.loc %>% 
+  adorn_totals(where = "col", name = "Infected")
+
+inf.loc <- inf.loc %>% 
+  select(Lake, Infected)
+
+prev.loc <- merge(inf.loc, tot.loc, by = "Lake") %>% 
+  mutate(Prevalence = Infected/Total)
+
+##Fine scale
+
 # ---- Host specificity ----
 ## Regional ----
 
 HostSpec.regional <- CombinedData %>% #Selecting data of interest
   select(starts_with(c("tot_", "inf_")), -c("tot_Centrarchidae", "tot_Cyprinidae", "inf_Centrarchidae", "inf_Cyprinidae")) %>% 
   na.omit() 
+
+#regional prevalence
+
+HostSpec.regional2 <- CombinedData %>% #Selecting data of interest
+  select(starts_with(c("tot_", "inf_"))) %>% 
+  na.omit() 
+regional.inf <- HostSpec.regional2 %>% 
+  select(starts_with("inf")) 
+regional.inf <- sum(colSums(regional.inf))
+
+regional.tot <- HostSpec.regional2 %>% 
+  select(starts_with("tot")) 
+regional.tot <- sum(colSums(regional.tot))
+
+regional.prev <- regional.inf/regional.tot
+
+#local prevalence
+
+
+#0.29544
+
+
 
 #Hosty <- CombinedData %>% #Selecting data of interest
   #select(Lake, starts_with(c("tot_", "inf_")), -c("tot_Centrarchidae", "tot_Cyprinidae", "inf_Centrarchidae", "inf_Cyprinidae")) %>% 
@@ -347,3 +397,11 @@ HostSpec.local <- cbind(localMeans, localSd, localN) %>%
 #HostSpec.local <- HostSpec.local %>% #Arranging species by numerical order of prevalence value within each lake
   #group_by(Lake) %>% 
   #arrange(Prevalence, .by_group = TRUE)
+
+
+## overall prevalence
+
+
+
+
+
