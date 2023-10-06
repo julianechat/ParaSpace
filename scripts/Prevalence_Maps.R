@@ -372,7 +372,8 @@ Study.fish.plot <- ggplot() +
                          height = unit(3, "cm"),
                          width = unit(3, "cm")) +
   labs(fill = "Infection \nprevalence (%)",
-       caption = "Figure 1. Map of the study area. Sampled lakes are colored according to the prevalence the black spot disease infection in the\nfish communities. The data used to estimate infection prevalence comes from all methods combined.") +
+       #caption = "Figure 2. Map of the study area. Sampled lakes are colored according to the prevalence the black spot disease infection in the\nfish communities. The data used to estimate infection prevalence comes from all methods combined."
+       ) +
   guides(fill = guide_colorbar(title = "Infection \nprevalence (%)",
                                label.position = "right",
                                title.position = "top", title.vjust = 1,

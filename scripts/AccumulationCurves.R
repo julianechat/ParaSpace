@@ -204,9 +204,9 @@ inf.acc.plot <- ggplot(df.simulation) +
   stat_summary(aes(x = N, y = inf.S.all), fun = mean, color = "#999600", size = 0.5, shape = 5) + 
   stat_summary(aes(x = N, y = inf.MT.all), fun = mean, color =  "#966F1E", size = 0.5, shape = 5) + 
   geom_smooth(aes(x= N, y = inf.A.all, color = "All"), method = "gam", se = TRUE, fill = "#7E7E7E", alpha = 0.2, lineend = "round") +
-  geom_smooth(aes(x = N, y = inf.T.all, color = "Transect"), method = "gam", se = TRUE, fill = "#2A5676", alpha = 0.2, lineend = "round") + 
-  geom_smooth(aes(x = N, y = inf.S.all, color = "Seine net"), method = "gam", se = TRUE, fill = "#999600", alpha = 0.2, lineend = "round") + 
-  geom_smooth(aes(x= N, y = inf.MT.all, color = "Minnow trap"), method = "gam", se = TRUE, fill =  "#966F1E", alpha = 0.2, lineend = "round") +
+  geom_smooth(aes(x = N, y = inf.T.all, color = "Transect"), method = "lm", se = TRUE, fill = "#2A5676", alpha = 0.2, lineend = "round") + 
+  geom_smooth(aes(x = N, y = inf.S.all, color = "Seine net"), method = "lm", se = TRUE, fill = "#999600", alpha = 0.2, lineend = "round") + 
+  geom_smooth(aes(x= N, y = inf.MT.all, color = "Minnow trap"), method = "lm", se = TRUE, fill =  "#966F1E", alpha = 0.2, lineend = "round") +
   labs(x = "Number of samplings", y = "Number of infected fishes", tag = "A") +
   scale_color_manual(name = "Sampling method",
                      breaks = c("All", "Transect", "Seine net", "Minnow trap"),
@@ -334,9 +334,9 @@ tot.acc.plot <- ggplot(df.simulation) +
   stat_summary(aes(x = N, y = tot.S.all), fun = mean, color = "#999600", size = 0.5, shape = 5) + 
   stat_summary(aes(x = N, y = tot.MT.all), fun = mean, color = "#966F1E", size = 0.5, shape = 5) + 
   geom_smooth(aes(x= N, y = tot.A.all, color = "All"), method = "gam", se = TRUE, fill = "#7E7E7E", alpha = 0.2, lineend = "round") +
-  geom_smooth(aes(x = N, y = tot.T.all, color = "Transect"), method = "gam", se = TRUE, fill = "#2A5676", alpha = 0.2, lineend = "round") + 
-  geom_smooth(aes(x = N, y = tot.S.all, color = "Seine net"), method = "gam", se = TRUE, fill = "#999600", alpha = 0.2, lineend = "round") + 
-  geom_smooth(aes(x= N, y = tot.MT.all, color = "Minnow trap"), method = "gam", se = TRUE, fill = "#966F1E", alpha = 0.2, lineend = "round") +
+  geom_smooth(aes(x = N, y = tot.T.all, color = "Transect"), method = "lm", se = TRUE, fill = "#2A5676", alpha = 0.2, lineend = "round") + 
+  geom_smooth(aes(x = N, y = tot.S.all, color = "Seine net"), method = "lm", se = TRUE, fill = "#999600", alpha = 0.2, lineend = "round") + 
+  geom_smooth(aes(x= N, y = tot.MT.all, color = "Minnow trap"), method = "lm", se = TRUE, fill = "#966F1E", alpha = 0.2, lineend = "round") +
   labs(x = "Number of samplings", y = "Number of fishes", tag ="B") +
   scale_color_manual(name = "Sampling method",
                      breaks = c("All", "Transect", "Seine net", "Minnow trap"),
