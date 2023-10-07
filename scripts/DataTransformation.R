@@ -27,19 +27,18 @@ library(tibble)
 
 Fishing_RawData <- read.csv(paste0(to.data,"Fishing_RawData.csv"), sep=";")
 Transects_RawData <- read.csv(paste0(to.data, "Transects_RawData.csv"), sep=";")
-Lakes_Caracteristics <- read.csv(paste0(to.data, "Lakes_Caracteristics.csv"), sep=";")
+Lakes_Characteristics <- read.csv(paste0(to.data, "Lakes_Characteristics.csv"), sep=";")
 BioticData <- read.csv(paste0(to.output, "Lake_BioticData.csv"))
   
 # ---- Fishing data -----
-CleanData <- Fishing_RawData[-c(596,613),] #Deleting lost data (NA Abundance)
-attach(CleanData)
+attach(Fishing_RawData)
 
 ## Long format ----
 
 Abund_inf <- ifelse(Intensity_class > 0, Abundance, 0) #Creating new abundance column for infected fish
 Abund_inf <- replace_na(Abund_inf, 0) #Replacing NA by 0's - Meaning there is no infected fish
 
-CompleteData <- mutate(CleanData, Abund_inf) #Inserting the new column in the data frame
+CompleteData <- mutate(Fishing_RawData, Abund_inf) #Inserting the new column in the data frame
 names(CompleteData)[names(CompleteData) == 'Abundance'] <- 'Abund_tot'
 
 #Summarize data
@@ -215,8 +214,8 @@ CombinedData <- CombinedData %>% #Filling NA's water parameters values by lake m
   group_by(Lake) %>% 
   mutate_each(funs(replace(., which(is.na(.)), mean(., na.rm=TRUE))), c("Temperature", "Conductivity", "DO", "Turbidity", "pH", "TOC", "TN", "TP"))
 
-CombinedData <- merge(CombinedData, Lakes_Caracteristics, by.x = "Lake") #Merging lake characteristic data to field data
-CombinedData <- merge(CombinedData, BioticData, by.x = "Lake") #Merging biotic data
+CombinedData <- merge(CombinedData, Lakes_Characteristics, by = "Lake") #Merging lake characteristic data to field data
+CombinedData <- merge(CombinedData, BioticData, by = "Lake") #Merging biotic data
 
 colnames(CombinedData)[c(43:50)] <- c("Temp", "Cond", "DO", "Turb", "pH", "TOC", "TN", "TP") #Changing column names
 

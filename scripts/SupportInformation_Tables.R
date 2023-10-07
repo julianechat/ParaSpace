@@ -73,9 +73,10 @@ Table.S1 <- gt(LakesCharacteristics) %>%
   tab_footnote(footnote = "The measurement was made from centroid to centroid.", 
                locations = cells_column_labels(12))
 
-  
 Table.S1 %>% #Saving gt tab
   gtsave("Tab_GeoMorpho.png", paste0(to.figs))
+Table.S1 %>% 
+  gtsave("Table_S1.png", paste0(to.rédaction, "./Support_information/"))
 
 # ---- Table S2 : Sampling effort ----
 
@@ -96,8 +97,11 @@ Table.S2 <- gt(SamplingEffort) %>%
             locations = cells_column_labels()) %>% 
   tab_style(cell_borders(color = "black", sides = "bottom", weight = px(2)),
             locations = cells_body(rows = 5))
+
 Table.S2 %>% #Saving gt tab
   gtsave("Tab_SamplingEffort.png", paste0(to.figs))
+Table.S2 %>% 
+  gtsave("Table_S2.png", paste0(to.rédaction, "./Support_information/"))
 
 # ---- Table S3 : Gear dimensions ----
 
@@ -129,16 +133,21 @@ Table.S3 <- gt(FishingGear) %>%
 
 Table.S3 %>% #Saving gt tab
   gtsave("Tab_GearDimensions.png", paste0(to.figs))
+Table.S3 %>% 
+  gtsave("Table_S3.png", paste0(to.rédaction, "./Support_information/"))
 
 # ---- Table S4 : Abundance for all methods ----
 
 SpAbund.All <- CombinedData %>% #Selecting capture data
-  na.omit() %>% 
-  select(Lake, starts_with("tot"))
+  select(Lake, starts_with("tot")) #%>% 
+  #na.omit()
+
+SpAbund.All2 <- CombinedData %>% #Selecting capture data
+  select(starts_with("tot")) %>% sum(na.rm = TRUE)
 
 SpAbund.All <- SpAbund.All %>% #Summarizing by lake
   group_by(Lake) %>% 
-  summarise(across(.cols = everything(), sum)) 
+  summarise(across(.cols = everything(), sum,  na.rm = TRUE)) 
 
 SpAbund.All <- SpAbund.All %>% 
   adorn_totals(c("row", "col")) #Total by species and total by lake
@@ -176,6 +185,8 @@ Table.S4 <- gt(SpAbund.All) %>% #Creating gt tab and editing style
 
 Table.S4 %>% #Saving gt tab
   gtsave("Tab_SpAbund_All.png", paste0(to.figs), vwidth = 2000, vheight = 1000)
+Table.S4 %>% 
+  gtsave("Table_S4.png", paste0(to.rédaction, "./Support_information/"), vwidth = 2000, vheight = 1000)
 
 # ---- Table S5 : Abundance for minnow traps -----
 
@@ -223,6 +234,8 @@ Table.S5 <- gt(SpAbund.MT) %>% #Creating gt tab and editing style
 
 Table.S5 %>% #Saving gt tab
   gtsave("Tab_SpAbund_MT.png", paste0(to.figs), vwidth = 2000, vheight = 1000)
+Table.S5 %>% 
+  gtsave("Table_S5.png", paste0(to.rédaction, "./Support_information/"), vwidth = 2000, vheight = 1000)
 
 # ---- Table S6 : Abundance for seine nets ----
 
@@ -270,6 +283,8 @@ Table.S6 <- gt(SpAbund.S) %>% #Creating gt tab and editing style
 
 Table.S6 %>% #Saving gt tab
   gtsave("Tab_SpAbund_S.png", paste0(to.figs), vwidth = 2000, vheight = 1000)
+Table.S6 %>% 
+  gtsave("Table_S6.png", paste0(to.rédaction, "./Support_information/"), vwidth = 2000, vheight = 1000)
 
 # ---- Table S7 : Abundance for transects ----
 
@@ -317,6 +332,8 @@ Table.S7 <- gt(SpAbund.T) %>% #Creating gt tab and editing style
 
 Table.S7 %>% #Saving gt tab
   gtsave("Tab_SpAbund_T.png", paste0(to.figs), vwidth = 2000, vheight = 1000)
+Table.S7 %>% 
+  gtsave("Table_S7.png", paste0(to.rédaction, "./Support_information/"), vwidth = 2000, vheight = 1000)
 
 # ---- Table S8 :  Overall mean length by lakes ----
 
@@ -381,6 +398,8 @@ Table.S8 <- gt(Length.LakeMean) %>% #Creating gt tab and editing style
 
 Table.S8 %>% #Saving gt tab
   gtsave("Tab_Length_Lake.png", paste0(to.figs))
+Table.S8 %>% 
+  gtsave("Table_S8.png", paste0(to.rédaction, "./Support_information/"))
 
 # ---- Table S9 : Overall mean length by species ----
 
@@ -414,6 +433,8 @@ Table.S9 <- gt(Length.SpeciesMean) %>% #Creating gt tab and editing style
 
 Table.S9 %>% #Saving gt tab
   gtsave("Tab_Length_Species.png", paste0(to.figs))
+Table.S9 %>% 
+  gtsave("Table_S9.png", paste0(to.rédaction, "./Support_information/"))
 
 # ---- Table S10 : Overall mean length by species and lakes ----
 
@@ -454,6 +475,8 @@ Table.S10 <- gt(Length.SpeciesLakeMean) %>%
 
 Table.S10 %>% #Saving gt tab
   gtsave("Tab_Length_LakesSpecies.png", paste0(to.figs))
+Table.S10 %>% 
+  gtsave("Table_S10.png", paste0(to.rédaction, "./Support_information/"))
 
 # ---- Table S11 : Species' black spot infection references ----
 
@@ -492,6 +515,8 @@ Table.S11 <- gt(References, groupname_col = "Species_name") %>%
 
 Table.S11 %>% #Saving gt tab
   gtsave("Tab_InfectionRefs.png", paste0(to.figs))
+Table.S11 %>% 
+  gtsave("Table_S11.png", paste0(to.rédaction, "./Support_information/"))
 
 # ---- Table 12 : Local prevalence ----
 
@@ -547,6 +572,8 @@ Table.S12 <- gt(prev.loc) %>%
   
 Table.S12 %>% #Saving gt tab
   gtsave("Tab_Prevalence_Local.png", paste0(to.figs))
+Table.S12 %>% 
+  gtsave("Table_S12.png", paste0(to.rédaction, "./Support_information/"))
 
 # ---- Table S13 : Fine-scale prevalence ----
 
@@ -613,6 +640,8 @@ Table.S13 <- prev.fine %>%
 
 Table.S13 %>% #Saving gt tab
   gtsave("Tab_Prevalence_Fine.png", paste0(to.figs))
+Table.S13 %>% 
+  gtsave("Table_S13.png", paste0(to.rédaction, "./Support_information/"))
 
 # ---- Table S14 : Water physico-chemistry ----
 
@@ -654,6 +683,8 @@ Table.S14 <- gt(WaterQuality, groupname_col = "Lake") %>%
  
 Table.S14 %>% #Saving gt tab
   gtsave("Tab_PhysicoChem.png", paste0(to.figs))
+Table.S14 %>% 
+  gtsave("Table_S14.png", paste0(to.rédaction, "./Support_information/"))
 
 ## Table S15 : Physical habitat characteristics ----
 
@@ -695,3 +726,6 @@ Table.S15 <- gt(Habitat, groupname_col = "Lake") %>%
 
 Table.S15 %>% #Saving gt tab
   gtsave("Tab_Habitat.png", paste0(to.figs))
+Table.S15 %>% 
+  gtsave("Table_S15.png", paste0(to.rédaction, "./Support_information/"))
+
