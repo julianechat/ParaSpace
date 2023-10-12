@@ -30,6 +30,7 @@ library(dplyr)
 CombinedData <- read.csv(paste0(to.output, "CombinedData.csv"))
 
 # ---- Species accumulation cruves ----
+
 ## Minnow traps ----
 
 MTdata <- CombinedData %>% 
@@ -79,13 +80,15 @@ legend("bottomright", legend = c("Seine", "Minnow Trap", "Transect"),
 dev.off()
 
 # ---- Infected individuals accumulation curves ----
+
 ## All methods ----
 
 inf.A.data <- CombinedData %>% 
-  select(starts_with("inf")) %>% #Selecting infected individuals
+  select(starts_with("inf")) %>% #Selecting infected individuals 
+  na.omit %>% 
   rowSums() #Sum of all species
   
-# We want to randomly sample n fishing sample, 999 times for n = 1:10
+# We want to randomly sample n fishing sample, 999 times for N = c(1,2,3,5,7,10,15,20,35)
 
 # --- TEST --- # 
 # Sample within a loop
@@ -108,9 +111,10 @@ inf.A9 <- replicate(999, sum(sample(inf.A.data, 25)))
 inf.A10 <- replicate(999, sum(sample(inf.A.data, 35)))
 
 #Placing results in a data frame
-inf.A.all <- c(inf.A1, inf.A2, inf.A3, inf.A4, inf.A5, inf.A6, inf.A7, inf.A8, inf.A9, inf.A10)
+inf <- c(inf.A1, inf.A2, inf.A3, inf.A4, inf.A5, inf.A6, inf.A7, inf.A8, inf.A9, inf.A10) 
 N <- c(rep(1,999), rep(2,999), rep(3,999), rep(5,999), rep(7,999), rep(10,999), rep(15,999), rep(20,999), rep(25,999), rep(35,999))
-df.simulation <- data.frame(N, inf.A.all, row.names = NULL)
+Method <- c(rep("All", 9990))
+df.All <- data.frame(N, Method, inf, row.names = NULL)
 
 ## Minnow trap method ----
 
@@ -134,9 +138,9 @@ inf.MT9 <- replicate(999, sum(sample(inf.MT.data, 25)))
 inf.MT10 <- replicate(999, sum(sample(inf.MT.data, 35)))
 
 #Placing results the a data frame
-inf.MT.all <- c(inf.MT1, inf.MT2, inf.MT3, inf.MT4, inf.MT5, inf.MT6, inf.MT7, inf.MT8, inf.MT9, inf.MT10)
-df.simulation <- df.simulation %>%  
-  mutate(inf.MT.all = inf.MT.all)
+inf <- c(inf.MT1, inf.MT2, inf.MT3, inf.MT4, inf.MT5, inf.MT6, inf.MT7, inf.MT8, inf.MT9, inf.MT10)
+Method <- c(rep("Minnow trap", 9990))
+df.MinnowTrap <- data.frame(N, Method, inf, row.names = NULL)
 
 ## Seine method ----
 
@@ -160,9 +164,9 @@ inf.S9 <- replicate(999, sum(sample(inf.S.data, 25)))
 inf.S10 <- replicate(999, sum(sample(inf.S.data, 35)))
 
 #Placing results the data frame
-inf.S.all <- c(inf.S1, inf.S2, inf.S3, inf.S4, inf.S5, inf.S6, inf.S7, inf.S8, inf.S9, inf.S10)
-df.simulation <- df.simulation %>%  
-  mutate(inf.S.all = inf.S.all)
+inf <- c(inf.S1, inf.S2, inf.S3, inf.S4, inf.S5, inf.S6, inf.S7, inf.S8, inf.S9, inf.S10)
+Method <- c(rep("Seine net", 9990))
+df.Seine <- data.frame(N, Method, inf, row.names = NULL)
 
 ## Transect method ----
 
@@ -171,8 +175,8 @@ TransectData <- CombinedData %>%
 
 inf.T.data <- TransectData %>% 
   select(starts_with("inf")) %>% #Selecting infected individuals
-  rowSums() %>% #Sum of all species 
-  na.omit() #Deleting NAs
+  na.omit() %>% #Deleting NAs
+  rowSums()#Sum of all species 
 
 #Sampling
 inf.T1 <- replicate(999, sample(inf.T.data, 1))
@@ -187,51 +191,47 @@ inf.T9<- replicate(999, sum(sample(inf.T.data, 25)))
 inf.T10 <- replicate(999, sum(sample(inf.T.data, 35)))
 
 #Placing results the data frame
-inf.T.all <- c(inf.T1, inf.T2, inf.T3, inf.T4, inf.T5, inf.T6, inf.T7, inf.T8, inf.T9, inf.T10)
-df.simulation <- df.simulation %>%  
-  mutate(inf.T.all = inf.T.all)
+inf <- c(inf.T1, inf.T2, inf.T3, inf.T4, inf.T5, inf.T6, inf.T7, inf.T8, inf.T9, inf.T10)
+Method <- c(rep("Transect", 9990))
+df.Transect <- data.frame(N, Method, inf, row.names = NULL)
 
 ## Plotting simulation ----
 
-col.pal2 <- c("#7E7E7E", "#2A5676", "#999600", "#966F1E")
-col.pal4 <- c("#7E7E7E", "#005260", "#A4473D", "#A57E00")
+col.pal <- c("#7E7E7E", "#2A5676", "#999600", "#966F1E")
+#col.pal4 <- c("#7E7E7E", "#005260", "#A4473D", "#A57E00")
 
-inf.acc.plot <- ggplot(df.simulation) + 
-  scale_x_continuous(breaks = c(1, 2, 3, 5, 7, 10, 25, 20, 25, 35)) +
-  scale_y_continuous(breaks = round(seq(0, 2500, by = 200), 1)) +
-  stat_summary(aes(x = N, y = inf.A.all), fun = mean, color = "#7E7E7E", size = 0.5, shape = 5) + 
-  stat_summary(aes(x = N, y = inf.T.all), fun = mean, color = "#2A5676", size = 0.5, shape = 5) + 
-  stat_summary(aes(x = N, y = inf.S.all), fun = mean, color = "#999600", size = 0.5, shape = 5) + 
-  stat_summary(aes(x = N, y = inf.MT.all), fun = mean, color =  "#966F1E", size = 0.5, shape = 5) + 
-  geom_smooth(aes(x= N, y = inf.A.all, color = "All"), method = "gam", se = TRUE, fill = "#7E7E7E", alpha = 0.2, lineend = "round") +
-  geom_smooth(aes(x = N, y = inf.T.all, color = "Transect"), method = "lm", se = TRUE, fill = "#2A5676", alpha = 0.2, lineend = "round") + 
-  geom_smooth(aes(x = N, y = inf.S.all, color = "Seine net"), method = "lm", se = TRUE, fill = "#999600", alpha = 0.2, lineend = "round") + 
-  geom_smooth(aes(x= N, y = inf.MT.all, color = "Minnow trap"), method = "lm", se = TRUE, fill =  "#966F1E", alpha = 0.2, lineend = "round") +
-  labs(x = "Number of samplings", y = "Number of infected fishes", tag = "A") +
-  scale_color_manual(name = "Sampling method",
-                     breaks = c("All", "Transect", "Seine net", "Minnow trap"),
-                     values = c("All" = "#7E7E7E", "Transect" = "#2A5676", "Seine net" = "#999600", "Minnow trap" = "#966F1E"), 
-                     guide = "legend", 
-                     aesthetics = c("colour", "fill")) +
-  theme(text = element_text(size = 20, family = "Calibri Light", color = "black"),
-        axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
-        axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
-        axis.text.x = element_text(color = "black"),
-        axis.text.y = element_text(color = "black"),
-        panel.background = element_blank(),
-        axis.line.x = element_line(color = "black",lineend = "round"),
-        axis.line.y = element_line(color = "black", lineend = "round")) +
-  guides(fill = guide_legend(override.aes = list(fill = NA))) +
-  theme(legend.key = element_rect(fill = NA))
+#Binding data
+df.inf <- rbind(df.All, df.MinnowTrap, df.Seine, df.Transect)
+
+inf.acc.plot <- ggplot(df.inf) + 
+  stat_summary(aes(x = N, y = inf, group = Method, color = Method, shape = Method), fun = mean, size = 1) +
+  geom_smooth(aes(x= N, y = inf, group = Method, color = Method, fill = Method), method = "glm", se = TRUE, lineend = "round") +
+  scale_x_continuous(breaks = c(1, 2, 3, 5, 7, 10, 15, 25, 20, 25, 35)) +
+  scale_y_continuous(breaks = round(seq(0, 2500, by = 400), 1)) +
+  labs(x = "Number of samplings", y = "Infected fish abundance", tag = "A") +
+  scale_color_manual(values = c("#7E7E7E", "#2A5676", "#999600", "#966F1E"),
+                     aesthetics = c("color", "fill")) +
+  scale_shape_manual(values = c(0,5,2,1)) +
+  guides(fill = guide_legend(override.aes = list(fill = NA, linetype = 0))) +
+theme(text = element_text(size = 20, family = "Calibri Light", color = "black"),
+      panel.background = element_blank(),
+      legend.key = element_rect(fill = NA),
+      axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
+      axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
+      axis.text.x = element_text(color = "black"),
+      axis.text.y = element_text(color = "black"),
+      axis.line.x = element_line(color = "black", lineend = "round"),
+      axis.line.y = element_line(color = "black", lineend = "round"))
 
 ggsave(paste0(to.figs, "AccumulationCurves_infection.png"), plot = inf.acc.plot, dpi = 300, width = 15, height = 10)  
 
-# ---- Individuals accumulation curves ----
+# ---- Individuals accumulation curves ---- 
 
-## Fishing method ----
+## All methods ----
 
 tot.A.data <- CombinedData %>% 
   select(starts_with("tot")) %>% #Selecting infected individuals
+  na.omit() %>% 
   rowSums() #Sum of all species
 
 #Sampling
@@ -247,10 +247,9 @@ tot.A9 <- replicate(999, sum(sample(tot.A.data, 25)))
 tot.A10 <- replicate(999, sum(sample(tot.A.data, 35)))
 
 #Placing results the data frame
-tot.A.all <- c(tot.A1, tot.A2, tot.A3, tot.A4, tot.A5, tot.A6, tot.A7, tot.A8, tot.A9, tot.A10)
-
-df.simulation <- df.simulation %>%  
-  mutate(tot.A.all = tot.A.all)
+tot <- c(tot.A1, tot.A2, tot.A3, tot.A4, tot.A5, tot.A6, tot.A7, tot.A8, tot.A9, tot.A10)
+df.All <- df.All %>% 
+  mutate(tot)
 
 ## Minnow trap method ----
 
@@ -271,10 +270,10 @@ tot.MT9 <- replicate(999, sum(sample(tot.MT.data, 25)))
 tot.MT10 <- replicate(999, sum(sample(tot.MT.data, 35)))
 
 #Placing results the data frame
-tot.MT.all <- c(tot.MT1, tot.MT2, tot.MT3, tot.MT4, tot.MT5, tot.MT6, tot.MT7, tot.MT8, tot.MT9, tot.MT10)
+tot <- c(tot.MT1, tot.MT2, tot.MT3, tot.MT4, tot.MT5, tot.MT6, tot.MT7, tot.MT8, tot.MT9, tot.MT10)
 
-df.simulation <- df.simulation %>%  
-  mutate(tot.MT.all = tot.MT.all)
+df.MinnowTrap <- df.MinnowTrap %>% 
+  mutate(tot)
 
 ## Seine method ----
 
@@ -295,17 +294,17 @@ tot.S9 <- replicate(999, sum(sample(tot.S.data, 25)))
 tot.S10 <- replicate(999, sum(sample(tot.S.data, 35)))
 
 #Placing results the data frame
-tot.S.all <- c(tot.S1, tot.S2, tot.S3, tot.S4, tot.S5, tot.S6, tot.S7, tot.S8, tot.S9, tot.S10)
+tot <- c(tot.S1, tot.S2, tot.S3, tot.S4, tot.S5, tot.S6, tot.S7, tot.S8, tot.S9, tot.S10)
 
-df.simulation <- df.simulation %>%  
-  mutate(tot.S.all = tot.S.all)
+df.Seine <- df.Seine %>% 
+  mutate(tot)
 
 ## Transect method ---
 
 tot.T.data <- TransectData %>% 
   select(starts_with("tot")) %>% #Selecting infected individuals
-  rowSums() %>% #Sum of all species 
-  na.omit() #Deleting NAs
+  na.omit() %>%  #Deleting NAs
+  rowSums() #Sum of all species 
 
 #Sampling
 tot.T1 <- replicate(999, sample(tot.T.data, 1))
@@ -320,39 +319,33 @@ tot.T9 <- replicate(999, sum(sample(tot.T.data, 25)))
 tot.T10 <- replicate(999, sum(sample(tot.T.data, 35)))
 
 #Placing results the data frame
-tot.T.all <- c(tot.T1, tot.T2, tot.T3, tot.T4, tot.T5, tot.T6, tot.T7, tot.T8, tot.T9, tot.T10)
-df.simulation <- df.simulation %>%  
-  mutate(tot.T.all = tot.T.all)
+tot <- c(tot.T1, tot.T2, tot.T3, tot.T4, tot.T5, tot.T6, tot.T7, tot.T8, tot.T9, tot.T10)
+df.Transect <- df.Transect %>% 
+  mutate(tot)
 
 ## Plotting simulation ----
 
-tot.acc.plot <- ggplot(df.simulation) + 
-  scale_x_continuous(breaks = c(1, 2, 3, 5, 7, 10, 25, 20, 25, 35)) +
-  scale_y_continuous(breaks = round(seq(0, 6500, by = 500))) +
-  stat_summary(aes(x = N, y = tot.A.all), fun = mean, color = "#7E7E7E", size = 0.5, shape = 5) + 
-  stat_summary(aes(x = N, y = tot.T.all), fun = mean, color = "#2A5676", size = 0.5, shape = 5) + 
-  stat_summary(aes(x = N, y = tot.S.all), fun = mean, color = "#999600", size = 0.5, shape = 5) + 
-  stat_summary(aes(x = N, y = tot.MT.all), fun = mean, color = "#966F1E", size = 0.5, shape = 5) + 
-  geom_smooth(aes(x= N, y = tot.A.all, color = "All"), method = "gam", se = TRUE, fill = "#7E7E7E", alpha = 0.2, lineend = "round") +
-  geom_smooth(aes(x = N, y = tot.T.all, color = "Transect"), method = "lm", se = TRUE, fill = "#2A5676", alpha = 0.2, lineend = "round") + 
-  geom_smooth(aes(x = N, y = tot.S.all, color = "Seine net"), method = "lm", se = TRUE, fill = "#999600", alpha = 0.2, lineend = "round") + 
-  geom_smooth(aes(x= N, y = tot.MT.all, color = "Minnow trap"), method = "lm", se = TRUE, fill = "#966F1E", alpha = 0.2, lineend = "round") +
-  labs(x = "Number of samplings", y = "Number of fishes", tag ="B") +
-  scale_color_manual(name = "Sampling method",
-                     breaks = c("All", "Transect", "Seine net", "Minnow trap"),
-                     values = c("All" = "#7E7E7E", "Transect" = "#2A5676", "Seine net" = "#999600", "Minnow trap" = "#966F1E"), 
-                     guide = "legend", 
-                     aesthetics = c("colour", "fill")) +
+df.tot <- rbind(df.All, df.MinnowTrap, df.Seine, df.Transect)
+
+tot.acc.plot <- ggplot(df.tot) + 
+  stat_summary(aes(x = N, y = tot, group = Method, color = Method, shape = Method), fun = mean, size = 1) +
+  geom_smooth(aes(x= N, y = tot, group = Method, color = Method, fill = Method), method = "glm", se = TRUE, lineend = "round") +
+  scale_x_continuous(breaks = c(1, 2, 3, 5, 7, 10, 15, 25, 20, 25, 35)) +
+  scale_y_continuous(breaks = round(seq(0, 6500, by = 1000), 1)) +
+  labs(x = "Number of samplings", y = "Total fish abundance", tag = "B") +
+  scale_color_manual(values = c("#7E7E7E", "#2A5676", "#999600", "#966F1E"),
+                     aesthetics = c("color", "fill")) +
+  scale_shape_manual(values = c(0, 5, 2, 1)) +
+  guides(fill = guide_legend(override.aes = list(fill = NA, linetype = 0))) +
   theme(text = element_text(size = 20, family = "Calibri Light", color = "black"),
+        panel.background = element_blank(),
+        legend.key = element_rect(fill = NA),
         axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
         axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
         axis.text.x = element_text(color = "black"),
         axis.text.y = element_text(color = "black"),
-        panel.background = element_blank(),
-        axis.line.x = element_line(color = "black",lineend = "round"),
-        axis.line.y = element_line(color = "black", lineend = "round")) +
-  guides(fill = guide_legend(override.aes = list(fill = NA))) +
-  theme(legend.key = element_rect(fill = NA))
+        axis.line.x = element_line(color = "black", lineend = "round"),
+        axis.line.y = element_line(color = "black", lineend = "round"))
 
 ggsave(paste0(to.figs, "AccumulationCurves_individuals.png"), plot = tot.acc.plot, dpi = 300, width = 15, height = 10)  
 
@@ -376,10 +369,9 @@ prev.A9 <- replicate(999, mean(sample(prev.A, 25)))
 prev.A10 <- replicate(999, mean(sample(prev.A, 35)))
 
 #Placing results the data frame
-prev.A.all <- c(prev.A1, prev.A2, prev.A3, prev.A4, prev.A5, prev.A6, prev.A7, prev.A8, prev.A9, prev.A10)
-
-df.simulation <- df.simulation %>%  
-  mutate(prev.A.all = prev.A.all)
+prev <- c(prev.A1, prev.A2, prev.A3, prev.A4, prev.A5, prev.A6, prev.A7, prev.A8, prev.A9, prev.A10)
+df.All <- df.All %>%  
+  mutate(prev)
 
 ## Minnow trap method ----
 
@@ -399,10 +391,9 @@ prev.MT9 <- replicate(999, mean(sample(prev.MT, 25)))
 prev.MT10 <- replicate(999, mean(sample(prev.MT, 35)))
 
 #Placing results the data frame
-prev.MT.all <- c(prev.MT1, prev.MT2, prev.MT3, prev.MT4, prev.MT5, prev.MT6, prev.MT7, prev.MT8, prev.MT9, prev.MT10)
-
-df.simulation <- df.simulation %>%  
-  mutate(prev.MT.all = prev.MT.all)
+prev <- c(prev.MT1, prev.MT2, prev.MT3, prev.MT4, prev.MT5, prev.MT6, prev.MT7, prev.MT8, prev.MT9, prev.MT10)
+df.MinnowTrap <- df.MinnowTrap %>%  
+  mutate(prev)
 
 ## Seine method ----
 
@@ -422,15 +413,14 @@ prev.S9 <- replicate(999, mean(sample(prev.S, 25)))
 prev.S10 <- replicate(999, mean(sample(prev.S, 35)))
 
 #Placing results the data frame
-prev.S.all <- c(prev.S1, prev.S2, prev.S3, prev.S4, prev.S5, prev.S6, prev.S7, prev.S8, prev.S9, prev.S10)
-
-df.simulation <- df.simulation %>%  
-  mutate(prev.S.all = prev.S.all)
+prev <- c(prev.S1, prev.S2, prev.S3, prev.S4, prev.S5, prev.S6, prev.S7, prev.S8, prev.S9, prev.S10)
+df.Seine<- df.Seine %>%  
+  mutate(prev)
 
 ## Transect method ----
 
 prev.T <- inf.T.data / tot.T.data
-prev.T <- na.omit(prev.T) #Deleting NAs as they mean that no fish were caught
+prev.T <- na.omit(prev.T) #Deleting NAs as they mean that no fish were observed
 
 #Sampling
 prev.T1 <- replicate(999, sample(prev.T, 1))
@@ -445,58 +435,85 @@ prev.T9 <- replicate(999, mean(sample(prev.T, 25)))
 prev.T10 <- replicate(999, mean(sample(prev.T, 35)))
 
 #Placing results the data frame
-prev.T.all <- c(prev.T1, prev.T2, prev.T3, prev.T4, prev.T5, prev.T6, prev.T7, prev.T8, prev.T9, prev.T10)
-
-df.simulation <- df.simulation %>%  
-  mutate(prev.T.all = prev.T.all)
+prev <- c(prev.T1, prev.T2, prev.T3, prev.T4, prev.T5, prev.T6, prev.T7, prev.T8, prev.T9, prev.T10)
+df.Transect <- df.Transect %>%  
+  mutate(prev)
 
 ## Plotting simulation ----
 
-prev.acc.plot <- ggplot(df.simulation) + 
-  scale_x_continuous(breaks = c(1,2,3,5,7,10,25,20,25,35)) +
-  stat_summary(aes(x = N, y = prev.A.all), fun = mean, color = "#7E7E7E", size = 0.5, shape = 5) + 
-  stat_summary(aes(x = N, y = prev.T.all), fun = mean, color = "#2A5676", size = 0.5, shape = 5) + 
-  stat_summary(aes(x = N, y = prev.S.all), fun = mean, color = "#999600", size = 0.5, shape = 5) + 
-  stat_summary(aes(x = N, y = prev.MT.all), fun = mean, color = "#966F1E", size = 0.5, shape = 5) + 
-  geom_smooth(aes(x= N, y = prev.A.all, color = "All"), method = "lm", se = TRUE, fill = "#7E7E7E", alpha = 0.2, lineend = "round") +
-  geom_smooth(aes(x = N, y = prev.T.all, color = "Transect"), method = "lm", se = TRUE, fill = "#2A5676", alpha = 0.2, lineend = "round") + 
-  geom_smooth(aes(x = N, y = prev.S.all, color = "Seine net"), method = "lm", se = TRUE, fill = "#999600", alpha = 0.2, lineend = "round") + 
-  geom_smooth(aes(x= N, y = prev.MT.all, color = "Minnow trap"), method = "lm", se = TRUE, fill = "#966F1E", alpha = 0.2, lineend = "round") +
-  labs(x = "Number of samplings", y = "Mean prevalence", tag = "C") +
-  scale_color_manual(name = "Sampling method",
-                     breaks = c("All", "Transect", "Seine net", "Minnow trap"),
-                     values = c("All" = "#7E7E7E", "Transect" = "#2A5676", "Seine net" = "#999600", "Minnow trap" = "#966F1E"), 
-                     guide = "legend", 
-                     aesthetics = c("colour", "fill")) +
+df.prev <- rbind(df.All, df.MinnowTrap, df.Seine, df.Transect)
+
+prev.acc.plot <- ggplot(df.prev) + 
+  stat_summary(aes(x = N, y = prev, group = Method, color = Method, shape = Method), fun = mean, size = 1) +
+  geom_smooth(aes(x= N, y = prev, group = Method, color = Method, fill = Method), method = "glm", se = TRUE, lineend = "round", alpha = 0.3) +
+  scale_x_continuous(breaks = c(1, 2, 3, 5, 7, 10, 15, 25, 20, 25, 35)) +
+  #scale_y_continuous(breaks = round(seq(0, 6500, by = 1000), 1)) +
+  labs(x = "Number of samplings", y = "Mean infection prevalence", tag = "C") +
+  scale_color_manual(values = c("#7E7E7E", "#2A5676", "#999600", "#966F1E"),
+                     aesthetics = c("color", "fill")) +
+  scale_shape_manual(values = c(0, 5, 2, 1)) +
+  guides(fill = guide_legend(override.aes = list(fill = NA, linetype = 0))) +
   theme(text = element_text(size = 20, family = "Calibri Light", color = "black"),
+        panel.background = element_blank(),
+        legend.key = element_rect(fill = NA),
         axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
         axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
         axis.text.x = element_text(color = "black"),
         axis.text.y = element_text(color = "black"),
-        panel.background = element_blank(),
-        axis.line.x = element_line(color = "black",lineend = "round"),
-        axis.line.y = element_line(color = "black", lineend = "round")) + 
-  guides(fill = guide_legend(override.aes = list(fill = NA))) +
-  theme(legend.key = element_rect(fill = NA))
+        axis.line.x = element_line(color = "black", lineend = "round"),
+        axis.line.y = element_line(color = "black", lineend = "round"))
 
 ggsave(paste0(to.figs, "AccumulationCurves_prevalence.png"), plot = prev.acc.plot, dpi = 300, width = 15, height = 10)  
+
+## Slope and Intercept extractions ----
+
+hist(df.Transect$prev)
+glm.T <- glm(prev ~ N, data = df.Transect, family = "binomial")
+summary(glm.T)
+#Intercept: -0.3167*** 
+#slope do not differ from 0 (not significative)
+#N unsignificative
+#positive
+
+hist(df.Seine$prev)
+glm.S <- glm(prev ~ N, data = df.Seine, family = "binomial")
+summary(glm.S)
+#Intercept: -0.199*** 
+#slope do not differ from 0 (not significative)
+#N unsignificative
+#slightly negative
+
+hist(df.MinnowTrap$prev)
+glm.MT <- glm(prev ~ N, data = df.MinnowTrap, family = "binomial")
+summary(glm.MT)
+#Intercept: -0.197*** 
+#slope do not differ from 0 (not significative)
+#N unsignificative
+#slightly negative
+
+hist(df.All$prev)
+glm.A <- glm(prev ~ N, data = df.All, family = "binomial")
+summary(glm.A)
+#Intercept: -0.222***
+#slope do not differ from 0 (not significative)
+#N unsignificative
+#slightly negative
 
 # ---- Summary figure ----
 
 summary.acc.plot <- inf.acc.plot + tot.acc.plot + prev.acc.plot +
-  plot_layout(ncol = 1,
-              nrow = 3, 
-              guides = "collect") +
-  plot_annotation(title = "Figure 1. Accumulation curves of individuals through increasing sampling intensity. (A) Number of infected individuals. (B) Number of individuals. (C) Mean prevalence.",
-                  theme = list(title = element_text(size = 20, 
-                                                    family = "Calibri Light", 
-                                                    color = "black"))) &
-  theme(legend.position = "bottom") &
-  theme(plot.title = element_text(hjust = 0,
-                                  vjust = -490),
-        plot.margin = unit(c(0,0,10,0), "mm"))
+  plot_layout(ncol = 3,
+              nrow = 1, 
+              guides = "collect") &
+  theme(legend.position = "bottom",
+        text = element_text(size = 32, family = "Calibri Light", color = "black"),
+        axis.title.x = element_text(margin = unit(c(10, 0, 0, 0), "mm")),
+        axis.title.y = element_text(margin = unit(c(0, 10, 0, 0), "mm")),
+        legend.margin = margin(unit(c(25, 0, 0, 0), "mm")),
+        legend.key.size = unit(20, "mm")) &
+  guides(color = guide_legend(override.aes = list(size = 2)))
 
-ggsave(paste0(to.figs, "AccumulationCurves_summary.png"), plot = summary.acc.plot, dpi = 300, width = 12, height = 30)
+ggsave(paste0(to.figs, "AccumulationCurves_summary.png"), plot = summary.acc.plot, dpi = 300, width = 30, height = 12)
 
 ##############
 
@@ -505,24 +522,24 @@ AccumData <- read.csv(paste0(to.output, "Accum.simulation.csv"))
 
 lm.1 <- lm(prev.T.all ~ N, data=AccumData)
 summary(lm.1)
-#Intercept: 0.417*** 
+#Intercept: 0.421*** 
 #slope do not differ from 0 (not significative)
 #positive
 
 lm.2 <- lm(prev.S.all ~ N, data=AccumData)
 summary(lm.2)
-#Intercept: 0.45*** 
+#Intercept: 0.443*** 
 #slope do not differ from 0 (not significative)
 #slightly negative
 
 lm.3 <- lm(prev.MT.all ~ N, data=AccumData)
 summary(lm.3)
-#Intercept: 0.446*** 
+#Intercept: 0.449*** 
 #slope do not differ from 0 (not significative)
 #slightly negative
 
 lm.4 <- lm(prev.A.all ~ N, data=AccumData)
 summary(lm.4)
-#Intercept: 0.449***
+#Intercept: 0.448***
 #slope do not differ from 0 (not significative)
 #slightly significative
