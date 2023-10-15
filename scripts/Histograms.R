@@ -30,6 +30,10 @@ CombinedData <- read.csv(paste0(to.output, "CombinedData.csv"))
 FishingData <- read.csv(paste0(to.output, "Fishing_WideData.csv"))
 
 # ---- Lake mean prevalence ----
+
+CombinedData <- CombinedData %>% 
+  filter(!(Lake == "Tracy"))
+
 ## All methods ----
 
 All.prev <- CombinedData %>% 
@@ -45,7 +49,9 @@ All.prev <- All.prev %>%
   mutate(inf_fish = inf_AmRu + inf_FuDi + inf_MiDo + inf_LeGi + inf_PeFl + inf_PiPr + inf_ChrosomusSp. + inf_PiNo + inf_SeAt + inf_LuCo + inf_AmNe + inf_CaCo + inf_EsMa + inf_UmLi + inf_RhAt + inf_Centrarchidae + inf_Cyprinidae, .keep = "unused") 
 
 All.prev <- All.prev %>% 
-  mutate(prev_fish = inf_fish/tot_fish)
+  mutate(prev_fish = (inf_fish/tot_fish)*100)
+
+All.reg.prev <- mean(All.prev$prev_fish)
 
 ## Transect ----
 
@@ -63,7 +69,9 @@ Trans.prev <- Trans.prev %>%
   mutate(inf_fish = inf_AmRu + inf_FuDi + inf_MiDo + inf_LeGi + inf_PeFl + inf_PiPr + inf_ChrosomusSp. + inf_PiNo + inf_SeAt + inf_LuCo + inf_AmNe + inf_CaCo + inf_EsMa + inf_UmLi + inf_RhAt + inf_Centrarchidae + inf_Cyprinidae, .keep = "unused") 
 
 Trans.prev <- Trans.prev %>% 
-  mutate(prev_fish = inf_fish/tot_fish)
+  mutate(prev_fish = (inf_fish/tot_fish)*100)
+
+Trans.reg.prev <- mean(Trans.prev$prev_fish)
 
 ## Seine net ----
 
@@ -81,7 +89,9 @@ Seine.prev <- Seine.prev %>%
   mutate(inf_fish = inf_AmRu + inf_FuDi + inf_MiDo + inf_LeGi + inf_PeFl + inf_PiPr + inf_ChrosomusSp. + inf_PiNo + inf_SeAt + inf_LuCo + inf_AmNe + inf_CaCo + inf_EsMa + inf_UmLi + inf_RhAt + inf_Centrarchidae + inf_Cyprinidae, .keep = "unused") 
 
 Seine.prev <- Seine.prev %>% 
-  mutate(prev_fish = inf_fish/tot_fish)
+  mutate(prev_fish = (inf_fish/tot_fish)*100)
+
+Seine.reg.prev <- mean(Seine.prev$prev_fish)
 
 ## Minnow trap ----
 
@@ -99,7 +109,9 @@ Trap.prev <- Trap.prev %>%
   mutate(inf_fish = inf_AmRu + inf_FuDi + inf_MiDo + inf_LeGi + inf_PeFl + inf_PiPr + inf_ChrosomusSp. + inf_PiNo + inf_SeAt + inf_LuCo + inf_AmNe + inf_CaCo + inf_EsMa + inf_UmLi + inf_RhAt + inf_Centrarchidae + inf_Cyprinidae, .keep = "unused") 
 
 Trap.prev <- Trap.prev %>% 
-  mutate(prev_fish = inf_fish/tot_fish)
+  mutate(prev_fish = (inf_fish/tot_fish)*100)
+
+Trap.reg.prev <- mean(Trap.prev$prev_fish)
 
 ### Large trap ----
 
@@ -117,7 +129,7 @@ Large.prev <- Large.prev %>%
   mutate(inf_fish = inf_AmRu + inf_FuDi + inf_MiDo + inf_LeGi + inf_PeFl + inf_PiPr + inf_Chrosomus.sp. + inf_PiNo + inf_SeAt + inf_LuCo + inf_AmNe + inf_CaCo + inf_EsMa + inf_UmLi + inf_RhAt + inf_Centrarchidae + inf_Cyprinidae, .keep = "unused") 
 
 Large.prev <- Large.prev %>% 
-  mutate(prev_fish = inf_fish/tot_fish)
+  mutate(prev_fish = (inf_fish/tot_fish)*100)
 
 ### Small trap ----
 
@@ -135,7 +147,7 @@ Small.prev <- Small.prev %>%
   mutate(inf_fish = inf_AmRu + inf_FuDi + inf_MiDo + inf_LeGi + inf_PeFl + inf_PiPr + inf_Chrosomus.sp. + inf_PiNo + inf_SeAt + inf_LuCo + inf_AmNe + inf_CaCo + inf_EsMa + inf_UmLi + inf_RhAt + inf_Centrarchidae + inf_Cyprinidae, .keep = "unused") 
 
 Small.prev <- Small.prev %>% 
-  mutate(prev_fish = inf_fish/tot_fish)
+  mutate(prev_fish = (inf_fish/tot_fish)*100)
 
 # ---- Histograms ----
 col.pal2 <- c("#7E7E7E", "#2A5676", "#999600", "#966F1E")
@@ -146,57 +158,60 @@ col.pal4 <- c("#7E7E7E", "#005260", "#A4473D", "#A57E00")
 All.plain.hist <- hist(All.prev$prev_fish)
 
 All.hist <- ggplot(All.prev, aes(prev_fish)) + 
-  geom_histogram(bins = 6, fill = "#7E7E7E", color = "black") +
-  labs(x = "Prevalence", y = "Frequency") + 
-  theme(text = element_text(size = 20, family = "Calibri Light", color = "black"),
+  geom_histogram(bins = 6, fill = "#7E7E7E", color = "black", alpha = 0.8) +
+  labs(x = "Prevalence", y = "Frequency", title = "All methods") + 
+  theme(text = element_text(size = 32, family = "Calibri Light", color = "black"),
         axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
         axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
         axis.text.x = element_text(color = "black"),
         axis.text.y = element_text(color = "black"),
         panel.background = element_blank(),
         axis.line.x = element_line(color = "black",lineend = "round"),
-        axis.line.y = element_line(color = "black", lineend = "round"))
+        axis.line.y = element_line(color = "black", lineend = "round"),
+        plot.title = element_text(hjust = 0.5, vjust = 1))
 
 ## Transect ----
 
 Trans.plain.hist <- hist(Trans.prev$prev_fish)
 
 Trans.hist <- ggplot(Trans.prev, aes(prev_fish)) + 
-  geom_histogram(bins = 6, fill = "#2A5676", color = "black") +
-  labs(x = "Prevalence", y = "Frequency") + 
-  theme(text = element_text(size = 20, family = "Calibri Light", color = "black"),
+  geom_histogram(bins = 6, fill = "#2A5676", color = "black", alpha = 0.8) +
+  labs(x = "Prevalence", y = "Frequency", title = "Transect") + 
+  theme(text = element_text(size = 32, family = "Calibri Light", color = "black"),
         axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
         axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
         axis.text.x = element_text(color = "black"),
         axis.text.y = element_text(color = "black"),
         panel.background = element_blank(),
         axis.line.x = element_line(color = "black",lineend = "round"),
-        axis.line.y = element_line(color = "black", lineend = "round"))
+        axis.line.y = element_line(color = "black", lineend = "round"),
+        plot.title = element_text(hjust = 0.5, vjust = 1))
 
 ## Seine net ----
 
 Seine.plain.hist <- hist(Seine.prev$prev_fish)
 
 Seine.hist <- ggplot(Seine.prev, aes(prev_fish)) + 
-  geom_histogram(bins = 6, fill = "#999600", color = "black") +
-  labs(x = "Prevalence", y = "Frequency") + 
-  theme(text = element_text(size = 20, family = "Calibri Light", color = "black"),
+  geom_histogram(bins = 6, fill = "#999600", color = "black", alpha = 0.8) +
+  labs(x = "Prevalence", y = "Frequency", title = "Seine net") + 
+  theme(text = element_text(size = 32, family = "Calibri Light", color = "black"),
         axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
         axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
         axis.text.x = element_text(color = "black"),
         axis.text.y = element_text(color = "black"),
         panel.background = element_blank(),
         axis.line.x = element_line(color = "black",lineend = "round"),
-        axis.line.y = element_line(color = "black", lineend = "round"))
+        axis.line.y = element_line(color = "black", lineend = "round"),
+        plot.title = element_text(hjust = 0.5, vjust = 1))
 
 ## Minnow trap ----
 
 Trap.plain.hist <- hist(Trap.prev$prev_fish)
 
 Trap.hist <- ggplot(Trap.prev, aes(prev_fish)) + 
-  geom_histogram(bins = 6, fill = "#966F1E", color = "black") +
-  labs(x = "Prevalence", y = "Frequency") + 
-  theme(text = element_text(size = 20, 
+  geom_histogram(bins = 6, fill = "#966F1E", color = "black", alpha = 0.8) +
+  labs(x = "Prevalence", y = "Frequency", title = "Minnow trap") + 
+  theme(text = element_text(size = 32, 
                             family = "Calibri Light", 
                             color = "black"),
         axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
@@ -207,7 +222,8 @@ Trap.hist <- ggplot(Trap.prev, aes(prev_fish)) +
         axis.line.x = element_line(color = "black", 
                                    lineend = "round"),
         axis.line.y = element_line(color = "black", 
-                                   lineend = "round"))
+                                   lineend = "round"),
+        plot.title = element_text(hjust = 0.5, vjust = 1))
 
 ### Small trap ----
 
@@ -255,18 +271,15 @@ Summary.plot <- All.hist + Trans.hist + Seine.hist + Trap.hist +
   plot_layout(ncol = 2,
               nrow = 2, 
               tag_level = "new") +
-  plot_annotation(tag_levels = "A", 
-                  title = "Figure 2. Frequency distribution of lake prevalence. (A) All methods. (B) Transects. (C) Seine net (D) Minnow trap.",
-                  theme = list(title = element_text(size = 20, 
-                                                    family = "Calibri Light", 
-                                                    color = "black"))) &
-  theme(plot.title = element_text(hjust = 0,
-                                  vjust = -240),
-        plot.margin = unit(c(0,0,10,0), "mm")) &
-  ylim(0,5)
+  plot_annotation(tag_levels = "A") &
+  ylim(0,5) &
+  theme(text = element_text(size = 32, 
+                            family = "Calibri Light", 
+                            color = "black"),
+        plot.margin=unit(c(10,5,10,5), 'mm'))
               
                   
-ggsave(paste0(to.figs, "FrequencyDistribution_summary.png"), plot = Summary.plot, dpi = 300, width = 15, height = 15)
+ggsave(paste0(to.figs, "FrequencyDistribution_summary.png"), plot = Summary.plot, dpi = 300, width = 15, height = 17)
 
 
 ## Summary trap ----
@@ -283,7 +296,8 @@ Summary.trap <- Trap.hist + Small.hist + Large.hist +
   theme(plot.title = element_text(hjust = 0,
                                   vjust = -160),
         plot.margin = unit(c(0,0,10,0), "mm")) &
-  ylim(0, 5)
+  ylim(0, 5) &
+  xlim(0, 100)
 
 
 ggsave(paste0(to.figs, "FrequencyDistribution_TrapSummary.png"), plot = Summary.trap, dpi = 300, width = 30, height = 10)

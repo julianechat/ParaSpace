@@ -16,6 +16,7 @@ to.output <- "./output/"
 to.figs <- "./figs/"
 to.R <- "./R/"
 to.carto <- "./carto/"
+to.rédaction <- "./rédaction/"
 
 ## Loading packages ----
 
@@ -24,6 +25,9 @@ library(ggplot2)
 library(colorspace)
 library(patchwork)
 library(dplyr)
+library(gt)
+library(gtsummary)
+library(broom)
 
 ## Loading data ----
 
@@ -468,36 +472,114 @@ ggsave(paste0(to.figs, "AccumulationCurves_prevalence.png"), plot = prev.acc.plo
 ## Slope and Intercept extractions ----
 
 hist(df.Transect$prev)
-glm.T <- glm(prev ~ N, data = df.Transect, family = "binomial")
+glm.T <- glm(prev ~ N, data = df.Transect, family = "quasibinomial", weights = tot)
+glm.T2 <- glm(cbind(inf, tot-inf) ~ N, data = df.Transect, family = "quasibinomial")
+
 summary(glm.T)
-#Intercept: -0.3167*** 
+
+plogis(glm.T$coefficients[1]) 
+#plogis(glm.T$coefficients[2])
+check_model(glm.T)
+
+#Intercept: 0.4214337*** 
 #slope do not differ from 0 (not significative)
 #N unsignificative
-#positive
+#slightly negative
+
+tab.glm.T <- tidy(glm.T)
+
 
 hist(df.Seine$prev)
-glm.S <- glm(prev ~ N, data = df.Seine, family = "binomial")
+glm.S <- glm(prev ~ N, data = df.Seine, family = "quasibinomial", weights = tot) #Fonctionne pas parce que prev et tot ne sont pas les mêmes simulations
+glm.S2 <- glm(cbind(inf, tot-inf) ~ N, data = df.Seine, family = "quasibinomial") #Inf et tot ne sont pas liés par proportion
 summary(glm.S)
-#Intercept: -0.199*** 
+plogis(glm.S$coefficients[1])
+plogis(glm.S$coefficients[2])
+#Intercept: 0.4496204*** 
 #slope do not differ from 0 (not significative)
 #N unsignificative
 #slightly negative
+
+tab.glm.S <- tidy(glm.S)
 
 hist(df.MinnowTrap$prev)
-glm.MT <- glm(prev ~ N, data = df.MinnowTrap, family = "binomial")
+glm.MT <- glm(prev ~ N, data = df.MinnowTrap, family = "quasibinomial", weights = tot)
 summary(glm.MT)
-#Intercept: -0.197*** 
+plogis(glm.MT$coefficients[1])
+#Intercept: 0.4422761*** 
 #slope do not differ from 0 (not significative)
 #N unsignificative
-#slightly negative
+#slightly positive
+
+tab.glm.MT <- tidy(glm.MT)
 
 hist(df.All$prev)
-glm.A <- glm(prev ~ N, data = df.All, family = "binomial")
+glm.A <- glm(prev ~ N, data = df.All, family = "binomial", weights = tot)
 summary(glm.A)
-#Intercept: -0.222***
+plogis(glm.A$coefficients[1])
+#Intercept: 0.4386799***
 #slope do not differ from 0 (not significative)
-#N unsignificative
-#slightly negative
+#N significative
+#slightly positive
+
+tab.glm.A <- tidy(glm.A)
+
+### Models summary table ----
+
+#Changing intercept values for plogis transformed intercept values
+tab.glm.A <- tidy(glm.A)
+tab.glm.A[1,2] <- plogis(glm.A$coefficients[1])
+  
+tab.glm.MT <- tidy(glm.MT)
+tab.glm.MT[1,2] <- plogis(glm.MT$coefficients[1])
+
+tab.glm.S <- tidy(glm.S)
+tab.glm.S[1,2] <- plogis(glm.S$coefficients[1])
+
+tab.glm.T <- tidy(glm.T)
+tab.glm.T[1,2] <- plogis(glm.T$coefficients[1])
+
+#Binding tables and formatting 
+tab.mod.summary <- rbind(tab.glm.A, tab.glm.MT, tab.glm.S, tab.glm.T) %>% 
+  mutate(Method = c("All", "All", "Minnow trap", "Minnow trap", "Seine net", "Seine net", "Transect", "Transect"), .before = term) %>% 
+  gt(groupname_col = "Method") %>% 
+  tab_header(md("**TABLE S16.** Summary results of the prevalence accumulation curve simulations. The models are glm with a quasibinomial family distribution.")) %>% 
+  cols_label(term = md("**Term**"), estimate = md("**Estimate**"), std.error = md("**Standard error**"), statistic = md("**z-value**"), p.value = md("**p-value**")) %>%
+  sub_values(values = "(Intercept)", replacement = "Intercept") %>% 
+  sub_values(values = "N", replacement = "Slope") %>% 
+  fmt_number(decimals = 3) %>% 
+  tab_options(table.border.top.style = "hidden",
+              heading.border.bottom.color = "black",
+              row.striping.include_table_body = TRUE,
+              row_group.as_column = TRUE,
+              table.border.bottom.style = "hidden") %>% 
+  tab_style(style = cell_text(color = "black", font = "Calibri light", size = 9, align = "center", v_align = "middle", weight = "bold"),
+            locations = cells_row_groups()) %>% 
+  tab_style(style = cell_text(color = "black", font = "Calibri light", size = 9, align = "left", v_align = "middle"),
+            locations = cells_title()) %>% 
+  tab_style(style = cell_text(color = "black", font = "Calibri light", size = 9, align = "center", v_align = "middle"),
+            locations = cells_body()) %>% 
+  tab_style(style = cell_text(color = "black", font = "Calibri light", size = 9, align = "center", v_align = "middle"),
+            locations = cells_column_labels()) %>% 
+  tab_style(style = cell_borders(sides = c("top", "bottom", "right"), color = "darkgrey", weight = px(2)),
+            locations = cells_row_groups()) %>% 
+  tab_style(style= cell_borders(sides = c("bottom", "top"), weight = px(2)), 
+            location = list(cells_column_labels())) %>% 
+  tab_style(style = cell_borders(side = "top", weight = px(2), color = "black"),
+            locations = cells_row_groups(groups = "All")) %>% 
+  tab_style(style = cell_borders(sides = "bottom", weight = px(2), color = "black"),
+            locations =  cells_body(rows = 8)) %>% 
+  tab_style(style = cell_borders(side = "bottom", weight = px(2), color = "black"),
+            locations = cells_row_groups(groups = "Transect")) %>% 
+  tab_style(style = cell_borders(side = "bottom", weight = px(2), color = "darkgrey"),
+            locations = cells_body(rows = c(2, 4, 6))) %>% 
+  tab_footnote(footnote = "Value was plogis transformed to make interpretation easier.",
+               locations = cells_body(columns = 3, rows = c(1,3,5,7)))
+
+tab.mod.summary  %>% #Saving gt tab
+  gtsave("Tab_Simulations_Summary.png", paste0(to.figs))
+tab.mod.summary  %>% 
+  gtsave("Table_S16.png", paste0(to.rédaction, "./Support_information/"))
 
 # ---- Summary figure ----
 
@@ -525,21 +607,31 @@ summary(lm.1)
 #Intercept: 0.421*** 
 #slope do not differ from 0 (not significative)
 #positive
+plot(lm.1)
+hist(resid(lm.1))
+
+
 
 lm.2 <- lm(prev.S.all ~ N, data=AccumData)
 summary(lm.2)
 #Intercept: 0.443*** 
 #slope do not differ from 0 (not significative)
 #slightly negative
+plot(lm.2)
+
 
 lm.3 <- lm(prev.MT.all ~ N, data=AccumData)
 summary(lm.3)
 #Intercept: 0.449*** 
 #slope do not differ from 0 (not significative)
 #slightly negative
+plot(lm.1)
+
 
 lm.4 <- lm(prev.A.all ~ N, data=AccumData)
 summary(lm.4)
 #Intercept: 0.448***
 #slope do not differ from 0 (not significative)
 #slightly significative
+plot(lm.4)
+
