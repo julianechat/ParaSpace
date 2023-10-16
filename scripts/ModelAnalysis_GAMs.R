@@ -15,6 +15,7 @@ to.output <- "./output/"
 to.figs <- "./figs/"
 to.R <- "./R/"
 to.carto <- "./carto/"
+to.rédaction <- "./rédaction/"
 
 ## Loading packages & functions ----
 
@@ -28,6 +29,8 @@ library(mgcv)
 library(gamlss)
 library(itsadug)
 library(colorspace)
+library(broom)
+library(gt)
 
 source(paste0(to.R, "rquery.cormat.R"))
 source(paste0(to.R, "inverse_logit_trans.R"))
@@ -41,6 +44,9 @@ mod.data <- read.csv(paste0(to.output, "ModelAnalysis_Df.csv"))
 mod.data$Lake <- as.factor(mod.data$Lake)
 mod.data$Watershed <- as.factor(mod.data$Watershed)
 mod.data$Transect_ID <- as.factor(mod.data$Transect_ID)
+
+sequential_hcl(palette = "YlOrBr", 5)
+col.pal <- c("#682714", "#C75C00", "#F2A400", "#FAE094", "#FEFEE3")
 
 ## One predictor GAMMs ----
 
@@ -109,8 +115,8 @@ TNTP.pe <- TNTP.sm %>%
   geom_rug(aes(x = TN_TP.T),
            data = TNTP.pr,
            sides = "b", length = grid::unit(0.02, "npc")) +
-  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = TN_TP.T), fill = "#2A5676", alpha = 0.5) +
-  geom_line(aes(x = TN_TP.T, y = est), color = "#2A5676", lwd = 1.2) +
+  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = TN_TP.T), fill = "#682714", alpha = 0.5) +
+  geom_line(aes(x = TN_TP.T, y = est), color = "#682714", lwd = 1.2) +
   scale_y_continuous(trans = inverse_logit_trans) +
   labs(x = "TN:TP", y = "Partial effect (prevalence)", tag = "A") +
   theme(text = element_text(size = 20, 
@@ -327,8 +333,8 @@ MACRO.pe <- MACRO.sm %>%
   geom_rug(aes(x = Macrophyte),
            data = MACRO.pr,
            sides = "b", length = grid::unit(0.02, "npc")) +
-  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = Macrophyte), fill = "#2A5676", alpha = 0.5) +
-  geom_line(aes(x = Macrophyte, y = est), color = "#2A5676", lwd = 1.2) +
+  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = Macrophyte), fill = "#682714", alpha = 0.5) +
+  geom_line(aes(x = Macrophyte, y = est), color = "#682714", lwd = 1.2) +
   scale_y_continuous(trans = inverse_logit_trans) +
   labs(x = "Macrophyte coverage (%)", y = "Partial effect (prevalence)", tag = "B") +
   theme(text = element_text(size = 20, 
@@ -456,8 +462,8 @@ TEMP.pe <- TEMP.sm %>%
   geom_rug(aes(x = Temp.T),
            data = TEMP.pr,
            sides = "b", length = grid::unit(0.02, "npc")) +
-  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = Temp.T), fill = "#2A5676", alpha = 0.5) +
-  geom_line(aes(x = Temp.T, y = est), color = "#2A5676", lwd = 1.2) +
+  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = Temp.T), fill = "#682714", alpha = 0.5) +
+  geom_line(aes(x = Temp.T, y = est), color = "#682714", lwd = 1.2) +
   scale_y_continuous(trans = inverse_logit_trans) +
   labs(x = "Temperature (°C)", y = "Partial effect (prevalence)", tag = "C") +
   theme(text = element_text(size = 20, 
@@ -544,8 +550,8 @@ TURB.pe <- TURB.sm %>%
   geom_rug(aes(x = Turb.T),
            data = TURB.pr,
            sides = "b", length = grid::unit(0.02, "npc")) +
-  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = Turb.T), fill = "#2A5676", alpha = 0.5) +
-  geom_line(aes(x = Turb.T, y = est), color = "#2A5676", lwd = 1.2) +
+  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = Turb.T), fill = "#682714", alpha = 0.5) +
+  geom_line(aes(x = Turb.T, y = est), color = "#682714", lwd = 1.2) +
   scale_y_continuous(trans = inverse_logit_trans) +
   labs(x = "Turbidity (NTU)", y = "Partial effect (prevalence)", tag = "D") +
   theme(text = element_text(size = 20, 
@@ -632,8 +638,8 @@ PH.pe <- PH.sm %>%
   geom_rug(aes(x = pH.T),
            data = PH.pr,
            sides = "b", length = grid::unit(0.02, "npc")) +
-  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = pH.T), fill = "#2A5676", alpha = 0.5) +
-  geom_line(aes(x = pH.T, y = est), color = "#2A5676", lwd = 1.2) +
+  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = pH.T), fill = "#682714", alpha = 0.5) +
+  geom_line(aes(x = pH.T, y = est), color = "#682714", lwd = 1.2) +
   scale_y_continuous(trans = inverse_logit_trans) +
   labs(x = "pH", y = "Partial effect(prevalence)", tag = "E") +
   theme(text = element_text(size = 20, 
@@ -720,8 +726,8 @@ DO.pe <- DO.sm %>%
   geom_rug(aes(x = DO.T),
            data = DO.pr,
            sides = "b", length = grid::unit(0.02, "npc")) +
-  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = DO.T), fill = "#2A5676", alpha = 0.5) +
-  geom_line(aes(x = DO.T, y = est), color = "#2A5676", lwd = 1.2) +
+  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = DO.T), fill = "#682714", alpha = 0.5) +
+  geom_line(aes(x = DO.T, y = est), color = "#682714", lwd = 1.2) +
   scale_y_continuous(trans = inverse_logit_trans) +
   labs(x = "Dissolved oxygen (%)", y = "Partial effect (prevalence)", tag = "F") +
   theme(text = element_text(size = 20, 
@@ -808,8 +814,8 @@ COND.pe <- COND.sm %>%
   geom_rug(aes(x = Cond.T),
            data = COND.pr,
            sides = "b", length = grid::unit(0.02, "npc")) +
-  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = Cond.T), fill = "#2A5676", alpha = 0.5) +
-  geom_line(aes(x = Cond.T, y = est), color = "#2A5676", lwd = 1.2) +
+  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = Cond.T), fill = "#682714", alpha = 0.5) +
+  geom_line(aes(x = Cond.T, y = est), color = "#682714", lwd = 1.2) +
   scale_y_continuous(trans = inverse_logit_trans) +
   labs(x = "Conductivity (μS/cm)", y = "Partial effect (prevalence)", tag = "G") +
   theme(text = element_text(size = 20, 
@@ -896,8 +902,8 @@ AREAPERI.pe <- AREAPERI.sm %>%
   geom_rug(aes(x = Area_Perimeter),
            data = AREAPERI.pr,
            sides = "b", length = grid::unit(0.02, "npc")) +
-  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = Area_Perimeter), fill = "#2A5676", alpha = 0.5) +
-  geom_line(aes(x = Area_Perimeter, y = est), color = "#2A5676", lwd = 1.2) +
+  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = Area_Perimeter), fill = "#682714", alpha = 0.5) +
+  geom_line(aes(x = Area_Perimeter, y = est), color = "#682714", lwd = 1.2) +
   scale_y_continuous(trans = inverse_logit_trans) +
   labs(x = "Area:Perimeter (m)", y = "Partial effect (prevalence)", tag = "H") +
   theme(text = element_text(size = 20, 
@@ -1002,8 +1008,8 @@ PERI.pe <- PERI.sm %>%
   geom_rug(aes(x = Perimeter),
            data = PERI.pr,
            sides = "b", length = grid::unit(0.02, "npc")) +
-  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = Perimeter), fill = "#2A5676", alpha = 0.5) +
-  geom_line(aes(x = Perimeter, y = est), color = "#2A5676", lwd = 1.2) +
+  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = Perimeter), fill ="#682714", alpha = 0.5) +
+  geom_line(aes(x = Perimeter, y = est), color = "#682714", lwd = 1.2) +
   scale_y_continuous(trans = inverse_logit_trans) +
   labs(x = "Perimeter (m)", y = "Partial effect (prevalence)", tag = "I") +
   theme(text = element_text(size = 20, 
@@ -1250,10 +1256,10 @@ DIVERS.pe <- DIVERS.sm %>%
   geom_rug(aes(x = Diversity.T),
            data = DIVERS.pr,
            sides = "b", length = grid::unit(0.02, "npc")) +
-  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = Diversity.T), fill = "#2A5676", alpha = 0.5) +
-  geom_line(aes(x = Diversity.T, y = est), color = "#2A5676", lwd = 1.2) +
+  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = Diversity.T), fill = "#682714", alpha = 0.5) +
+  geom_line(aes(x = Diversity.T, y = est), color = "#682714", lwd = 1.2) +
   scale_y_continuous(trans = inverse_logit_trans) +
-  labs(x = "Simpson's Diversity Index", y = "Partial effect (prevalence)", tag = "J") +
+  labs(x = "Simpson's Diversity Index", y = "Partial effect (prevalence)", tag = "I") +
   theme(text = element_text(size = 20, 
                             family = "Calibri Light", 
                             color = "black"),
@@ -1387,19 +1393,359 @@ dev.off()
 
 ## Summary figure ----
 
-Summary.plot <- TNTP.pe + MACRO.pe + TEMP.pe + TURB.pe + PH.pe + DO.pe + COND.pe + AREAPERI.pe + PERI.pe + DIVERS.pe +
-  plot_layout(ncol = 5,
-              nrow = 2, 
-              tag_level = "keep") +
-  plot_annotation(title = "Figure 3. Significant univariate GAMMs of prevalence infection.",
-                  theme = list(title = element_text(size = 20, 
-                                    family = "Calibri Light", 
-                                    color = "black"))) &
-  theme(plot.title = element_text(hjust = 0,
-                                  vjust = -325),
-        plot.margin = unit(c(0,0,10,0), "mm"))
+Summary.plot <- TNTP.pe + MACRO.pe + TEMP.pe + TURB.pe + PH.pe + DO.pe + COND.pe + AREAPERI.pe + #PERI.pe 
+  DIVERS.pe +
+  plot_layout(ncol = 3,
+              nrow = 3, 
+              tag_level = "keep") &
+  theme(text = element_text(family = "Calibri Light", colour = "black", size = 40),
+        plot.tag = element_text(face = "bold"))
+  #& ylim(c(0,1)) #pas beau
   
-ggsave(paste0(to.figs, "GAMMs_summary.png"), plot = Summary.plot, dpi = 300, width = 45, height = 20)  
+ggsave(paste0(to.figs, "GAMMs_summary.png"), plot = Summary.plot, dpi = 300, width = 35, height = 30)  
   
+## Summary table ----
+
+tab.NULL.par <- tidy(NULL.GAMM, parametric = TRUE) %>% 
+  mutate(Model = "Null", .before = "term",
+         Deviance = summary(NULL.GAMM)$dev.expl)
+tab.NULL.smooth <- tidy(NULL.GAMM, parametric = FALSE) %>% 
+  mutate(Model = "Null", .before = "term",
+         Deviance = summary(NULL.GAMM)$dev.expl)
+tab.NULL <- merge(tab.NULL.par, tab.NULL.smooth, all = TRUE)
+
+tab.TNTP.par <- tidy(TNTP.GAMM, parametric = TRUE) %>% 
+  mutate(Model = "TN:TP", .before = "term",
+         Deviance = summary(TNTP.GAMM)$dev.expl)
+tab.TNTP.smooth <- tidy(TNTP.GAMM, parametric = FALSE) %>% 
+  mutate(Model = "TN:TP", .before = "term",
+         Deviance = summary(TNTP.GAMM)$dev.expl)
+tab.TNTP <- merge(tab.TNTP.par, tab.TNTP.smooth, all = TRUE)
+
+tab.TN.par <- tidy(TN.GAMM, parametric = TRUE) %>% 
+  mutate(Model = "TN", .before = "term",
+         Deviance = summary(TN.GAMM)$dev.expl)
+tab.TN.smooth <- tidy(TN.GAMM, parametric = FALSE) %>% 
+  mutate(Model = "TN", .before = "term",
+         Deviance = summary(TN.GAMM)$dev.expl)
+tab.TN <- merge(tab.TN.par, tab.TN.smooth, all = TRUE)
+
+tab.TP.par <- tidy(TP.GAMM, parametric = TRUE) %>% 
+  mutate(Model = "TP", .before = "term",
+         Deviance = summary(TP.GAMM)$dev.expl)
+tab.TP.smooth <- tidy(TP.GAMM, parametric = FALSE) %>% 
+  mutate(Model = "TP", .before = "term",
+         Deviance = summary(TP.GAMM)$dev.expl)
+tab.TP <- merge(tab.TP.par, tab.TP.smooth, all = TRUE)
+
+tab.TOC.par <- tidy(TOC.GAMM, parametric = TRUE) %>% 
+  mutate(Model = "TOC", .before = "term",
+         Deviance = summary(TOC.GAMM)$dev.expl)
+tab.TOC.smooth <- tidy(TOC.GAMM, parametric = FALSE) %>% 
+  mutate(Model = "TOC", .before = "term",
+         Deviance = summary(TOC.GAMM)$dev.expl)
+tab.TOC <- merge(tab.TOC.par, tab.TOC.smooth, all = TRUE)
+
+tab.SUB1.par <- tidy(SUB1.GAMM, parametric = TRUE) %>% 
+  mutate(Model = "Substrate 1", .before = "term",
+         Deviance = summary(SUB1.GAMM)$dev.expl)
+tab.SUB1.smooth <- tidy(SUB1.GAMM, parametric = FALSE) %>% 
+  mutate(Model = "Substrate 1", .before = "term",
+         Deviance = summary(SUB1.GAMM)$dev.expl)
+tab.SUB1 <- merge(tab.SUB1.par, tab.SUB1.smooth, all = TRUE)
+
+tab.SUB2.par <- tidy(SUB2.GAMM, parametric = TRUE) %>% 
+  mutate(Model = "Substrate 2", .before = "term",
+         Deviance = summary(SUB2.GAMM)$dev.expl)
+tab.SUB2.smooth <- tidy(SUB2.GAMM, parametric = FALSE) %>% 
+  mutate(Model = "Substrate 2", .before = "term",
+         Deviance = summary(SUB2.GAMM)$dev.expl)
+tab.SUB2 <- merge(tab.SUB2.par, tab.SUB2.smooth, all = TRUE)
+
+tab.MACRO.par <- tidy(MACRO.GAMM, parametric = TRUE) %>% 
+  mutate(Model = "Macrophyte cover", .before = "term",
+         Deviance = summary(MACRO.GAMM)$dev.expl)
+tab.MACRO.smooth <- tidy(MACRO.GAMM, parametric = FALSE) %>% 
+  mutate(Model = "Macrophyte cover", .before = "term",
+         Deviance = summary(MACRO.GAMM)$dev.expl)
+tab.MACRO <- merge(tab.MACRO.par, tab.MACRO.smooth, all = TRUE)
+
+tab.DEPTH.par <- tidy(DEPTH.GAMM, parametric = TRUE) %>% 
+  mutate(Model = "Transect depth", .before = "term",
+         Deviance = summary(DEPTH.GAMM)$dev.expl)
+tab.DEPTH.smooth <- tidy(DEPTH.GAMM, parametric = FALSE) %>% 
+  mutate(Model = "Transect depth", .before = "term",
+         Deviance = summary(DEPTH.GAMM)$dev.expl)
+tab.DEPTH <- merge(tab.DEPTH.par, tab.DEPTH.smooth, all = TRUE)
+
+tab.TRUNK.par <- tidy(TRUNK.GAMM, parametric = TRUE) %>% 
+  mutate(Model = "Trunk", .before = "term",
+         Deviance = summary(TRUNK.GAMM)$dev.expl)
+tab.TRUNK.smooth <- tidy(TRUNK.GAMM, parametric = FALSE) %>% 
+  mutate(Model = "Trunk", .before = "term",
+         Deviance = summary(TRUNK.GAMM)$dev.expl)
+tab.TRUNK <- merge(tab.TRUNK.par, tab.TRUNK.smooth, all = TRUE)
+
+tab.TEMP.par <- tidy(TEMP.GAMM, parametric = TRUE) %>% 
+  mutate(Model = "Temperature", .before = "term",
+         Deviance = summary(TEMP.GAMM)$dev.expl)
+tab.TEMP.smooth <- tidy(TEMP.GAMM, parametric = FALSE) %>% 
+  mutate(Model = "Temperature", .before = "term",
+         Deviance = summary(TEMP.GAMM)$dev.expl)
+tab.TEMP <- merge(tab.TEMP.par, tab.TEMP.smooth, all = TRUE)
+
+tab.TURB.par <- tidy(TURB.GAMM, parametric = TRUE) %>% 
+  mutate(Model = "Turbidity", .before = "term",
+         Deviance = summary(TURB.GAMM)$dev.expl)
+tab.TURB.smooth <- tidy(TURB.GAMM, parametric = FALSE) %>% 
+  mutate(Model = "Turbidity", .before = "term",
+         Deviance = summary(TURB.GAMM)$dev.expl)
+tab.TURB <- merge(tab.TURB.par, tab.TURB.smooth, all = TRUE)
+
+tab.PH.par <- tidy(PH.GAMM, parametric = TRUE) %>% 
+  mutate(Model = "pH", .before = "term",
+         Deviance = summary(PH.GAMM)$dev.expl)
+tab.PH.smooth <- tidy(PH.GAMM, parametric = FALSE) %>% 
+  mutate(Model = "pH", .before = "term",
+         Deviance = summary(PH.GAMM)$dev.expl)
+tab.PH <- merge(tab.PH.par, tab.PH.smooth, all = TRUE)
+
+tab.DO.par <- tidy(DO.GAMM, parametric = TRUE) %>% 
+  mutate(Model = "DO", .before = "term",
+         Deviance = summary(DO.GAMM)$dev.expl)
+tab.DO.smooth <- tidy(DO.GAMM, parametric = FALSE) %>% 
+  mutate(Model = "DO", .before = "term",
+         Deviance = summary(DO.GAMM)$dev.expl)
+tab.DO <- merge(tab.DO.par, tab.DO.smooth, all = TRUE)
+
+tab.COND.par <- tidy(COND.GAMM, parametric = TRUE) %>% 
+  mutate(Model = "Conductivity", .before = "term",
+         Deviance = summary(COND.GAMM)$dev.expl)
+tab.COND.smooth <- tidy(COND.GAMM, parametric = FALSE) %>% 
+  mutate(Model = "Conductivity", .before = "term",
+         Deviance = summary(COND.GAMM)$dev.expl)
+tab.COND <- merge(tab.COND.par, tab.COND.smooth, all = TRUE)
+
+tab.AREAPERI.par <- tidy(AREAPERI.GAMM, parametric = TRUE) %>% 
+  mutate(Model = "Area:Perimeter", .before = "term",
+         Deviance = summary(AREAPERI.GAMM)$dev.expl)
+tab.AREAPERI.smooth <- tidy(AREAPERI.GAMM, parametric = FALSE) %>% 
+  mutate(Model = "Area:Perimeter", .before = "term",
+         Deviance = summary(AREAPERI.GAMM)$dev.expl)
+tab.AREAPERI <- merge(tab.AREAPERI.par, tab.AREAPERI.smooth, all = TRUE)
+
+tab.AREA.par <- tidy(AREA.GAMM, parametric = TRUE) %>% 
+  mutate(Model = "Area", .before = "term",
+         Deviance = summary(AREA.GAMM)$dev.expl)
+tab.AREA.smooth <- tidy(AREA.GAMM, parametric = FALSE) %>% 
+  mutate(Model = "Area", .before = "term",
+         Deviance = summary(AREA.GAMM)$dev.expl)
+tab.AREA <- merge(tab.AREA.par, tab.AREA.smooth, all = TRUE)
+
+tab.PERI.par <- tidy(PERI.GAMM, parametric = TRUE) %>% 
+  mutate(Model = "Perimeter", .before = "term",
+         Deviance = summary(PERI.GAMM)$dev.expl)
+tab.PERI.smooth <- tidy(PERI.GAMM, parametric = FALSE) %>% 
+  mutate(Model = "Perimeter", .before = "term",
+         Deviance = summary(PERI.GAMM)$dev.expl)
+tab.PERI <- merge(tab.PERI.par, tab.PERI.smooth, all = TRUE)
+
+tab.MDEPTH.par <- tidy(MDEPTH.GAMM, parametric = TRUE) %>% 
+  mutate(Model = "Lake mean depth", .before = "term",
+         Deviance = summary(MDEPTH.GAMM)$dev.expl)
+tab.MDEPTH.smooth <- tidy(MDEPTH.GAMM, parametric = FALSE) %>% 
+  mutate(Model = "Lake mean depth", .before = "term",
+         Deviance = summary(MDEPTH.GAMM)$dev.expl)
+tab.MDEPTH <- merge(tab.MDEPTH.par, tab.MDEPTH.smooth, all = TRUE)
+
+tab.XDEPTH.par <- tidy(XDEPTH.GAMM, parametric = TRUE) %>% 
+  mutate(Model = "Lake maximum depth", .before = "term",
+         Deviance = summary(XDEPTH.GAMM)$dev.expl)
+tab.XDEPTH.smooth <- tidy(XDEPTH.GAMM, parametric = FALSE) %>% 
+  mutate(Model = "Lake maximum depth", .before = "term",
+         Deviance = summary(XDEPTH.GAMM)$dev.expl)
+tab.XDEPTH <- merge(tab.XDEPTH.par, tab.XDEPTH.smooth, all = TRUE)
+
+tab.WRT.par <- tidy(WRT.GAMM, parametric = TRUE) %>% 
+  mutate(Model = "Water residence time", .before = "term",
+         Deviance = summary(WRT.GAMM)$dev.expl)
+tab.WRT.smooth <- tidy(WRT.GAMM, parametric = FALSE) %>% 
+  mutate(Model = "Water residence time", .before = "term",
+         Deviance = summary(WRT.GAMM)$dev.expl)
+tab.WRT <- merge(tab.WRT.par, tab.WRT.smooth, all = TRUE)
+
+tab.DRAIN.par <- tidy(DRAIN.GAMM, parametric = TRUE) %>% 
+  mutate(Model = "Drainage area", .before = "term",
+         Deviance = summary(DRAIN.GAMM)$dev.expl)
+tab.DRAIN.smooth <- tidy(DRAIN.GAMM, parametric = FALSE) %>% 
+  mutate(Model = "Drainage area", .before = "term",
+         Deviance = summary(DRAIN.GAMM)$dev.expl)
+tab.DRAIN <- merge(tab.DRAIN.par, tab.DRAIN.smooth, all = TRUE)
+
+tab.ELEV.par <- tidy(ELEV.GAMM, parametric = TRUE) %>% 
+  mutate(Model = "Elevation", .before = "term",
+         Deviance = summary(ELEV.GAMM)$dev.expl)
+tab.ELEV.smooth <- tidy(ELEV.GAMM, parametric = FALSE) %>% 
+  mutate(Model = "Elevation", .before = "term",
+         Deviance = summary(ELEV.GAMM)$dev.expl)
+tab.ELEV <- merge(tab.ELEV.par, tab.ELEV.smooth, all = TRUE)
+
+tab.CENT.par <- tidy(CENT.GAMM, parametric = TRUE) %>% 
+  mutate(Model = "Centrarchids", .before = "term",
+         Deviance = summary(CENT.GAMM)$dev.expl)
+tab.CENT.smooth <- tidy(CENT.GAMM, parametric = FALSE) %>% 
+  mutate(Model = "Centrarchids", .before = "term",
+         Deviance = summary(CENT.GAMM)$dev.expl)
+tab.CENT <- merge(tab.CENT.par, tab.CENT.smooth, all = TRUE)
+
+tab.SP.par <- tidy(SP.GAMM, parametric = TRUE) %>% 
+  mutate(Model = "Species richness", .before = "term",
+         Deviance = summary(SP.GAMM)$dev.expl)
+tab.SP.smooth <- tidy(SP.GAMM, parametric = FALSE) %>% 
+  mutate(Model = "Species richness", .before = "term",
+         Deviance = summary(SP.GAMM)$dev.expl)
+tab.SP <- merge(tab.SP.par, tab.SP.smooth, all = TRUE)
+
+tab.DIVERS.par <- tidy(DIVERS.GAMM, parametric = TRUE) %>% 
+  mutate(Model = "Diversity index", .before = "term",
+         Deviance = summary(DIVERS.GAMM)$dev.expl)
+tab.DIVERS.smooth <- tidy(DIVERS.GAMM, parametric = FALSE) %>% 
+  mutate(Model = "Diversity index", .before = "term",
+         Deviance = summary(DIVERS.GAMM)$dev.expl)
+tab.DIVERS <- merge(tab.DIVERS.par, tab.DIVERS.smooth, all = TRUE)
+
+Tab.summary.GAMMs <- rbind(tab.NULL, tab.TNTP, tab.TN, tab.TP, tab.TOC, tab.SUB1, tab.SUB2, tab.MACRO, tab.DEPTH, tab.TRUNK, tab.TEMP, tab.TURB, tab.PH, tab.DO, tab.COND, tab.AREAPERI, tab.AREA, tab.PERI, tab.MDEPTH, tab.XDEPTH, tab.WRT, tab.DRAIN, tab.ELEV, tab.CENT, tab.SP, tab.DIVERS) %>%
+  group_by(Model) %>% 
+  gt() %>% 
+  tab_row_group(
+    label = md("<p>Null<br>(D<sup>2</sup> = 69.64%)</p>"),
+    rows = c(1,2)) %>% 
+  tab_row_group(
+    label = md("<p>TN:TP<br>(D<sup>2</sup> = 87.07%)</p>"),
+    rows = c(3:5)) %>% 
+  tab_row_group(
+    label = md("<p>TN<br>(D<sup>2</sup> = 72.62%)</p>"),
+    rows = c(6:8)) %>% 
+  tab_row_group(
+    label = md("<p>TP<br>(D<sup>2</sup> = 73.50%)</p>"),
+    rows = c(9:11)) %>% 
+  tab_row_group(
+    label = md("<p>TOC<br>(D<sup>2</sup> = 69.63%)</p>"),
+    rows = c(12:14)) %>% 
+  tab_row_group(
+    label = md("<p>Subrate 1<br>(D<sup>2</sup> = 69.64%)</p>"),
+    rows = c(15:17)) %>% 
+  tab_row_group(
+    label = md("<p>Substrate 2<br>(D<sup>2</sup> = 69.64%)</p>"),
+    rows = c(18:20)) %>% 
+  tab_row_group(
+    label = md("<p>Macrophyte cover<br>(D<sup>2</sup> = 84.167%)</p>"),
+    rows = c(21:23)) %>% 
+  tab_row_group(
+    label = md("<p>Transect depth<br>(D<sup>2</sup> = 69.64%)</p>"),
+    rows = c(24:26)) %>% 
+  tab_row_group(
+    label = md("<p>Trunk<br>(D<sup>2</sup> = 69.64%)</p>"),
+    rows = c(27:29)) %>% 
+  tab_row_group(
+    label = md("<p>Temperature<br>(D<sup>2</sup> = 79.54%)</p>"),
+    rows = c(30:32)) %>% 
+  tab_row_group(
+    label = md("<p>Turbidity<br>(D<sup>2</sup> = 88.71%)</p>"),
+    rows = c(33:35)) %>% 
+  tab_row_group(
+    label = md("<p>pH<br>(D<sup>2</sup> = 70.52%)</p>"),
+    rows = c(36:38)) %>% 
+  tab_row_group(
+    label = md("<p>DO<br>(D<sup>2</sup> = 75.28%)</p>"),
+    rows = c(39:41)) %>% 
+  tab_row_group(
+    label = md("<p>Conductivity<br>(D<sup>2</sup> = 56.41%)</p>"),
+    rows = c(42:44)) %>% 
+  tab_row_group(
+    label = md("<p>Area:Perimeter<br>(D<sup>2</sup> = 67.77%)</p>"),
+    rows = c(45:47)) %>% 
+  tab_row_group(
+    label = md("<p>Area<br>(D<sup>2</sup> = 69.64%)</p>"),
+    rows = c(48:50)) %>% 
+  tab_row_group(
+    label = md("<p>Perimeter<br>(D<sup>2</sup> = 69.90%)</p>"),
+    rows = c(51:53)) %>% 
+  tab_row_group(
+    label = md("<p>Lake mean depth<br>(D<sup>2</sup> = 69.64%)</p>"),
+    rows = c(54:56)) %>% 
+  tab_row_group(
+    label = md("<p>Lake maximum depth<br>(D<sup>2</sup> = 69.64%)</p>"),
+    rows = c(57:59)) %>% 
+  tab_row_group(
+    label = md("<p>Water residence time<br>(D<sup>2</sup> = 69.64%)</p>"),
+    rows = c(60:62)) %>% 
+  tab_row_group(
+    label = md("<p>Drainage area<br>(D<sup>2</sup> = 69.73%)</p>"),
+    rows = c(63:65)) %>% 
+  tab_row_group(
+    label = md("<p>Elevation<br>(D<sup>2</sup> = 69.64%)</p>"),
+    rows = c(66:68)) %>% 
+  tab_row_group(
+    label = md("<p>Centrarchids<br>(D<sup>2</sup> = 69.64%)</p>"),
+    rows = c(69:71)) %>% 
+  tab_row_group(
+    label = md("<p>Species richness<br>(D<sup>2</sup> = 73.61%)</p>"),
+    rows = c(72:74)) %>% 
+  tab_row_group(
+    label = md("<p>Diversity index<br>(D<sup>2</sup> = 79.69%)</p>"),
+    rows = c(75:77)) %>% 
+  cols_hide(c("ref.df", "Deviance")) %>% 
+  cols_label(term = md("**Term**"), statistic = md("**Statistic**"), p.value = md("**p-value**"), estimate = md("**Estimate**"), std.error = md("**Standard error**"), edf = md("**edf**")) %>% 
+  tab_header(md("**TABLE S17.** Estimated parameteric coefficients and approximate significance of smooth terms of the fine-scale prevalence community GAMMs.The deviance explained (D<sup>2</sup>) is given for every model.")) %>% 
+  tab_spanner(label = "Parametric coefficient", columns = c("estimate", "std.error", "statistic", "p.value")) %>% 
+  tab_spanner(label = "Smooth terms", columns = c("statistic", "p.value", "edf")) %>% 
+  tab_footnote(footnote = "Effective degrees of freedom", 
+               locations = cells_column_labels(columns = "edf")) %>% 
+  tab_footnote(footnote = "F-value", 
+               locations = cells_body(columns = "statistic", rows = c(2,4,5,7,8,10,11,13,14,16,17,19,20,22,23,25,26,28,29,31,32,34,35,37,38,40,41,43,44,46,47,49,50,52,53,55,56,58,59,61,62,64,65,67,68,70,71,73,74,76,77))) %>% 
+  tab_footnote(footnote = "t-value", 
+             locations = cells_body(columns = "statistic", rows = c(1,3,6,9,12,15,18,21,24,27,30,33,36,39,42,45,48,51,54,57,60,63,66,69,72,75))) %>% 
+  fmt_number(decimals = 3) %>% 
+  sub_values(columns = "term", values = "(Intercept)", replacement = "Intercept") %>% 
+  sub_values(columns = "term", values = "s(Diversity.T)", replacement = "s(Diversity)") %>% 
+  sub_values(columns = "term", values = "s(Species_richness.T)", replacement = "s(Species_richness)") %>% 
+  sub_values(columns = "term", values = "s(Centrarchids.T)", replacement = "s(Centrarchids)") %>% 
+  sub_values(columns = "term", values = "s(Cond.T)", replacement = "s(Cond)") %>% 
+  sub_values(columns = "term", values = "s(DO.T)", replacement = "s(DO)") %>% 
+  sub_values(columns = "term", values = "s(pH.T)", replacement = "s(pH)") %>% 
+  sub_values(columns = "term", values = "s(Turb.T)", replacement = "s(Turb)") %>% 
+  sub_values(columns = "term", values = "s(Temp.T)", replacement = "s(Temp)") %>% 
+  sub_values(columns = "term", values = "s(TOC.T)", replacement = "s(TOC)") %>% 
+  sub_values(columns = "term", values = "s(TN.T)", replacement = "s(TN)") %>% 
+  sub_values(columns = "term", values = "s(TP.T)", replacement = "s(TP)") %>% 
+  sub_values(columns = "term", values = "s(TN_TP.T)", replacement = "s(TN_TP)") %>% 
+  tab_options(row_group.as_column = TRUE,
+              row.striping.include_table_body = TRUE,
+              table.border.top.style = "hidden",
+              heading.border.bottom.color = "black",
+              table.border.bottom.style = "hidden") %>% 
+  tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "left"),
+            locations = cells_title("title")) %>% 
+  tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "center", v_align = "middle"),
+            locations = cells_body()) %>% 
+  tab_style(cell_text(color = "black", font = "Calibri Light", weight = "bold", size = 9, align = "center", v_align = "middle"),
+            locations = cells_row_groups()) %>% 
+  tab_style(cell_text(color = "black", font = "Calibri Light", weight = "bold", size = 9, align = "center", v_align = "middle"),
+            locations = cells_column_labels()) %>% 
+  tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "center", v_align = "middle"),
+            locations = cells_column_spanners()) %>% 
+  tab_style(style= cell_borders(sides = c("bottom", "top"), weight = px(2)), 
+            location = list(cells_column_labels())) %>% 
+  tab_style(style = cell_borders(side = "top", weight = px(2), color = "black"),
+            locations = cells_row_groups(groups = "<p>Diversity index<br>(D<sup>2</sup> = 79.69%)</p>")) %>% 
+  tab_style(style = cell_borders(sides = "bottom", weight = px(2), color = "black"),
+            locations =  cells_body(rows = 2)) %>% 
+  tab_style(style = cell_borders(side = "bottom", weight = px(2), color = "black"),
+            locations = cells_row_groups(groups = "<p>Null<br>(D<sup>2</sup> = 69.64%)</p>")) 
   
+Tab.summary.GAMMs %>% #Saving gt tab
+  gtsave("Tab_GAMMs_summary.png", paste0(to.figs))
+Tab.summary.GAMMs %>% 
+  gtsave("Table_S17.png", paste0(to.rédaction, "./Support_information/"))  
   

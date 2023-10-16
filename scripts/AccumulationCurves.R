@@ -26,7 +26,6 @@ library(colorspace)
 library(patchwork)
 library(dplyr)
 library(gt)
-library(gtsummary)
 library(broom)
 
 ## Loading data ----
@@ -225,7 +224,8 @@ theme(text = element_text(size = 20, family = "Calibri Light", color = "black"),
       axis.text.x = element_text(color = "black"),
       axis.text.y = element_text(color = "black"),
       axis.line.x = element_line(color = "black", lineend = "round"),
-      axis.line.y = element_line(color = "black", lineend = "round"))
+      axis.line.y = element_line(color = "black", lineend = "round"),
+      plot.tag = element_text(face = "bold"))
 
 ggsave(paste0(to.figs, "AccumulationCurves_infection.png"), plot = inf.acc.plot, dpi = 300, width = 15, height = 10)  
 
@@ -349,7 +349,8 @@ tot.acc.plot <- ggplot(df.tot) +
         axis.text.x = element_text(color = "black"),
         axis.text.y = element_text(color = "black"),
         axis.line.x = element_line(color = "black", lineend = "round"),
-        axis.line.y = element_line(color = "black", lineend = "round"))
+        axis.line.y = element_line(color = "black", lineend = "round"),
+        plot.tag = element_text(face = "bold"))
 
 ggsave(paste0(to.figs, "AccumulationCurves_individuals.png"), plot = tot.acc.plot, dpi = 300, width = 15, height = 10)  
 
@@ -449,9 +450,8 @@ df.prev <- rbind(df.All, df.MinnowTrap, df.Seine, df.Transect)
 
 prev.acc.plot <- ggplot(df.prev) + 
   stat_summary(aes(x = N, y = prev, group = Method, color = Method, shape = Method), fun = mean, size = 1) +
-  geom_smooth(aes(x= N, y = prev, group = Method, color = Method, fill = Method), method = "glm", se = TRUE, lineend = "round", alpha = 0.3) +
+  geom_smooth(aes(x= N, y = prev, group = Method, color = Method, fill = Method), method = "glm", method.args = list(family = "binomial"), se = TRUE, lineend = "round", alpha = 0.3) +
   scale_x_continuous(breaks = c(1, 2, 3, 5, 7, 10, 15, 25, 20, 25, 35)) +
-  #scale_y_continuous(breaks = round(seq(0, 6500, by = 1000), 1)) +
   labs(x = "Number of samplings", y = "Mean infection prevalence", tag = "C") +
   scale_color_manual(values = c("#7E7E7E", "#2A5676", "#999600", "#966F1E"),
                      aesthetics = c("color", "fill")) +
@@ -465,7 +465,8 @@ prev.acc.plot <- ggplot(df.prev) +
         axis.text.x = element_text(color = "black"),
         axis.text.y = element_text(color = "black"),
         axis.line.x = element_line(color = "black", lineend = "round"),
-        axis.line.y = element_line(color = "black", lineend = "round"))
+        axis.line.y = element_line(color = "black", lineend = "round"),
+        plot.tag = element_text(face = "bold"))
 
 ggsave(paste0(to.figs, "AccumulationCurves_prevalence.png"), plot = prev.acc.plot, dpi = 300, width = 15, height = 10)  
 
@@ -473,56 +474,46 @@ ggsave(paste0(to.figs, "AccumulationCurves_prevalence.png"), plot = prev.acc.plo
 
 hist(df.Transect$prev)
 glm.T <- glm(prev ~ N, data = df.Transect, family = "quasibinomial", weights = tot)
-glm.T2 <- glm(cbind(inf, tot-inf) ~ N, data = df.Transect, family = "quasibinomial")
-
+#glm.T2 <- glm(cbind(inf, tot-inf) ~ N, data = df.Transect, family = "quasibinomial")
 summary(glm.T)
-
 plogis(glm.T$coefficients[1]) 
 #plogis(glm.T$coefficients[2])
-check_model(glm.T)
-
-#Intercept: 0.4214337*** 
+#Intercept: 0.4206012*** 
 #slope do not differ from 0 (not significative)
 #N unsignificative
 #slightly negative
-
-tab.glm.T <- tidy(glm.T)
 
 
 hist(df.Seine$prev)
 glm.S <- glm(prev ~ N, data = df.Seine, family = "quasibinomial", weights = tot) #Fonctionne pas parce que prev et tot ne sont pas les mêmes simulations
-glm.S2 <- glm(cbind(inf, tot-inf) ~ N, data = df.Seine, family = "quasibinomial") #Inf et tot ne sont pas liés par proportion
+#glm.S2 <- glm(cbind(inf, tot-inf) ~ N, data = df.Seine, family = "quasibinomial") #Inf et tot ne sont pas liés par proportion
 summary(glm.S)
 plogis(glm.S$coefficients[1])
-plogis(glm.S$coefficients[2])
-#Intercept: 0.4496204*** 
+#plogis(glm.S$coefficients[2])
+#Intercept: 0.449682*** 
 #slope do not differ from 0 (not significative)
 #N unsignificative
 #slightly negative
 
-tab.glm.S <- tidy(glm.S)
 
 hist(df.MinnowTrap$prev)
 glm.MT <- glm(prev ~ N, data = df.MinnowTrap, family = "quasibinomial", weights = tot)
 summary(glm.MT)
 plogis(glm.MT$coefficients[1])
-#Intercept: 0.4422761*** 
+#Intercept: 0.4485509*** 
 #slope do not differ from 0 (not significative)
 #N unsignificative
 #slightly positive
 
-tab.glm.MT <- tidy(glm.MT)
-
 hist(df.All$prev)
-glm.A <- glm(prev ~ N, data = df.All, family = "binomial", weights = tot)
+glm.A <- glm(prev ~ N, data = df.All, family = "quasibinomial", weights = tot)
 summary(glm.A)
 plogis(glm.A$coefficients[1])
-#Intercept: 0.4386799***
+#Intercept: 0.4388589***
 #slope do not differ from 0 (not significative)
 #N significative
 #slightly positive
 
-tab.glm.A <- tidy(glm.A)
 
 ### Models summary table ----
 
@@ -597,7 +588,7 @@ summary.acc.plot <- inf.acc.plot + tot.acc.plot + prev.acc.plot +
 
 ggsave(paste0(to.figs, "AccumulationCurves_summary.png"), plot = summary.acc.plot, dpi = 300, width = 30, height = 12)
 
-##############
+############## old ##############
 
 write.csv(df.simulation,paste0(to.output,"Accum.simulation.csv"))
 AccumData <- read.csv(paste0(to.output, "Accum.simulation.csv"))

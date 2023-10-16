@@ -276,7 +276,8 @@ Summary.plot <- All.hist + Trans.hist + Seine.hist + Trap.hist +
   theme(text = element_text(size = 32, 
                             family = "Calibri Light", 
                             color = "black"),
-        plot.margin=unit(c(10,5,10,5), 'mm'))
+        plot.margin=unit(c(10,5,10,5), 'mm'),
+        plot.tag = element_text(face = "bold"))
               
                   
 ggsave(paste0(to.figs, "FrequencyDistribution_summary.png"), plot = Summary.plot, dpi = 300, width = 15, height = 17)
