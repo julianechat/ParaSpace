@@ -24,14 +24,14 @@ library(lme4)
 ## Loading data ----
 
 TransectData <- read.csv(paste0(to.output, "Transects_WideData.csv"))
-LakesCaracteristics <- read.csv(paste0(to.data, "Lakes_Caracteristics.csv"), sep=";")
+LakesCharacteristics <- read.csv(paste0(to.data, "Lakes_Characteristics.csv"), sep=";")
 TransBiotic <- read.csv(paste0(to.output, "Trans_BioticData.csv"))
 LakeBiotic <- read.csv(paste0(to.output, "Lake_Trans_BioticData.csv"))
 
 # ---- Building data frame ----
 
-trans.data <- merge(TransectData, LakesCaracteristics, by.x = "Lake") #Binding lake caractristics data
-trans.data <- merge(trans.data, TransBiotic, by.x = "Transect_ID") #Binding biotic data
+trans.data <- merge(TransectData, LakesCharacteristics, by = "Lake") #Binding lake charactristics data
+trans.data <- merge(trans.data, TransBiotic, by = "Transect_ID") #Binding biotic data
 
 ## Infection prevalence ----
 
@@ -51,10 +51,10 @@ trans.data <- trans.data %>%
 trans.mod <- trans.data %>% #Keeping relevant variables
   select(Transect_ID, Lake, Watershed,
          inf_fish, tot_fish, prev_fish,
-         Silt, Sand, Rock, Block, Macrophyte, Depth, Trunk,
-         Temp, Cond, DO, Turb, pH, 
+         Silt, Sand, Rock, Metric_block, Macrophyte, Mean_depth.x, Trunk,
+         Temperature, Conductivity, DO, Turbidity, pH, 
          TOC, TN, TP, 
-         Lake_area, Perimeter, Mean_depth, Max_depth, WRT,
+         Lake_area, Perimeter, Mean_depth.y, Max_depth, WRT,
          Drainage_area, Elevation, Connectivity, 
          Centrarchids, Species_richness, Diversity)
 

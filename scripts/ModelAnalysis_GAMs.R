@@ -1011,7 +1011,7 @@ PERI.pe <- PERI.sm %>%
   geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = Perimeter), fill ="#682714", alpha = 0.5) +
   geom_line(aes(x = Perimeter, y = est), color = "#682714", lwd = 1.2) +
   scale_y_continuous(trans = inverse_logit_trans) +
-  labs(x = "Perimeter (m)", y = "Partial effect (prevalence)", tag = "I") +
+  labs(x = "Perimeter (m)", y = "Partial effect (prevalence)") +
   theme(text = element_text(size = 20, 
                             family = "Calibri Light", 
                             color = "black"),
@@ -1026,6 +1026,7 @@ PERI.pe <- PERI.sm %>%
                                    lineend = "round"),
         plot.caption = element_blank(),
         plot.title = element_blank())
+
 #### Visualizing summed effect
 plot_smooth(PERI.GAMM, view = "Perimeter", rm.ranef = FALSE, 
             transform = plogis, 
@@ -1393,7 +1394,7 @@ dev.off()
 
 ## Summary figure ----
 
-Summary.plot <- TNTP.pe + MACRO.pe + TEMP.pe + TURB.pe + PH.pe + DO.pe + COND.pe + AREAPERI.pe + #PERI.pe 
+Summary.plot <- TNTP.pe + MACRO.pe + TEMP.pe + TURB.pe + PH.pe + DO.pe + COND.pe + AREAPERI.pe
   DIVERS.pe +
   plot_layout(ncol = 3,
               nrow = 3, 
@@ -1403,7 +1404,14 @@ Summary.plot <- TNTP.pe + MACRO.pe + TEMP.pe + TURB.pe + PH.pe + DO.pe + COND.pe
   #& ylim(c(0,1)) #pas beau
   
 ggsave(paste0(to.figs, "GAMMs_summary.png"), plot = Summary.plot, dpi = 300, width = 35, height = 30)  
-  
+
+## Perimeter figure ----
+
+PERI.pe
+
+ggsave(paste0(to.figs, "GAMMs_Perimeter.png"), plot = PERI.pe, dpi = 300, width = 10, height = 10)  
+ggsave(paste0(to.rédaction, "./Support_information/Figure_S1.png"), plot = PERI.pe, dpi = 300, width = 10, height = 10)  
+
 ## Summary table ----
 
 tab.NULL.par <- tidy(NULL.GAMM, parametric = TRUE) %>% 

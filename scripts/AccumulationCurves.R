@@ -105,16 +105,16 @@ inf.A.data <- CombinedData %>%
 inf.A1 <- replicate(999, sample(inf.A.data, 1))
 inf.A2 <- replicate(999, sum(sample(inf.A.data, 2)))
 inf.A3 <- replicate(999, sum(sample(inf.A.data, 3)))
-inf.A4 <- replicate(999, sum(sample(inf.A.data, 5)))
-inf.A5 <- replicate(999, sum(sample(inf.A.data, 7)))
-inf.A6 <- replicate(999, sum(sample(inf.A.data, 10)))
-inf.A7 <- replicate(999, sum(sample(inf.A.data, 15)))
-inf.A8 <- replicate(999, sum(sample(inf.A.data, 20)))
-inf.A9 <- replicate(999, sum(sample(inf.A.data, 25)))
-inf.A10 <- replicate(999, sum(sample(inf.A.data, 35)))
+inf.A5 <- replicate(999, sum(sample(inf.A.data, 5)))
+inf.A7 <- replicate(999, sum(sample(inf.A.data, 7)))
+inf.A10 <- replicate(999, sum(sample(inf.A.data, 10)))
+inf.A15 <- replicate(999, sum(sample(inf.A.data, 15)))
+inf.A20 <- replicate(999, sum(sample(inf.A.data, 20)))
+inf.A25 <- replicate(999, sum(sample(inf.A.data, 25)))
+inf.A35 <- replicate(999, sum(sample(inf.A.data, 35)))
 
 #Placing results in a data frame
-inf <- c(inf.A1, inf.A2, inf.A3, inf.A4, inf.A5, inf.A6, inf.A7, inf.A8, inf.A9, inf.A10) 
+inf <- c(inf.A1, inf.A2, inf.A3, inf.A5, inf.A7, inf.A10, inf.A15, inf.A20, inf.A25, inf.A35) 
 N <- c(rep(1,999), rep(2,999), rep(3,999), rep(5,999), rep(7,999), rep(10,999), rep(15,999), rep(20,999), rep(25,999), rep(35,999))
 Method <- c(rep("All", 9990))
 df.All <- data.frame(N, Method, inf, row.names = NULL)
@@ -132,16 +132,16 @@ inf.MT.data <- MinnowTrapData %>%
 inf.MT1 <- replicate(999, sample(inf.MT.data, 1))
 inf.MT2 <- replicate(999, sum(sample(inf.MT.data, 2)))
 inf.MT3 <- replicate(999, sum(sample(inf.MT.data, 3)))
-inf.MT4 <- replicate(999, sum(sample(inf.MT.data, 5)))
-inf.MT5 <- replicate(999, sum(sample(inf.MT.data, 7)))
-inf.MT6 <- replicate(999, sum(sample(inf.MT.data, 10)))
-inf.MT7 <- replicate(999, sum(sample(inf.MT.data, 15)))
-inf.MT8 <- replicate(999, sum(sample(inf.MT.data, 20)))
-inf.MT9 <- replicate(999, sum(sample(inf.MT.data, 25)))
-inf.MT10 <- replicate(999, sum(sample(inf.MT.data, 35)))
+inf.MT5 <- replicate(999, sum(sample(inf.MT.data, 5)))
+inf.MT7 <- replicate(999, sum(sample(inf.MT.data, 7)))
+inf.MT10 <- replicate(999, sum(sample(inf.MT.data, 10)))
+inf.MT15 <- replicate(999, sum(sample(inf.MT.data, 15)))
+inf.MT20 <- replicate(999, sum(sample(inf.MT.data, 20)))
+inf.MT25 <- replicate(999, sum(sample(inf.MT.data, 25)))
+inf.MT35 <- replicate(999, sum(sample(inf.MT.data, 35)))
 
 #Placing results the a data frame
-inf <- c(inf.MT1, inf.MT2, inf.MT3, inf.MT4, inf.MT5, inf.MT6, inf.MT7, inf.MT8, inf.MT9, inf.MT10)
+inf <- c(inf.MT1, inf.MT2, inf.MT3, inf.MT5, inf.MT7, inf.MT10, inf.MT15, inf.MT20, inf.MT25, inf.MT35)
 Method <- c(rep("Minnow trap", 9990))
 df.MinnowTrap <- data.frame(N, Method, inf, row.names = NULL)
 
@@ -158,16 +158,16 @@ inf.S.data <- SeineData %>%
 inf.S1 <- replicate(999, sample(inf.S.data, 1))
 inf.S2 <- replicate(999, sum(sample(inf.S.data, 2)))
 inf.S3 <- replicate(999, sum(sample(inf.S.data, 3)))
-inf.S4 <- replicate(999, sum(sample(inf.S.data, 5)))
-inf.S5 <- replicate(999, sum(sample(inf.S.data, 7)))
-inf.S6 <- replicate(999, sum(sample(inf.S.data, 10)))
-inf.S7 <- replicate(999, sum(sample(inf.S.data, 15)))
-inf.S8 <- replicate(999, sum(sample(inf.S.data, 20)))
-inf.S9 <- replicate(999, sum(sample(inf.S.data, 25)))
-inf.S10 <- replicate(999, sum(sample(inf.S.data, 35)))
+inf.S5 <- replicate(999, sum(sample(inf.S.data, 5)))
+inf.S7 <- replicate(999, sum(sample(inf.S.data, 7)))
+inf.S10 <- replicate(999, sum(sample(inf.S.data, 10)))
+inf.S15 <- replicate(999, sum(sample(inf.S.data, 15)))
+inf.S20 <- replicate(999, sum(sample(inf.S.data, 20)))
+inf.S25 <- replicate(999, sum(sample(inf.S.data, 25)))
+inf.S35 <- replicate(999, sum(sample(inf.S.data, 35)))
 
 #Placing results the data frame
-inf <- c(inf.S1, inf.S2, inf.S3, inf.S4, inf.S5, inf.S6, inf.S7, inf.S8, inf.S9, inf.S10)
+inf <- c(inf.S1, inf.S2, inf.S3, inf.S5, inf.S7, inf.S10, inf.S15, inf.S20, inf.S25, inf.S35)
 Method <- c(rep("Seine net", 9990))
 df.Seine <- data.frame(N, Method, inf, row.names = NULL)
 
@@ -185,16 +185,16 @@ inf.T.data <- TransectData %>%
 inf.T1 <- replicate(999, sample(inf.T.data, 1))
 inf.T2 <- replicate(999, sum(sample(inf.T.data, 2)))
 inf.T3 <- replicate(999, sum(sample(inf.T.data, 3)))
-inf.T4 <- replicate(999, sum(sample(inf.T.data, 5)))
-inf.T5 <- replicate(999, sum(sample(inf.T.data, 7)))
-inf.T6 <- replicate(999, sum(sample(inf.T.data, 10)))
-inf.T7 <- replicate(999, sum(sample(inf.T.data, 15)))
-inf.T8 <- replicate(999, sum(sample(inf.T.data, 20)))
-inf.T9<- replicate(999, sum(sample(inf.T.data, 25)))
-inf.T10 <- replicate(999, sum(sample(inf.T.data, 35)))
+inf.T5 <- replicate(999, sum(sample(inf.T.data, 5)))
+inf.T7 <- replicate(999, sum(sample(inf.T.data, 7)))
+inf.T10 <- replicate(999, sum(sample(inf.T.data, 10)))
+inf.T15 <- replicate(999, sum(sample(inf.T.data, 15)))
+inf.T20 <- replicate(999, sum(sample(inf.T.data, 20)))
+inf.T25<- replicate(999, sum(sample(inf.T.data, 25)))
+inf.T35 <- replicate(999, sum(sample(inf.T.data, 35)))
 
 #Placing results the data frame
-inf <- c(inf.T1, inf.T2, inf.T3, inf.T4, inf.T5, inf.T6, inf.T7, inf.T8, inf.T9, inf.T10)
+inf <- c(inf.T1, inf.T2, inf.T3, inf.T5, inf.T7, inf.T10, inf.T15, inf.T20, inf.T25, inf.T35)
 Method <- c(rep("Transect", 9990))
 df.Transect <- data.frame(N, Method, inf, row.names = NULL)
 
@@ -242,16 +242,16 @@ tot.A.data <- CombinedData %>%
 tot.A1 <- replicate(999, sample(tot.A.data, 1))
 tot.A2 <- replicate(999, sum(sample(tot.A.data, 2)))
 tot.A3 <- replicate(999, sum(sample(tot.A.data, 3)))
-tot.A4 <- replicate(999, sum(sample(tot.A.data, 5)))
-tot.A5 <- replicate(999, sum(sample(tot.A.data, 7)))
-tot.A6 <- replicate(999, sum(sample(tot.A.data, 10)))
-tot.A7 <- replicate(999, sum(sample(tot.A.data, 15)))
-tot.A8 <- replicate(999, sum(sample(tot.A.data, 20)))
-tot.A9 <- replicate(999, sum(sample(tot.A.data, 25)))
-tot.A10 <- replicate(999, sum(sample(tot.A.data, 35)))
+tot.A5 <- replicate(999, sum(sample(tot.A.data, 5)))
+tot.A7 <- replicate(999, sum(sample(tot.A.data, 7)))
+tot.A10 <- replicate(999, sum(sample(tot.A.data, 10)))
+tot.A15 <- replicate(999, sum(sample(tot.A.data, 15)))
+tot.A20 <- replicate(999, sum(sample(tot.A.data, 20)))
+tot.A25 <- replicate(999, sum(sample(tot.A.data, 25)))
+tot.A35 <- replicate(999, sum(sample(tot.A.data, 35)))
 
 #Placing results the data frame
-tot <- c(tot.A1, tot.A2, tot.A3, tot.A4, tot.A5, tot.A6, tot.A7, tot.A8, tot.A9, tot.A10)
+tot <- c(tot.A1, tot.A2, tot.A3, tot.A5, tot.A7, tot.A10, tot.A15, tot.A20, tot.A25, tot.A35)
 df.All <- df.All %>% 
   mutate(tot)
 
@@ -265,17 +265,16 @@ tot.MT.data <- MinnowTrapData %>%
 tot.MT1 <- replicate(999, sample(tot.MT.data, 1))
 tot.MT2 <- replicate(999, sum(sample(tot.MT.data, 2)))
 tot.MT3 <- replicate(999, sum(sample(tot.MT.data, 3)))
-tot.MT4 <- replicate(999, sum(sample(tot.MT.data, 5)))
-tot.MT5 <- replicate(999, sum(sample(tot.MT.data, 7)))
-tot.MT6 <- replicate(999, sum(sample(tot.MT.data, 10)))
-tot.MT7 <- replicate(999, sum(sample(tot.MT.data, 15)))
-tot.MT8 <- replicate(999, sum(sample(tot.MT.data, 20)))
-tot.MT9 <- replicate(999, sum(sample(tot.MT.data, 25)))
-tot.MT10 <- replicate(999, sum(sample(tot.MT.data, 35)))
+tot.MT5 <- replicate(999, sum(sample(tot.MT.data, 5)))
+tot.MT7 <- replicate(999, sum(sample(tot.MT.data, 7)))
+tot.MT10 <- replicate(999, sum(sample(tot.MT.data, 10)))
+tot.MT15 <- replicate(999, sum(sample(tot.MT.data, 15)))
+tot.MT20 <- replicate(999, sum(sample(tot.MT.data, 20)))
+tot.MT25 <- replicate(999, sum(sample(tot.MT.data, 25)))
+tot.MT35 <- replicate(999, sum(sample(tot.MT.data, 35)))
 
 #Placing results the data frame
-tot <- c(tot.MT1, tot.MT2, tot.MT3, tot.MT4, tot.MT5, tot.MT6, tot.MT7, tot.MT8, tot.MT9, tot.MT10)
-
+tot <- c(tot.MT1, tot.MT2, tot.MT3, tot.MT5, tot.MT7, tot.MT10, tot.MT15, tot.MT20, tot.MT25, tot.MT35)
 df.MinnowTrap <- df.MinnowTrap %>% 
   mutate(tot)
 
@@ -289,17 +288,16 @@ tot.S.data <- SeineData %>%
 tot.S1 <- replicate(999, sample(tot.S.data, 1))
 tot.S2 <- replicate(999, sum(sample(tot.S.data, 2)))
 tot.S3 <- replicate(999, sum(sample(tot.S.data, 3)))
-tot.S4 <- replicate(999, sum(sample(tot.S.data, 5)))
-tot.S5 <- replicate(999, sum(sample(tot.S.data, 7)))
-tot.S6 <- replicate(999, sum(sample(tot.S.data, 10)))
-tot.S7 <- replicate(999, sum(sample(tot.S.data, 15)))
-tot.S8 <- replicate(999, sum(sample(tot.S.data, 20)))
-tot.S9 <- replicate(999, sum(sample(tot.S.data, 25)))
-tot.S10 <- replicate(999, sum(sample(tot.S.data, 35)))
+tot.S5 <- replicate(999, sum(sample(tot.S.data, 5)))
+tot.S7 <- replicate(999, sum(sample(tot.S.data, 7)))
+tot.S10 <- replicate(999, sum(sample(tot.S.data, 10)))
+tot.S15 <- replicate(999, sum(sample(tot.S.data, 15)))
+tot.S20 <- replicate(999, sum(sample(tot.S.data, 20)))
+tot.S25 <- replicate(999, sum(sample(tot.S.data, 25)))
+tot.S35 <- replicate(999, sum(sample(tot.S.data, 35)))
 
 #Placing results the data frame
-tot <- c(tot.S1, tot.S2, tot.S3, tot.S4, tot.S5, tot.S6, tot.S7, tot.S8, tot.S9, tot.S10)
-
+tot <- c(tot.S1, tot.S2, tot.S3, tot.S5, tot.S7, tot.S10, tot.S15, tot.S20, tot.S25, tot.S35)
 df.Seine <- df.Seine %>% 
   mutate(tot)
 
@@ -314,16 +312,16 @@ tot.T.data <- TransectData %>%
 tot.T1 <- replicate(999, sample(tot.T.data, 1))
 tot.T2 <- replicate(999, sum(sample(tot.T.data, 2)))
 tot.T3 <- replicate(999, sum(sample(tot.T.data, 3)))
-tot.T4 <- replicate(999, sum(sample(tot.T.data, 5)))
-tot.T5 <- replicate(999, sum(sample(tot.T.data, 7)))
-tot.T6 <- replicate(999, sum(sample(tot.T.data, 10)))
-tot.T7 <- replicate(999, sum(sample(tot.T.data, 15)))
-tot.T8 <- replicate(999, sum(sample(tot.T.data, 20)))
-tot.T9 <- replicate(999, sum(sample(tot.T.data, 25)))
-tot.T10 <- replicate(999, sum(sample(tot.T.data, 35)))
+tot.T5 <- replicate(999, sum(sample(tot.T.data, 5)))
+tot.T7 <- replicate(999, sum(sample(tot.T.data, 7)))
+tot.T10 <- replicate(999, sum(sample(tot.T.data, 10)))
+tot.T15 <- replicate(999, sum(sample(tot.T.data, 15)))
+tot.T20 <- replicate(999, sum(sample(tot.T.data, 20)))
+tot.T25 <- replicate(999, sum(sample(tot.T.data, 25)))
+tot.T35 <- replicate(999, sum(sample(tot.T.data, 35)))
 
 #Placing results the data frame
-tot <- c(tot.T1, tot.T2, tot.T3, tot.T4, tot.T5, tot.T6, tot.T7, tot.T8, tot.T9, tot.T10)
+tot <- c(tot.T1, tot.T2, tot.T3, tot.T5, tot.T7, tot.T10, tot.T15, tot.T20, tot.T25, tot.T35)
 df.Transect <- df.Transect %>% 
   mutate(tot)
 
@@ -359,22 +357,56 @@ ggsave(paste0(to.figs, "AccumulationCurves_individuals.png"), plot = tot.acc.plo
 ## Fishing method ----
 
 prev.A <- inf.A.data / tot.A.data
-prev.A <- na.omit(prev.A) #Deleting NAs as they mean that no fish were caught
+#prev.A <- na.omit(prev.A) #Deleting NAs as they mean that no fish were caught
+#Si on garde les NA, dès qu'il y en a une moyenne a calculer, résulta = NA
 
 #Sampling
+
+#Essai par méthode Eric sur méthode = All
+#Autre méthode n'ont pas été changée
+
 prev.A1 <- replicate(999, sample(prev.A, 1))
-prev.A2 <- replicate(999, mean(sample(prev.A, 2)))
-prev.A3 <- replicate(999, mean(sample(prev.A, 3)))
-prev.A4 <- replicate(999, mean(sample(prev.A, 5)))
-prev.A5 <- replicate(999, mean(sample(prev.A, 7)))
-prev.A6 <- replicate(999, mean(sample(prev.A, 10)))
-prev.A7 <- replicate(999, mean(sample(prev.A, 15)))
-prev.A8 <- replicate(999, mean(sample(prev.A, 20)))
-prev.A9 <- replicate(999, mean(sample(prev.A, 25)))
-prev.A10 <- replicate(999, mean(sample(prev.A, 35)))
+mean.A1 <- sum(prev.A1,  na.rm = TRUE)/999
+
+prev.A2 <- replicate(999, sum(sample(prev.A, 2))/2) #On garde les NA, on divise par le nombre d'échantillons pigé
+mean.A2 <- sum(prev.A2,  na.rm = TRUE)/999 #On calcule la prévalence moyenne pour un N donné en divisant par le nombre de pige total
+
+prev.A3 <- replicate(999, sum(sample(prev.A, 3))/3)
+mean.A3 <- sum(prev.A3,  na.rm = TRUE)/999
+
+prev.A5 <- replicate(999, sum(sample(prev.A, 5))/5)
+mean.A5 <- sum(prev.A5,  na.rm = TRUE)/999
+
+prev.A7 <- replicate(999, sum(sample(prev.A, 7))/7)
+mean.A7 <- sum(prev.A7,  na.rm = TRUE)/999
+
+prev.A10 <- replicate(999, sum(sample(prev.A, 10))/10)
+mean.A10 <- sum(prev.A10,  na.rm = TRUE)/999
+
+prev.A15 <- replicate(999, sum(sample(prev.A, 15))/15)
+mean.A15 <- sum(prev.A15,  na.rm = TRUE)/999
+
+prev.A20 <- replicate(999, sum(sample(prev.A, 20))/20)
+mean.A20 <- sum(prev.A20,  na.rm = TRUE)/999
+
+prev.A25 <- replicate(999, sum(sample(prev.A, 25))/25)
+mean.A25 <- sum(prev.A25,  na.rm = TRUE)/999
+
+prev.A35 <- replicate(999, sum(sample(prev.A, 35))/35)
+mean.A35 <- sum(prev.A35,  na.rm = TRUE)/999
+
+#Prévalence diminue exponentiellement avec le nombre d'échantillon jusqu'à 0
+#Trop de NA intoduit
+#Donne une valeur correct à A1 par contre
+
+#Fonction mean
+adapt.mean<- function(x) {
+  mean = sum(x, na.rm = TRUE)/length(x)
+  print(mean)
+}
 
 #Placing results the data frame
-prev <- c(prev.A1, prev.A2, prev.A3, prev.A4, prev.A5, prev.A6, prev.A7, prev.A8, prev.A9, prev.A10)
+prev <- c(prev.A1, prev.A2, prev.A3, prev.A5, prev.A7, prev.A10, prev.A15, prev.A20, prev.A25, prev.A35)
 df.All <- df.All %>%  
   mutate(prev)
 
@@ -387,16 +419,16 @@ prev.MT <- na.omit(prev.MT) #Deleting NAs as they mean that no fish were caught
 prev.MT1 <- replicate(999, sample(prev.MT, 1))
 prev.MT2 <- replicate(999, mean(sample(prev.MT, 2)))
 prev.MT3 <- replicate(999, mean(sample(prev.MT, 3)))
-prev.MT4 <- replicate(999, mean(sample(prev.MT, 5)))
-prev.MT5 <- replicate(999, mean(sample(prev.MT, 7)))
-prev.MT6 <- replicate(999, mean(sample(prev.MT, 10)))
-prev.MT7 <- replicate(999, mean(sample(prev.MT, 15)))
-prev.MT8 <- replicate(999, mean(sample(prev.MT, 20)))
-prev.MT9 <- replicate(999, mean(sample(prev.MT, 25)))
-prev.MT10 <- replicate(999, mean(sample(prev.MT, 35)))
+prev.MT5 <- replicate(999, mean(sample(prev.MT, 5)))
+prev.MT7 <- replicate(999, mean(sample(prev.MT, 7)))
+prev.MT10 <- replicate(999, mean(sample(prev.MT, 10)))
+prev.MT15 <- replicate(999, mean(sample(prev.MT, 15)))
+prev.MT20 <- replicate(999, mean(sample(prev.MT, 20)))
+prev.MT25 <- replicate(999, mean(sample(prev.MT, 25)))
+prev.MT35 <- replicate(999, mean(sample(prev.MT, 35)))
 
 #Placing results the data frame
-prev <- c(prev.MT1, prev.MT2, prev.MT3, prev.MT4, prev.MT5, prev.MT6, prev.MT7, prev.MT8, prev.MT9, prev.MT10)
+prev <- c(prev.MT1, prev.MT2, prev.MT3, prev.MT5, prev.MT7, prev.MT10, prev.MT15, prev.MT20, prev.MT25, prev.MT35)
 df.MinnowTrap <- df.MinnowTrap %>%  
   mutate(prev)
 
@@ -407,18 +439,18 @@ prev.S <- na.omit(prev.S) #Deleting NAs as they mean that no fish were caught
 
 #Sampling
 prev.S1 <- replicate(999, sample(prev.S, 1))
-prev.S2 <- replicate(999, mean(sample(prev.S, 2)))
-prev.S3 <- replicate(999, mean(sample(prev.S, 3)))
-prev.S4 <- replicate(999, mean(sample(prev.S, 5)))
-prev.S5 <- replicate(999, mean(sample(prev.S, 7)))
-prev.S6 <- replicate(999, mean(sample(prev.S, 10)))
-prev.S7 <- replicate(999, mean(sample(prev.S, 15)))
-prev.S8 <- replicate(999, mean(sample(prev.S, 20)))
-prev.S9 <- replicate(999, mean(sample(prev.S, 25)))
-prev.S10 <- replicate(999, mean(sample(prev.S, 35)))
+prev.S2 <- replicate(999, mean(sample(prev.S, 2)), tot.S.data)
+prev.S3 <- replicate(999, mean(sample(prev.S, 3)), tot.S.data)
+prev.S5 <- replicate(999, mean(sample(prev.S, 5)), tot.S.data)
+prev.S7 <- replicate(999, mean(sample(prev.S, 7)), tot.S.data)
+prev.S10 <- replicate(999, mean(sample(prev.S, 10)), tot.S.data)
+prev.S15 <- replicate(999, mean(sample(prev.S, 15)), tot.S.data)
+prev.S20 <- replicate(999, mean(sample(prev.S, 20)), tot.S.data)
+prev.S25 <- replicate(999, mean(sample(prev.S, 25)), tot.S.data)
+prev.S35 <- replicate(999, mean(sample(prev.S, 35)), tot.S.data)
 
 #Placing results the data frame
-prev <- c(prev.S1, prev.S2, prev.S3, prev.S4, prev.S5, prev.S6, prev.S7, prev.S8, prev.S9, prev.S10)
+prev <- c(prev.S1, prev.S2, prev.S3, prev.S5, prev.S7, prev.S10, prev.S15, prev.S20, prev.S25, prev.S35)
 df.Seine<- df.Seine %>%  
   mutate(prev)
 
@@ -431,16 +463,16 @@ prev.T <- na.omit(prev.T) #Deleting NAs as they mean that no fish were observed
 prev.T1 <- replicate(999, sample(prev.T, 1))
 prev.T2 <- replicate(999, mean(sample(prev.T, 2)))
 prev.T3 <- replicate(999, mean(sample(prev.T, 3)))
-prev.T4 <- replicate(999, mean(sample(prev.T, 5)))
-prev.T5 <- replicate(999, mean(sample(prev.T, 7)))
-prev.T6 <- replicate(999, mean(sample(prev.T, 10)))
-prev.T7 <- replicate(999, mean(sample(prev.T, 15)))
-prev.T8 <- replicate(999, mean(sample(prev.T, 20)))
-prev.T9 <- replicate(999, mean(sample(prev.T, 25)))
-prev.T10 <- replicate(999, mean(sample(prev.T, 35)))
+prev.T5 <- replicate(999, mean(sample(prev.T, 5)))
+prev.T7 <- replicate(999, mean(sample(prev.T, 7)))
+prev.T10 <- replicate(999, mean(sample(prev.T, 10)))
+prev.T15 <- replicate(999, mean(sample(prev.T, 15)))
+prev.T20 <- replicate(999, mean(sample(prev.T, 20)))
+prev.T25 <- replicate(999, mean(sample(prev.T, 25)))
+prev.T35 <- replicate(999, mean(sample(prev.T, 35)))
 
 #Placing results the data frame
-prev <- c(prev.T1, prev.T2, prev.T3, prev.T4, prev.T5, prev.T6, prev.T7, prev.T8, prev.T9, prev.T10)
+prev <- c(prev.T1, prev.T2, prev.T3, prev.T5, prev.T7, prev.T10, prev.T15, prev.T20, prev.T25, prev.T35)
 df.Transect <- df.Transect %>%  
   mutate(prev)
 
@@ -450,8 +482,9 @@ df.prev <- rbind(df.All, df.MinnowTrap, df.Seine, df.Transect)
 
 prev.acc.plot <- ggplot(df.prev) + 
   stat_summary(aes(x = N, y = prev, group = Method, color = Method, shape = Method), fun = mean, size = 1) +
-  geom_smooth(aes(x= N, y = prev, group = Method, color = Method, fill = Method), method = "glm", method.args = list(family = "binomial"), se = TRUE, lineend = "round", alpha = 0.3) +
+  geom_smooth(aes(x= N, y = prev, group = Method, color = Method, fill = Method), method = "lm", se = TRUE, lineend = "round", alpha = 0.3) +
   scale_x_continuous(breaks = c(1, 2, 3, 5, 7, 10, 15, 25, 20, 25, 35)) +
+  scale_y_continuous(labels = scales::percent) +
   labs(x = "Number of samplings", y = "Mean infection prevalence", tag = "C") +
   scale_color_manual(values = c("#7E7E7E", "#2A5676", "#999600", "#966F1E"),
                      aesthetics = c("color", "fill")) +
@@ -472,69 +505,51 @@ ggsave(paste0(to.figs, "AccumulationCurves_prevalence.png"), plot = prev.acc.plo
 
 ## Slope and Intercept extractions ----
 
-hist(df.Transect$prev)
-glm.T <- glm(prev ~ N, data = df.Transect, family = "quasibinomial", weights = tot)
-#glm.T2 <- glm(cbind(inf, tot-inf) ~ N, data = df.Transect, family = "quasibinomial")
-summary(glm.T)
-plogis(glm.T$coefficients[1]) 
-#plogis(glm.T$coefficients[2])
-#Intercept: 0.4206012*** 
-#slope do not differ from 0 (not significative)
-#N unsignificative
-#slightly negative
+### All methods ----
 
+lm.All <- lm(prev ~ N, data = df.All)
+summary(lm.All)
 
-hist(df.Seine$prev)
-glm.S <- glm(prev ~ N, data = df.Seine, family = "quasibinomial", weights = tot) #Fonctionne pas parce que prev et tot ne sont pas les mêmes simulations
-#glm.S2 <- glm(cbind(inf, tot-inf) ~ N, data = df.Seine, family = "quasibinomial") #Inf et tot ne sont pas liés par proportion
-summary(glm.S)
-plogis(glm.S$coefficients[1])
-#plogis(glm.S$coefficients[2])
-#Intercept: 0.449682*** 
-#slope do not differ from 0 (not significative)
-#N unsignificative
-#slightly negative
+Intercept.All <- lm.All$coefficients[1] #Extracting intercept
+Slope.All <- lm.All$coefficients[2] #Extracting slope
 
+### Minnow trap ----
 
-hist(df.MinnowTrap$prev)
-glm.MT <- glm(prev ~ N, data = df.MinnowTrap, family = "quasibinomial", weights = tot)
-summary(glm.MT)
-plogis(glm.MT$coefficients[1])
-#Intercept: 0.4485509*** 
-#slope do not differ from 0 (not significative)
-#N unsignificative
-#slightly positive
+lm.MT <- lm(prev ~ N, data = df.MinnowTrap)
+summary(lm.MT)
 
-hist(df.All$prev)
-glm.A <- glm(prev ~ N, data = df.All, family = "quasibinomial", weights = tot)
-summary(glm.A)
-plogis(glm.A$coefficients[1])
-#Intercept: 0.4388589***
-#slope do not differ from 0 (not significative)
-#N significative
-#slightly positive
+Intercept.MT <- lm.MT$coefficients[1] #Extracting intercept
+Slope.MT <- lm.MT$coefficients[2] #Extracting slope
 
+### Seine net ----
+
+lm.S <- lm(prev ~ N, data = df.Seine)
+summary(lm.S)
+
+Intercept.S <- lm.S$coefficients[1] #Extracting intercept
+Slope.S <- lm.S$coefficients[2] #Extracting slope
+
+## Transect ----
+
+lm.T <- lm(prev ~ N, data = df.Transect)
+summary(lm.T)
+
+Intercept.T <- lm.T$coefficients[1] #Extracting intercept
+Slope.T <- lm.T$coefficients[2] #Extracting slope
 
 ### Models summary table ----
 
-#Changing intercept values for plogis transformed intercept values
-tab.glm.A <- tidy(glm.A)
-tab.glm.A[1,2] <- plogis(glm.A$coefficients[1])
-  
-tab.glm.MT <- tidy(glm.MT)
-tab.glm.MT[1,2] <- plogis(glm.MT$coefficients[1])
-
-tab.glm.S <- tidy(glm.S)
-tab.glm.S[1,2] <- plogis(glm.S$coefficients[1])
-
-tab.glm.T <- tidy(glm.T)
-tab.glm.T[1,2] <- plogis(glm.T$coefficients[1])
+#Extracting model summaries
+tab.lm.All <- tidy(lm.All)
+tab.lm.MT <- tidy(lm.MT)
+tab.lm.S <- tidy(lm.S)
+tab.lm.T <- tidy(lm.T)
 
 #Binding tables and formatting 
-tab.mod.summary <- rbind(tab.glm.A, tab.glm.MT, tab.glm.S, tab.glm.T) %>% 
+tab.mod.summary <- rbind(tab.lm.All, tab.lm.MT, tab.lm.S, tab.lm.T) %>% 
   mutate(Method = c("All", "All", "Minnow trap", "Minnow trap", "Seine net", "Seine net", "Transect", "Transect"), .before = term) %>% 
   gt(groupname_col = "Method") %>% 
-  tab_header(md("**TABLE S16.** Summary results of the prevalence accumulation curve simulations. The models are glm with a quasibinomial family distribution.")) %>% 
+  tab_header(md("**TABLE S16.** Summary results of the prevalence accumulation curve simulations. The models are linear models")) %>% 
   cols_label(term = md("**Term**"), estimate = md("**Estimate**"), std.error = md("**Standard error**"), statistic = md("**z-value**"), p.value = md("**p-value**")) %>%
   sub_values(values = "(Intercept)", replacement = "Intercept") %>% 
   sub_values(values = "N", replacement = "Slope") %>% 
@@ -563,9 +578,7 @@ tab.mod.summary <- rbind(tab.glm.A, tab.glm.MT, tab.glm.S, tab.glm.T) %>%
   tab_style(style = cell_borders(side = "bottom", weight = px(2), color = "black"),
             locations = cells_row_groups(groups = "Transect")) %>% 
   tab_style(style = cell_borders(side = "bottom", weight = px(2), color = "darkgrey"),
-            locations = cells_body(rows = c(2, 4, 6))) %>% 
-  tab_footnote(footnote = "Value was plogis transformed to make interpretation easier.",
-               locations = cells_body(columns = 3, rows = c(1,3,5,7)))
+            locations = cells_body(rows = c(2, 4, 6)))
 
 tab.mod.summary  %>% #Saving gt tab
   gtsave("Tab_Simulations_Summary.png", paste0(to.figs))
@@ -587,42 +600,3 @@ summary.acc.plot <- inf.acc.plot + tot.acc.plot + prev.acc.plot +
   guides(color = guide_legend(override.aes = list(size = 2)))
 
 ggsave(paste0(to.figs, "AccumulationCurves_summary.png"), plot = summary.acc.plot, dpi = 300, width = 30, height = 12)
-
-############## old ##############
-
-write.csv(df.simulation,paste0(to.output,"Accum.simulation.csv"))
-AccumData <- read.csv(paste0(to.output, "Accum.simulation.csv"))
-
-lm.1 <- lm(prev.T.all ~ N, data=AccumData)
-summary(lm.1)
-#Intercept: 0.421*** 
-#slope do not differ from 0 (not significative)
-#positive
-plot(lm.1)
-hist(resid(lm.1))
-
-
-
-lm.2 <- lm(prev.S.all ~ N, data=AccumData)
-summary(lm.2)
-#Intercept: 0.443*** 
-#slope do not differ from 0 (not significative)
-#slightly negative
-plot(lm.2)
-
-
-lm.3 <- lm(prev.MT.all ~ N, data=AccumData)
-summary(lm.3)
-#Intercept: 0.449*** 
-#slope do not differ from 0 (not significative)
-#slightly negative
-plot(lm.1)
-
-
-lm.4 <- lm(prev.A.all ~ N, data=AccumData)
-summary(lm.4)
-#Intercept: 0.448***
-#slope do not differ from 0 (not significative)
-#slightly significative
-plot(lm.4)
-

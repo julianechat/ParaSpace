@@ -30,6 +30,50 @@ library(janitor)
 
 CombinedData <- read.csv(paste0(to.output, "CombinedData.csv")) 
 
+# ---- Eric's crap ----
+
+## Extract relevant data
+
+Reg.pool.All <- CombinedData %>% #Selecting abundance data
+  select("Lake",starts_with(c("inf", "tot"))) %>% 
+  na.omit()
+
+Reg.pool.inf.All <- Reg.pool.All %>% #Regional infected fish abundance
+  select(starts_with("inf")) 
+
+Reg.pool.tot.All <- Reg.pool.All %>% #Regional total fish abundance
+  select(starts_with("tot"))
+
+infected <- rowSums(Reg.pool.inf.All)
+total <- rowSums(Reg.pool.tot.All)
+lake <- Reg.pool.All$Lake
+
+final <- data.frame(lake,infected,total)
+
+head(final)
+str(final)
+
+## Regional
+
+(prev.reg <- sum(final$infected)/sum(final$total))
+
+## Mean (lakes)
+
+n.lake.inf <- with(final,tapply(infected,lake,sum))
+
+n.lake.tot <- with(final,tapply(total,lake,sum))
+
+prev.lake <- n.lake.inf/n.lake.tot
+
+(prev.local <- sum(prev.lake)/length(prev.lake))
+
+## Mean (site)
+
+prev.site0 <- final$infected/final$total
+prev.site <- na.omit(prev.site)
+sum(prev.site)/length(prev.site0) #Ici très important d'utiliser le même nombre de sites que avant d'avoir retirer les NaN(car ces sites sont comptabiliser aux échelles régionales et locales!!!)
+
+
 # ---- Regional prevalence ----
 
 ## Community prevalence by methods ----
@@ -37,85 +81,85 @@ CombinedData <- read.csv(paste0(to.output, "CombinedData.csv"))
 
 ### All methods ----
 
-Reg.pool.All <- CombinedData %>% 
+Reg.pool.All <- CombinedData %>% #Selecting abundance data
   select(starts_with(c("inf", "tot"))) %>% 
   na.omit()
 
-Reg.pool.inf.All <- Reg.pool.All %>% 
+Reg.pool.inf.All <- Reg.pool.All %>% #Regional infected fish abundance
   select(starts_with("inf"))
 Reg.pool.inf.All <- sum(Reg.pool.inf.All)
 
-Reg.pool.tot.All <- Reg.pool.All %>% 
+Reg.pool.tot.All <- Reg.pool.All %>% #Regional total fish abundance
   select(starts_with("tot"))
 Reg.pool.tot.All <- sum(Reg.pool.tot.All)
 
-Reg.pool.prev.All <- (Reg.pool.inf.All/Reg.pool.tot.All)*100
+Reg.pool.prev.All <- (Reg.pool.inf.All/Reg.pool.tot.All)*100 #Regional prevalence
 
 ### Minnow traps ----
 
-Reg.pool.MT <- CombinedData %>% 
+Reg.pool.MT <- CombinedData %>%  #Selecting abundance data & method
   filter(Sampling_method == "Minnow_trap") %>% 
   select(starts_with(c("inf", "tot"))) %>% 
   na.omit()
 
-Reg.pool.inf.MT <- Reg.pool.MT %>% 
+Reg.pool.inf.MT <- Reg.pool.MT %>% #Regional infected fish abundance
   select(starts_with("inf"))
 Reg.pool.inf.MT <- sum(Reg.pool.inf.MT)
 
-Reg.pool.tot.MT <- Reg.pool.MT %>% 
+Reg.pool.tot.MT <- Reg.pool.MT %>% #Regional total fish abundance
   select(starts_with("tot"))
 Reg.pool.tot.MT <- sum(Reg.pool.tot.MT)
 
-Reg.pool.prev.MT <- (Reg.pool.inf.MT/Reg.pool.tot.MT)*100
+Reg.pool.prev.MT <- (Reg.pool.inf.MT/Reg.pool.tot.MT)*100 #Regional prevalence
 
 ### Seine net ----
 
-Reg.pool.S <- CombinedData %>% 
-  filter(Sampling_method == "Seine") %>% 
+Reg.pool.S <- CombinedData %>%  #Selecting abundance data & method
+  filter(Sampling_method == "Seine") %>%
   select(starts_with(c("inf", "tot"))) %>% 
   na.omit()
 
-Reg.pool.inf.S <- Reg.pool.S %>% 
+Reg.pool.inf.S <- Reg.pool.S %>% #Regional infected fish abundance
   select(starts_with("inf"))
 Reg.pool.inf.S <- sum(Reg.pool.inf.S)
 
-Reg.pool.tot.S <- Reg.pool.S %>% 
+Reg.pool.tot.S <- Reg.pool.S %>% #Regional total fish abundance
   select(starts_with("tot"))
 Reg.pool.tot.S <- sum(Reg.pool.tot.S)
 
-Reg.pool.prev.S <- (Reg.pool.inf.S/Reg.pool.tot.S)*100
+Reg.pool.prev.S <- (Reg.pool.inf.S/Reg.pool.tot.S)*100 #Regional prevalence
 
 ### Transect ----
 
-Reg.pool.T <- CombinedData %>% 
-  filter(Sampling_method == "Transect") %>% 
+Reg.pool.T <- CombinedData %>%  #Selecting abundance data & method
+  filter(Sampling_method == "Transect") %>%
   select(starts_with(c("inf", "tot"))) %>% 
   na.omit()
 
-Reg.pool.inf.T <- Reg.pool.T %>% 
+Reg.pool.inf.T <- Reg.pool.T %>% #Regional infected fish abundance
   select(starts_with("inf"))
 Reg.pool.inf.T <- sum(Reg.pool.inf.T)
 
-Reg.pool.tot.T <- Reg.pool.T %>% 
+Reg.pool.tot.T <- Reg.pool.T %>% #Regional total fish abundance
   select(starts_with("tot"))
 Reg.pool.tot.T <- sum(Reg.pool.tot.T)
 
-Reg.pool.prev.T <- (Reg.pool.inf.T/Reg.pool.tot.T)*100
+Reg.pool.prev.T <- (Reg.pool.inf.T/Reg.pool.tot.T)*100 #Regional prevalence
 
 ## Species prevalence by methods ----
 
 ### All methods ----
 
-Reg.sp.All <- CombinedData %>%  
+Reg.sp.All <- CombinedData %>%  #Selecting abundance data 
   select(Lake, starts_with(c("inf", "tot"))) %>% 
   na.omit() %>% 
-  adorn_totals(where = "row")
+  adorn_totals(where = "row") #Summarizing regional abundance by species
 
-Reg.sp.prev.All <- Reg.sp.All %>% 
+Reg.sp.prev.All <- Reg.sp.All %>% #Extracting abundance sums
   filter(Lake == "Total") %>% 
   select(!(Lake))
 
-Reg.sp.prev.All <- Reg.sp.prev.All %>% 
+Reg.sp.prev.All <- Reg.sp.prev.All %>% #Regional prevalence by species
   mutate(prev_AmRu = (inf_AmRu/tot_AmRu)*100, .keep = "unused") %>% 
   mutate(prev_FuDi = (inf_FuDi/tot_FuDi)*100, .keep = "unused") %>%
   mutate(prev_MiDo = (inf_MiDo/tot_MiDo)*100, .keep = "unused") %>%
@@ -136,17 +180,17 @@ Reg.sp.prev.All <- Reg.sp.prev.All %>%
 
 ### Minnow traps ----
 
-Reg.sp.MT <- CombinedData %>% 
-  filter(Sampling_method == "Minnow_trap") %>% 
-  select(Lake, starts_with(c("inf", "tot"))) %>% 
+Reg.sp.MT <- CombinedData %>%
+  filter(Sampling_method == "Minnow_trap") %>% #Selecting method
+  select(Lake, starts_with(c("inf", "tot"))) %>% #Selecting abundance data 
   na.omit() %>% 
-  adorn_totals(where = "row")
+  adorn_totals(where = "row") #Summarizing regional abundance by species
 
-Reg.sp.prev.MT <- Reg.sp.MT %>% 
+Reg.sp.prev.MT <- Reg.sp.MT %>% #Extracting abundance sums
   filter(Lake == "Total") %>% 
   select(!(Lake))
 
-Reg.sp.prev.MT <- Reg.sp.prev.MT %>% 
+Reg.sp.prev.MT <- Reg.sp.prev.MT %>% #Regional prevalence by species
   mutate(prev_AmRu = (inf_AmRu/tot_AmRu)*100, .keep = "unused") %>% 
   mutate(prev_FuDi = (inf_FuDi/tot_FuDi)*100, .keep = "unused") %>%
   mutate(prev_MiDo = (inf_MiDo/tot_MiDo)*100, .keep = "unused") %>%
@@ -168,16 +212,16 @@ Reg.sp.prev.MT <- Reg.sp.prev.MT %>%
 ### Seine net ----
 
 Reg.sp.S <- CombinedData %>%  
-  filter(Sampling_method == "Seine") %>% 
-  select(Lake, starts_with(c("inf", "tot"))) %>% 
+  filter(Sampling_method == "Seine") %>% #Selecting method
+  select(Lake, starts_with(c("inf", "tot"))) %>%  #Selecting abundance data 
   na.omit() %>% 
-  adorn_totals(where = "row")
+  adorn_totals(where = "row") #Summarizing regional abundance by species
 
-Reg.sp.prev.S <- Reg.sp.S %>% 
+Reg.sp.prev.S <- Reg.sp.S %>% #Extracting abundance sums
   filter(Lake == "Total") %>% 
   select(!(Lake))
 
-Reg.sp.prev.S <- Reg.sp.prev.S %>% 
+Reg.sp.prev.S <- Reg.sp.prev.S %>% #Regional prevalence by species
   mutate(prev_AmRu = (inf_AmRu/tot_AmRu)*100, .keep = "unused") %>% 
   mutate(prev_FuDi = (inf_FuDi/tot_FuDi)*100, .keep = "unused") %>%
   mutate(prev_MiDo = (inf_MiDo/tot_MiDo)*100, .keep = "unused") %>%
@@ -199,16 +243,16 @@ Reg.sp.prev.S <- Reg.sp.prev.S %>%
 ### Transect ----
 
 Reg.sp.T <- CombinedData %>%
-  filter(Sampling_method == "Transect") %>% 
-  select(Lake, starts_with(c("inf", "tot"))) %>% 
+  filter(Sampling_method == "Transect") %>% #Selecting method
+  select(Lake, starts_with(c("inf", "tot"))) %>% #Selecting abundance data
   na.omit() %>% 
-  adorn_totals(where = "row")
+  adorn_totals(where = "row")#Summarizing regional abundance by species
 
-Reg.sp.prev.T <- Reg.sp.T %>% 
+Reg.sp.prev.T <- Reg.sp.T %>% #Extracting abundance sums
   filter(Lake == "Total") %>% 
   select(!(Lake))
 
-Reg.sp.prev.T <- Reg.sp.prev.T %>% 
+Reg.sp.prev.T <- Reg.sp.prev.T %>%  #Regional prevalence by species
   mutate(prev_AmRu = (inf_AmRu/tot_AmRu)*100, .keep = "unused") %>% 
   mutate(prev_FuDi = (inf_FuDi/tot_FuDi)*100, .keep = "unused") %>%
   mutate(prev_MiDo = (inf_MiDo/tot_MiDo)*100, .keep = "unused") %>%
@@ -229,132 +273,143 @@ Reg.sp.prev.T <- Reg.sp.prev.T %>%
 
 # ---- Local prevalence ----
 
-CombinedData <- CombinedData %>% 
+CombinedData <- CombinedData %>% #Deleting lake Tracy because we cannot calculate a prevalence on a unique data point (1 fish)
   filter(!(Lake == "Tracy"))
 
 ## Community prevalence by methods ----
 
-Loc.pool.All <- CombinedData %>% 
+### All methods ----
+
+Loc.pool.All <- CombinedData %>% #Selecting abundance data
   select(Lake, starts_with(c("tot", "inf"))) %>% 
   na.omit()
 
-Loc.pool.All <- Loc.pool.All %>% 
+Loc.pool.All <- Loc.pool.All %>% #Summarizing abundance columns by lake
   group_by(Lake) %>% 
   summarise(across(.cols = everything(), sum))
 
-Loc.pool.inf.All <- Loc.pool.All %>% 
+Loc.pool.inf.All <- Loc.pool.All %>% #Summarizing local infected community abundance 
   select(Lake, starts_with("inf")) %>% 
   adorn_totals(where = "col", name = "inf_fish")
 
-Loc.pool.inf.All <- Loc.pool.inf.All %>% 
+Loc.pool.inf.All <- Loc.pool.inf.All %>% #Extracting local infected community abundances
   select(Lake, inf_fish)
 
-Loc.pool.tot.All <- Loc.pool.All %>% 
+Loc.pool.tot.All <- Loc.pool.All %>% #Summarizing local total community abundance 
   select(Lake, starts_with("tot")) %>% 
   adorn_totals(where = "col", name = "tot_fish")
 
-Loc.pool.tot.All <- Loc.pool.tot.All %>% 
+Loc.pool.tot.All <- Loc.pool.tot.All %>% #Extracting local infected community abundances
   select(Lake, tot_fish)
 
-Loc.pool.prev.All <- merge(Loc.pool.inf.All, Loc.pool.tot.All, by = "Lake") %>% 
+Loc.pool.prev.All <- merge(Loc.pool.inf.All, Loc.pool.tot.All, by = "Lake") %>% #Local communities prevalence
   mutate(prev_fish = (inf_fish/tot_fish)*100)
+
+Loc.mean.All <- weighted.mean(Loc.pool.prev.All$prev_fish, Loc.pool.prev.All$tot_fish) #Regional prevalence by mean of local communities prevalence
 
 ### Minnow trap ----
 
 Loc.pool.MT <- CombinedData %>% 
-  filter(Sampling_method == "Minnow_trap") %>% 
-  select(Lake, starts_with(c("tot", "inf"))) %>% 
+  filter(Sampling_method == "Minnow_trap") %>% #Selecting method
+  select(Lake, starts_with(c("tot", "inf"))) %>% #Selecting abundance data
   na.omit()
 
-Loc.pool.MT <- Loc.pool.MT %>% 
+Loc.pool.MT <- Loc.pool.MT %>% #Summarizing abundance columns by lake
   group_by(Lake) %>% 
   summarise(across(.cols = everything(), sum))
 
-Loc.pool.inf.MT <- Loc.pool.MT %>% 
+Loc.pool.inf.MT <- Loc.pool.MT %>% #Summarizing local infected community abundance 
   select(Lake, starts_with("inf")) %>% 
   adorn_totals(where = "col", name = "inf_fish")
 
-Loc.pool.inf.MT <- Loc.pool.inf.MT %>% 
+Loc.pool.inf.MT <- Loc.pool.inf.MT %>% #Extracting local infected community abundances
   select(Lake, inf_fish)
 
-Loc.pool.tot.MT <- Loc.pool.MT %>% 
+Loc.pool.tot.MT <- Loc.pool.MT %>% #Summarizing local total community abundance 
   select(Lake, starts_with("tot")) %>% 
   adorn_totals(where = "col", name = "tot_fish")
 
-Loc.pool.tot.MT <- Loc.pool.tot.MT %>% 
+Loc.pool.tot.MT <- Loc.pool.tot.MT %>% #Extracting local infected community abundances
   select(Lake, tot_fish)
 
-Loc.pool.prev.MT <- merge(Loc.pool.inf.MT, Loc.pool.tot.MT, by = "Lake") %>% 
+Loc.pool.prev.MT <- merge(Loc.pool.inf.MT, Loc.pool.tot.MT, by = "Lake") %>% #Local communities prevalence
   mutate(prev_fish = (inf_fish/tot_fish)*100)
+
+Loc.mean.MT <- weighted.mean(Loc.pool.prev.MT$prev_fish, Loc.pool.prev.MT$tot_fish) #Regional prevalence by mean of local communities prevalence
 
 ### Seine net ----
 
 Loc.pool.S <- CombinedData %>% 
-  filter(Sampling_method == "Seine") %>% 
-  select(Lake, starts_with(c("tot", "inf"))) %>% 
+  filter(Sampling_method == "Seine") %>% #Selecting method
+  select(Lake, starts_with(c("tot", "inf"))) %>% #Selecting abundance data
   na.omit()
 
-Loc.pool.S <- Loc.pool.S %>% 
+Loc.pool.S <- Loc.pool.S %>% #Summarizing abundance columns by lake
   group_by(Lake) %>% 
   summarise(across(.cols = everything(), sum))
 
-Loc.pool.inf.S <- Loc.pool.S %>% 
+Loc.pool.inf.S <- Loc.pool.S %>% #Summarizing local infected community abundance 
   select(Lake, starts_with("inf")) %>% 
   adorn_totals(where = "col", name = "inf_fish")
 
-Loc.pool.inf.S <- Loc.pool.inf.S %>% 
+Loc.pool.inf.S <- Loc.pool.inf.S %>% #Extracting local infected community abundances
   select(Lake, inf_fish)
 
-Loc.pool.tot.S <- Loc.pool.S %>% 
+Loc.pool.tot.S <- Loc.pool.S %>%  #Summarizing local total community abundance 
   select(Lake, starts_with("tot")) %>% 
   adorn_totals(where = "col", name = "tot_fish")
 
-Loc.pool.tot.S <- Loc.pool.tot.S %>% 
+Loc.pool.tot.S <- Loc.pool.tot.S %>% #Extracting local infected community abundances
   select(Lake, tot_fish)
 
-Loc.pool.prev.S <- merge(Loc.pool.inf.S, Loc.pool.tot.S, by = "Lake") %>% 
+Loc.pool.prev.S <- merge(Loc.pool.inf.S, Loc.pool.tot.S, by = "Lake") %>% #Local communities prevalence
   mutate(prev_fish = (inf_fish/tot_fish)*100)
+
+Loc.mean.S <- weighted.mean(Loc.pool.prev.S$prev_fish, Loc.pool.prev.S$tot_fish) #Regional prevalence by mean of local communities prevalence
 
 ### Transect ----
+
 Loc.pool.T <- CombinedData %>% 
-  filter(Sampling_method == "Transect") %>% 
-  select(Lake, starts_with(c("tot", "inf"))) %>% 
+  filter(Sampling_method == "Transect") %>% #Selecting method
+  select(Lake, starts_with(c("tot", "inf"))) %>% #Selecting abundance data
   na.omit()
 
-Loc.pool.T <- Loc.pool.T %>% 
+Loc.pool.T <- Loc.pool.T %>% #Summarizing abundance columns by lake
   group_by(Lake) %>% 
   summarise(across(.cols = everything(), sum))
 
-Loc.pool.inf.T <- Loc.pool.T %>% 
+Loc.pool.inf.T <- Loc.pool.T %>% #Summarizing local infected community abundance 
   select(Lake, starts_with("inf")) %>% 
   adorn_totals(where = "col", name = "inf_fish")
 
-Loc.pool.inf.T <- Loc.pool.inf.T %>% 
+Loc.pool.inf.T <- Loc.pool.inf.T %>% #Extracting local infected community abundances
   select(Lake, inf_fish)
 
-Loc.pool.tot.T <- Loc.pool.T %>% 
+Loc.pool.tot.T <- Loc.pool.T %>% #Summarizing local total community abundance 
   select(Lake, starts_with("tot")) %>% 
   adorn_totals(where = "col", name = "tot_fish")
 
-Loc.pool.tot.T <- Loc.pool.tot.T %>% 
+Loc.pool.tot.T <- Loc.pool.tot.T %>% #Extracting local infected community abundances
   select(Lake, tot_fish)
 
-Loc.pool.prev.T <- merge(Loc.pool.inf.T, Loc.pool.tot.T, by = "Lake") %>% 
+Loc.pool.prev.T <- merge(Loc.pool.inf.T, Loc.pool.tot.T, by = "Lake") %>% #Local communities prevalence
   mutate(prev_fish = (inf_fish/tot_fish)*100)
+
+Loc.mean.T <- weighted.mean(Loc.pool.prev.T$prev_fish, Loc.pool.prev.T$tot_fish) #Regional prevalence by mean of local communities prevalence
 
 ## Species prevalence by methods ----
 
 ### All methods ----
 
 Loc.sp.All <- CombinedData %>% 
-  select(Lake, starts_with(c("tot", "inf"))) %>% 
+  select(Lake, starts_with(c("tot", "inf"))) %>% #Selecting abundance data
   na.omit()
 
-Loc.sp.All <- Loc.sp.All %>% 
+Loc.sp.All <- Loc.sp.All %>% #Summarizing local species abundance
   group_by(Lake) %>% 
   summarise(across(.cols = everything(), sum))
 
-Loc.sp.prev.All <- Loc.sp.All %>% 
+Loc.sp.prev.All <- Loc.sp.All %>% #Local prevalence by species
   mutate(prev_AmRu = (inf_AmRu/tot_AmRu)*100, .keep = "unused") %>% 
   mutate(prev_FuDi = (inf_FuDi/tot_FuDi)*100, .keep = "unused") %>%
   mutate(prev_MiDo = (inf_MiDo/tot_MiDo)*100, .keep = "unused") %>%
@@ -376,15 +431,15 @@ Loc.sp.prev.All <- Loc.sp.All %>%
 ### Minnow trap ----
 
 Loc.sp.MT <- CombinedData %>% 
-  filter(Sampling_method == "Minnow_trap") %>% 
-  select(Lake, starts_with(c("tot", "inf"))) %>% 
+  filter(Sampling_method == "Minnow_trap") %>% #Selecting method
+  select(Lake, starts_with(c("tot", "inf"))) %>% #Selecting abundance data
   na.omit()
 
-Loc.sp.MT <- Loc.sp.MT %>% 
+Loc.sp.MT <- Loc.sp.MT %>% #Summarizing local species abundance
   group_by(Lake) %>% 
   summarise(across(.cols = everything(), sum))
 
-Loc.sp.prev.MT <- Loc.sp.MT %>% 
+Loc.sp.prev.MT <- Loc.sp.MT %>% #Local prevalence by species
   mutate(prev_AmRu = (inf_AmRu/tot_AmRu)*100, .keep = "unused") %>% 
   mutate(prev_FuDi = (inf_FuDi/tot_FuDi)*100, .keep = "unused") %>%
   mutate(prev_MiDo = (inf_MiDo/tot_MiDo)*100, .keep = "unused") %>%
@@ -406,15 +461,15 @@ Loc.sp.prev.MT <- Loc.sp.MT %>%
 ### Seine net ----
 
 Loc.sp.S <- CombinedData %>% 
-  filter(Sampling_method == "Seine") %>% 
-  select(Lake, starts_with(c("tot", "inf"))) %>% 
+  filter(Sampling_method == "Seine") %>% #Selecting method
+  select(Lake, starts_with(c("tot", "inf"))) %>% #Selecting abundance data
   na.omit()
 
-Loc.sp.S <- Loc.sp.S %>% 
+Loc.sp.S <- Loc.sp.S %>% #Summarizing local species abundance
   group_by(Lake) %>% 
   summarise(across(.cols = everything(), sum))
 
-Loc.sp.prev.S <- Loc.sp.S %>% 
+Loc.sp.prev.S <- Loc.sp.S %>% #Local prevalence by species
   mutate(prev_AmRu = (inf_AmRu/tot_AmRu)*100, .keep = "unused") %>% 
   mutate(prev_FuDi = (inf_FuDi/tot_FuDi)*100, .keep = "unused") %>%
   mutate(prev_MiDo = (inf_MiDo/tot_MiDo)*100, .keep = "unused") %>%
@@ -436,15 +491,15 @@ Loc.sp.prev.S <- Loc.sp.S %>%
 ### Transect ----
 
 Loc.sp.T <- CombinedData %>% 
-  filter(Sampling_method == "Transect") %>% 
-  select(Lake, starts_with(c("tot", "inf"))) %>% 
+  filter(Sampling_method == "Transect") %>% #Selecting method
+  select(Lake, starts_with(c("tot", "inf"))) %>% #Selecting abundance data
   na.omit()
 
-Loc.sp.T <- Loc.sp.T %>% 
+Loc.sp.T <- Loc.sp.T %>% #Summarizing local species abundance
   group_by(Lake) %>% 
   summarise(across(.cols = everything(), sum))
 
-Loc.sp.prev.T <- Loc.sp.T %>% 
+Loc.sp.prev.T <- Loc.sp.T %>% #Local prevalence by species
   mutate(prev_AmRu = (inf_AmRu/tot_AmRu)*100, .keep = "unused") %>% 
   mutate(prev_FuDi = (inf_FuDi/tot_FuDi)*100, .keep = "unused") %>%
   mutate(prev_MiDo = (inf_MiDo/tot_MiDo)*100, .keep = "unused") %>%
@@ -465,38 +520,119 @@ Loc.sp.prev.T <- Loc.sp.T %>%
 
 # ---- Fine scale ----
 
-## Community prevalence by transect ----
+## Community prevalence by method ----
 
-Fine.pool.T <- CombinedData %>% 
-  filter(Sampling_method == "Transect") %>% 
+### All methods ----
+
+Fine.pool.All <- CombinedData %>% #Selecting abundance data
   select(Sampling_ID, starts_with(c("tot", "inf"))) %>% 
   na.omit()
 
-Fine.pool.inf.T <- Fine.pool.T %>% 
+Fine.pool.inf.All <- Fine.pool.All %>% #Fine-scale infected fish abundance
   select(Sampling_ID, starts_with("inf")) %>% 
   adorn_totals(where = "col", name = "inf_fish")
 
-Fine.pool.inf.T <- Fine.pool.inf.T %>% 
+Fine.pool.inf.All <- Fine.pool.inf.All %>% #Extracting fine-scale infected fish abundance
   select(Sampling_ID, inf_fish)
 
-Fine.pool.tot.T <- Fine.pool.T %>% 
+Fine.pool.tot.All <- Fine.pool.All %>% #Fine-scale total fish abundance
   select(Sampling_ID, starts_with("tot")) %>% 
   adorn_totals(where = "col", name = "tot_fish")
 
-Fine.pool.tot.T <- Fine.pool.tot.T %>% 
+Fine.pool.tot.All <- Fine.pool.tot.All %>% #Extracting fine-scale total fish abundance
   select(Sampling_ID, tot_fish)
 
-Fine.pool.prev.T <- merge(Fine.pool.inf.T, Fine.pool.tot.T, by = "Sampling_ID") %>% 
+Fine.pool.prev.All <- merge(Fine.pool.inf.All, Fine.pool.tot.All, by = "Sampling_ID") %>% #Fine-scale prevalence
   mutate(prev_fish = (inf_fish/tot_fish)*100)
+
+Fine.mean.All <- weighted.mean(Fine.pool.prev.All$prev_fish, Fine.pool.prev.All$tot_fish) #Regional prevalence by mean of fine-scale communities prevalence
+
+### Minnow trap ----
+
+Fine.pool.MT <- CombinedData %>% 
+  filter(Sampling_method == "Minnow_trap") %>% #Selecting method
+  select(Sampling_ID, starts_with(c("tot", "inf"))) %>% #Selecting abundance data
+  na.omit()
+
+Fine.pool.inf.MT <- Fine.pool.MT %>% #Fine-scale infected fish abundance
+  select(Sampling_ID, starts_with("inf")) %>% 
+  adorn_totals(where = "col", name = "inf_fish")
+
+Fine.pool.inf.MT <- Fine.pool.inf.MT %>% #Extracting fine-scale infected fish abundance
+  select(Sampling_ID, inf_fish)
+
+Fine.pool.tot.MT <- Fine.pool.MT %>% #Fine-scale total fish abundance
+  select(Sampling_ID, starts_with("tot")) %>% 
+  adorn_totals(where = "col", name = "tot_fish")
+
+Fine.pool.tot.MT <- Fine.pool.tot.MT %>% #Extracting fine-scale total fish abundance
+  select(Sampling_ID, tot_fish)
+
+Fine.pool.prev.MT <- merge(Fine.pool.inf.MT, Fine.pool.tot.MT, by = "Sampling_ID") %>% #Fine-scale prevalence
+  mutate(prev_fish = (inf_fish/tot_fish)*100)
+
+Fine.mean.MT <- weighted.mean(Fine.pool.prev.MT$prev_fish, Fine.pool.prev.MT$tot_fish) #Regional prevalence by mean of fine-scale communities prevalence
+
+### Seine net ----
+
+Fine.pool.S <- CombinedData %>% 
+  filter(Sampling_method == "Seine") %>% #Selecting method
+  select(Sampling_ID, starts_with(c("tot", "inf"))) %>% #Selecting abundance data
+  na.omit()
+
+Fine.pool.inf.S <- Fine.pool.S %>% #Fine-scale infected fish abundance
+  select(Sampling_ID, starts_with("inf")) %>% 
+  adorn_totals(where = "col", name = "inf_fish")
+
+Fine.pool.inf.S <- Fine.pool.inf.S %>% #Extracting fine-scale infected fish abundance
+  select(Sampling_ID, inf_fish)
+
+Fine.pool.tot.S <- Fine.pool.S %>%  #Fine-scale total fish abundance
+  select(Sampling_ID, starts_with("tot")) %>% 
+  adorn_totals(where = "col", name = "tot_fish")
+
+Fine.pool.tot.S <- Fine.pool.tot.S %>% #Extracting fine-scale total fish abundance
+  select(Sampling_ID, tot_fish)
+
+Fine.pool.prev.S <- merge(Fine.pool.inf.S, Fine.pool.tot.S, by = "Sampling_ID") %>% #Fine-scale prevalence
+  mutate(prev_fish = (inf_fish/tot_fish)*100)
+
+Fine.mean.S <- weighted.mean(Fine.pool.prev.S$prev_fish, Fine.pool.prev.S$tot_fish) #Regional prevalence by mean of fine-scale communities prevalence
+
+### Transect ----
+
+Fine.pool.T <- CombinedData %>% 
+  filter(Sampling_method == "Transect") %>% #Selecting method
+  select(Sampling_ID, starts_with(c("tot", "inf"))) %>% #Selecting abundance data
+  na.omit()
+
+Fine.pool.inf.T <- Fine.pool.T %>% #Fine-scale infected fish abundance
+  select(Sampling_ID, starts_with("inf")) %>% 
+  adorn_totals(where = "col", name = "inf_fish")
+
+Fine.pool.inf.T <- Fine.pool.inf.T %>% #Extracting fine-scale infected fish abundance
+  select(Sampling_ID, inf_fish)
+
+Fine.pool.tot.T <- Fine.pool.T %>% #Fine-scale total fish abundance
+  select(Sampling_ID, starts_with("tot")) %>% 
+  adorn_totals(where = "col", name = "tot_fish")
+
+Fine.pool.tot.T <- Fine.pool.tot.T %>% #Extracting fine-scale total fish abundance
+  select(Sampling_ID, tot_fish)
+
+Fine.pool.prev.T <- merge(Fine.pool.inf.T, Fine.pool.tot.T, by = "Sampling_ID") %>% #Fine-scale prevalence
+  mutate(prev_fish = (inf_fish/tot_fish)*100)
+
+Fine.mean.T <- weighted.mean(Fine.pool.prev.T$prev_fish, Fine.pool.prev.T$tot_fish) #Regional prevalence by mean of fine-scale communities prevalence
 
 ## Species prevalence by transect ----
 
 Fine.sp.T <- CombinedData %>% 
-  filter(Sampling_method == "Transect") %>% 
-  select(Sampling_ID, starts_with(c("tot", "inf"))) %>% 
+  filter(Sampling_method == "Transect") %>% #Selecting method
+  select(Sampling_ID, starts_with(c("tot", "inf"))) %>% #Selecting abundance
   na.omit()
 
-Fine.sp.prev.T <- Fine.sp.T %>% 
+Fine.sp.prev.T <- Fine.sp.T %>% #Fine-scale prevalence by species
   mutate(prev_AmRu = (inf_AmRu/tot_AmRu)*100, .keep = "unused") %>% 
   mutate(prev_FuDi = (inf_FuDi/tot_FuDi)*100, .keep = "unused") %>%
   mutate(prev_MiDo = (inf_MiDo/tot_MiDo)*100, .keep = "unused") %>%
