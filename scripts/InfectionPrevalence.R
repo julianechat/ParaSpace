@@ -32,8 +32,8 @@ CombinedData <- read.csv(paste0(to.output, "CombinedData.csv"))
 
 # ---- Eric's crap ----
 
-## Extract relevant data
-
+## Extract relevant data by lake
+#All ----
 Reg.pool.All <- CombinedData %>% #Selecting abundance data
   select("Lake",starts_with(c("inf", "tot"))) %>% 
   na.omit()
@@ -63,6 +63,137 @@ n.lake.inf <- with(final,tapply(infected,lake,sum))
 
 n.lake.tot <- with(final,tapply(total,lake,sum))
 
+(prev.lake <- n.lake.inf/n.lake.tot)
+
+(prev.local <- sum(prev.lake)/length(prev.lake))
+
+## Mean (site)
+
+prev.site0 <- final$infected/final$total
+prev.site <- na.omit(prev.site0)
+sum(prev.site)/length(prev.site0) #Ici très important d'utiliser le même nombre de sites que avant d'avoir retirer les NaN(car ces sites sont comptabiliser aux échelles régionales et locales!!!)
+
+## Extract relevant data by sampling device ##
+
+# Minnow trap ----
+Reg.pool.MT <- CombinedData %>% #Selecting abundance data
+  filter(Sampling_method == "Minnow_trap") %>% #& Lake %in% c("Achigan","Cromwell","Echo")
+  select("Lake",starts_with(c("inf", "tot"))) %>% 
+  na.omit()
+
+Reg.pool.inf.MT <- Reg.pool.MT %>% #Regional infected fish abundance
+  select(starts_with("inf")) 
+
+Reg.pool.tot.MT <- Reg.pool.MT %>% #Regional total fish abundance
+  select(starts_with("tot"))
+
+infected <- rowSums(Reg.pool.inf.MT)
+total <- rowSums(Reg.pool.tot.MT)
+lake <- Reg.pool.MT$Lake
+
+final.MT <- data.frame(lake,infected,total) 
+#final.MT <- final.MT[final.MT$total>0,]
+
+final.MT
+head(final.MT)
+str(final.MT)
+
+## Regional
+
+(prev.reg <- sum(final.MT$infected)/sum(final.MT$total))
+
+## Mean (lakes)
+
+n.lake.inf <- with(final.MT,tapply(infected,lake,sum))
+
+n.lake.tot <- with(final.MT,tapply(total,lake,sum))
+
+(prev.lake <- n.lake.inf/n.lake.tot)
+
+(prev.local <- sum(prev.lake)/length(prev.lake))
+
+sum(tapply(prev.site,final.MT[final.MT$total>0,"lake"],mean))/length(prev.lake)
+
+## Mean (site)
+
+(prev.site0 <- final.MT$infected/final.MT$total)
+prev.site <- na.omit(prev.site0)
+sum(prev.site)/length(prev.site0) #Équivalent de considérer les NAn comme des prévalence = 0
+
+
+#Seine----
+Reg.pool.S <- CombinedData %>% #Selecting abundance data
+  filter(Sampling_method == "Seine") %>% 
+  select("Lake",starts_with(c("inf", "tot"))) %>% 
+  na.omit()
+
+Reg.pool.inf.S <- Reg.pool.S %>% #Regional infected fish abundance
+  select(starts_with("inf")) 
+
+Reg.pool.tot.S <- Reg.pool.S %>% #Regional total fish abundance
+  select(starts_with("tot"))
+
+infected <- rowSums(Reg.pool.inf.S)
+total <- rowSums(Reg.pool.tot.S)
+lake <- Reg.pool.S$Lake
+
+final <- data.frame(lake,infected,total)
+
+head(final)
+str(final)
+
+## Regional
+
+(prev.reg <- sum(final$infected)/sum(final$total))
+
+## Mean (lakes)
+
+n.lake.inf <- with(final,tapply(infected,lake,sum))
+
+n.lake.tot <- with(final,tapply(total,lake,sum))
+
+prev.lake0 <- n.lake.inf/n.lake.tot
+prev.lake <- na.omit(c(prev.lake0))
+
+(prev.local <- sum(prev.lake)/length(prev.lake))
+
+## Mean (site)
+
+prev.site0 <- final$infected/final$total
+prev.site <- na.omit(prev.site0)
+sum(prev.site)/length(prev.site0) #Ici très important d'utiliser le même nombre de sites que avant d'avoir retirer les NaN(car ces sites sont comptabiliser aux échelles régionales et locales!!!)
+
+#Transect ----
+Reg.pool.T <- CombinedData %>% #Selecting abundance data
+  filter(Sampling_method == "Transect") %>% 
+  select("Lake",starts_with(c("inf", "tot"))) %>% 
+  na.omit()
+
+Reg.pool.inf.T <- Reg.pool.T %>% #Regional infected fish abundance
+  select(starts_with("inf")) 
+
+Reg.pool.tot.T <- Reg.pool.T %>% #Regional total fish abundance
+  select(starts_with("tot"))
+
+infected <- rowSums(Reg.pool.inf.T)
+total <- rowSums(Reg.pool.tot.T)
+lake <- Reg.pool.T$Lake
+
+final <- data.frame(lake,infected,total)
+
+head(final)
+str(final)
+
+## Regional
+
+(prev.reg <- sum(final$infected)/sum(final$total))
+
+## Mean (lakes)
+
+n.lake.inf <- with(final,tapply(infected,lake,sum))
+
+n.lake.tot <- with(final,tapply(total,lake,sum))
+
 prev.lake <- n.lake.inf/n.lake.tot
 
 (prev.local <- sum(prev.lake)/length(prev.lake))
@@ -70,14 +201,16 @@ prev.lake <- n.lake.inf/n.lake.tot
 ## Mean (site)
 
 prev.site0 <- final$infected/final$total
-prev.site <- na.omit(prev.site)
+prev.site <- na.omit(prev.site0)
 sum(prev.site)/length(prev.site0) #Ici très important d'utiliser le même nombre de sites que avant d'avoir retirer les NaN(car ces sites sont comptabiliser aux échelles régionales et locales!!!)
 
 
 # ---- Regional prevalence ----
 
 ## Community prevalence by methods ----
+
 #Lake Tracy is included at regional scale
+#All infected fishes (from all lakes) diveded by the total of fishes
 
 ### All methods ----
 

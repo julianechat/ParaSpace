@@ -90,17 +90,30 @@ inf.A.data <- CombinedData %>%
   select(starts_with("inf")) %>% #Selecting infected individuals 
   na.omit %>% 
   rowSums() #Sum of all species
+
+inf.A.data <- data.frame(Infected = inf.A.data) %>% 
+  mutate(Method = "All")
+
+#Simulation
+A.inf <- data.frame()
+N <- 35 #nb of lines sampled (i)
+Resampling <- 999 #nb of times each i is repeated 
+
+#marche po
+for(j in 1:Resampling) {
   
-# We want to randomly sample n fishing sample, 999 times for N = c(1,2,3,5,7,10,15,20,35)
+  for(i in 1:N) {
+    line <- sample(inf.A.data$Infected , i) #sample i lines randomly
 
-# --- TEST --- # 
-# Sample within a loop
-#for (n in seq_along(2:10)) {
- # print(replicate(999, sum(sample(inf.F.data, n))))
-#}
-# Unable to put the result in an objet for plotting 
-# --- END TEST --- #
+    output <- data.frame(N = i, Resampling = j, Infected) #save output in temporary data.frame (changed at each iterations)
+    
+    A.inf <- rbind(A.inf, output)
+    
+  }
+}
 
+boxplot(Infected ~ N, data = A.inf)
+    
 #Sampling
 inf.A1 <- replicate(999, sample(inf.A.data, 1))
 inf.A2 <- replicate(999, sum(sample(inf.A.data, 2)))
@@ -354,136 +367,195 @@ ggsave(paste0(to.figs, "AccumulationCurves_individuals.png"), plot = tot.acc.plo
 
 # ---- Prevalence accumulation curves ----
 
-## Fishing method ----
+## All methods ----
 
-prev.A <- inf.A.data / tot.A.data
-#prev.A <- na.omit(prev.A) #Deleting NAs as they mean that no fish were caught
-#Si on garde les NA, dès qu'il y en a une moyenne a calculer, résulta = NA
+#Preparing data
+Adata <- CombinedData %>% 
+  select("Lake", starts_with(c("inf", "tot"))) %>% 
+  na.omit()
+
+Adata.inf <- Adata %>% 
+  select(starts_with("inf")) 
+
+Adata.tot <- Adata %>% 
+  select(starts_with("tot"))
+
+Infected <- rowSums(Adata.inf)
+Total <- rowSums(Adata.tot)
+Lake <- Adata$Lake
+
+Adata <- data.frame(Lake, Infected, Total) %>% 
+  mutate(Method = "All", .after = "Lake")
 
 #Sampling
+Aprev <- data.frame()
+N <- 35 #nb of lines sampled (i)
+Resampling <- 999 #nb of times each i is repeated 
 
-#Essai par méthode Eric sur méthode = All
-#Autre méthode n'ont pas été changée
-
-prev.A1 <- replicate(999, sample(prev.A, 1))
-mean.A1 <- sum(prev.A1,  na.rm = TRUE)/999
-
-prev.A2 <- replicate(999, sum(sample(prev.A, 2))/2) #On garde les NA, on divise par le nombre d'échantillons pigé
-mean.A2 <- sum(prev.A2,  na.rm = TRUE)/999 #On calcule la prévalence moyenne pour un N donné en divisant par le nombre de pige total
-
-prev.A3 <- replicate(999, sum(sample(prev.A, 3))/3)
-mean.A3 <- sum(prev.A3,  na.rm = TRUE)/999
-
-prev.A5 <- replicate(999, sum(sample(prev.A, 5))/5)
-mean.A5 <- sum(prev.A5,  na.rm = TRUE)/999
-
-prev.A7 <- replicate(999, sum(sample(prev.A, 7))/7)
-mean.A7 <- sum(prev.A7,  na.rm = TRUE)/999
-
-prev.A10 <- replicate(999, sum(sample(prev.A, 10))/10)
-mean.A10 <- sum(prev.A10,  na.rm = TRUE)/999
-
-prev.A15 <- replicate(999, sum(sample(prev.A, 15))/15)
-mean.A15 <- sum(prev.A15,  na.rm = TRUE)/999
-
-prev.A20 <- replicate(999, sum(sample(prev.A, 20))/20)
-mean.A20 <- sum(prev.A20,  na.rm = TRUE)/999
-
-prev.A25 <- replicate(999, sum(sample(prev.A, 25))/25)
-mean.A25 <- sum(prev.A25,  na.rm = TRUE)/999
-
-prev.A35 <- replicate(999, sum(sample(prev.A, 35))/35)
-mean.A35 <- sum(prev.A35,  na.rm = TRUE)/999
-
-#Prévalence diminue exponentiellement avec le nombre d'échantillon jusqu'à 0
-#Trop de NA intoduit
-#Donne une valeur correct à A1 par contre
-
-#Fonction mean
-adapt.mean<- function(x) {
-  mean = sum(x, na.rm = TRUE)/length(x)
-  print(mean)
+for(i in 1:N) {
+  
+  for(j in 1:Resampling) {
+    line <- sample(1:nrow(Adata), i) #sample i lines randomly
+    prev.site.1 <- Adata[line, "Infected"] / Adata[line, "Total"]
+    prev.site <- na.omit(prev.site.1)
+    Prevalence <- sum(prev.site)/length(prev.site.1)
+    
+    output <- data.frame(N = i, Resampling = j, Prevalence) #save output in temporary data.frame (changed at each iterations)
+    
+    Aprev <- rbind(Aprev,output)
+    
+  }
 }
 
-#Placing results the data frame
-prev <- c(prev.A1, prev.A2, prev.A3, prev.A5, prev.A7, prev.A10, prev.A15, prev.A20, prev.A25, prev.A35)
-df.All <- df.All %>%  
-  mutate(prev)
+boxplot(Prevalence ~ N, data = Aprev)
 
 ## Minnow trap method ----
 
-prev.MT <- inf.MT.data / tot.MT.data
-prev.MT <- na.omit(prev.MT) #Deleting NAs as they mean that no fish were caught
+#Preparing data
+MTdata <- CombinedData %>% 
+  filter(Sampling_method == "Minnow_trap") %>% 
+  select("Lake", starts_with(c("inf", "tot"))) %>% 
+  na.omit()
+
+MTdata.inf <- MTdata %>% 
+  select(starts_with("inf")) 
+
+MTdata.tot <- MTdata %>% 
+  select(starts_with("tot"))
+
+Infected <- rowSums(MTdata.inf)
+Total <- rowSums(MTdata.tot)
+Lake <- MTdata$Lake
+
+MTdata <- data.frame(Lake, Infected, Total) %>% 
+  mutate(Method = "Minnow trap", .after = "Lake")
 
 #Sampling
-prev.MT1 <- replicate(999, sample(prev.MT, 1))
-prev.MT2 <- replicate(999, mean(sample(prev.MT, 2)))
-prev.MT3 <- replicate(999, mean(sample(prev.MT, 3)))
-prev.MT5 <- replicate(999, mean(sample(prev.MT, 5)))
-prev.MT7 <- replicate(999, mean(sample(prev.MT, 7)))
-prev.MT10 <- replicate(999, mean(sample(prev.MT, 10)))
-prev.MT15 <- replicate(999, mean(sample(prev.MT, 15)))
-prev.MT20 <- replicate(999, mean(sample(prev.MT, 20)))
-prev.MT25 <- replicate(999, mean(sample(prev.MT, 25)))
-prev.MT35 <- replicate(999, mean(sample(prev.MT, 35)))
+MTprev <- data.frame()
+N <- 35 #nb of lines sampled (i)
+Resampling <- 999 #nb of times each i is repeated 
 
-#Placing results the data frame
-prev <- c(prev.MT1, prev.MT2, prev.MT3, prev.MT5, prev.MT7, prev.MT10, prev.MT15, prev.MT20, prev.MT25, prev.MT35)
-df.MinnowTrap <- df.MinnowTrap %>%  
-  mutate(prev)
+for(i in 1:N) {
+  
+  for(j in 1:Resampling) {
+    line <- sample(1:nrow(MTdata), i) #sample i lines randomly
+    prev.site.1 <- MTdata[line, "Infected"] / MTdata[line, "Total"]
+    prev.site <- na.omit(prev.site.1)
+    Prevalence <- sum(prev.site)/length(prev.site.1)
+    
+    output <- data.frame(N = i, Resampling = j, Prevalence) #save output in temporary data.frame (changed at each iterations)
+    
+    MTprev <- rbind(MTprev,output)
+    
+  }
+}
+
+boxplot(Prevalence ~ N, data = MTprev)
 
 ## Seine method ----
 
-prev.S <- inf.S.data / tot.S.data
-prev.S <- na.omit(prev.S) #Deleting NAs as they mean that no fish were caught
+#Preparing data
+Sdata <- CombinedData %>% 
+  filter(Sampling_method == "Seine") %>% 
+  select("Lake", starts_with(c("inf", "tot"))) %>% 
+  na.omit()
+
+Sdata.inf <- Sdata %>% 
+  select(starts_with("inf")) 
+
+Sdata.tot <- Sdata %>% 
+  select(starts_with("tot"))
+
+Infected <- rowSums(Sdata.inf)
+Total <- rowSums(Sdata.tot)
+Lake <- Sdata$Lake
+
+Sdata <- data.frame(Lake, Infected, Total) %>% 
+  mutate(Method = "Seine net", .after = "Lake")
 
 #Sampling
-prev.S1 <- replicate(999, sample(prev.S, 1))
-prev.S2 <- replicate(999, mean(sample(prev.S, 2)), tot.S.data)
-prev.S3 <- replicate(999, mean(sample(prev.S, 3)), tot.S.data)
-prev.S5 <- replicate(999, mean(sample(prev.S, 5)), tot.S.data)
-prev.S7 <- replicate(999, mean(sample(prev.S, 7)), tot.S.data)
-prev.S10 <- replicate(999, mean(sample(prev.S, 10)), tot.S.data)
-prev.S15 <- replicate(999, mean(sample(prev.S, 15)), tot.S.data)
-prev.S20 <- replicate(999, mean(sample(prev.S, 20)), tot.S.data)
-prev.S25 <- replicate(999, mean(sample(prev.S, 25)), tot.S.data)
-prev.S35 <- replicate(999, mean(sample(prev.S, 35)), tot.S.data)
+Sprev <- data.frame()
+N <- 35 #nb of lines sampled (i)
+Resampling <- 999 #nb of times each i is repeated 
 
-#Placing results the data frame
-prev <- c(prev.S1, prev.S2, prev.S3, prev.S5, prev.S7, prev.S10, prev.S15, prev.S20, prev.S25, prev.S35)
-df.Seine<- df.Seine %>%  
-  mutate(prev)
+for(i in 1:N) {
+  
+  for(j in 1:Resampling) {
+    line <- sample(1:nrow(Sdata), i) #sample i lines randomly
+    prev.site.1 <- Sdata[line, "Infected"] / Sdata[line, "Total"]
+    prev.site <- na.omit(prev.site.1)
+    Prevalence <- sum(prev.site)/length(prev.site.1)
+    
+    output <- data.frame(N = i, Resampling = j, Prevalence) #save output in temporary data.frame (changed at each iterations)
+    
+    Sprev <- rbind(Sprev,output)
+    
+  }
+}
+
+boxplot(Prevalence ~ N, data = Sprev)
 
 ## Transect method ----
 
-prev.T <- inf.T.data / tot.T.data
-prev.T <- na.omit(prev.T) #Deleting NAs as they mean that no fish were observed
+#Preparing data
+Tdata <- CombinedData %>% 
+  filter(Sampling_method == "Transect") %>% 
+  select("Lake", starts_with(c("inf", "tot"))) %>% 
+  na.omit()
+
+Tdata.inf <- Tdata %>% 
+  select(starts_with("inf")) 
+
+Tdata.tot <- Tdata %>% 
+  select(starts_with("tot"))
+
+Infected <- rowSums(Tdata.inf)
+Total <- rowSums(Tdata.tot)
+Lake <- Tdata$Lake
+
+Tdata <- data.frame(Lake, Infected, Total) %>% 
+  mutate(Method = "Transect", .after = "Lake")
 
 #Sampling
-prev.T1 <- replicate(999, sample(prev.T, 1))
-prev.T2 <- replicate(999, mean(sample(prev.T, 2)))
-prev.T3 <- replicate(999, mean(sample(prev.T, 3)))
-prev.T5 <- replicate(999, mean(sample(prev.T, 5)))
-prev.T7 <- replicate(999, mean(sample(prev.T, 7)))
-prev.T10 <- replicate(999, mean(sample(prev.T, 10)))
-prev.T15 <- replicate(999, mean(sample(prev.T, 15)))
-prev.T20 <- replicate(999, mean(sample(prev.T, 20)))
-prev.T25 <- replicate(999, mean(sample(prev.T, 25)))
-prev.T35 <- replicate(999, mean(sample(prev.T, 35)))
+Tprev <- data.frame()
+N <- 35 #nb of lines sampled (i)
+Resampling <- 999 #nb of times each i is repeated 
 
-#Placing results the data frame
-prev <- c(prev.T1, prev.T2, prev.T3, prev.T5, prev.T7, prev.T10, prev.T15, prev.T20, prev.T25, prev.T35)
-df.Transect <- df.Transect %>%  
-  mutate(prev)
+for(i in 1:N) {
+  
+  for(j in 1:Resampling) {
+    line <- sample(1:nrow(Tdata), i) #sample i lines randomly
+    prev.site.1 <- Tdata[line, "Infected"] / Tdata[line, "Total"]
+    prev.site <- na.omit(prev.site.1)
+    Prevalence <- sum(prev.site)/length(prev.site.1)
+    
+    output <- data.frame(N = i, Resampling = j, Prevalence) #save output in temporary data.frame (changed at each iterations)
+    
+    Tprev <- rbind(Tprev,output)
+    
+  }
+}
+
+boxplot(Prevalence ~ N, data = Tprev)
 
 ## Plotting simulation ----
 
+#Preparing data
+df.All <- Aprev %>% 
+  mutate(Method = "All")
+df.MinnowTrap <- MTprev %>% 
+  mutate(Method = "Minnow trap")
+df.Seine <- Sprev %>% 
+  mutate(Method = "Seine net")
+df.Transect <- Tprev %>% 
+  mutate(Method = "Transect")
+
 df.prev <- rbind(df.All, df.MinnowTrap, df.Seine, df.Transect)
 
+#Plot
 prev.acc.plot <- ggplot(df.prev) + 
-  stat_summary(aes(x = N, y = prev, group = Method, color = Method, shape = Method), fun = mean, size = 1) +
-  geom_smooth(aes(x= N, y = prev, group = Method, color = Method, fill = Method), method = "lm", se = TRUE, lineend = "round", alpha = 0.3) +
-  scale_x_continuous(breaks = c(1, 2, 3, 5, 7, 10, 15, 25, 20, 25, 35)) +
+  stat_summary(aes(x = N, y = Prevalence, group = Method, color = Method, shape = Method), fun = mean, size = 1) +
+  geom_smooth(aes(x= N, y = Prevalence, group = Method, color = Method, fill = Method), method = "lm", se = TRUE, lineend = "round", alpha = 0.3) +
   scale_y_continuous(labels = scales::percent) +
   labs(x = "Number of samplings", y = "Mean infection prevalence", tag = "C") +
   scale_color_manual(values = c("#7E7E7E", "#2A5676", "#999600", "#966F1E"),
