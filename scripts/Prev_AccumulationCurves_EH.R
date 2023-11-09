@@ -51,8 +51,10 @@ MTdata.tot <- MTdata.2 %>%
 infected <- rowSums(MTdata.inf)
 total <- rowSums(MTdata.tot)
 lake <- MTdata.2$Lake
+prev <- infected/total
 
-MTdata <- data.frame(lake,infected,total)
+
+MTdata <- data.frame(lake,infected,total,prev)
 
 MTdata %>%  #Check if each lake is represented equally 
   group_by(lake) %>%
@@ -75,8 +77,9 @@ Sdata.tot <- Sdata.2 %>%
 infected <- rowSums(Sdata.inf)
 total <- rowSums(Sdata.tot)
 lake <- Sdata.2$Lake
+prev<- infected/total
 
-Sdata <- data.frame(lake,infected,total)
+Sdata <- data.frame(lake,infected,total,prev)
 
 Sdata %>%  #Check if each lake is represented equally (4 is mininum)
   group_by(lake) %>%
@@ -99,8 +102,9 @@ Tdata.tot <- Tdata.2 %>%
 infected <- rowSums(Tdata.inf)
 total <- rowSums(Tdata.tot)
 lake <- Tdata.2$Lake
+prev <- infected/total
 
-Tdata <- data.frame(lake,infected,total)
+Tdata <- data.frame(lake,infected,total,prev)
 
 Tdata %>%  #Check if each lake is represented equally (2 is miminum)
   group_by(lake) %>%
@@ -113,7 +117,7 @@ Tdata %>%  #Check if each lake is represented equally (2 is miminum)
 
 Mtprev <- data.frame()
 n.samp <- nrow(MTdata)-1 #nb of lines sampled (i)
-resampling <- 10 #nb of times each i is repeated 
+resampling <- 999 #nb of times each i is repeated 
 
 for(i in 1:n.samp) {
 
@@ -121,9 +125,12 @@ for(j in 1:resampling) {
   
   #Samp <- MTdata %>% group_by(lake) %>% sample_n(size=10)
   line <- sample(1:nrow(MTdata),i) #sample i lines randomly
-  prev.site.1 <- MTdata[line,"infected"]/MTdata[line,"total"]
-  prev.site <- na.omit(prev.site.1)
-  prev <- sum(prev.site)/length(prev.site.1)
+  # prev.site.1 <- MTdata[line,"infected"]/MTdata[line,"total"]
+  # prev.site <- na.omit(prev.site.1)
+  # prev <- sum(prev.site)/length(prev.site.1)
+  prop.samp <- MTdata[line,"total"]/sum(MTdata[line,"total"])
+  w_prev <- MTdata[line,"prev"]*prop.samp
+  prev <- sum(na.omit(w_prev))
   
   output <- data.frame(n.samp=i,resampling=j,prev) #save output in temporary data.frame (changed at each iterations)
   
@@ -142,7 +149,7 @@ plot(prev ~ n.samp,data=Mtprev)
 
 Sprev <- data.frame()
 n.samp <- nrow(Sdata)-1 #nb of lines sampled (i)
-resampling <- 10 #nb of times each i is repeated 
+resampling <- 999 #nb of times each i is repeated 
 
 for(i in 1:n.samp) {
   
@@ -150,10 +157,14 @@ for(i in 1:n.samp) {
   
   for(j in 1:resampling) {
     
+    #Samp <- MTdata %>% group_by(lake) %>% sample_n(size=10)
     line <- sample(1:nrow(Sdata),i) #sample i lines randomly
-    prev.site.1 <- Sdata[line,"infected"]/Sdata[line,"total"]
-    prev.site <- na.omit(prev.site.1)
-    prev <- sum(prev.site)/length(prev.site.1)
+    # prev.site.1 <- MTdata[line,"infected"]/MTdata[line,"total"]
+    # prev.site <- na.omit(prev.site.1)
+    # prev <- sum(prev.site)/length(prev.site.1)
+    prop.samp <- Sdata[line,"total"]/sum(Sdata[line,"total"])
+    w_prev <- Sdata[line,"prev"]*prop.samp
+    prev <- sum(na.omit(w_prev))
     
     output <- data.frame(n.samp=i,resampling=j,prev) #save output in temporary data.frame (changed at each iterations)
     
@@ -173,22 +184,24 @@ points(prev ~ n.samp,data=Mtprev,col="blue")
 
 Tprev <- data.frame()
 n.samp <- nrow(Tdata)-1 #nb of lines sampled (i)
-resampling <- 10 #nb of times each i is repeated 
+resampling <- 999 #nb of times each i is repeated 
 
 for(i in 1:n.samp) {
   
   for(j in 1:resampling) {
     
-    #Samp <- Tdata %>% group_by(lake) %>% sample_n(size=2)
+    #Samp <- MTdata %>% group_by(lake) %>% sample_n(size=10)
     line <- sample(1:nrow(Tdata),i) #sample i lines randomly
-    prev.site.1 <- Tdata[line,"infected"]/Tdata[line,"total"]
-    prev.site <- na.omit(prev.site.1)
-    prev <- sum(prev.site)/length(prev.site.1)
+    # prev.site.1 <- MTdata[line,"infected"]/MTdata[line,"total"]
+    # prev.site <- na.omit(prev.site.1)
+    # prev <- sum(prev.site)/length(prev.site.1)
+    prop.samp <- Tdata[line,"total"]/sum(Tdata[line,"total"])
+    w_prev <- Tdata[line,"prev"]*prop.samp
+    prev <- sum(na.omit(w_prev))
     
     output <- data.frame(n.samp=i,resampling=j,prev) #save output in temporary data.frame (changed at each iterations)
     
     Tprev <- rbind(Tprev,output)
-    
   }
   
 }

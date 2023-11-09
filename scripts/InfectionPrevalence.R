@@ -87,11 +87,14 @@ Reg.pool.inf.MT <- Reg.pool.MT %>% #Regional infected fish abundance
 Reg.pool.tot.MT <- Reg.pool.MT %>% #Regional total fish abundance
   select(starts_with("tot"))
 
-infected <- rowSums(Reg.pool.inf.MT)
-total <- rowSums(Reg.pool.tot.MT)
-lake <- Reg.pool.MT$Lake
+infected <- rowSums(MTdata.inf)
+total <- rowSums(MTdata.tot)
+lake <- MTdata.2$Lake
+prev <- infected/total
+w <- total/sum(total)
+w_prev <- prev*w
 
-final.MT <- data.frame(lake,infected,total) 
+final.MT <- data.frame(lake,infected,total,prev,w,w_prev) 
 #final.MT <- final.MT[final.MT$total>0,]
 
 final.MT
@@ -120,6 +123,7 @@ sum(tapply(prev.site,final.MT[final.MT$total>0,"lake"],mean))/length(prev.lake)
 prev.site <- na.omit(prev.site0)
 sum(prev.site)/length(prev.site0) #Équivalent de considérer les NAn comme des prévalence = 0
 
+sum(na.omit(final.MT$w_prev)) #weighted mean
 
 #Seine----
 Reg.pool.S <- CombinedData %>% #Selecting abundance data

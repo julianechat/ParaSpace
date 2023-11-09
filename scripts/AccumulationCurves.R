@@ -32,44 +32,108 @@ library(broom)
 
 CombinedData <- read.csv(paste0(to.output, "CombinedData.csv"))
 
-# ---- Species accumulation cruves ----
+# ---- Data preparation ----
 
-## Minnow traps ----
+## All ----
+Adata <- CombinedData %>% 
+  select("Lake", starts_with(c("inf", "tot"))) %>% 
+  na.omit()
+
+Adata.inf <- Adata %>% 
+  select(starts_with("inf")) 
+
+Adata.tot <- Adata %>% 
+  select(starts_with("tot"))
+
+Infected <- rowSums(Adata.inf)
+Total <- rowSums(Adata.tot)
+Prevalence <- Infected/Total
+Lake <- Adata$Lake
+
+Adata <- data.frame(Lake, Infected, Total, Prevalence) %>% 
+  mutate(Method = "All", .after = "Lake")
+
+## Minnow trap ----
 
 MTdata <- CombinedData %>% 
-  filter(Sampling_method == "Minnow_trap") #Selecting method 
+  filter(Sampling_method == "Minnow_trap") %>% 
+  select("Lake", starts_with(c("inf", "tot"))) %>% 
+  na.omit()
 
-MTdata <- MTdata %>% 
-  select(starts_with("tot")) #Keeping community matrix (total abundance)
+MTdata.inf <- MTdata %>% 
+  select(starts_with("inf")) 
 
-acc.MT <- specaccum(MTdata, method = "random", permutations = 1000, gamma = "jack1") #Accumulation curve function
-MT.plot <- plot(acc.MT, col = "blue", xlab = "sampling", ylab = "species")
+MTdata.tot <- MTdata %>% 
+  select(starts_with("tot"))
 
-## Seine ----
+Infected <- rowSums(MTdata.inf)
+Total <- rowSums(MTdata.tot)
+Prevalence <- Infected/Total
+Lake <- MTdata$Lake
+
+MTdata <- data.frame(Lake, Infected, Prevalence, Total) %>% 
+  mutate(Method = "Minnow trap", .after = "Lake")
+
+## Seine net ----
 
 Sdata <- CombinedData %>% 
-  filter(Sampling_method == "Seine") #Selecting method
+  filter(Sampling_method == "Seine") %>% 
+  select("Lake", starts_with(c("inf", "tot"))) %>% 
+  na.omit()
 
-Sdata <- Sdata %>% 
-  select(starts_with("tot")) #Keeping community matrix (total abundance)
+Sdata.inf <- Sdata %>% 
+  select(starts_with("inf")) 
 
-acc.S <- specaccum(Sdata, method = "random", permutations = 1000, gamma = "jack1") #Accumulation curve function
-S.plot <- plot(acc.S, col = "red", xlab = "sampling", ylab = "species")
+Sdata.tot <- Sdata %>% 
+  select(starts_with("tot"))
+
+Infected <- rowSums(Sdata.inf)
+Total <- rowSums(Sdata.tot)
+Prevalence <- Infected/Total
+Lake <- Sdata$Lake
+
+Sdata <- data.frame(Lake, Infected, Total, Prevalence) %>% 
+  mutate(Method = "Seine net", .after = "Lake")
 
 ## Transect ----
 
 Tdata <- CombinedData %>% 
-  filter(Sampling_method == "Transect") #Selecting transect method
+  filter(Sampling_method == "Transect") %>% 
+  select("Lake", starts_with(c("inf", "tot"))) %>% 
+  na.omit()
 
-Tdata <- Tdata %>% 
-  select(starts_with("tot")) #Keeping community matrix (total abundance)
+Tdata.inf <- Tdata %>% 
+  select(starts_with("inf")) 
 
-Tdata <- na.omit(Tdata) #Deleting NA data. specaccum() can not compute NAs
+Tdata.tot <- Tdata %>% 
+  select(starts_with("tot"))
 
-acc.T <- specaccum(Tdata, method = "random", permutations = 1000, gamma = "jack1") #Accumulation curve function
+Infected <- rowSums(Tdata.inf)
+Total <- rowSums(Tdata.tot)
+Prevalence <- Infected/Total
+Lake <- Tdata$Lake
+
+Tdata <- data.frame(Lake, Infected, Total, Prevalence) %>% 
+  mutate(Method = "Transect", .after = "Lake")
+
+# ---- Species accumulation cruves ----
+
+## Minnow traps ----
+
+acc.MT <- specaccum(MTdata.tot, method = "random", permutations = 1000, gamma = "jack1") #Accumulation curve function
+MT.plot <- plot(acc.MT, col = "blue", xlab = "sampling", ylab = "species")
+
+## Seine net ----
+
+acc.S <- specaccum(Sdata.tot, method = "random", permutations = 1000, gamma = "jack1") #Accumulation curve function
+S.plot <- plot(acc.S, col = "red", xlab = "sampling", ylab = "species")
+
+## Transect ----
+
+acc.T <- specaccum(Tdata.tot, method = "random", permutations = 1000, gamma = "jack1") #Accumulation curve function
 T.plot <- plot(acc.T, col = "darkgoldenrod1", xlab = "sampling", ylab = "species")
 
-## Method comparison ----
+## Comparison plot ----
 
 pdf(paste0(to.figs, "AccumulationCurves_species.pdf"), width = 15, height = 10)
 
@@ -84,132 +148,97 @@ dev.off()
 
 # ---- Infected individuals accumulation curves ----
 
-## All methods ----
-
-inf.A.data <- CombinedData %>% 
-  select(starts_with("inf")) %>% #Selecting infected individuals 
-  na.omit %>% 
-  rowSums() #Sum of all species
-
-inf.A.data <- data.frame(Infected = inf.A.data) %>% 
-  mutate(Method = "All")
-
-#Simulation
-A.inf <- data.frame()
-N <- 35 #nb of lines sampled (i)
+#Simulation parameters
+N <- 35 #nb of samples (i)
 Resampling <- 999 #nb of times each i is repeated 
 
-#marche po
-for(j in 1:Resampling) {
-  
-  for(i in 1:N) {
-    line <- sample(inf.A.data$Infected , i) #sample i lines randomly
+## All methods ----
 
+A.inf <- data.frame()
+
+for(i in 1:N) {
+  
+  for(j in 1:Resampling) {
+    Infected <- sum(sample(Adata$Infected, i)) #sample i lines randomly
+    
     output <- data.frame(N = i, Resampling = j, Infected) #save output in temporary data.frame (changed at each iterations)
     
     A.inf <- rbind(A.inf, output)
     
   }
+
 }
+
+A.inf <- A.inf %>% 
+  mutate(Method = "All", .before = "N")
 
 boxplot(Infected ~ N, data = A.inf)
     
-#Sampling
-inf.A1 <- replicate(999, sample(inf.A.data, 1))
-inf.A2 <- replicate(999, sum(sample(inf.A.data, 2)))
-inf.A3 <- replicate(999, sum(sample(inf.A.data, 3)))
-inf.A5 <- replicate(999, sum(sample(inf.A.data, 5)))
-inf.A7 <- replicate(999, sum(sample(inf.A.data, 7)))
-inf.A10 <- replicate(999, sum(sample(inf.A.data, 10)))
-inf.A15 <- replicate(999, sum(sample(inf.A.data, 15)))
-inf.A20 <- replicate(999, sum(sample(inf.A.data, 20)))
-inf.A25 <- replicate(999, sum(sample(inf.A.data, 25)))
-inf.A35 <- replicate(999, sum(sample(inf.A.data, 35)))
+## Minnow trap ----
 
-#Placing results in a data frame
-inf <- c(inf.A1, inf.A2, inf.A3, inf.A5, inf.A7, inf.A10, inf.A15, inf.A20, inf.A25, inf.A35) 
-N <- c(rep(1,999), rep(2,999), rep(3,999), rep(5,999), rep(7,999), rep(10,999), rep(15,999), rep(20,999), rep(25,999), rep(35,999))
-Method <- c(rep("All", 9990))
-df.All <- data.frame(N, Method, inf, row.names = NULL)
+MT.inf <- data.frame()
 
-## Minnow trap method ----
+for(i in 1:N) {
+  
+  for(j in 1:Resampling) {
+    Infected <- sum(sample(MTdata$Infected, i)) #sample i lines randomly
+    
+    output <- data.frame(N = i, Resampling = j, Infected) #save output in temporary data.frame (changed at each iterations)
+    
+    MT.inf <- rbind(MT.inf, output)
+    
+  }
+  
+}
 
-MinnowTrapData <- CombinedData %>% 
-  filter(Sampling_method == "Minnow_trap") #Selecting minnow trap methods
+MT.inf <- MT.inf %>% 
+  mutate(Method = "Minnow trap", .before = "N")
 
-inf.MT.data <- MinnowTrapData %>% 
-  select(starts_with("inf")) %>% #Selecting infected individuals
-  rowSums() #Sum of all species
-
-#Sampling
-inf.MT1 <- replicate(999, sample(inf.MT.data, 1))
-inf.MT2 <- replicate(999, sum(sample(inf.MT.data, 2)))
-inf.MT3 <- replicate(999, sum(sample(inf.MT.data, 3)))
-inf.MT5 <- replicate(999, sum(sample(inf.MT.data, 5)))
-inf.MT7 <- replicate(999, sum(sample(inf.MT.data, 7)))
-inf.MT10 <- replicate(999, sum(sample(inf.MT.data, 10)))
-inf.MT15 <- replicate(999, sum(sample(inf.MT.data, 15)))
-inf.MT20 <- replicate(999, sum(sample(inf.MT.data, 20)))
-inf.MT25 <- replicate(999, sum(sample(inf.MT.data, 25)))
-inf.MT35 <- replicate(999, sum(sample(inf.MT.data, 35)))
-
-#Placing results the a data frame
-inf <- c(inf.MT1, inf.MT2, inf.MT3, inf.MT5, inf.MT7, inf.MT10, inf.MT15, inf.MT20, inf.MT25, inf.MT35)
-Method <- c(rep("Minnow trap", 9990))
-df.MinnowTrap <- data.frame(N, Method, inf, row.names = NULL)
+boxplot(Infected ~ N, data = MT.inf)
 
 ## Seine method ----
 
-SeineData <- CombinedData %>% 
-  filter(Sampling_method == "Seine") #Selecting minnow trap methods
+S.inf <- data.frame()
 
-inf.S.data <- SeineData %>% 
-  select(starts_with("inf")) %>% #Selecting infected individuals
-  rowSums() #Sum of all species
+for(i in 1:N) {
+  
+  for(j in 1:Resampling) {
+    Infected <- sum(sample(Sdata$Infected, i)) #sample i lines randomly
+    
+    output <- data.frame(N = i, Resampling = j, Infected) #save output in temporary data.frame (changed at each iterations)
+    
+    S.inf <- rbind(S.inf, output)
+    
+  }
+  
+}
 
-#Sampling
-inf.S1 <- replicate(999, sample(inf.S.data, 1))
-inf.S2 <- replicate(999, sum(sample(inf.S.data, 2)))
-inf.S3 <- replicate(999, sum(sample(inf.S.data, 3)))
-inf.S5 <- replicate(999, sum(sample(inf.S.data, 5)))
-inf.S7 <- replicate(999, sum(sample(inf.S.data, 7)))
-inf.S10 <- replicate(999, sum(sample(inf.S.data, 10)))
-inf.S15 <- replicate(999, sum(sample(inf.S.data, 15)))
-inf.S20 <- replicate(999, sum(sample(inf.S.data, 20)))
-inf.S25 <- replicate(999, sum(sample(inf.S.data, 25)))
-inf.S35 <- replicate(999, sum(sample(inf.S.data, 35)))
+S.inf <- S.inf %>% 
+  mutate(Method = "Seine net", .before = "N")
 
-#Placing results the data frame
-inf <- c(inf.S1, inf.S2, inf.S3, inf.S5, inf.S7, inf.S10, inf.S15, inf.S20, inf.S25, inf.S35)
-Method <- c(rep("Seine net", 9990))
-df.Seine <- data.frame(N, Method, inf, row.names = NULL)
+boxplot(Infected ~ N, data = S.inf)
 
 ## Transect method ----
 
-TransectData <- CombinedData %>% 
-  filter(Sampling_method == "Transect") #Selecting transect method
+T.inf <- data.frame()
 
-inf.T.data <- TransectData %>% 
-  select(starts_with("inf")) %>% #Selecting infected individuals
-  na.omit() %>% #Deleting NAs
-  rowSums()#Sum of all species 
+for(i in 1:N) {
+  
+  for(j in 1:Resampling) {
+    Infected <- sum(sample(Tdata$Infected, i)) #sample i lines randomly
+    
+    output <- data.frame(N = i, Resampling = j, Infected) #save output in temporary data.frame (changed at each iterations)
+    
+    T.inf <- rbind(T.inf, output)
+    
+  }
+  
+}
 
-#Sampling
-inf.T1 <- replicate(999, sample(inf.T.data, 1))
-inf.T2 <- replicate(999, sum(sample(inf.T.data, 2)))
-inf.T3 <- replicate(999, sum(sample(inf.T.data, 3)))
-inf.T5 <- replicate(999, sum(sample(inf.T.data, 5)))
-inf.T7 <- replicate(999, sum(sample(inf.T.data, 7)))
-inf.T10 <- replicate(999, sum(sample(inf.T.data, 10)))
-inf.T15 <- replicate(999, sum(sample(inf.T.data, 15)))
-inf.T20 <- replicate(999, sum(sample(inf.T.data, 20)))
-inf.T25<- replicate(999, sum(sample(inf.T.data, 25)))
-inf.T35 <- replicate(999, sum(sample(inf.T.data, 35)))
+T.inf <- T.inf %>% 
+  mutate(Method = "Transect", .before = "N")
 
-#Placing results the data frame
-inf <- c(inf.T1, inf.T2, inf.T3, inf.T5, inf.T7, inf.T10, inf.T15, inf.T20, inf.T25, inf.T35)
-Method <- c(rep("Transect", 9990))
-df.Transect <- data.frame(N, Method, inf, row.names = NULL)
+boxplot(Infected ~ N, data = T.inf)
 
 ## Plotting simulation ----
 
@@ -217,13 +246,11 @@ col.pal <- c("#7E7E7E", "#2A5676", "#999600", "#966F1E")
 #col.pal4 <- c("#7E7E7E", "#005260", "#A4473D", "#A57E00")
 
 #Binding data
-df.inf <- rbind(df.All, df.MinnowTrap, df.Seine, df.Transect)
+df.inf <- rbind(A.inf, MT.inf, S.inf, T.inf)
 
 inf.acc.plot <- ggplot(df.inf) + 
-  stat_summary(aes(x = N, y = inf, group = Method, color = Method, shape = Method), fun = mean, size = 1) +
-  geom_smooth(aes(x= N, y = inf, group = Method, color = Method, fill = Method), method = "glm", se = TRUE, lineend = "round") +
-  scale_x_continuous(breaks = c(1, 2, 3, 5, 7, 10, 15, 25, 20, 25, 35)) +
-  scale_y_continuous(breaks = round(seq(0, 2500, by = 400), 1)) +
+  stat_summary(aes(x = N, y = Infected, group = Method, color = Method, shape = Method), fun = mean, size = 1) +
+  geom_smooth(aes(x= N, y = Infected, group = Method, color = Method, fill = Method), method = "lm", se = TRUE, level = 0.95,lineend = "round") +
   labs(x = "Number of samplings", y = "Infected fish abundance", tag = "A") +
   scale_color_manual(values = c("#7E7E7E", "#2A5676", "#999600", "#966F1E"),
                      aesthetics = c("color", "fill")) +
@@ -246,107 +273,100 @@ ggsave(paste0(to.figs, "AccumulationCurves_infection.png"), plot = inf.acc.plot,
 
 ## All methods ----
 
-tot.A.data <- CombinedData %>% 
-  select(starts_with("tot")) %>% #Selecting infected individuals
-  na.omit() %>% 
-  rowSums() #Sum of all species
+A.tot <- data.frame()
 
-#Sampling
-tot.A1 <- replicate(999, sample(tot.A.data, 1))
-tot.A2 <- replicate(999, sum(sample(tot.A.data, 2)))
-tot.A3 <- replicate(999, sum(sample(tot.A.data, 3)))
-tot.A5 <- replicate(999, sum(sample(tot.A.data, 5)))
-tot.A7 <- replicate(999, sum(sample(tot.A.data, 7)))
-tot.A10 <- replicate(999, sum(sample(tot.A.data, 10)))
-tot.A15 <- replicate(999, sum(sample(tot.A.data, 15)))
-tot.A20 <- replicate(999, sum(sample(tot.A.data, 20)))
-tot.A25 <- replicate(999, sum(sample(tot.A.data, 25)))
-tot.A35 <- replicate(999, sum(sample(tot.A.data, 35)))
+for(i in 1:N) {
+  
+  for(j in 1:Resampling) {
+    Total <- sum(sample(Adata$Total, i)) #sample i lines randomly
+    
+    output <- data.frame(N = i, Resampling = j, Total) #save output in temporary data.frame (changed at each iterations)
+    
+    A.tot <- rbind(A.tot, output)
+    
+  }
+  
+}
 
-#Placing results the data frame
-tot <- c(tot.A1, tot.A2, tot.A3, tot.A5, tot.A7, tot.A10, tot.A15, tot.A20, tot.A25, tot.A35)
-df.All <- df.All %>% 
-  mutate(tot)
+A.tot <- A.tot %>% 
+  mutate(Method = "All", .before = "N")
+
+boxplot(Total ~ N, data = A.tot)
 
 ## Minnow trap method ----
 
-tot.MT.data <- MinnowTrapData %>% 
-  select(starts_with("tot")) %>% #Selecting infected individuals
-  rowSums() #Sum of all species
+MT.tot <- data.frame()
 
-#Sampling
-tot.MT1 <- replicate(999, sample(tot.MT.data, 1))
-tot.MT2 <- replicate(999, sum(sample(tot.MT.data, 2)))
-tot.MT3 <- replicate(999, sum(sample(tot.MT.data, 3)))
-tot.MT5 <- replicate(999, sum(sample(tot.MT.data, 5)))
-tot.MT7 <- replicate(999, sum(sample(tot.MT.data, 7)))
-tot.MT10 <- replicate(999, sum(sample(tot.MT.data, 10)))
-tot.MT15 <- replicate(999, sum(sample(tot.MT.data, 15)))
-tot.MT20 <- replicate(999, sum(sample(tot.MT.data, 20)))
-tot.MT25 <- replicate(999, sum(sample(tot.MT.data, 25)))
-tot.MT35 <- replicate(999, sum(sample(tot.MT.data, 35)))
+for(i in 1:N) {
+  
+  for(j in 1:Resampling) {
+    Total <- sum(sample(MTdata$Total, i)) #sample i lines randomly
+    
+    output <- data.frame(N = i, Resampling = j, Total) #save output in temporary data.frame (changed at each iterations)
+    
+    MT.tot <- rbind(MT.tot, output)
+    
+  }
+  
+}
 
-#Placing results the data frame
-tot <- c(tot.MT1, tot.MT2, tot.MT3, tot.MT5, tot.MT7, tot.MT10, tot.MT15, tot.MT20, tot.MT25, tot.MT35)
-df.MinnowTrap <- df.MinnowTrap %>% 
-  mutate(tot)
+MT.tot <- MT.tot %>% 
+  mutate(Method = "Minnow trap", .before = "N")
+
+boxplot(Total ~ N, data = MT.tot)
 
 ## Seine method ----
 
-tot.S.data <- SeineData %>% 
-  select(starts_with("tot")) %>% #Selecting infected individuals
-  rowSums() #Sum of all species
+S.tot <- data.frame()
 
-#Sampling
-tot.S1 <- replicate(999, sample(tot.S.data, 1))
-tot.S2 <- replicate(999, sum(sample(tot.S.data, 2)))
-tot.S3 <- replicate(999, sum(sample(tot.S.data, 3)))
-tot.S5 <- replicate(999, sum(sample(tot.S.data, 5)))
-tot.S7 <- replicate(999, sum(sample(tot.S.data, 7)))
-tot.S10 <- replicate(999, sum(sample(tot.S.data, 10)))
-tot.S15 <- replicate(999, sum(sample(tot.S.data, 15)))
-tot.S20 <- replicate(999, sum(sample(tot.S.data, 20)))
-tot.S25 <- replicate(999, sum(sample(tot.S.data, 25)))
-tot.S35 <- replicate(999, sum(sample(tot.S.data, 35)))
+for(i in 1:N) {
+  
+  for(j in 1:Resampling) {
+    Total <- sum(sample(Sdata$Total, i)) #sample i lines randomly
+    
+    output <- data.frame(N = i, Resampling = j, Total) #save output in temporary data.frame (changed at each iterations)
+    
+    S.tot <- rbind(S.tot, output)
+    
+  }
+  
+}
 
-#Placing results the data frame
-tot <- c(tot.S1, tot.S2, tot.S3, tot.S5, tot.S7, tot.S10, tot.S15, tot.S20, tot.S25, tot.S35)
-df.Seine <- df.Seine %>% 
-  mutate(tot)
+S.tot <- S.tot %>% 
+  mutate(Method = "Seine net", .before = "N")
+
+boxplot(Total ~ N, data = S.tot)
 
 ## Transect method ---
 
-tot.T.data <- TransectData %>% 
-  select(starts_with("tot")) %>% #Selecting infected individuals
-  na.omit() %>%  #Deleting NAs
-  rowSums() #Sum of all species 
+T.tot <- data.frame()
 
-#Sampling
-tot.T1 <- replicate(999, sample(tot.T.data, 1))
-tot.T2 <- replicate(999, sum(sample(tot.T.data, 2)))
-tot.T3 <- replicate(999, sum(sample(tot.T.data, 3)))
-tot.T5 <- replicate(999, sum(sample(tot.T.data, 5)))
-tot.T7 <- replicate(999, sum(sample(tot.T.data, 7)))
-tot.T10 <- replicate(999, sum(sample(tot.T.data, 10)))
-tot.T15 <- replicate(999, sum(sample(tot.T.data, 15)))
-tot.T20 <- replicate(999, sum(sample(tot.T.data, 20)))
-tot.T25 <- replicate(999, sum(sample(tot.T.data, 25)))
-tot.T35 <- replicate(999, sum(sample(tot.T.data, 35)))
+for(i in 1:N) {
+  
+  for(j in 1:Resampling) {
+    
+    Total <- sum(sample(Tdata$Total, i)) #sample i lines randomly
+    
+    output <- data.frame(N = i, Resampling = j, Total) #save output in temporary data.frame (changed at each iterations)
+    
+    T.tot <- rbind(T.tot, output)
+    
+  }
+  
+}
 
-#Placing results the data frame
-tot <- c(tot.T1, tot.T2, tot.T3, tot.T5, tot.T7, tot.T10, tot.T15, tot.T20, tot.T25, tot.T35)
-df.Transect <- df.Transect %>% 
-  mutate(tot)
+T.tot <- T.tot %>% 
+  mutate(Method = "Transect", .before = "N")
+
+boxplot(Total ~ N, data = T.tot)
 
 ## Plotting simulation ----
 
-df.tot <- rbind(df.All, df.MinnowTrap, df.Seine, df.Transect)
+df.tot <- rbind(A.tot, MT.tot, S.tot, T.tot)
 
 tot.acc.plot <- ggplot(df.tot) + 
-  stat_summary(aes(x = N, y = tot, group = Method, color = Method, shape = Method), fun = mean, size = 1) +
-  geom_smooth(aes(x= N, y = tot, group = Method, color = Method, fill = Method), method = "glm", se = TRUE, lineend = "round") +
-  scale_x_continuous(breaks = c(1, 2, 3, 5, 7, 10, 15, 25, 20, 25, 35)) +
-  scale_y_continuous(breaks = round(seq(0, 6500, by = 1000), 1)) +
+  stat_summary(aes(x = N, y = Total, group = Method, color = Method, shape = Method), fun = mean, size = 1) +
+  geom_smooth(aes(x= N, y = Total, group = Method, color = Method, fill = Method), method = "lm", se = TRUE, lineend = "round") +
   labs(x = "Number of samplings", y = "Total fish abundance", tag = "B") +
   scale_color_manual(values = c("#7E7E7E", "#2A5676", "#999600", "#966F1E"),
                      aesthetics = c("color", "fill")) +
@@ -367,195 +387,118 @@ ggsave(paste0(to.figs, "AccumulationCurves_individuals.png"), plot = tot.acc.plo
 
 # ---- Prevalence accumulation curves ----
 
-## All methods ----
+## All ----
 
-#Preparing data
-Adata <- CombinedData %>% 
-  select("Lake", starts_with(c("inf", "tot"))) %>% 
-  na.omit()
-
-Adata.inf <- Adata %>% 
-  select(starts_with("inf")) 
-
-Adata.tot <- Adata %>% 
-  select(starts_with("tot"))
-
-Infected <- rowSums(Adata.inf)
-Total <- rowSums(Adata.tot)
-Lake <- Adata$Lake
-
-Adata <- data.frame(Lake, Infected, Total) %>% 
-  mutate(Method = "All", .after = "Lake")
-
-#Sampling
-Aprev <- data.frame()
-N <- 35 #nb of lines sampled (i)
-Resampling <- 999 #nb of times each i is repeated 
+A.prev <- data.frame()
 
 for(i in 1:N) {
   
   for(j in 1:Resampling) {
+    
     line <- sample(1:nrow(Adata), i) #sample i lines randomly
-    prev.site.1 <- Adata[line, "Infected"] / Adata[line, "Total"]
-    prev.site <- na.omit(prev.site.1)
-    Prevalence <- sum(prev.site)/length(prev.site.1)
+    prop.samp <- Adata[line, "Total"]/sum(Adata[line, "Total"])
+    w_prev <- Adata[line, "Prevalence"]*prop.samp
+    Prevalence <- sum(na.omit(w_prev))
     
     output <- data.frame(N = i, Resampling = j, Prevalence) #save output in temporary data.frame (changed at each iterations)
     
-    Aprev <- rbind(Aprev,output)
+    A.prev <- rbind(A.prev, output)
     
   }
+  
 }
 
-boxplot(Prevalence ~ N, data = Aprev)
+A.prev <- A.prev %>% 
+  mutate(Method = "All", .before = "N")
 
-## Minnow trap method ----
+boxplot(Prevalence ~ N, data = A.prev)
 
-#Preparing data
-MTdata <- CombinedData %>% 
-  filter(Sampling_method == "Minnow_trap") %>% 
-  select("Lake", starts_with(c("inf", "tot"))) %>% 
-  na.omit()
+## Minnow trap ----
 
-MTdata.inf <- MTdata %>% 
-  select(starts_with("inf")) 
-
-MTdata.tot <- MTdata %>% 
-  select(starts_with("tot"))
-
-Infected <- rowSums(MTdata.inf)
-Total <- rowSums(MTdata.tot)
-Lake <- MTdata$Lake
-
-MTdata <- data.frame(Lake, Infected, Total) %>% 
-  mutate(Method = "Minnow trap", .after = "Lake")
-
-#Sampling
-MTprev <- data.frame()
-N <- 35 #nb of lines sampled (i)
-Resampling <- 999 #nb of times each i is repeated 
+MT.prev <- data.frame()
 
 for(i in 1:N) {
   
   for(j in 1:Resampling) {
+    
     line <- sample(1:nrow(MTdata), i) #sample i lines randomly
-    prev.site.1 <- MTdata[line, "Infected"] / MTdata[line, "Total"]
-    prev.site <- na.omit(prev.site.1)
-    Prevalence <- sum(prev.site)/length(prev.site.1)
+    prop.samp <- MTdata[line, "Total"]/sum(MTdata[line, "Total"])
+    w_prev <- MTdata[line, "Prevalence"]*prop.samp
+    Prevalence <- sum(na.omit(w_prev))
     
     output <- data.frame(N = i, Resampling = j, Prevalence) #save output in temporary data.frame (changed at each iterations)
     
-    MTprev <- rbind(MTprev,output)
+    MT.prev <- rbind(MT.prev, output)
     
   }
+  
 }
 
-boxplot(Prevalence ~ N, data = MTprev)
+MT.prev <- MT.prev %>% 
+  mutate(Method = "Minnow trap", .before = "N")
+
+boxplot(Prevalence ~ N, data = MT.prev)
+
 
 ## Seine method ----
 
-#Preparing data
-Sdata <- CombinedData %>% 
-  filter(Sampling_method == "Seine") %>% 
-  select("Lake", starts_with(c("inf", "tot"))) %>% 
-  na.omit()
-
-Sdata.inf <- Sdata %>% 
-  select(starts_with("inf")) 
-
-Sdata.tot <- Sdata %>% 
-  select(starts_with("tot"))
-
-Infected <- rowSums(Sdata.inf)
-Total <- rowSums(Sdata.tot)
-Lake <- Sdata$Lake
-
-Sdata <- data.frame(Lake, Infected, Total) %>% 
-  mutate(Method = "Seine net", .after = "Lake")
-
-#Sampling
-Sprev <- data.frame()
-N <- 35 #nb of lines sampled (i)
-Resampling <- 999 #nb of times each i is repeated 
+S.prev <- data.frame()
 
 for(i in 1:N) {
   
   for(j in 1:Resampling) {
+    
     line <- sample(1:nrow(Sdata), i) #sample i lines randomly
-    prev.site.1 <- Sdata[line, "Infected"] / Sdata[line, "Total"]
-    prev.site <- na.omit(prev.site.1)
-    Prevalence <- sum(prev.site)/length(prev.site.1)
+    prop.samp <- Sdata[line, "Total"]/sum(Sdata[line, "Total"])
+    w_prev <- Sdata[line, "Prevalence"]*prop.samp
+    Prevalence <- sum(na.omit(w_prev))
     
     output <- data.frame(N = i, Resampling = j, Prevalence) #save output in temporary data.frame (changed at each iterations)
     
-    Sprev <- rbind(Sprev,output)
+    S.prev <- rbind(S.prev, output)
     
   }
+  
 }
 
-boxplot(Prevalence ~ N, data = Sprev)
+S.prev <- S.prev %>% 
+  mutate(Method = "Seine net", .before = "N")
+
+boxplot(Prevalence ~ N, data = S.prev)
 
 ## Transect method ----
 
-#Preparing data
-Tdata <- CombinedData %>% 
-  filter(Sampling_method == "Transect") %>% 
-  select("Lake", starts_with(c("inf", "tot"))) %>% 
-  na.omit()
-
-Tdata.inf <- Tdata %>% 
-  select(starts_with("inf")) 
-
-Tdata.tot <- Tdata %>% 
-  select(starts_with("tot"))
-
-Infected <- rowSums(Tdata.inf)
-Total <- rowSums(Tdata.tot)
-Lake <- Tdata$Lake
-
-Tdata <- data.frame(Lake, Infected, Total) %>% 
-  mutate(Method = "Transect", .after = "Lake")
-
-#Sampling
-Tprev <- data.frame()
-N <- 35 #nb of lines sampled (i)
-Resampling <- 999 #nb of times each i is repeated 
+T.prev <- data.frame()
 
 for(i in 1:N) {
   
   for(j in 1:Resampling) {
+    
     line <- sample(1:nrow(Tdata), i) #sample i lines randomly
-    prev.site.1 <- Tdata[line, "Infected"] / Tdata[line, "Total"]
-    prev.site <- na.omit(prev.site.1)
-    Prevalence <- sum(prev.site)/length(prev.site.1)
+    prop.samp <- Tdata[line, "Total"]/sum(Tdata[line, "Total"])
+    w_prev <- Tdata[line, "Prevalence"]*prop.samp
+    Prevalence <- sum(na.omit(w_prev))
     
     output <- data.frame(N = i, Resampling = j, Prevalence) #save output in temporary data.frame (changed at each iterations)
     
-    Tprev <- rbind(Tprev,output)
+    T.prev <- rbind(T.prev, output)
     
   }
+  
 }
 
-boxplot(Prevalence ~ N, data = Tprev)
+T.prev <- T.prev %>% 
+  mutate(Method = "Transect", .before = "N")
+
+boxplot(Prevalence ~ N, data = T.prev)
 
 ## Plotting simulation ----
 
-#Preparing data
-df.All <- Aprev %>% 
-  mutate(Method = "All")
-df.MinnowTrap <- MTprev %>% 
-  mutate(Method = "Minnow trap")
-df.Seine <- Sprev %>% 
-  mutate(Method = "Seine net")
-df.Transect <- Tprev %>% 
-  mutate(Method = "Transect")
+df.prev <- rbind(A.prev, MT.prev, S.prev, T.prev)
 
-df.prev <- rbind(df.All, df.MinnowTrap, df.Seine, df.Transect)
-
-#Plot
 prev.acc.plot <- ggplot(df.prev) + 
   stat_summary(aes(x = N, y = Prevalence, group = Method, color = Method, shape = Method), fun = mean, size = 1) +
-  geom_smooth(aes(x= N, y = Prevalence, group = Method, color = Method, fill = Method), method = "lm", se = TRUE, lineend = "round", alpha = 0.3) +
+  stat_smooth(aes(x= N, y = Prevalence, group = Method, color = Method, fill = Method), method = "loess", se = TRUE, level = 0.95, lineend = "round", alpha = 0.3) +
   scale_y_continuous(labels = scales::percent) +
   labs(x = "Number of samplings", y = "Mean infection prevalence", tag = "C") +
   scale_color_manual(values = c("#7E7E7E", "#2A5676", "#999600", "#966F1E"),
@@ -577,17 +520,25 @@ ggsave(paste0(to.figs, "AccumulationCurves_prevalence.png"), plot = prev.acc.plo
 
 ## Slope and Intercept extractions ----
 
-### All methods ----
+### All ----
 
-lm.All <- lm(prev ~ N, data = df.All)
+df.A <- cbind(A.inf, 
+                Total = A.tot$Total, 
+                Prevalence = A.prev$Prevalence)
+  
+lm.A <- lm(Prevalence ~ N, data = df.A)
 summary(lm.All)
 
-Intercept.All <- lm.All$coefficients[1] #Extracting intercept
-Slope.All <- lm.All$coefficients[2] #Extracting slope
+Intercept.A <- lm.All$coefficients[1] #Extracting intercept
+Slope.A <- lm.All$coefficients[2] #Extracting slope
 
 ### Minnow trap ----
 
-lm.MT <- lm(prev ~ N, data = df.MinnowTrap)
+df.MT <- cbind(MT.inf, 
+                Total = MT.tot$Total, 
+                Prevalence = MT.prev$Prevalence)
+
+lm.MT <- lm(Prevalence ~ N, data = df.MT)
 summary(lm.MT)
 
 Intercept.MT <- lm.MT$coefficients[1] #Extracting intercept
@@ -595,7 +546,11 @@ Slope.MT <- lm.MT$coefficients[2] #Extracting slope
 
 ### Seine net ----
 
-lm.S <- lm(prev ~ N, data = df.Seine)
+df.S <- cbind(S.inf, 
+                Total = S.tot$Total, 
+                Prevalence = S.prev$Prevalence)
+
+lm.S <- lm(Prevalence ~ N, data = df.S)
 summary(lm.S)
 
 Intercept.S <- lm.S$coefficients[1] #Extracting intercept
@@ -603,7 +558,11 @@ Slope.S <- lm.S$coefficients[2] #Extracting slope
 
 ## Transect ----
 
-lm.T <- lm(prev ~ N, data = df.Transect)
+df.T <- cbind(T.inf, 
+                Total = T.tot$Total, 
+                Prevalence = T.prev$Prevalence)
+
+lm.T <- lm(Prevalence ~ N, data = df.T)
 summary(lm.T)
 
 Intercept.T <- lm.T$coefficients[1] #Extracting intercept
@@ -612,7 +571,7 @@ Slope.T <- lm.T$coefficients[2] #Extracting slope
 ### Models summary table ----
 
 #Extracting model summaries
-tab.lm.All <- tidy(lm.All)
+tab.lm.All <- tidy(lm.A)
 tab.lm.MT <- tidy(lm.MT)
 tab.lm.S <- tidy(lm.S)
 tab.lm.T <- tidy(lm.T)
@@ -672,3 +631,5 @@ summary.acc.plot <- inf.acc.plot + tot.acc.plot + prev.acc.plot +
   guides(color = guide_legend(override.aes = list(size = 2)))
 
 ggsave(paste0(to.figs, "AccumulationCurves_summary.png"), plot = summary.acc.plot, dpi = 300, width = 30, height = 12)
+ggsave(paste0(to.rédaction, "Figures/AccumulationCurves_summary.png"), plot = summary.acc.plot, dpi = 300, width = 30, height = 12)
+
