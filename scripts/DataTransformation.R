@@ -22,6 +22,7 @@ library(dplyr)
 library(writexl)
 library(stringr)
 library(tibble)
+library(measurements)
 
 ## Loading data -----
 
@@ -31,6 +32,7 @@ Lakes_Characteristics <- read.csv(paste0(to.data, "Lakes_Characteristics.csv"), 
 BioticData <- read.csv(paste0(to.output, "Lake_BioticData.csv"))
   
 # ---- Fishing data -----
+
 attach(Fishing_RawData)
 
 ## Long format ----
@@ -43,7 +45,7 @@ names(CompleteData)[names(CompleteData) == 'Abundance'] <- 'Abund_tot'
 
 #Summarize data
 FishLong <- CompleteData %>% #Sum of abundances of species by fishing ID
-  group_by(Fishing_ID, Species_ID,Lake,Date,Latitude,Longitude,Start_time,Gear_type,Gear_ID,Identifier) %>%
+  group_by(Fishing_ID, Species_ID, Lake, Date, Latitude, Longitude, Start_time, Gear_type, Gear_ID, Identifier) %>%
   summarise(across(.cols = Abund_inf | Abund_tot, sum)) %>%
   ungroup()
 
@@ -62,9 +64,10 @@ write_xlsx(FishWide, paste0(to.output, "Fishing_WideData.xlsx")) #Exporting data
 write.csv(FishWide, paste0(to.output, "Fishing_WideData.csv"), row.names = FALSE)
 
 # ---- Transect data ----
+
 ## Summarizing data ----
 
-#One row = one transect
+#A row corresponds to the summary data of one transect
 Abund.summary <- Transects_RawData %>% 
   group_by(Transect_ID) %>% 
   summarise(across(.cols = 11:20, sum))
@@ -217,7 +220,35 @@ CombinedData <- CombinedData %>% #Filling NA's water parameters values by lake m
 CombinedData <- merge(CombinedData, Lakes_Characteristics, by = "Lake") #Merging lake characteristic data to field data
 CombinedData <- merge(CombinedData, BioticData, by = "Lake") #Merging biotic data
 
-colnames(CombinedData)[c(43:50)] <- c("Temp", "Cond", "DO", "Turb", "pH", "TOC", "TN", "TP") #Changing column names
+colnames(CombinedData)[c(4,5,43:50, 52, 53)] <- c("Lat.trans", "Long.trans", "Temp", "Cond", "DO", "Turb", "pH", "TOC", "TN", "TP", "Lat.lake", "Long.lake") #Changing column names
+
+### Coordinates conversion ----
+
+#Latitude
+CombinedData$Lat.trans <- str_replace(CombinedData$Lat.trans, "°", " ")
+CombinedData$Lat.trans <- str_remove(CombinedData$Lat.trans, "'")
+CombinedData$Lat.trans <- conv_unit(CombinedData$Lat.trans, from = "deg_dec_min", to = "dec_deg")
+CombinedData$Lat.trans <- as.numeric(CombinedData$Lat.trans)
+
+CombinedData$Lat.lake <- str_replace(CombinedData$Lat.lake, "°", " ")
+CombinedData$Lat.lake <- str_replace(CombinedData$Lat.lake, "'", " ")
+CombinedData$Lat.lake <- str_remove(CombinedData$Lat.lake, " N")
+CombinedData$Lat.lake <- str_remove(CombinedData$Lat.lake, '"')
+CombinedData$Lat.lake <- conv_unit(CombinedData$Lat.lake, from = "deg_min_sec", to = "dec_deg") #Coordinates conversion
+CombinedData$Lat.lake <- as.numeric(CombinedData$Lat.lake)
+
+#Longitude
+CombinedData$Long.trans <- str_replace(CombinedData$Long.trans, "°", " ")
+CombinedData$Long.trans <- str_remove(CombinedData$Long.trans, "'")
+CombinedData$Long.trans <- conv_unit(CombinedData$Long.trans, from = "deg_dec_min", to = "dec_deg")
+CombinedData$Long.trans <- as.numeric(CombinedData$Long.trans)*(-1) #Add negative sign as coordinates are from western hemisphere
+
+CombinedData$Long.lake <- str_replace(CombinedData$Long.lake, "°", " ")
+CombinedData$Long.lake <- str_replace(CombinedData$Long.lake, "'", " ")
+CombinedData$Long.lake <- str_remove(CombinedData$Long.lake, " W")
+CombinedData$Long.lake <- str_remove(CombinedData$Long.lake, '"')
+CombinedData$Long.lake <- conv_unit(CombinedData$Long.lake, from = "deg_min_sec", to = "dec_deg") #Coordinates conversion
+CombinedData$Long.lake <- as.numeric(CombinedData$Long.lake)*(-1)
 
 write_xlsx(CombinedData, paste0(to.output, "CombinedData.xlsx")) #Exporting data frame
 write.csv(CombinedData, paste0(to.output, "CombinedData.csv"), row.names = FALSE)

@@ -15,13 +15,13 @@ to.output <- "./output/"
 to.figs <- "./figs/"
 to.R <- "./R/"
 to.carto <- "./carto/"
+to.rédaction <- "./rédaction/"
 
 ## Loading packages ----
 
 library(sf)
 library(stringr)
 library(dplyr)
-library(measurements)
 library(ggplot2)
 library(ggspatial)
 library(colorspace)
@@ -58,22 +58,8 @@ col.pal <- c("chocolate", "goldenrod", "olivedrab") #Setting color palette
 ## Attribute table ----
 
 attributes <- CombinedData %>% 
-  select("Sampling_ID", "Lake", "Sampling_method", "Latitude", "Longitude", "tot_LeGi", "inf_LeGi") %>% 
+  select("Sampling_ID", "Lake", "Sampling_method", "Lat.trans", "Long.trans", "tot_LeGi", "inf_LeGi") %>% 
   mutate(prev_LeGi = inf_LeGi/tot_LeGi, .keep = "unused") 
-
-### Coordinates conversion ----
-
-#Latitude
-attributes$Latitude <- str_replace(attributes$Latitude, "°", " ")
-attributes$Latitude <- str_remove(attributes$Latitude, "'")
-attributes$Latitude <- conv_unit(attributes$Latitude, from = "deg_dec_min", to = "dec_deg")
-attributes$Latitude <- as.numeric(attributes$Latitude)
-
-#Longitude
-attributes$Longitude <- str_replace(attributes$Longitude, "°", " ")
-attributes$Longitude <- str_remove(attributes$Longitude, "'")
-attributes$Longitude <- conv_unit(attributes$Longitude, from = "deg_dec_min", to = "dec_deg")
-attributes$Longitude <- as.numeric(attributes$Longitude)*(-1) #Add negative sign as coordinates are from western hemisphere
 
 ## Cromwell ----
 
@@ -83,9 +69,9 @@ CROM.att <- attributes %>%
 CROM.plot <- ggplot() + 
   geom_sf(data = CROM, fill = "lightblue") +
   geom_point(data = CROM.att, 
-             aes(x = Longitude, y = Latitude, size = prev_LeGi, color = Sampling_method)) +
+             aes(x = Long.trans, y = Lat.trans, size = prev_LeGi, color = Sampling_method)) +
   scale_color_manual(values = col.pal) + 
-  geom_text(data = CROM.att, aes(x = Longitude, y = Latitude, label = Sampling_ID), size = 2) +
+  geom_text(data = CROM.att, aes(x = Long.trans, y = Lat.trans, label = Sampling_ID), size = 2) +
   theme_void()
 CROM.plot
 
@@ -96,9 +82,9 @@ CROC.att <- attributes %>%
 
 CROC.plot <- ggplot() + 
   geom_sf(data = CROC, fill = "lightblue") +
-  geom_point(data = CROC.att, aes(x = Longitude, y = Latitude, size = prev_LeGi, color = Sampling_method)) + 
+  geom_point(data = CROC.att, aes(x = Long.trans, y = Lat.trans, size = prev_LeGi, color = Sampling_method)) + 
   scale_color_manual(values = col.pal) +
-  geom_text(data = CROC.att, aes(x = Longitude, y = Latitude, label = Sampling_ID), size = 2) +
+  geom_text(data = CROC.att, aes(x = Long.trans, y = Lat.trans, label = Sampling_ID), size = 2) +
   theme_void()
 CROC.plot
 
@@ -109,9 +95,9 @@ CORR.att <- attributes %>%
 
 CORR.plot <- ggplot() + 
   geom_sf(data = CORR, fill = "lightblue") +
-  geom_point(data = CORR.att, aes(x = Longitude, y = Latitude, size = prev_LeGi, color = Sampling_method)) + 
+  geom_point(data = CORR.att, aes(x = Long.trans, y = Lat.trans, size = prev_LeGi, color = Sampling_method)) + 
   scale_color_manual(values = col.pal) +
-  geom_text(data = CORR.att, aes(x = Longitude, y = Latitude, label = Sampling_ID), size = 2) +
+  geom_text(data = CORR.att, aes(x = Long.trans, y = Lat.trans, label = Sampling_ID), size = 2) +
   theme_void()
 CORR.plot ##Bubbles shifted
 
@@ -122,9 +108,9 @@ ECHO.att <- attributes %>%
 
 ECHO.plot <- ggplot() + 
   geom_sf(data = ECHO, fill = "lightblue") +
-  geom_point(data = ECHO.att, aes(x = Longitude, y = Latitude, size = prev_LeGi, color = Sampling_method)) + 
+  geom_point(data = ECHO.att, aes(x = Long.trans, y = Lat.trans, size = prev_LeGi, color = Sampling_method)) + 
   scale_color_manual(values = col.pal) +
-  geom_text(data = ECHO.att, aes(x = Longitude, y = Latitude, label = Sampling_ID), size = 2) +
+  geom_text(data = ECHO.att, aes(x = Long.trans, y = Lat.trans, label = Sampling_ID), size = 2) +
   theme_void()
 ECHO.plot
 
@@ -135,9 +121,9 @@ ACHI.att <- attributes %>%
 
 ACHI.plot <- ggplot() + 
   geom_sf(data = ACHI, fill = "lightblue") +
-  geom_point(data = ACHI.att, aes(x = Longitude, y = Latitude, size = prev_LeGi, color = Sampling_method)) + 
+  geom_point(data = ACHI.att, aes(x = Long.trans, y = Lat.trans, size = prev_LeGi, color = Sampling_method)) + 
   scale_color_manual(values = col.pal) +
-  geom_text(data = ACHI.att, aes(x = Longitude, y = Latitude, label = Sampling_ID), size = 2) +
+  geom_text(data = ACHI.att, aes(x = Long.trans, y = Lat.trans, label = Sampling_ID), size = 2) +
   theme_void()
 ACHI.plot
 
@@ -148,9 +134,9 @@ FOUR.att <- attributes %>%
 
 FOUR.plot <- ggplot() + 
   geom_sf(data = FOUR, fill = "lightblue") +
-  geom_point(data = FOUR.att, aes(x = Longitude, y = Latitude, size = prev_LeGi, color = Sampling_method)) + 
+  geom_point(data = FOUR.att, aes(x = Long.trans, y = Lat.trans, size = prev_LeGi, color = Sampling_method)) + 
   scale_color_manual(values = col.pal) +
-  geom_text(data = FOUR.att, aes(x = Longitude, y = Latitude, label = Sampling_ID), size = 2) +
+  geom_text(data = FOUR.att, aes(x = Long.trans, y = Lat.trans, label = Sampling_ID), size = 2) +
   theme_void()
 FOUR.plot
 
@@ -161,9 +147,9 @@ MORE.att <- attributes %>%
 
 MORE.plot <- ggplot() + 
   geom_sf(data = MORE, fill = "lightblue") +
-  geom_point(data = MORE.att, aes(x = Longitude, y = Latitude, size = prev_LeGi, color = Sampling_method)) + 
+  geom_point(data = MORE.att, aes(x = Long.trans, y = Lat.trans, size = prev_LeGi, color = Sampling_method)) + 
   scale_color_manual(values = col.pal) +
-  geom_text(data = MORE.att, aes(x = Longitude, y = Latitude, label = Sampling_ID), size = 2) +
+  geom_text(data = MORE.att, aes(x = Long.trans, y = Lat.trans, label = Sampling_ID), size = 2) +
   theme_void()
 MORE.plot 
 
@@ -174,9 +160,9 @@ CORN.att <- attributes %>%
 
 CORN.plot <- ggplot() + 
   geom_sf(data = CORN, fill = "lightblue") +
-  geom_point(data = CORN.att, aes(x = Longitude, y = Latitude, size = prev_LeGi, color = Sampling_method)) + 
+  geom_point(data = CORN.att, aes(x = Long.trans, y = Lat.trans, size = prev_LeGi, color = Sampling_method)) + 
   scale_color_manual(values = col.pal) +
-  geom_text(data = CORN.att, aes(x = Longitude, y = Latitude, label = Sampling_ID), size = 2) +
+  geom_text(data = CORN.att, aes(x = Long.trans, y = Lat.trans, label = Sampling_ID), size = 2) +
   theme_void()
 CORN.plot
 
@@ -187,9 +173,9 @@ BEAV.att <- attributes %>%
 
 BEAV.plot <- ggplot() + 
   geom_sf(data = BEAV, fill = "lightblue") +
-  geom_point(data = BEAV.att, aes(x = Longitude, y = Latitude, size = prev_LeGi, color = Sampling_method)) + 
+  geom_point(data = BEAV.att, aes(x = Long.trans, y = Lat.trans, size = prev_LeGi, color = Sampling_method)) + 
   scale_color_manual(values = col.pal) +
-  geom_text(data = BEAV.att, aes(x = Longitude, y = Latitude, label = Sampling_ID), size = 2) +
+  geom_text(data = BEAV.att, aes(x = Long.trans, y = Lat.trans, label = Sampling_ID), size = 2) +
   theme_void()
 BEAV.plot #Some shifted coordinates
 
@@ -200,9 +186,9 @@ MONT.att <- attributes %>%
 
 MONT.plot <- ggplot() + 
   geom_sf(data = MONT, fill = "lightblue") +
-  geom_point(data = MONT.att, aes(x = Longitude, y = Latitude, size = prev_LeGi, color = Sampling_method)) + 
+  geom_point(data = MONT.att, aes(x = Long.trans, y = Lat.trans, size = prev_LeGi, color = Sampling_method)) + 
   scale_color_manual(values = col.pal) +
-  geom_text(data = MONT.att, aes(x = Longitude, y = Latitude, label = Sampling_ID), size = 2) +
+  geom_text(data = MONT.att, aes(x = Long.trans, y = Lat.trans, label = Sampling_ID), size = 2) +
   theme_void()
 MONT.plot
 
@@ -213,9 +199,9 @@ TRAC.att <- attributes %>%
 
 TRAC.plot <- ggplot() + 
   geom_sf(data = TRAC, fill = "lightblue") +
-  geom_point(data = TRAC.att, aes(x = Longitude, y = Latitude, size = prev_LeGi, color = Sampling_method)) + 
+  geom_point(data = TRAC.att, aes(x = Long.trans, y = Lat.trans, size = prev_LeGi, color = Sampling_method)) + 
   scale_color_manual(values = col.pal) +
-  geom_text(data = TRAC.att, aes(x = Longitude, y = Latitude, label = Sampling_ID), size = 2) +
+  geom_text(data = TRAC.att, aes(x = Long.trans, y = Lat.trans, label = Sampling_ID), size = 2) +
   theme_void()
 TRAC.plot
 
@@ -226,9 +212,9 @@ COEU.att <- attributes %>%
 
 COEU.plot <- ggplot() + 
   geom_sf(data = COEU, fill = "lightblue") +
-  geom_point(data = COEU.att, aes(x = Longitude, y = Latitude, size = prev_LeGi, color = Sampling_method)) + 
+  geom_point(data = COEU.att, aes(x = Long.trans, y = Lat.trans, size = prev_LeGi, color = Sampling_method)) + 
   scale_color_manual(values = col.pal) +
-  geom_text(data = COEU.att, aes(x = Longitude, y = Latitude, label = Sampling_ID), size = 2) +
+  geom_text(data = COEU.att, aes(x = Long.trans, y = Lat.trans, label = Sampling_ID), size = 2) +
   theme_void()
 COEU.plot
 
@@ -239,9 +225,9 @@ PINR.att <- attributes %>%
 
 PINR.plot <- ggplot() + 
   geom_sf(data = PINR, fill = "lightblue") +
-  geom_point(data = PINR.att, aes(x = Longitude, y = Latitude, size = prev_LeGi, color = Sampling_method)) + 
+  geom_point(data = PINR.att, aes(x = Long.trans, y = Lat.trans, size = prev_LeGi, color = Sampling_method)) + 
   scale_color_manual(values = col.pal) +
-  geom_text(data = PINR.att, aes(x = Longitude, y = Latitude, label = Sampling_ID), size = 2) +
+  geom_text(data = PINR.att, aes(x = Long.trans, y = Lat.trans, label = Sampling_ID), size = 2) +
   theme_void()
 PINR.plot
 
@@ -252,9 +238,9 @@ STON.att <- attributes %>%
 
 STON.plot <- ggplot() + 
   geom_sf(data = STON, fill = "lightblue") +
-  geom_point(data = STON.att, aes(x = Longitude, y = Latitude, size = prev_LeGi, color = Sampling_method)) + 
+  geom_point(data = STON.att, aes(x = Long.trans, y = Lat.trans, size = prev_LeGi, color = Sampling_method)) + 
   scale_color_manual(values = col.pal) +
-  geom_text(data = STON.att, aes(x = Longitude, y = Latitude, label = Sampling_ID), size = 2) +
+  geom_text(data = STON.att, aes(x = Long.trans, y = Lat.trans, label = Sampling_ID), size = 2) +
   theme_void()
 STON.plot #Shifted coordinates
 
@@ -265,10 +251,10 @@ STON.plot #Shifted coordinates
 ### Prevalence data ----
 
 lake.attributes <- CombinedData %>% #Selecting abundance data
-  select(Lake, starts_with(c("tot", "inf")))
+  select(Lake, Lat.lake, Long.lake, starts_with(c("tot", "inf")))
 
 lake.attributes <- lake.attributes %>% #Lake abundance sums
-  group_by(Lake) %>%
+  group_by(Lake, Lat.lake, Long.lake) %>%
   summarise(across(.cols = everything(), sum, na.rm = TRUE))
 
 lake.attributes <- lake.attributes %>% #Creating fish abundance columns
@@ -279,22 +265,7 @@ lake.attributes <- lake.attributes %>% #Creating prevalence columns
   mutate(prev_fish = inf_fish/tot_fish) %>% 
   mutate(prev_LeGi = inf_LeGi/tot_LeGi)
 
-### Lake coordinates ----
-Lake.lat <- c("45 56 34", "45 55 30", "45 58 06", "45 52 53", "45 58 38", "45 59 34", "45 59 21", "45 53 14", "45 54 53", "45 55 20", "45 55 40", "45 57 39", "45 54 52", "45 55 38", "45 59 16") #GPS data from bathymetric maps
-Lake.long <- c("-73 58 41", "-74 03 50", "-74 00 36", "-74 00 02", "-74 00 03", "-74 00 34", "-73 59 55", "-74 01 24", "-74 02 28", "-74 04 23", "-74 02 09", "-74 02 28", "-73 57 44", "-74 03 57", "-74 00 29") #GPS data from bathymetric maps
-
-#Latitude
-Lake.lat <- conv_unit(Lake.lat, from = "deg_min_sec", to = "dec_deg") #Coordinates conversion
-Lake.lat <- as.numeric(Lake.lat)
-
-#Longitude
-Lake.long <- conv_unit(Lake.long, from = "deg_min_sec", to = "dec_deg")  #Coordinates conversion
-Lake.long <- as.numeric(Lake.long)
-
-### Data frame ----
-lake.attributes <- cbind(lake.attributes, Lake.lat, Lake.long)
-
-## Map frame ----
+### Map frame ----
 
 Study.map <- rbind(ACHI, BEAV, COEU, CORN, CORR, CROC, CROM, ECHO, FOUR, MONT, MORE, PINR, STON, TRAC, TRIT)
 
@@ -364,7 +335,7 @@ Study.fish.plot <- ggplot() +
                    text_family = "Calibri Light") + 
   annotation_north_arrow(location = "tl", 
                          which_north = "true", 
-                         pad_x = unit(0.45, "cm"), 
+                         pad_x = unit(0.55, "cm"), 
                          pad_y = unit(0.65, "cm"), 
                          style = north_arrow_nautical(fill = c("grey60", "white"), line_col = "black", text_size = 10, text_family = "Calibri Light"),
                          height = unit(1, "cm"),
@@ -378,4 +349,4 @@ Study.fish.plot <- ggplot() +
 Study.fish.plot
 
 ggsave(paste0(to.figs, "PrevalenceMap_Fish.png"), plot = Study.fish.plot, dpi = 300, width = 10, height = 15, units = "cm")
-ggsave(paste0(to.rédaction,"./Figures/", "Figure2.png"), plot = Study.fish.plot, dpi = 300, width = 10, height = 15, units = "cm")
+ggsave(paste0(to.rédaction,"./Figures/", "Figure2_Map.png"), plot = Study.fish.plot, dpi = 300, width = 10, height = 15, units = "cm")
