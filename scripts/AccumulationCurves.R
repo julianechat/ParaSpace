@@ -3,7 +3,7 @@
 ## Authors : Juliane Vigneault & Éric Harvey
 ## Date created : January 11, 2023
 
-## Copyright (c) Juliane Vigneault, 2023 ## je ne suis pas certain du type de copyright qui s'applique sur un script R ?
+## Copyright (c) Juliane Vigneault, 2023
 ## Email: juliane.vigneault@umontreal.ca
 
 # ---- Script setup ----
@@ -251,7 +251,7 @@ df.inf <- rbind(A.inf, MT.inf, S.inf, T.inf)
 inf.acc.plot <- ggplot(df.inf) + 
   stat_summary(aes(x = N, y = Infected, group = Method, color = Method, shape = Method), fun = mean, size = 1) +
   geom_smooth(aes(x= N, y = Infected, group = Method, color = Method, fill = Method), method = "lm", se = TRUE, level = 0.95,lineend = "round") +
-  labs(x = "Number of samplings", y = "Infected fish abundance", tag = "A") +
+  labs(x = "Number of samples", y = "Infected fish abundance") +
   scale_color_manual(values = c("#7E7E7E", "#2A5676", "#999600", "#966F1E"),
                      aesthetics = c("color", "fill")) +
   scale_shape_manual(values = c(0,5,2,1)) +
@@ -367,7 +367,7 @@ df.tot <- rbind(A.tot, MT.tot, S.tot, T.tot)
 tot.acc.plot <- ggplot(df.tot) + 
   stat_summary(aes(x = N, y = Total, group = Method, color = Method, shape = Method), fun = mean, size = 1) +
   geom_smooth(aes(x= N, y = Total, group = Method, color = Method, fill = Method), method = "lm", se = TRUE, lineend = "round") +
-  labs(x = "Number of samplings", y = "Total fish abundance", tag = "B") +
+  labs(x = "Number of samples", y = "Total fish abundance") +
   scale_color_manual(values = c("#7E7E7E", "#2A5676", "#999600", "#966F1E"),
                      aesthetics = c("color", "fill")) +
   scale_shape_manual(values = c(0, 5, 2, 1)) +
@@ -500,7 +500,7 @@ prev.acc.plot <- ggplot(df.prev) +
   stat_summary(aes(x = N, y = Prevalence, group = Method, color = Method, shape = Method), fun = mean, size = 1) +
   stat_smooth(aes(x= N, y = Prevalence, group = Method, color = Method, fill = Method), method = "loess", se = TRUE, level = 0.95, lineend = "round", alpha = 0.3) +
   scale_y_continuous(labels = scales::percent) +
-  labs(x = "Number of samplings", y = "Mean infection prevalence", tag = "C") +
+  labs(x = "Number of samples", y = "Mean infection prevalence") +
   scale_color_manual(values = c("#7E7E7E", "#2A5676", "#999600", "#966F1E"),
                      aesthetics = c("color", "fill")) +
   scale_shape_manual(values = c(0, 5, 2, 1)) +
@@ -517,111 +517,113 @@ prev.acc.plot <- ggplot(df.prev) +
         plot.tag = element_text(face = "bold"))
 
 ggsave(paste0(to.figs, "AccumulationCurves_prevalence.png"), plot = prev.acc.plot, dpi = 300, width = 15, height = 10)  
+ggsave(paste0(to.rédaction, "Figures/Figure3_PrevSimulations.png"), plot = prev.acc.plot, dpi = 300, width = 15, height = 10)
 
 ## Slope and Intercept extractions ----
 
 ### All ----
 
-df.A <- cbind(A.inf, 
-                Total = A.tot$Total, 
-                Prevalence = A.prev$Prevalence)
+#df.A <- cbind(A.inf, 
+ #               Total = A.tot$Total, 
+  #              Prevalence = A.prev$Prevalence)
   
-lm.A <- lm(Prevalence ~ N, data = df.A)
-summary(lm.All)
+#lm.A <- lm(Prevalence ~ N, data = df.A)
+#summary(lm.All)
 
-Intercept.A <- lm.All$coefficients[1] #Extracting intercept
-Slope.A <- lm.All$coefficients[2] #Extracting slope
+#Intercept.A <- lm.All$coefficients[1] #Extracting intercept
+#Slope.A <- lm.All$coefficients[2] #Extracting slope
 
 ### Minnow trap ----
 
-df.MT <- cbind(MT.inf, 
-                Total = MT.tot$Total, 
-                Prevalence = MT.prev$Prevalence)
+#df.MT <- cbind(MT.inf, 
+ #               Total = MT.tot$Total, 
+  #              Prevalence = MT.prev$Prevalence)
 
-lm.MT <- lm(Prevalence ~ N, data = df.MT)
-summary(lm.MT)
+#lm.MT <- lm(Prevalence ~ N, data = df.MT)
+#summary(lm.MT)
 
-Intercept.MT <- lm.MT$coefficients[1] #Extracting intercept
-Slope.MT <- lm.MT$coefficients[2] #Extracting slope
+#Intercept.MT <- lm.MT$coefficients[1] #Extracting intercept
+#Slope.MT <- lm.MT$coefficients[2] #Extracting slope
 
 ### Seine net ----
 
-df.S <- cbind(S.inf, 
-                Total = S.tot$Total, 
-                Prevalence = S.prev$Prevalence)
+#df.S <- cbind(S.inf, 
+                #Total = S.tot$Total, 
+               # Prevalence = S.prev$Prevalence)
 
-lm.S <- lm(Prevalence ~ N, data = df.S)
-summary(lm.S)
+#lm.S <- lm(Prevalence ~ N, data = df.S)
+#summary(lm.S)
 
-Intercept.S <- lm.S$coefficients[1] #Extracting intercept
-Slope.S <- lm.S$coefficients[2] #Extracting slope
+#Intercept.S <- lm.S$coefficients[1] #Extracting intercept
+#Slope.S <- lm.S$coefficients[2] #Extracting slope
 
 ## Transect ----
 
-df.T <- cbind(T.inf, 
-                Total = T.tot$Total, 
-                Prevalence = T.prev$Prevalence)
+#df.T <- cbind(T.inf, 
+                #Total = T.tot$Total, 
+                #Prevalence = T.prev$Prevalence)
 
-lm.T <- lm(Prevalence ~ N, data = df.T)
-summary(lm.T)
+#lm.T <- lm(Prevalence ~ N, data = df.T)
+#summary(lm.T)
 
-Intercept.T <- lm.T$coefficients[1] #Extracting intercept
-Slope.T <- lm.T$coefficients[2] #Extracting slope
+#Intercept.T <- lm.T$coefficients[1] #Extracting intercept
+#Slope.T <- lm.T$coefficients[2] #Extracting slope
 
 ### Models summary table ----
 
 #Extracting model summaries
-tab.lm.All <- tidy(lm.A)
-tab.lm.MT <- tidy(lm.MT)
-tab.lm.S <- tidy(lm.S)
-tab.lm.T <- tidy(lm.T)
+#tab.lm.All <- tidy(lm.A)
+#tab.lm.MT <- tidy(lm.MT)
+#tab.lm.S <- tidy(lm.S)
+#tab.lm.T <- tidy(lm.T)
 
 #Binding tables and formatting 
-tab.mod.summary <- rbind(tab.lm.All, tab.lm.MT, tab.lm.S, tab.lm.T) %>% 
-  mutate(Method = c("All", "All", "Minnow trap", "Minnow trap", "Seine net", "Seine net", "Transect", "Transect"), .before = term) %>% 
-  gt(groupname_col = "Method") %>% 
-  tab_header(md("**TABLE S16.** Summary results of the prevalence accumulation curve simulations. The models are linear models")) %>% 
-  cols_label(term = md("**Term**"), estimate = md("**Estimate**"), std.error = md("**Standard error**"), statistic = md("**z-value**"), p.value = md("**p-value**")) %>%
-  sub_values(values = "(Intercept)", replacement = "Intercept") %>% 
-  sub_values(values = "N", replacement = "Slope") %>% 
-  fmt_number(decimals = 3) %>% 
-  tab_options(table.border.top.style = "hidden",
-              heading.border.bottom.color = "black",
-              row.striping.include_table_body = TRUE,
-              row_group.as_column = TRUE,
-              table.border.bottom.style = "hidden") %>% 
-  tab_style(style = cell_text(color = "black", font = "Calibri light", size = 9, align = "center", v_align = "middle", weight = "bold"),
-            locations = cells_row_groups()) %>% 
-  tab_style(style = cell_text(color = "black", font = "Calibri light", size = 9, align = "left", v_align = "middle"),
-            locations = cells_title()) %>% 
-  tab_style(style = cell_text(color = "black", font = "Calibri light", size = 9, align = "center", v_align = "middle"),
-            locations = cells_body()) %>% 
-  tab_style(style = cell_text(color = "black", font = "Calibri light", size = 9, align = "center", v_align = "middle"),
-            locations = cells_column_labels()) %>% 
-  tab_style(style = cell_borders(sides = c("top", "bottom", "right"), color = "darkgrey", weight = px(2)),
-            locations = cells_row_groups()) %>% 
-  tab_style(style= cell_borders(sides = c("bottom", "top"), weight = px(2)), 
-            location = list(cells_column_labels())) %>% 
-  tab_style(style = cell_borders(side = "top", weight = px(2), color = "black"),
-            locations = cells_row_groups(groups = "All")) %>% 
-  tab_style(style = cell_borders(sides = "bottom", weight = px(2), color = "black"),
-            locations =  cells_body(rows = 8)) %>% 
-  tab_style(style = cell_borders(side = "bottom", weight = px(2), color = "black"),
-            locations = cells_row_groups(groups = "Transect")) %>% 
-  tab_style(style = cell_borders(side = "bottom", weight = px(2), color = "darkgrey"),
-            locations = cells_body(rows = c(2, 4, 6)))
+#tab.mod.summary <- rbind(tab.lm.All, tab.lm.MT, tab.lm.S, tab.lm.T) %>% 
+ # mutate(Method = c("All", "All", "Minnow trap", "Minnow trap", "Seine net", "Seine net", "Transect", "Transect"), .before = term) %>% 
+  #gt(groupname_col = "Method") %>% 
+  #tab_header(md("**TABLE S16.** Summary results of the prevalence accumulation curve simulations. The models are linear models")) %>% 
+  #cols_label(term = md("**Term**"), estimate = md("**Estimate**"), std.error = md("**Standard error**"), statistic = md("**z-value**"), p.value = md("**p-value**")) %>%
+  #sub_values(values = "(Intercept)", replacement = "Intercept") %>% 
+  #sub_values(values = "N", replacement = "Slope") %>% 
+  #fmt_number(decimals = 3) %>% 
+  #tab_options(table.border.top.style = "hidden",
+   #           heading.border.bottom.color = "black",
+    #          row.striping.include_table_body = TRUE,
+     #         row_group.as_column = TRUE,
+      #        table.border.bottom.style = "hidden") %>% 
+  #tab_style(style = cell_text(color = "black", font = "Calibri light", size = 9, align = "center", v_align = "middle", weight = "bold"),
+   #         locations = cells_row_groups()) %>% 
+  #tab_style(style = cell_text(color = "black", font = "Calibri light", size = 9, align = "left", v_align = "middle"),
+   #         locations = cells_title()) %>% 
+  #tab_style(style = cell_text(color = "black", font = "Calibri light", size = 9, align = "center", v_align = "middle"),
+  #          locations = cells_body()) %>% 
+  #tab_style(style = cell_text(color = "black", font = "Calibri light", size = 9, align = "center", v_align = "middle"),
+   #         locations = cells_column_labels()) %>% 
+  #tab_style(style = cell_borders(sides = c("top", "bottom", "right"), color = "darkgrey", weight = px(2)),
+   #         locations = cells_row_groups()) %>% 
+  #tab_style(style= cell_borders(sides = c("bottom", "top"), weight = px(2)), 
+  #          location = list(cells_column_labels())) %>% 
+  #tab_style(style = cell_borders(side = "top", weight = px(2), color = "black"),
+   #         locations = cells_row_groups(groups = "All")) %>% 
+  #tab_style(style = cell_borders(sides = "bottom", weight = px(2), color = "black"),
+   #         locations =  cells_body(rows = 8)) %>% 
+  #tab_style(style = cell_borders(side = "bottom", weight = px(2), color = "black"),
+   #         locations = cells_row_groups(groups = "Transect")) %>% 
+  #tab_style(style = cell_borders(side = "bottom", weight = px(2), color = "darkgrey"),
+   #         locations = cells_body(rows = c(2, 4, 6)))
 
-tab.mod.summary  %>% #Saving gt tab
-  gtsave("Tab_Simulations_Summary.png", paste0(to.figs))
-tab.mod.summary  %>% 
-  gtsave("Table_S16.png", paste0(to.rédaction, "./Support_information/"))
+#tab.mod.summary  %>% #Saving gt tab
+ # gtsave("Tab_Simulations_Summary.png", paste0(to.figs))
+#tab.mod.summary  %>% 
+ # gtsave("Table_S16.png", paste0(to.rédaction, "./Support_information/"))
 
 # ---- Summary figure ----
 
 summary.acc.plot <- inf.acc.plot + tot.acc.plot + prev.acc.plot +
   plot_layout(ncol = 3,
               nrow = 1, 
-              guides = "collect") &
+              guides = "collect",
+              tag_level = "new") &
   theme(legend.position = "bottom",
         text = element_text(size = 32, family = "Calibri Light", color = "black"),
         axis.title.x = element_text(margin = unit(c(10, 0, 0, 0), "mm")),
@@ -631,5 +633,36 @@ summary.acc.plot <- inf.acc.plot + tot.acc.plot + prev.acc.plot +
   guides(color = guide_legend(override.aes = list(size = 2)))
 
 ggsave(paste0(to.figs, "AccumulationCurves_summary.png"), plot = summary.acc.plot, dpi = 300, width = 30, height = 12)
-ggsave(paste0(to.rédaction, "Figures/AccumulationCurves_summary.png"), plot = summary.acc.plot, dpi = 300, width = 30, height = 12)
 
+## Extraction of final prevalence value ----
+
+### All ----
+prev.stab.A <- df.prev %>% 
+  filter(Method == "All") %>% 
+  filter(N == "35")
+
+prev.stab.A <- mean(prev.stab.A$Prevalence)
+
+### Minnow trap ----
+
+prev.stab.MT <- df.prev %>% 
+  filter(Method == "Minnow trap") %>% 
+  filter(N == "35")
+
+prev.stab.MT <- mean(prev.stab.MT$Prevalence)
+
+### Seine net ----
+
+prev.stab.S <- df.prev %>% 
+  filter(Method == "Seine net") %>% 
+  filter(N == "35")
+
+prev.stab.S <- mean(prev.stab.S$Prevalence)
+
+### Transect ----
+
+prev.stab.T <- df.prev %>% 
+  filter(Method == "Transect") %>% 
+  filter(N == "35")
+
+prev.stab.T <- mean(prev.stab.T$Prevalence)
