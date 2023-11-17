@@ -121,28 +121,28 @@ Tdata <- data.frame(Lake, Infected, Total, Prevalence) %>%
 ## Minnow traps ----
 
 acc.MT <- specaccum(MTdata.tot, method = "random", permutations = 1000, gamma = "jack1") #Accumulation curve function
-MT.plot <- plot(acc.MT, col = "blue", xlab = "sampling", ylab = "species")
+MT.plot <- plot(acc.MT, col = "#2A5676", xlab = "sampling", ylab = "species")
 
 ## Seine net ----
 
 acc.S <- specaccum(Sdata.tot, method = "random", permutations = 1000, gamma = "jack1") #Accumulation curve function
-S.plot <- plot(acc.S, col = "red", xlab = "sampling", ylab = "species")
+S.plot <- plot(acc.S, col = "#999600", xlab = "sampling", ylab = "species")
 
 ## Transect ----
 
 acc.T <- specaccum(Tdata.tot, method = "random", permutations = 1000, gamma = "jack1") #Accumulation curve function
-T.plot <- plot(acc.T, col = "darkgoldenrod1", xlab = "sampling", ylab = "species")
+T.plot <- plot(acc.T, col = "#966F1E", xlab = "sampling", ylab = "species")
 
 ## Comparison plot ----
 
 pdf(paste0(to.figs, "AccumulationCurves_species.pdf"), width = 15, height = 10)
 
-plot(acc.S, col = "red", xlab = "sampling", ylab = "species", cex = 1)
-plot(acc.MT, add = TRUE, col = "blue", xlab = "sampling", ylab = "species")
-plot(acc.T, add = TRUE, col = "darkgoldenrod1", xlab = "sampling", ylab = "species")
+plot(acc.S, col = "#999600", xlab = "sampling", ylab = "species", cex = 1)
+plot(acc.MT, add = TRUE, col = "#2A5676", xlab = "sampling", ylab = "species")
+plot(acc.T, add = TRUE, col = "#966F1E", xlab = "sampling", ylab = "species")
 
 legend("bottomright", legend = c("Seine", "Minnow Trap", "Transect"),
-       fill = c("red", "blue", "darkgoldenrod1"))
+       fill = c("#999600", "#2A5676", "#966F1E"))
 
 dev.off()
 
@@ -413,6 +413,8 @@ A.prev <- A.prev %>%
 
 boxplot(Prevalence ~ N, data = A.prev)
 
+
+
 ## Minnow trap ----
 
 MT.prev <- data.frame()
@@ -495,9 +497,69 @@ boxplot(Prevalence ~ N, data = T.prev)
 ## Plotting simulation ----
 
 df.prev <- rbind(A.prev, MT.prev, S.prev, T.prev)
+df.prev$N <- as.factor(df.prev$N)
+df.prev$Method <- as.factor(df.prev$Method)
+
+#box.plot <- df.prev %>% 
+ # group_by(Method) %>% 
+  #ggplot(aes(y = Prevalence, x = N, color = Method)) +
+  #geom_boxplot(aes(fill = Method), alpha = 0.3) + 
+  #facet_wrap(vars(Method)) +
+  #scale_y_continuous(labels = scales::percent) +
+  #labs(x = "Number of samples", y = "Mean infection prevalence") +
+  #scale_color_manual(values = c("#7E7E7E", "#2A5676", "#999600", "#966F1E"),
+   #                  aesthetics = c("color", "fill")) +
+  #scale_shape_manual(values = c(0, 5, 2, 1)) +
+  #guides(fill = guide_legend(override.aes = list(fill = NA, linetype = 0))) +
+  #theme(text = element_text(size = 20, family = "Calibri Light", color = "black"),
+   #     panel.background = element_blank(),
+    #    legend.key = element_rect(fill = NA),
+     #   axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
+      #  axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
+       # axis.text.x = element_text(color = "black"),
+        #axis.text.y = element_text(color = "black"),
+      #  axis.line.x = element_line(color = "black", lineend = "round"),
+       # axis.line.y = element_line(color = "black", lineend = "round"),
+        #plot.tag = element_text(face = "bold"))
+
+
+
+#library(plyr)
+#df.mean <- ddply(df.prev, c("Method", "N"), summarise,
+ #     n    = length(Prevalence),
+  #    mean = mean(Prevalence),
+   #   sd   = sd(Prevalence),
+    #  se   = sd / sqrt(n),
+     # df = n-1,
+     # t.score = qt(p = 0.05/2, df = df, lower.tail = FALSE),
+    #  margin = t.score*se,
+    #  lower = mean-margin,
+     # upper = mean+margin)
+
+#df.mean$N <- as.numeric(df.mean$N)
+
+#prev.mean.plot <- ggplot(df.mean) +
+ # geom_point(aes(x = N, y = mean, group = Method, color = Method, shape = Method), size = 1) +
+  #geom_smooth(aes(x = N, y = mean, group = Method, color = Method, fill = Method), se = FALSE) +
+  #geom_ribbon(aes(x = N, ymin = lower, ymax = upper, color = Method, fill = Method), alpha = 0.3, lineend = "round") + 
+  #scale_y_continuous(labels = scales::percent) +
+  #labs(x = "Number of samples", y = "Mean infection prevalence") +
+  #scale_color_manual(values = c("#7E7E7E", "#2A5676", "#999600", "#966F1E"),
+   #                  aesthetics = c("color", "fill")) +
+  #scale_shape_manual(values = c(0, 5, 2, 1)) +
+  #guides(fill = guide_legend(override.aes = list(fill = NA, linetype = 0))) +
+  #theme(text = element_text(size = 20, family = "Calibri Light", color = "black"),
+   #     panel.background = element_blank(),
+    #    legend.key = element_rect(fill = NA),
+     #   axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
+      #  axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
+       # axis.text.x = element_text(color = "black"),
+        #axis.text.y = element_text(color = "black"),
+        #axis.line.x = element_line(color = "black", lineend = "round"),
+        #axis.line.y = element_line(color = "black", lineend = "round"))
 
 prev.acc.plot <- ggplot(df.prev) + 
-  stat_summary(aes(x = N, y = Prevalence, group = Method, color = Method, shape = Method), fun = mean, size = 1) +
+  stat_summary(aes(x = N, y = Prevalence, group = Method, color = Method, shape = Method), fun = "mean", size = 1) +
   stat_smooth(aes(x= N, y = Prevalence, group = Method, color = Method, fill = Method), method = "loess", se = TRUE, level = 0.95, lineend = "round", alpha = 0.3) +
   scale_y_continuous(labels = scales::percent) +
   labs(x = "Number of samples", y = "Mean infection prevalence") +
@@ -513,8 +575,7 @@ prev.acc.plot <- ggplot(df.prev) +
         axis.text.x = element_text(color = "black"),
         axis.text.y = element_text(color = "black"),
         axis.line.x = element_line(color = "black", lineend = "round"),
-        axis.line.y = element_line(color = "black", lineend = "round"),
-        plot.tag = element_text(face = "bold"))
+        axis.line.y = element_line(color = "black", lineend = "round"))
 
 ggsave(paste0(to.figs, "AccumulationCurves_prevalence.png"), plot = prev.acc.plot, dpi = 300, width = 15, height = 10)  
 ggsave(paste0(to.rédaction, "Figures/Figure3_PrevSimulations.png"), plot = prev.acc.plot, dpi = 300, width = 15, height = 10)

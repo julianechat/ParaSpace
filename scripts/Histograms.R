@@ -16,6 +16,7 @@ to.output <- "./output/"
 to.figs <- "./figs/"
 to.R <- "./R/"
 to.carto <- "./carto/"
+to.rédaction <- "./rédaction/"
 
 ## Loading packages ----
 
@@ -159,7 +160,7 @@ All.plain.hist <- hist(All.prev$prev_fish)
 
 All.hist <- ggplot(All.prev, aes(prev_fish)) + 
   geom_histogram(bins = 6, fill = "#7E7E7E", color = "black", alpha = 0.8) +
-  labs(x = "Prevalence", y = "Frequency", title = "All methods") + 
+  labs(x = "Prevalence", y = "Frequency", title = "All") + 
   theme(text = element_text(size = 32, family = "Calibri Light", color = "black"),
         axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
         axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
@@ -281,7 +282,7 @@ Summary.plot <- All.hist + Trans.hist + Seine.hist + Trap.hist +
               
                   
 ggsave(paste0(to.figs, "FrequencyDistribution_summary.png"), plot = Summary.plot, dpi = 300, width = 15, height = 17)
-
+ggsave(paste0(to.rédaction, "Figures/Figure4_FreqDistributions.png"), plot = Summary.plot, dpi = 300, width = 15, height = 17)
 
 ## Summary trap ----
 

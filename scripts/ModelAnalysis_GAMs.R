@@ -1,4 +1,4 @@
-## Script name : Model analysis
+## Script name : Model analysis GAMMs
 
 ## Authors : Juliane Vigneault
 ## Date created : March 23, 2023
@@ -729,7 +729,7 @@ DO.pe <- DO.sm %>%
   geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = DO.T), fill = "#682714", alpha = 0.5) +
   geom_line(aes(x = DO.T, y = est), color = "#682714", lwd = 1.2) +
   scale_y_continuous(trans = inverse_logit_trans) +
-  labs(x = "Dissolved oxygen (%)", y = "Partial effect (prevalence)", tag = "F") +
+  labs(x = "Dissolved oxygen (mg/L)", y = "Partial effect (prevalence)", tag = "F") +
   theme(text = element_text(size = 20, 
                             family = "Calibri Light", 
                             color = "black"),
@@ -744,6 +744,7 @@ DO.pe <- DO.sm %>%
                                    lineend = "round"),
         plot.caption = element_blank(),
         plot.title = element_blank())
+
 #### Visualizing summed effects
 plot_smooth(DO.GAMM, view = "DO.T", rm.ranef = FALSE, 
             transform = plogis, 
@@ -875,7 +876,7 @@ AREAPERI.GAMM$scale
 #### Visualizing partial effects
 draw.AREAPERI <- draw(AREAPERI.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
   scale_y_continuous(trans = inverse_logit_trans) +
-  labs(x = "Area:Perimeter", y = "Prevalence", tag = "H") +
+  labs(x = "Area:Perimeter", y = "Prevalence", tag = "I") +
   theme(text = element_text(size = 20, 
                             family = "Calibri Light", 
                             color = "black"),
@@ -905,7 +906,7 @@ AREAPERI.pe <- AREAPERI.sm %>%
   geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = Area_Perimeter), fill = "#682714", alpha = 0.5) +
   geom_line(aes(x = Area_Perimeter, y = est), color = "#682714", lwd = 1.2) +
   scale_y_continuous(trans = inverse_logit_trans) +
-  labs(x = "Area:Perimeter (m)", y = "Partial effect (prevalence)", tag = "H") +
+  labs(x = "Area:Perimeter (m)", y = "Partial effect (prevalence)", tag = "I") +
   theme(text = element_text(size = 20, 
                             family = "Calibri Light", 
                             color = "black"),
@@ -1230,7 +1231,7 @@ DIVERS.GAMM$scale
 #### Visualizing partial effects
 draw.DIVERS <- draw(DIVERS.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
   scale_y_continuous(trans = inverse_logit_trans) + 
-  labs(x = "Simpson iversity", y = "Prevalence", tag = "J") +
+  labs(x = "Simpson iversity", y = "Prevalence", tag = "H") +
   theme(text = element_text(size = 20, 
                             family = "Calibri Light", 
                             color = "black"),
@@ -1260,7 +1261,7 @@ DIVERS.pe <- DIVERS.sm %>%
   geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = Diversity.T), fill = "#682714", alpha = 0.5) +
   geom_line(aes(x = Diversity.T, y = est), color = "#682714", lwd = 1.2) +
   scale_y_continuous(trans = inverse_logit_trans) +
-  labs(x = "Simpson's Diversity Index", y = "Partial effect (prevalence)", tag = "I") +
+  labs(x = "Simpson's Diversity Index", y = "Partial effect (prevalence)", tag = "H") +
   theme(text = element_text(size = 20, 
                             family = "Calibri Light", 
                             color = "black"),
@@ -1275,6 +1276,7 @@ DIVERS.pe <- DIVERS.sm %>%
                                    lineend = "round"),
         plot.caption = element_blank(),
         plot.title = element_blank()) 
+
 #### Visualizing summed effects
 DIVERS.fv <- fitted_values(DIVERS.GAMM, data = mod.data, scale = "response")
 ggplot(DIVERS.fv) +
@@ -1394,8 +1396,7 @@ dev.off()
 
 ## Summary figure ----
 
-Summary.plot <- TNTP.pe + MACRO.pe + TEMP.pe + TURB.pe + PH.pe + DO.pe + COND.pe + AREAPERI.pe
-  DIVERS.pe +
+Summary.plot <- TNTP.pe + MACRO.pe + TEMP.pe + TURB.pe + PH.pe + DO.pe + COND.pe + DIVERS.pe + AREAPERI.pe +
   plot_layout(ncol = 3,
               nrow = 3, 
               tag_level = "keep") &
@@ -1403,7 +1404,8 @@ Summary.plot <- TNTP.pe + MACRO.pe + TEMP.pe + TURB.pe + PH.pe + DO.pe + COND.pe
         plot.tag = element_text(face = "bold"))
   #& ylim(c(0,1)) #pas beau
   
-ggsave(paste0(to.figs, "GAMMs_summary.png"), plot = Summary.plot, dpi = 300, width = 35, height = 30)  
+ggsave(paste0(to.figs, "GAMMs_summary.png"), plot = Summary.plot, dpi = 300, width = 35, height = 30)
+ggsave(paste0(to.rédaction, "Figures/Figure5_GAMMs.png"), plot = Summary.plot, dpi = 300, width = 35, height = 30)
 
 ## Perimeter figure ----
 
