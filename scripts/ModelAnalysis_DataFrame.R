@@ -19,7 +19,6 @@ to.carto <- "./carto/"
 ## Loading packages & functions ----
 
 library(dplyr)
-library(lme4)
 
 ## Loading data ----
 
@@ -31,6 +30,14 @@ LakeBiotic <- read.csv(paste0(to.output, "Lake_Trans_BioticData.csv"))
 # ---- Building data frame ----
 
 trans.data <- merge(TransectData, LakesCharacteristics, by = "Lake") #Binding lake charactristics data
+trans.data <- trans.data %>% 
+  rename_at("Latitude.x", ~"Latitude.site") %>% 
+  rename_at("Longitude.x", ~"Longitude.site") %>% 
+  rename_at("Latitude.y", ~"Latitude.lake") %>% 
+  rename_at("Longitude.y", ~"Longitude.lake") %>% 
+  rename_at("Mean_depth.x", ~"MeanDepth.site") %>% 
+  rename_at("Mean_depth.y", ~"MeanDepth.lake")
+
 trans.data <- merge(trans.data, TransBiotic, by = "Transect_ID") #Binding biotic data
 
 ## Infection prevalence ----
@@ -51,10 +58,10 @@ trans.data <- trans.data %>%
 trans.mod <- trans.data %>% #Keeping relevant variables
   select(Transect_ID, Lake, Watershed,
          inf_fish, tot_fish, prev_fish,
-         Silt, Sand, Rock, Metric_block, Macrophyte, Mean_depth.x, Trunk,
+         Silt, Sand, Rock, Metric_block, Macrophyte, MeanDepth.site, Trunk,
          Temperature, Conductivity, DO, Turbidity, pH, 
          TOC, TN, TP, 
-         Lake_area, Perimeter, Mean_depth.y, Max_depth, WRT,
+         Lake_area, Perimeter, MeanDepth.lake, Max_depth, WRT,
          Drainage_area, Elevation, Connectivity, 
          Centrarchids, Species_richness, Diversity)
 
@@ -88,12 +95,3 @@ trans.mod$Transect_ID <- as.factor(trans.mod$Transect_ID)
 trans.mod$Watershed <- as.factor(trans.mod$Watershed)
 
 write.csv(trans.mod, paste0(to.output, "Transects_Lake_Data.csv"), row.names = FALSE) #Saving data set
-
-# ---- Modelling test ----
-
-test.trans <- glmer(cbind(inf_fish, tot_fish - inf_fish) ~ TN.T + TOC.T + (1|Lake), family = binomial, data = trans.mod)
-summary(test.trans)
-
-test.lake <- glm(cbind(inf_fish, tot_fish - inf_fish) ~ TN.L + TOC.L + (1|Lake), family = binomial, data = trans.mod)
-summary(test.lake)
-

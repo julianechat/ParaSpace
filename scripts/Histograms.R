@@ -151,8 +151,8 @@ Small.prev <- Small.prev %>%
   mutate(prev_fish = (inf_fish/tot_fish)*100)
 
 # ---- Histograms ----
+
 col.pal2 <- c("#7E7E7E", "#2A5676", "#999600", "#966F1E")
-col.pal4 <- c("#7E7E7E", "#005260", "#A4473D", "#A57E00")
 
 ## All methods ----
 
@@ -161,6 +161,7 @@ All.plain.hist <- hist(All.prev$prev_fish)
 All.hist <- ggplot(All.prev, aes(prev_fish)) + 
   geom_histogram(bins = 6, fill = "#7E7E7E", color = "black", alpha = 0.8) +
   labs(x = "Prevalence", y = "Frequency", title = "All") + 
+  ylim(0,5) +
   theme(text = element_text(size = 32, family = "Calibri Light", color = "black"),
         axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
         axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
@@ -170,6 +171,8 @@ All.hist <- ggplot(All.prev, aes(prev_fish)) +
         axis.line.x = element_line(color = "black",lineend = "round"),
         axis.line.y = element_line(color = "black", lineend = "round"),
         plot.title = element_text(hjust = 0.5, vjust = 1))
+
+ggsave(paste0(to.figs, "FrequencyDistribution_All.png"), plot = All.hist, dpi = 300, width = 5, height = 5)
 
 ## Transect ----
 
@@ -178,6 +181,7 @@ Trans.plain.hist <- hist(Trans.prev$prev_fish)
 Trans.hist <- ggplot(Trans.prev, aes(prev_fish)) + 
   geom_histogram(bins = 6, fill = "#2A5676", color = "black", alpha = 0.8) +
   labs(x = "Prevalence", y = "Frequency", title = "Transect") + 
+  ylim(0,5) +
   theme(text = element_text(size = 32, family = "Calibri Light", color = "black"),
         axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
         axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
@@ -187,6 +191,8 @@ Trans.hist <- ggplot(Trans.prev, aes(prev_fish)) +
         axis.line.x = element_line(color = "black",lineend = "round"),
         axis.line.y = element_line(color = "black", lineend = "round"),
         plot.title = element_text(hjust = 0.5, vjust = 1))
+
+ggsave(paste0(to.figs, "FrequencyDistribution_Transect.png"), plot = Trans.hist, dpi = 300, width = 5, height = 5)
 
 ## Seine net ----
 
@@ -195,6 +201,7 @@ Seine.plain.hist <- hist(Seine.prev$prev_fish)
 Seine.hist <- ggplot(Seine.prev, aes(prev_fish)) + 
   geom_histogram(bins = 6, fill = "#999600", color = "black", alpha = 0.8) +
   labs(x = "Prevalence", y = "Frequency", title = "Seine net") + 
+  ylim(0,5) +
   theme(text = element_text(size = 32, family = "Calibri Light", color = "black"),
         axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
         axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
@@ -205,6 +212,8 @@ Seine.hist <- ggplot(Seine.prev, aes(prev_fish)) +
         axis.line.y = element_line(color = "black", lineend = "round"),
         plot.title = element_text(hjust = 0.5, vjust = 1))
 
+ggsave(paste0(to.figs, "FrequencyDistribution_Seine.png"), plot = Seine.hist, dpi = 300, width = 5, height = 5)
+
 ## Minnow trap ----
 
 Trap.plain.hist <- hist(Trap.prev$prev_fish)
@@ -212,6 +221,7 @@ Trap.plain.hist <- hist(Trap.prev$prev_fish)
 Trap.hist <- ggplot(Trap.prev, aes(prev_fish)) + 
   geom_histogram(bins = 6, fill = "#966F1E", color = "black", alpha = 0.8) +
   labs(x = "Prevalence", y = "Frequency", title = "Minnow trap") + 
+  ylim(0,5) +
   theme(text = element_text(size = 32, 
                             family = "Calibri Light", 
                             color = "black"),
@@ -225,6 +235,8 @@ Trap.hist <- ggplot(Trap.prev, aes(prev_fish)) +
         axis.line.y = element_line(color = "black", 
                                    lineend = "round"),
         plot.title = element_text(hjust = 0.5, vjust = 1))
+
+ggsave(paste0(to.figs, "FrequencyDistribution_MinnowTrap.png"), plot = Trap.hist, dpi = 300, width = 5, height = 5)
 
 ### Small trap ----
 
@@ -273,12 +285,10 @@ Summary.plot <- All.hist + Trans.hist + Seine.hist + Trap.hist +
               nrow = 2, 
               tag_level = "new") +
   plot_annotation(tag_levels = "A") &
-  ylim(0,5) &
   theme(text = element_text(size = 32, 
                             family = "Calibri Light", 
                             color = "black"),
-        plot.margin=unit(c(10,5,10,5), 'mm'),
-        plot.tag = element_text(face = "bold"))
+        plot.margin=unit(c(10,5,10,5), 'mm'))
               
                   
 ggsave(paste0(to.figs, "FrequencyDistribution_summary.png"), plot = Summary.plot, dpi = 300, width = 15, height = 17)

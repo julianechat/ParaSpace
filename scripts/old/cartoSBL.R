@@ -1,7 +1,29 @@
+
+to.data <- "./data/"
+to.script <- "./scripts/"
+to.output <- "./output/"
+to.figs <- "./figs/"
+to.R <- "./R/"
+to.carto <- "./carto/"
+to.rédaction <- "./rédaction/"
+
+## Loading packages ----
+
+library(sf)
+library(stringr)
+library(dplyr)
+library(ggplot2)
+library(ggspatial)
+library(colorspace)
+
 #### SBL cartography ####
 
 TRIT <- st_read(paste0(to.carto, "Lake_shapes/Triton.shp"))
 LONG <- st_read(paste0(to.carto, "Lake_shapes/Long.shp"))
+CORR <- st_read(paste0(to.carto, "Lake_shapes/Corriveau.shp"))
+CROC <- st_read(paste0(to.carto, "Lake_shapes/Croche.shp"))
+CROM <- st_read(paste0(to.carto, "Lake_shapes/Cromwell.shp"))
+
 PrevalenceLP <- read.csv2("~/Desktop/PrevalenceLP.csv", sep = ";")
 
 SBL.lat <- c( "45 58 38", "45 59 34", "45 59 21", "45 59 50", "45 59 16")
@@ -36,7 +58,7 @@ cropped.batiments <- st_crop(batiments, crop.frame)
 SBL.plot <- ggplot() + 
   geom_sf(data = cropped.lakes, fill = "lightblue", alpha = 0.5, color = "lightblue") +
   geom_sf(data = cropped.creeks, alpha = 0.5, color = "lightblue") +
-  geom_sf(data = SBL.map, aes(fill = (prev_LeGi))) +
+  #geom_sf(data = SBL.map, aes(fill = (prev_LeGi))) +
   theme(legend.position = c(0.14, 0.16),
         legend.text = element_text(color = "#4e4d47", size = 8),
         legend.title = element_text(color = "#4e4d47", size = 9, face = "bold"), 
@@ -50,15 +72,17 @@ SBL.plot <- ggplot() +
                    bar_cols = c("grey60", "white")) + 
   annotation_north_arrow(location = "tr", 
                          which_north = "true", 
-                         pad_x = unit(2.3, "cm"), 
+                         pad_x = unit(2.5, "cm"), 
                          pad_y = unit(1, "cm"), 
-                         style = north_arrow_nautical(fill = c("grey60", "white"), line_col = "#4e4d47")) +
-  scale_fill_continuous_sequential(palette = "YlOrBr") +
-  geom_sf_label(data = SBL.map, 
-                aes(label = NOM_ENTITE), 
-                size = 3,
-                position = position_nudge(x = -0.0008, y = -0.0008), 
-                label.size = 0.2) +
-  labs(fill = "Infection \nprevalence (%)", y = "", x = "")
+                         style = north_arrow_nautical(fill = c("grey60", "white"), line_col = "#4e4d47")) #+
+  #scale_fill_continuous_sequential(palette = "YlOrBr") +
+  #geom_sf_label(data = SBL.map, 
+   #             aes(label = NOM_ENTITE), 
+    #            size = 3,
+     #           position = position_nudge(x = -0.0008, y = -0.0008), 
+      #          label.size = 0.2) #+
+  #labs(fill = "Infection \nprevalence (%)", y = "", x = "")
 
 SBL.plot
+
+ggsave(paste0(to.figs, "MapSBL.png"), plot = SBL.plot, dpi = 300, width = 10, height = 15, units = "cm")

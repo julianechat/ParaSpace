@@ -370,13 +370,13 @@ plot_smooth(MACRO.GAMM, view = "Macrophyte", rm.ranef = FALSE, plot_all = "Lake"
 
 ### Transect depth ----
 #### Model
-DEPTH.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Depth, bs = "cs") + s(Lake, bs = "re"),
+DEPTH.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(MeanDepth.site, bs = "cs") + s(Lake, bs = "re"),
                   family = quasibinomial, data = mod.data, method = "ML")
 summary(DEPTH.GAMM) #Depth is not significant
 #Adj. R- sq. = 0.62
 #Deviance explained = 69.6%
 
-DEPTH.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(Depth) + random(Lake), 
+DEPTH.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(MeanDepth.site) + random(Lake), 
                         family = BB, data = mod.data, REML = TRUE, method = mixed())
 summary(DEPTH.GAMM.BB) #Not significant
 
@@ -938,6 +938,53 @@ plot_smooth(AREAPERI.GAMM, view = "Area_Perimeter", rm.ranef = FALSE, plot_all =
             rug = FALSE, 
             hide.label = TRUE) 
 
+### Shoreline complexity ----
+#### Model
+SHORELINE.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(ShorelineComplx, bs = "cs") + s(Lake, bs = "re"),
+                     family = quasibinomial, data = mod.data, method = "ML")
+summary(SHORELINE.GAMM) #Shoreline complexity is not significant (but lake yes)
+#Adj. R-sq. = 0.62
+#Deviance explained = 69.6%
+
+SHORELINE.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(ShorelineComplx) + random(Lake), 
+                           family = BB, data = mod.data, REML = TRUE, method = mixed())
+summary(SHORELINE.GAMM.BB) #not significant
+
+#### Model validation
+appraise(SHORELINE.GAMM)
+gam.check(SHORELINE.GAMM)
+SHORELINE.GAMM$scale
+#Model validation shows some residual patterns
+
+#### Visualizing partial effects
+draw.SHORELINE <- draw(SHORELINE.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
+  scale_y_continuous(trans = inverse_logit_trans) +
+  labs(x = "Shoreline Complexity", y = "Prevalence") +
+  theme(text = element_text(size = 20, 
+                            family = "Calibri Light", 
+                            color = "black"),
+        axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
+        axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
+        axis.text.x = element_text(color = "black"),
+        axis.text.y = element_text(color = "black"),
+        panel.background = element_blank(),
+        axis.line.x = element_line(color = "black", 
+                                   lineend = "round"),
+        axis.line.y = element_line(color = "black", 
+                                   lineend = "round"),
+        plot.caption = element_blank(),
+        plot.title = element_blank())
+draw.SHORELINE
+
+#### Visualizng summed effect
+plot_smooth(SHORELINE.GAMM, view = "ShorelineComplx", rm.ranef = FALSE, 
+            transform = plogis, 
+            ylim = c(0,1), ylab = "Infection prevalence",
+            xlim = c(0, 250), xlab = "ShorelineComplexity",
+            col = "orange",
+            rug = FALSE, 
+            hide.label = TRUE) 
+
 ### Area ----
 #### Model
 AREA.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Lake_area, bs = "cs") + s(Lake, bs = "fs"),
@@ -1045,13 +1092,13 @@ plot_smooth(PERI.GAMM, view = "Perimeter", rm.ranef = FALSE, plot_all = "Lake",
             hide.label = TRUE) 
 
 ### Mean depth ----
-MDEPTH.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Mean_depth, bs = "cs") + s(Lake, bs = "re"),
+MDEPTH.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(MeanDepth.lake, bs = "cs") + s(Lake, bs = "re"),
                    family = quasibinomial, data = mod.data, method = "ML")
 summary(MDEPTH.GAMM) #Mean depth is not significant
 #Adj. R-sq. = 0.62
 #Deviance explained = 69.6%
 
-MDEPTH.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(Mean_depth) + random(Lake), 
+MDEPTH.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(MeanDepth.lake) + random(Lake), 
                        family = BB, data = mod.data, REML = TRUE, method = mixed())
 summary(MDEPTH.GAMM.BB) #Model is not significant
 
