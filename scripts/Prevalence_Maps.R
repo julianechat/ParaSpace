@@ -25,6 +25,7 @@ library(dplyr)
 library(ggplot2)
 library(ggspatial)
 library(colorspace)
+library(patchwork)
 
 ## Loading data ----
 
@@ -48,8 +49,7 @@ TRIT <- st_read(paste0(to.carto, "Lake_shapes/Triton.shp"))
 
 creeks <- st_read(paste0(to.carto, "Attribute_templates/Template_creeks.shp"))
 lakes <- st_read(paste0(to.carto, "Attribute_templates/Template_lacs.shp"))
-#buildings <- st_point(paste0(to.carto, "Attribute_templates/Template_batiments_points.shp"))
-#batiments <- st_point(st_read(dsn = "carto/Attribute_templates", layer = "Template_batiments_points.shp"))
+watersheds <- st_read(paste0(to.carto, "Attribute_templates/Watershed_template.shp"))
 
 # ---- Intra lake LeGi prevalence bubble map ----
 
@@ -256,8 +256,15 @@ cropped.frame <- c(xmin = -74.08,
                    xmax = -73.94,
                    ymax = 46.00)
 
+cropped.frame2 <- c(xmin = -433485,
+                    ymin = 223316,
+                    xmax = -421000,
+                    ymax =  239250)
+
 cropped.creeks <- st_crop(creeks, cropped.frame)
 cropped.lakes <- st_crop(lakes, cropped.frame)
+
+cropped.watersheds <- st_crop(watersheds, cropped.frame2)
 
 ## Prevalence data ----
 
@@ -351,8 +358,8 @@ lake.attributes.T <- Study.map %>%
 FishMap.All <- ggplot() + 
   geom_sf(data = cropped.lakes, fill = "lightblue", alpha = 0.5, color = "lightblue") +
   geom_sf(data = cropped.creeks, color = "lightblue", alpha = 0.5) +
+  geom_sf(data = cropped.watersheds, fill = NA, linewidth = 0.5, color = "#467092") +
   geom_sf(data = lake.attributes.All, aes(fill = (prev_fish*100)), color = "black", size = 0.5) +
-  #scale_x_continuous(labels = c("74.08","74.02", "73.94")) +
   scale_fill_continuous_sequential(palette = "YlOrBr") +
   scale_continuous_identity(aesthetics = c(0, 0.75)) +
   theme(legend.position = c(0.88, 0.15),
@@ -373,7 +380,7 @@ FishMap.All <- ggplot() +
                    text_family = "Calibri Light") + 
   annotation_north_arrow(location = "tl", 
                          which_north = "true", 
-                         pad_x = unit(0.55, "cm"), 
+                         pad_x = unit(0.85, "cm"), 
                          pad_y = unit(0.65, "cm"), 
                          style = north_arrow_nautical(fill = c("grey60", "white"), line_col = "black", text_size = 10, text_family = "Calibri Light"),
                          height = unit(1, "cm"),
@@ -386,8 +393,9 @@ FishMap.All <- ggplot() +
                                ticks.colour = "black"))
 FishMap.All
 
-ggsave(paste0(to.figs, "PrevalenceMap_Fish_All.png"), plot = FishMap.All, dpi = 300, width = 10, height = 15, units = "cm")
-ggsave(paste0(to.rédaction,"./Figures/", "Figure2_Map.png"), plot = FishMap.All, dpi = 300, width = 10, height = 15, units = "cm")
+#ggsave(paste0(to.figs, "PrevalenceMap_Fish_All.png"), plot = FishMap.All, dpi = 300, width = 10, height = 15, units = "cm")
+ggsave(paste0(to.figs, "PrevalenceMap_Fish_All+BV.png"), plot = FishMap.All, dpi = 300, width = 10, height = 15, units = "cm")
+#ggsave(paste0(to.rédaction,"./Figures/", "Figure2_Map.png"), plot = FishMap.All, dpi = 300, width = 10, height = 15, units = "cm")
 
 ### Minnow traps ----
 
@@ -395,7 +403,7 @@ FishMap.MT <- ggplot() +
   geom_sf(data = cropped.lakes, fill = "lightblue", alpha = 0.5, color = "lightblue") +
   geom_sf(data = cropped.creeks, color = "lightblue", alpha = 0.5) +
   geom_sf(data = lake.attributes.MT, aes(fill = (prev_fish*100)), color = "black", size = 0.5) +
-  #scale_x_continuous(labels = c("74.08","74.02", "73.94")) +
+  geom_sf(data = cropped.watersheds, fill = NA, linewidth = 0.5, color = "#467092") +
   scale_fill_continuous_sequential(palette = "YlOrBr") +
   scale_continuous_identity(aesthetics = c(0, 0.75)) +
   theme(legend.position = c(0.88, 0.15),
@@ -416,7 +424,7 @@ FishMap.MT <- ggplot() +
                    text_family = "Calibri Light") + 
   annotation_north_arrow(location = "tl", 
                          which_north = "true", 
-                         pad_x = unit(0.55, "cm"), 
+                         pad_x = unit(0.85, "cm"), 
                          pad_y = unit(0.65, "cm"), 
                          style = north_arrow_nautical(fill = c("grey60", "white"), line_col = "black", text_size = 10, text_family = "Calibri Light"),
                          height = unit(1, "cm"),
@@ -429,7 +437,8 @@ FishMap.MT <- ggplot() +
                                ticks.colour = "black"))
 FishMap.MT
 
-ggsave(paste0(to.figs, "PrevalenceMap_Fish_MinnowTrap.png"), plot = FishMap.MT, dpi = 300, width = 10, height = 15, units = "cm")
+#ggsave(paste0(to.figs, "PrevalenceMap_Fish_MinnowTrap.png"), plot = FishMap.MT, dpi = 300, width = 10, height = 15, units = "cm")
+ggsave(paste0(to.figs, "PrevalenceMap_Fish_MinnowTrap+BV.png"), plot = FishMap.MT, dpi = 300, width = 10, height = 15, units = "cm")
 
 ### Seine net ----
 
@@ -437,7 +446,7 @@ FishMap.S <- ggplot() +
   geom_sf(data = cropped.lakes, fill = "lightblue", alpha = 0.5, color = "lightblue") +
   geom_sf(data = cropped.creeks, color = "lightblue", alpha = 0.5) +
   geom_sf(data = lake.attributes.S, aes(fill = (prev_fish*100)), color = "black", size = 0.5) +
-  #scale_x_continuous(labels = c("74.08","74.02", "73.94")) +
+  geom_sf(data = cropped.watersheds, fill = NA, linewidth = 0.5, color = "#467092") +
   scale_fill_continuous_sequential(palette = "YlOrBr") +
   scale_continuous_identity(aesthetics = c(0, 0.75)) +
   theme(legend.position = c(0.88, 0.15),
@@ -458,7 +467,7 @@ FishMap.S <- ggplot() +
                    text_family = "Calibri Light") + 
   annotation_north_arrow(location = "tl", 
                          which_north = "true", 
-                         pad_x = unit(0.55, "cm"), 
+                         pad_x = unit(0.85, "cm"), 
                          pad_y = unit(0.65, "cm"), 
                          style = north_arrow_nautical(fill = c("grey60", "white"), line_col = "black", text_size = 10, text_family = "Calibri Light"),
                          height = unit(1, "cm"),
@@ -471,7 +480,8 @@ FishMap.S <- ggplot() +
                                ticks.colour = "black"))
 FishMap.S
 
-ggsave(paste0(to.figs, "PrevalenceMap_Fish_Seine.png"), plot = FishMap.S, dpi = 300, width = 10, height = 15, units = "cm")
+#ggsave(paste0(to.figs, "PrevalenceMap_Fish_Seine.png"), plot = FishMap.S, dpi = 300, width = 10, height = 15, units = "cm")
+ggsave(paste0(to.figs, "PrevalenceMap_Fish_Seine+BV.png"), plot = FishMap.S, dpi = 300, width = 10, height = 15, units = "cm")
 
 ### Transect ----
 
@@ -479,7 +489,7 @@ FishMap.T <- ggplot() +
   geom_sf(data = cropped.lakes, fill = "lightblue", alpha = 0.5, color = "lightblue") +
   geom_sf(data = cropped.creeks, color = "lightblue", alpha = 0.5) +
   geom_sf(data = lake.attributes.T, aes(fill = (prev_fish*100)), color = "black", size = 0.5) +
-  #scale_x_continuous(labels = c("74.08","74.02", "73.94")) +
+  geom_sf(data = cropped.watersheds, fill = NA, linewidth = 0.5, color = "#467092") +
   scale_fill_continuous_sequential(palette = "YlOrBr") +
   scale_continuous_identity(aesthetics = c(0, 0.75)) +
   theme(legend.position = c(0.88, 0.15),
@@ -500,7 +510,7 @@ FishMap.T <- ggplot() +
                    text_family = "Calibri Light") + 
   annotation_north_arrow(location = "tl", 
                          which_north = "true", 
-                         pad_x = unit(0.55, "cm"), 
+                         pad_x = unit(0.85, "cm"), 
                          pad_y = unit(0.65, "cm"), 
                          style = north_arrow_nautical(fill = c("grey60", "white"), line_col = "black", text_size = 10, text_family = "Calibri Light"),
                          height = unit(1, "cm"),
@@ -513,9 +523,8 @@ FishMap.T <- ggplot() +
                                ticks.colour = "black"))
 FishMap.T
 
-ggsave(paste0(to.figs, "PrevalenceMap_Fish_Transect.png"), plot = FishMap.T, dpi = 300, width = 10, height = 15, units = "cm")
-
-
+#ggsave(paste0(to.figs, "PrevalenceMap_Fish_Transect.png"), plot = FishMap.T, dpi = 300, width = 10, height = 15, units = "cm")
+ggsave(paste0(to.figs, "PrevalenceMap_Fish_Transect+BV.png"), plot = FishMap.T, dpi = 300, width = 10, height = 15, units = "cm")
 
 
 ### Summary ----
