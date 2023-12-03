@@ -353,6 +353,39 @@ lake.attributes.T <- Study.map %>%
 
 ## Maps ----
 
+LakesMap <- ggplot() + 
+  geom_sf(data = cropped.lakes, fill = "lightblue", alpha = 0.5, color = "lightblue") +
+  geom_sf(data = cropped.creeks, color = "lightblue", alpha = 0.5) +
+  geom_sf(data = cropped.watersheds, fill = NA, linewidth = 0.5, color = "#467092") +
+  geom_sf(data = lake.attributes.All, fill = "#B65000", alpha = 0.8, color = "black", size = 0.5) +
+  theme(legend.position = c(0.88, 0.15),
+        legend.text = element_text(color = "black", size = 9, family = "Calibri Light"),
+        legend.title = element_text(color = "black", size = 9, family = "Calibri Bold"),
+        legend.key.size = unit(0.5, "cm"),
+        legend.key = element_rect(linewidth = 2),
+        legend.background = element_blank(), 
+        panel.background = element_rect(fill = "white", color = "black"),
+        plot.background = element_rect(fill = "white"),
+        panel.grid = element_line(NA), 
+        axis.ticks = element_blank(),
+        text = element_blank()) +
+  annotation_scale(location = "tl", 
+                   bar_cols = c("grey60", "white"),
+                   height = unit(0.25, "cm"),
+                   text_cex = 0.75,
+                   text_family = "Calibri Light") + 
+  annotation_north_arrow(location = "tl", 
+                         which_north = "true", 
+                         pad_x = unit(0.85, "cm"), 
+                         pad_y = unit(0.65, "cm"), 
+                         style = north_arrow_nautical(fill = c("grey60", "white"), line_col = "black", text_size = 10, text_family = "Calibri Light"),
+                         height = unit(1, "cm"),
+                         width = unit(1, "cm"))
+LakesMap
+
+ggsave(paste0(to.figs, "LakesMaps+BV.png"), plot = LakesMap, dpi = 300, width = 10, height = 15, units = "cm")
+#ggsave(paste0(to.figs, "LakesMaps.png"), plot = LakesMap, dpi = 300, width = 10, height = 15, units = "cm") #change pad_y at 0.55 instead of 0.85 & omit watersheds polygon line
+
 ### All ----
 
 FishMap.All <- ggplot() + 
