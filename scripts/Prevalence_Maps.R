@@ -387,14 +387,14 @@ ggsave(paste0(to.figs, "LakesMaps+BV.png"), plot = LakesMap, dpi = 300, width = 
 #ggsave(paste0(to.figs, "LakesMaps.png"), plot = LakesMap, dpi = 300, width = 10, height = 15, units = "cm") #change pad_y at 0.55 instead of 0.85 & omit watersheds polygon line
 
 ### All ----
+col.pal <- c("#682714", "#B65000", "#EB8500", "#F7BF35", "#FBE9AA", "#FEFEE3")
 
 FishMap.All <- ggplot() + 
   geom_sf(data = cropped.lakes, fill = "lightblue", alpha = 0.5, color = "lightblue") +
   geom_sf(data = cropped.creeks, color = "lightblue", alpha = 0.5) +
   geom_sf(data = cropped.watersheds, fill = NA, linewidth = 0.5, color = "#467092") +
   geom_sf(data = lake.attributes.All, aes(fill = (prev_fish*100)), color = "black", size = 0.5) +
-  scale_fill_continuous_sequential(palette = "YlOrBr") +
-  scale_continuous_identity(aesthetics = c(0, 0.75)) +
+  scale_fill_continuous_sequential(palette = "YlOrBr", limits = c(0, 100), aesthetics = "fill") +
   theme(legend.position = c(0.88, 0.15),
         legend.text = element_text(color = "black", size = 9, family = "Calibri Light"),
         legend.title = element_text(color = "black", size = 9, family = "Calibri Bold"),
@@ -424,6 +424,7 @@ FishMap.All <- ggplot() +
                                frame.colour = "black",
                                frame.linewidth = 0.3,
                                ticks.colour = "black"))
+
 FishMap.All
 
 #ggsave(paste0(to.figs, "PrevalenceMap_Fish_All.png"), plot = FishMap.All, dpi = 300, width = 10, height = 15, units = "cm")
@@ -437,8 +438,7 @@ FishMap.MT <- ggplot() +
   geom_sf(data = cropped.creeks, color = "lightblue", alpha = 0.5) +
   geom_sf(data = lake.attributes.MT, aes(fill = (prev_fish*100)), color = "black", size = 0.5) +
   geom_sf(data = cropped.watersheds, fill = NA, linewidth = 0.5, color = "#467092") +
-  scale_fill_continuous_sequential(palette = "YlOrBr") +
-  scale_continuous_identity(aesthetics = c(0, 0.75)) +
+  scale_fill_continuous_sequential(palette = "YlOrBr", limits = c(0, 100), aesthetics = "fill") +
   theme(legend.position = c(0.88, 0.15),
         legend.text = element_text(color = "black", size = 9, family = "Calibri Light"),
         legend.title = element_text(color = "black", size = 9, family = "Calibri Bold"),
@@ -480,8 +480,7 @@ FishMap.S <- ggplot() +
   geom_sf(data = cropped.creeks, color = "lightblue", alpha = 0.5) +
   geom_sf(data = lake.attributes.S, aes(fill = (prev_fish*100)), color = "black", size = 0.5) +
   geom_sf(data = cropped.watersheds, fill = NA, linewidth = 0.5, color = "#467092") +
-  scale_fill_continuous_sequential(palette = "YlOrBr") +
-  scale_continuous_identity(aesthetics = c(0, 0.75)) +
+  scale_fill_continuous_sequential(palette = "YlOrBr", limits = c(0, 100), aesthetics = "fill") +
   theme(legend.position = c(0.88, 0.15),
         legend.text = element_text(color = "black", size = 9, family = "Calibri Light"),
         legend.title = element_text(color = "black", size = 9, family = "Calibri Bold"),
@@ -523,8 +522,8 @@ FishMap.T <- ggplot() +
   geom_sf(data = cropped.creeks, color = "lightblue", alpha = 0.5) +
   geom_sf(data = lake.attributes.T, aes(fill = (prev_fish*100)), color = "black", size = 0.5) +
   geom_sf(data = cropped.watersheds, fill = NA, linewidth = 0.5, color = "#467092") +
-  scale_fill_continuous_sequential(palette = "YlOrBr") +
-  scale_continuous_identity(aesthetics = c(0, 0.75)) +
+  scale_fill_continuous_sequential(palette = "YlOrBr", limits = c(0, 100), aesthetics = "fill") +
+  scale_continuous_identity(aesthetics = c(0, 1)) +
   theme(legend.position = c(0.88, 0.15),
         legend.text = element_text(color = "black", size = 9, family = "Calibri Light"),
         legend.title = element_text(color = "black", size = 9, family = "Calibri Bold"),
