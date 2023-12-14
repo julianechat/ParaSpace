@@ -938,53 +938,6 @@ plot_smooth(AREAPERI.GAMM, view = "Area_Perimeter", rm.ranef = FALSE, plot_all =
             rug = FALSE, 
             hide.label = TRUE) 
 
-### Shoreline complexity ----
-#### Model
-SHORELINE.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(ShorelineComplx, bs = "cs") + s(Lake, bs = "re"),
-                     family = quasibinomial, data = mod.data, method = "ML")
-summary(SHORELINE.GAMM) #Shoreline complexity is not significant (but lake yes)
-#Adj. R-sq. = 0.62
-#Deviance explained = 69.6%
-
-SHORELINE.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(ShorelineComplx) + random(Lake), 
-                           family = BB, data = mod.data, REML = TRUE, method = mixed())
-summary(SHORELINE.GAMM.BB) #not significant
-
-#### Model validation
-appraise(SHORELINE.GAMM)
-gam.check(SHORELINE.GAMM)
-SHORELINE.GAMM$scale
-#Model validation shows some residual patterns
-
-#### Visualizing partial effects
-draw.SHORELINE <- draw(SHORELINE.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
-  scale_y_continuous(trans = inverse_logit_trans) +
-  labs(x = "Shoreline Complexity", y = "Prevalence") +
-  theme(text = element_text(size = 20, 
-                            family = "Calibri Light", 
-                            color = "black"),
-        axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
-        axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
-        axis.text.x = element_text(color = "black"),
-        axis.text.y = element_text(color = "black"),
-        panel.background = element_blank(),
-        axis.line.x = element_line(color = "black", 
-                                   lineend = "round"),
-        axis.line.y = element_line(color = "black", 
-                                   lineend = "round"),
-        plot.caption = element_blank(),
-        plot.title = element_blank())
-draw.SHORELINE
-
-#### Visualizng summed effect
-plot_smooth(SHORELINE.GAMM, view = "ShorelineComplx", rm.ranef = FALSE, 
-            transform = plogis, 
-            ylim = c(0,1), ylab = "Infection prevalence",
-            xlim = c(0, 250), xlab = "ShorelineComplexity",
-            col = "orange",
-            rug = FALSE, 
-            hide.label = TRUE) 
-
 ### Area ----
 #### Model
 AREA.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Lake_area, bs = "cs") + s(Lake, bs = "fs"),
@@ -1203,6 +1156,94 @@ ELEV.GAMM$scale
 draw.ELEV <- draw(ELEV.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
   scale_y_continuous(trans = inverse_logit_trans)
 draw.ELEV
+
+### Fish abundance ----
+FISH.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(tot_fish, bs = "cs") + s(Lake, bs = "re"),
+                 family = quasibinomial, data = mod.data, method = "ML")
+summary(FISH.GAMM) #Centrarchids is not significant
+
+#### Model validation
+appraise(FISH.GAMM)
+gam.check(FISH.GAMM)
+FISH.GAMM$scale
+
+#### Visualizing partial effects
+draw.FISH <- draw(FISH.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
+  scale_y_continuous(trans = inverse_logit_trans)
+draw.FISH
+
+FISH.sm <- smooth_estimates(FISH.GAMM) %>%
+  add_confint()
+FISH.pr <- mod.data %>%
+  add_partial_residuals(FISH.GAMM)
+FISH.pe <- FISH.sm %>%
+  filter(smooth == "s(tot_fish)") %>%
+  ggplot(unconditional = TRUE, overall_uncertainty = TRUE) +
+  geom_rug(aes(x = tot_fish),
+           data = FISH.pr,
+           sides = "b", length = grid::unit(0.02, "npc")) +
+  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = tot_fish), fill = "#682714", alpha = 0.5) +
+  geom_line(aes(x = tot_fish, y = est), color = "#682714", lwd = 1.2) +
+  scale_y_continuous(trans = inverse_logit_trans) +
+  labs(x = "fish abundance", y = "Partial effect (prevalence)", tag = "K") +
+  theme(text = element_text(size = 20, 
+                            family = "Calibri Light", 
+                            color = "black"),
+        axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
+        axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
+        axis.text.x = element_text(color = "black"),
+        axis.text.y = element_text(color = "black"),
+        panel.background = element_blank(),
+        axis.line.x = element_line(color = "black", 
+                                   lineend = "round"),
+        axis.line.y = element_line(color = "black", 
+                                   lineend = "round"),
+        plot.caption = element_blank(),
+        plot.title = element_blank()) 
+
+### Non-host abundance ----
+NONHOST.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(tot_Cyprinidae, bs = "cs") + s(Lake, bs = "re"),
+                 family = quasibinomial, data = mod.data, method = "ML")
+summary(NONHOST.GAMM) #Centrarchids is not significant
+
+#### Model validation
+appraise(NONHOST.GAMM)
+gam.check(NONHOST.GAMM)
+NONHOST.GAMM$scale
+
+#### Visualizing partial effects
+draw.NONHOST<- draw(NONHOST.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
+  scale_y_continuous(trans = inverse_logit_trans)
+draw.NONHOST
+
+NONHOST.sm <- smooth_estimates(NONHOST.GAMM) %>%
+  add_confint()
+NONHOST.pr <- mod.data %>%
+  add_partial_residuals(NONHOST.GAMM)
+NONHOST.pe <- NONHOST.sm %>%
+  filter(smooth == "s(tot_Cyprinidae)") %>%
+  ggplot(unconditional = TRUE, overall_uncertainty = TRUE) +
+  geom_rug(aes(x = tot_Cyprinidae),
+           data = NONHOST.pr,
+           sides = "b", length = grid::unit(0.02, "npc")) +
+  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = tot_Cyprinidae), fill = "#682714", alpha = 0.5) +
+  geom_line(aes(x = tot_Cyprinidae, y = est), color = "#682714", lwd = 1.2) +
+  scale_y_continuous(trans = inverse_logit_trans) +
+  labs(x = "non-host abundance", y = "Partial effect (prevalence)", tag = "L") +
+  theme(text = element_text(size = 20, 
+                            family = "Calibri Light", 
+                            color = "black"),
+        axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
+        axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
+        axis.text.x = element_text(color = "black"),
+        axis.text.y = element_text(color = "black"),
+        panel.background = element_blank(),
+        axis.line.x = element_line(color = "black", 
+                                   lineend = "round"),
+        axis.line.y = element_line(color = "black", 
+                                   lineend = "round"),
+        plot.caption = element_blank(),
+        plot.title = element_blank()) 
 
 ### Centrarchids ----
 #### Model
@@ -1443,15 +1484,11 @@ dev.off()
 
 ## Summary figure ----
 
-Summary.plot <- TNTP.pe + MACRO.pe + TEMP.pe + TURB.pe + PH.pe + DO.pe + COND.pe + DIVERS.pe + AREAPERI.pe +
-  plot_layout(ncol = 3,
-              nrow = 3, 
-              tag_level = "keep") &
-  theme(text = element_text(family = "Calibri Light", colour = "black", size = 40),
-        plot.tag = element_text(face = "bold"))
-  #& ylim(c(0,1)) #pas beau
-  
-ggsave(paste0(to.figs, "GAMMs_summary.png"), plot = Summary.plot, dpi = 300, width = 35, height = 30)
+Summary.plot <- TNTP.pe + MACRO.pe + TEMP.pe + TURB.pe + PH.pe + DO.pe + COND.pe + DIVERS.pe + FISH.pe + NONHOST.pe + PERI.pe + AREAPERI.pe &
+  theme(text = element_text(family = "Calibri Light", size = 40, color = "black"))
+
+
+ggsave(paste0(to.figs, "GAMMs_summary.png"), plot = Summary.plot, dpi = 300, width = 45, height = 30)
 ggsave(paste0(to.rédaction, "Figures/Figure5_GAMMs.png"), plot = Summary.plot, dpi = 300, width = 35, height = 30)
 
 ## Perimeter figure ----

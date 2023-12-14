@@ -179,7 +179,7 @@ ggsave(paste0(to.figs, "FrequencyDistribution_All.png"), plot = All.hist, dpi = 
 Trans.plain.hist <- hist(Trans.prev$prev_fish)
 
 Trans.hist <- ggplot(Trans.prev, aes(prev_fish)) + 
-  geom_histogram(bins = 6, fill = "#2A5676", color = "black", alpha = 0.8) +
+  geom_histogram(bins = 6, fill = "#966F1E", color = "black", alpha = 0.8) +
   labs(x = "Prevalence", y = "Frequency", title = "Transect") + 
   ylim(0,5) +
   theme(text = element_text(size = 32, family = "Calibri Light", color = "black"),
@@ -219,7 +219,7 @@ ggsave(paste0(to.figs, "FrequencyDistribution_Seine.png"), plot = Seine.hist, dp
 Trap.plain.hist <- hist(Trap.prev$prev_fish)
 
 Trap.hist <- ggplot(Trap.prev, aes(prev_fish)) + 
-  geom_histogram(bins = 6, fill = "#966F1E", color = "black", alpha = 0.8) +
+  geom_histogram(bins = 6, fill = "#2A5676", color = "black", alpha = 0.8) +
   labs(x = "Prevalence", y = "Frequency", title = "Minnow trap") + 
   ylim(0,5) +
   theme(text = element_text(size = 32, 

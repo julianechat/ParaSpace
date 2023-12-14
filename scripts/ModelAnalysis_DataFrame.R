@@ -42,22 +42,20 @@ trans.data <- merge(trans.data, TransBiotic, by = "Transect_ID") #Binding biotic
 
 ## Infection prevalence ----
 
-trans.data$tot_fish <- trans.data %>% 
-  select(starts_with("tot")) %>% #Selecting total abundances
-  rowSums()
+trans.data <- trans.data %>% 
+  mutate(tot_fish = tot_AmRu + tot_MiDo + tot_LeGi + tot_PeFl + tot_Cyprinidae)
 
-trans.data$inf_fish <- trans.data %>% 
-  select(starts_with("inf")) %>% #Selecting infected abundances
-  rowSums()
+trans.data <- trans.data %>% 
+  mutate(inf_fish = inf_AmRu + inf_MiDo + inf_LeGi + inf_PeFl + inf_Cyprinidae)
 
 trans.data <- trans.data %>% 
   mutate(prev_fish = inf_fish/tot_fish) #Creating prevalence column
 
 ## Variable selection ----
 
-trans.mod <- trans.data %>% #Keeping relevant variables
+trans.mod <- trans.data %>% 
   select(Transect_ID, Lake, Watershed,
-         inf_fish, tot_fish, prev_fish,
+         inf_fish, tot_fish, prev_fish, tot_Cyprinidae,
          Silt, Sand, Rock, Metric_block, Macrophyte, MeanDepth.site, Trunk,
          Temperature, Conductivity, DO, Turbidity, pH, 
          TOC, TN, TP, 
@@ -65,7 +63,7 @@ trans.mod <- trans.data %>% #Keeping relevant variables
          Drainage_area, Elevation, Connectivity, 
          Centrarchids, Species_richness, Diversity)
 
-colnames(trans.mod)[c(14:21, 30:32)] <- c("Temp.T", "Cond.T", "DO.T", "Turb.T", "pH.T", #Adjusting column names
+colnames(trans.mod)[c(15:22, 31:33)] <- c("Temp.T", "Cond.T", "DO.T", "Turb.T", "pH.T", #Adjusting column names
                                    "TOC.T", "TN.T", "TP.T",
                                    "Centrarchids.T", "Species_richness.T", "Diversity.T")
 
@@ -83,7 +81,7 @@ trans.mod <- trans.mod %>% #Filling NA's water parameters values by lake means
   mutate(TP.L = mean(TP.T)) %>% relocate("TP.L", .after = "TP.T")
 
 trans.mod <- merge(trans.mod, LakeBiotic, by.x = "Lake") #Binding biotic lake data
-colnames(trans.mod)[c(41:43)] <- c("Centrarchids.L", "Species_richness.L", "Diversity.L") #Adjusting column names
+colnames(trans.mod)[c(42:44)] <- c("Centrarchids.L", "Species_richness.L", "Diversity.L") #Adjusting column names
 
 trans.mod <- trans.mod %>% #Relocating columns
   relocate("Centrarchids.L", .after = "Centrarchids.T") %>% 
