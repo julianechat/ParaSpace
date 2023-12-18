@@ -577,7 +577,7 @@ prev.acc.plot <- ggplot(df.prev) +
         axis.line.x = element_line(color = "black", lineend = "round"),
         axis.line.y = element_line(color = "black", lineend = "round"))
 
-ggsave(paste0(to.figs, "AccumulationCurves_prevalence.png"), plot = prev.acc.plot, dpi = 300, width = 15, height = 10)  
+ggsave(paste0(to.figs, "AccumulationCurves_prevalence_RangeAxis.png"), plot = prev.acc.plot, dpi = 300, width = 15, height = 10)  
 ggsave(paste0(to.rédaction, "Figures/Figure3_PrevSimulations.png"), plot = prev.acc.plot, dpi = 300, width = 15, height = 10)
 
 # ---- Summary figure ----
