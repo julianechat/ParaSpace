@@ -15,6 +15,7 @@ to.script <- "./scripts/"
 to.output <- "./output/"
 to.figs <- "./figs/"
 to.R <- "./R/"
+to.rédaction <- "./rédaction/"
 
 ## Loading packages ----
 
@@ -25,6 +26,7 @@ library(tidyr)
 library(writexl)
 library(splitstackshape)
 library(janitor)
+library(gt)
 
 ## Loading data ----
 
@@ -103,6 +105,43 @@ Reg.pool.tot.T <- Reg.pool.T %>% #Regional total fish abundance
 Reg.pool.tot.T <- sum(Reg.pool.tot.T)
 
 Reg.pool.prev.T <- (Reg.pool.inf.T/Reg.pool.tot.T)*100 #Regional prevalence
+
+### Summary table ----
+
+#Creating data frame
+Reg.A.data <- c(Method = "All", Prevalence = Reg.pool.prev.All)
+Reg.MT.data <- c(Method = "Minnow trap", Prevalence = Reg.pool.prev.MT)
+Reg.S.data <- c(Method = "Seine", Prevalence = Reg.pool.prev.S)
+Reg.T.data <- c(Method = "Transect", Prevalence = Reg.pool.prev.T)
+
+Reg.summary.data <- data.frame(rbind(Reg.A.data, Reg.MT.data, Reg.S.data, Reg.T.data), row.names = NULL)
+Reg.summary.data$Prevalence <- as.numeric(Reg.summary.data$Prevalence)
+
+#Creating table
+Table.Sx <- gt(Reg.summary.data) %>% 
+  tab_header(md("**TABLE Sx.** Landscape prevalence estimated by each sampling method")) %>% 
+  cols_label(Prevalence = md("Prevalence (%)")) %>% 
+  tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "left"),
+            locations = cells_title("title")) %>% 
+  tab_style(cell_text(color = "black", font = "Calibri light", weight = "bold", size = 9, align = "center", v_align = "middle"),
+            locations = cells_column_labels()) %>% 
+  tab_style(cell_text(color = "black", font = "Calibri light", size = 9, align = "center", v_align = "middle"),
+            locations = cells_body()) %>% 
+  tab_options(table.border.top.style = "hidden",
+              heading.border.bottom.color = "black",
+              row.striping.include_table_body = TRUE,
+              page.orientation = "paysage",
+              table.width = pct(100)) %>% 
+  tab_style(style= cell_borders(sides = c("bottom", "top"), weight = px(2)), 
+            location = list(cells_column_labels())) %>% 
+  tab_style(style= cell_borders(sides = c("bottom"), weight = px(2)), 
+            location = list(cells_body(rows = 4))) %>% 
+  fmt_number(columns = Prevalence, rows = c(1:4), decimals = 2)
+
+Table.Sx %>% #Saving gt tab
+  gtsave("Tab_RegionalPrev_Methods.png", paste0(to.figs))
+Table.Sx %>% 
+  gtsave("Table_Sx.png", paste0(to.rédaction, "./Support_information/"))
 
 ## Species prevalence by methods ----
 
