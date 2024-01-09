@@ -19,7 +19,6 @@ to.rédaction <- "./rédaction/"
 
 ## Loading packages & functions ----
 
-library(dplyr)
 library(vegan)
 library(ggplot2)
 library(cowplot)
@@ -31,6 +30,7 @@ library(itsadug)
 library(colorspace)
 library(broom)
 library(gt)
+library(dplyr)
 
 source(paste0(to.R, "rquery.cormat.R"))
 source(paste0(to.R, "inverse_logit_trans.R"))
@@ -48,63 +48,47 @@ mod.data$Transect_ID <- as.factor(mod.data$Transect_ID)
 sequential_hcl(palette = "YlOrBr", 5)
 col.pal <- c("#682714", "#C75C00", "#F2A400", "#FAE094", "#FEFEE3")
 
-## One predictor GAMMs ----
-
-### Null ----
-#### Model
+## Null ----
+### Model----
 #Our null model is a random effects model
+
 NULL.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Lake, bs = "re"),
                  family = quasibinomial, data = mod.data, method = "ML")
-summary(NULL.GAMM) #Variable significant
+summary(NULL.GAMM) 
+#Variable significant
 #Adj. R-sq. = 0.62
-#Deviance explained = 68.6%
+#Deviance explained = 69.6%
 
-#### Model validation
+### Model validation ----
+
 appraise(NULL.GAMM)
-gam.check(NULL.GAMM)
-#Model validation not so good. Probably due to missing predictors.
+NULL.GAMM$scale
+#Model validation not so good. Evidence of residual patterns. Probably due to missing predictors.
 
-### TN:TP ----
-#### Model
+## TN:TP ----
+### Site scale model ----
+
 TNTP.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN_TP.T, bs = "cr") + s(Lake, bs = "re"),
                   family = quasibinomial, data = mod.data, method = "ML")
-summary(TNTP.GAMM) #All variable significant
+summary(TNTP.GAMM) 
+#All variable significant
 #Adj. R-sq. = 0.845
 #Deviance explained = 87.1%
 
-TNTP.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(TN_TP.T) + random(Lake), 
-                     family = BB, data = mod.data, REML = TRUE)
-#Cannot converge
+### Model validation ----
 
-#### Model validation
 appraise(TNTP.GAMM, method = "simulate")
-gam.check(TNTP.GAMM)
 TNTP.GAMM$scale
 #Model validation is OK
 
-#### Visualizing partial effects
-sequential_hcl(5, palette ="YlOrBr")
+### Visualizing partial effects ----
 
+#Simple visualization
 draw.TNTP <- draw(TNTP.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
-  scale_y_continuous(trans = inverse_logit_trans) +
-  labs(x = "TN:TP", y = "Prevalence", tag = "A") +
-  theme(text = element_text(size = 20, 
-                            family = "Calibri Light", 
-                            color = "black"),
-        axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
-        axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
-        axis.text.x = element_text(color = "black"),
-        axis.text.y = element_text(color = "black"),
-        panel.background = element_blank(),
-        axis.line.x = element_line(color = "black", 
-                                   lineend = "round"),
-        axis.line.y = element_line(color = "black", 
-                                   lineend = "round"),
-        plot.caption = element_blank(),
-        plot.title = element_blank())
+  scale_y_continuous(trans = inverse_logit_trans)
+draw.TNTP #Signiticativity OK
 
-draw.TNTP
-
+#Extracting model estimates and setting graph aesthetics 
 TNTP.sm <- smooth_estimates(TNTP.GAMM) %>%
   add_confint()
 TNTP.pr <- mod.data %>%
@@ -118,7 +102,7 @@ TNTP.pe <- TNTP.sm %>%
   geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = TN_TP.T), fill = "#682714", alpha = 0.5) +
   geom_line(aes(x = TN_TP.T, y = est), color = "#682714", lwd = 1.2) +
   scale_y_continuous(trans = inverse_logit_trans) +
-  labs(x = "TN:TP", y = "Partial effect (prevalence)", tag = "A") +
+  labs(x = "TN:TP", y = "Partial effect (prevalence)", tag = "F") +
   theme(text = element_text(size = 20, 
                             family = "Calibri Light", 
                             color = "black"),
@@ -133,8 +117,11 @@ TNTP.pe <- TNTP.sm %>%
                                    lineend = "round"),
         plot.caption = element_blank(),
         plot.title = element_blank())
+TNTP.pe
 
-#### Visualizing summed effects
+### Visualizing summed effects ----
+
+#Combined smooth
 plot_smooth(TNTP.GAMM, view = "TN_TP.T", rm.ranef = FALSE, 
             transform = plogis, 
             ylim = c(0,1), ylab = "Infection prevalence",
@@ -143,6 +130,7 @@ plot_smooth(TNTP.GAMM, view = "TN_TP.T", rm.ranef = FALSE,
             rug = FALSE, 
             hide.label = TRUE) 
 
+#Lake's smooths
 plot_smooth(TNTP.GAMM, view = "TN_TP.T", rm.ranef = FALSE, plot_all = "Lake",
             transform = plogis, 
             ylim = c(0,1), ylab = "Infection prevalence",
@@ -150,179 +138,172 @@ plot_smooth(TNTP.GAMM, view = "TN_TP.T", rm.ranef = FALSE, plot_all = "Lake",
             rug = FALSE, 
             hide.label = TRUE) 
 
-#### Lake mean model
+### Lake scale model ----
+
 TNTP.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN_TP.L, bs = "cr") + s(Lake, bs = "re"),
                    family = quasibinomial, data = mod.data, method = "ML")
-summary(TNTP.GAMM.L) #unsignificative
+summary(TNTP.GAMM.L) 
+#Unsignificative
 
-### Nitrogen ----
-#### Model
+## Nitrogen ----
+### Site scale model ----
+
 TN.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN.T, bs = "cr") + s(Lake, bs = "re"),
                family = quasibinomial, data = mod.data, method = "ML")
-summary(TN.GAMM) #TN unsignificative
+summary(TN.GAMM) 
+#TN unsignificative
 #Adj. R-sq. = 0.65
 #Deviance explained = 72.6%
 
-TN.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(TN.T) + random(Lake), 
-                     family = BB, data = mod.data, REML = TRUE, method = mixed())
-summary(TN.GAMM.BB)
+### Model validation ----
 
-#### Model validation
 appraise(TN.GAMM)
-gam.check(TN.GAMM)
 TN.GAMM$scale
 #Model validation shows some residual patterns
 
-#### Visualizing partial effects
+### Visualizing partial effects ----
+
+#Simple visualization
 draw.TN <- draw(TN.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
   scale_y_continuous(trans = inverse_logit_trans)
 draw.TN
 
-#### Lake mean model
+### Lake mean model ----
+
 TN.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN.L, bs = "cr") + s(Lake, bs = "re"),
                  family = quasibinomial, data = mod.data, method = "ML")
-summary(TN.GAMM.L) #unsignificative
+summary(TN.GAMM.L) 
+#Unsignificative
 
-### Phosphorus ----
-#### Model
+## Phosphorus ----
+### Site scale model ----
+
 TP.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TP.T, bs = "cr") + s(Lake, bs = "re"),
                family = quasibinomial, data = mod.data, method = "ML")
-summary(TP.GAMM) #TP not significative
+summary(TP.GAMM) 
+#TP not significative
 #Adj. R-sq. = 0.667
 #Deviance explained = 73.5%
 
-TP.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(TP.T) + random(Lake), 
-                     family = BB, data = mod.data, REML = TRUE, method = mixed())
-#Cannot converge
+### Model validation ----
 
-#### Model validation
 appraise(TP.GAMM)
-gam.check(TP.GAMM)
 TP.GAMM$scale
 #Model validation shows some residual patterns
 
-#### Visualizing partial effects
+### Visualizing partial effects ----
+
+#Simple visualization
 draw.TP <- draw(TP.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
   scale_y_continuous(trans = inverse_logit_trans)
 draw.TP
 
-#### Lake mean model
+### Lake scale model ----
+
 TP.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TP.L, bs = "cr") + s(Lake, bs = "re"),
                  family = quasibinomial, data = mod.data, method = "ML")
-summary(TP.GAMM.L) #unsignificative
+summary(TP.GAMM.L) 
+#Unsignificative
 
-### Carbon ----
-#### Model
+## Carbon ----
+### Site scale model ----
+
 TOC.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TOC.T, bs = "cs") + s(Lake, bs = "re"),
                 family = quasibinomial, data = mod.data, method = "ML")
-summary(TOC.GAMM) #TOC not significant
+summary(TOC.GAMM) 
+#TOC not significant
 #Adj. R-sq. = 0.62
 #Deviance explained = 69.6%
 
-TOC.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(TOC.T) + random(Lake), 
-                      family = BB, data = mod.data, REML = TRUE, method = mixed())
-#Cannot converge
+### Model validation ----
 
-#### Model validation
 appraise(TOC.GAMM)
-gam.check(TOC.GAMM)
 TOC.GAMM$scale
 #Model validation shows some residual patterns
 
-#### Visualizing partial effects
+### Visualizing partial effects ----
+
+#Simple visualization
 draw.TOC <- draw(TOC.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) +
   scale_y_continuous(trans = inverse_logit_trans)
 draw.TOC
 
-#### Lake mean model
+### Lake scale model ----
 TOC.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TOC.L, bs = "cr") + s(Lake, bs = "re"),
                   family = quasibinomial, data = mod.data, method = "ML")
 summary(TOC.GAMM.L) #unsignificative
 
-### Sub 1 ----
-#### Model
+## Substrate 1 ----
+### Site scale model ----
+
 SUB1.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Sub1, bs = "cs") + s(Lake, bs = "re"),
                  family = quasibinomial, data = mod.data, method = "ML")
-summary(SUB1.GAMM) #Sub1 is not significant
+summary(SUB1.GAMM) 
+#Sub1 is not significant
 #Adj. R-sq. = 0.62
 #Deviance explained  = 69.6%
 
-SUB1.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(Sub1) + random(Lake), 
-                      family = BB, data = mod.data, REML = TRUE, method = mixed())
-#Cannot converge
+### Model validation ----
 
-#### Model validation
 appraise(SUB1.GAMM)
-gam.check(SUB1.GAMM)
 SUB1.GAMM$scale
 #Model validation shows some residual patterns
 
-#### Visualizing partial effects
+### Visualizing partial effects ----
+
+#Simple visualization
 draw.SUB1 <- draw(SUB1.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) +
   scale_y_continuous(trans = inverse_logit_trans)
 draw.SUB1
 
-### Sub 2 ----
-#### Model
+## Substrate 2 ----
+### Site scale model ----
+
 SUB2.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Sub2, bs = "cs") + s(Lake, bs = "re"),
                  family = quasibinomial, data = mod.data, method = "ML")
-summary(SUB2.GAMM) #Sub2 is not significant
+summary(SUB2.GAMM) 
+#Sub2 is not significant
 #Adj. R-sq. = 0.62
-#Deviance explaine = 69.6%
+#Deviance explained = 69.6%
 
-SUB2.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(Sub2) + random(Lake), 
-                       family = BB, data = mod.data, REML = TRUE, method = mixed())
-#Cannot converge
+### Model validation ----
 
-#### Model validation
 appraise(SUB2.GAMM)
-gam.check(SUB2.GAMM)
 SUB2.GAMM$scale
 #Model validation shows some residual patterns
 
-#### Visualizing partial effects
+### Visualizing partial effects ----
+
+#Simple visualization
 draw.SUB2 <- draw(SUB2.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
   scale_y_continuous(trans = inverse_logit_trans)
 draw.SUB2
 
-### Macrophyte ----
+## Macrophyte ----
+### Site scale model ----
+
 MACRO.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Macrophyte, bs = "cs") + s(Lake, bs = "re"),
                   family = quasibinomial, data = mod.data, method = "ML")
-summary(MACRO.GAMM) #All variables are significant
+summary(MACRO.GAMM) 
+#All variables are significant
 #Adj. R-sq. = 0.813
 #Deviance explained = 84.2%
 
-MACRO.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(Macrophyte) + random(Lake), 
-                       family = BB, data = mod.data, REML = TRUE, method = mixed())
-#Cannot converge
+### Model validation ----
 
-#### Model validation
 appraise(MACRO.GAMM)
-gam.check(MACRO.GAMM)
 MACRO.GAMM$scale
-#Could be better...
+#Some residual patterns, but scale is better than random effect only
 
-#### Visualizing partial effects
+### Visualizing partial effects ----
+
+#Simple visualization
 draw.MACRO <- draw(MACRO.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
-  scale_y_continuous(trans = inverse_logit_trans) +
-  labs(y = "Prevalence", tag = "B") + 
-  theme(text = element_text(size = 20, 
-                            family = "Calibri Light", 
-                            color = "black"),
-        axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
-        axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
-        axis.text.x = element_text(color = "black"),
-        axis.text.y = element_text(color = "black"),
-        panel.background = element_blank(),
-        axis.line.x = element_line(color = "black", 
-                                   lineend = "round"),
-        axis.line.y = element_line(color = "black", 
-                                   lineend = "round"),
-        plot.caption = element_blank(),
-        plot.title = element_blank())
+  scale_y_continuous(trans = inverse_logit_trans)
 draw.MACRO
 #Signiticativity OK
 
+#Extracting model estimates and setting graph aesthetics 
 MACRO.sm <- smooth_estimates(MACRO.GAMM) %>%
   add_confint()
 MACRO.pr <- mod.data %>%
@@ -336,7 +317,7 @@ MACRO.pe <- MACRO.sm %>%
   geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = Macrophyte), fill = "#682714", alpha = 0.5) +
   geom_line(aes(x = Macrophyte, y = est), color = "#682714", lwd = 1.2) +
   scale_y_continuous(trans = inverse_logit_trans) +
-  labs(x = "Macrophyte coverage (%)", y = "Partial effect (prevalence)", tag = "B") +
+  labs(x = "Macrophyte coverage (%)", y = "Partial effect (prevalence)", tag = "G") +
   theme(text = element_text(size = 20, 
                             family = "Calibri Light", 
                             color = "black"),
@@ -351,8 +332,11 @@ MACRO.pe <- MACRO.sm %>%
                                    lineend = "round"),
         plot.caption = element_blank(),
         plot.title = element_blank())
+MACRO.pe
 
-#### Visualizing summed effects
+### Visualizing summed effects ----
+
+#Combined smooth
 plot_smooth(MACRO.GAMM, view = "Macrophyte", rm.ranef = FALSE, 
             transform = plogis, 
             ylim = c(0,1), ylab = "Infection prevalence",
@@ -361,6 +345,7 @@ plot_smooth(MACRO.GAMM, view = "Macrophyte", rm.ranef = FALSE,
             rug = FALSE, 
             hide.label = TRUE) 
 
+#Lake's smooths
 plot_smooth(MACRO.GAMM, view = "Macrophyte", rm.ranef = FALSE, plot_all = "Lake",
             transform = plogis, 
             ylim = c(0,1), ylab = "Infection prevalence",
@@ -368,90 +353,77 @@ plot_smooth(MACRO.GAMM, view = "Macrophyte", rm.ranef = FALSE, plot_all = "Lake"
             rug = FALSE, 
             hide.label = TRUE) 
 
-### Transect depth ----
-#### Model
+## Transect depth ----
+### Site scale model ----
+
 DEPTH.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(MeanDepth.site, bs = "cs") + s(Lake, bs = "re"),
                   family = quasibinomial, data = mod.data, method = "ML")
-summary(DEPTH.GAMM) #Depth is not significant
+summary(DEPTH.GAMM) 
+#Depth is not significant
 #Adj. R- sq. = 0.62
 #Deviance explained = 69.6%
 
-DEPTH.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(MeanDepth.site) + random(Lake), 
-                        family = BB, data = mod.data, REML = TRUE, method = mixed())
-summary(DEPTH.GAMM.BB) #Not significant
+### Model validation ----
 
-#### Model validation
 appraise(DEPTH.GAMM)
-gam.check(DEPTH.GAMM)
 DEPTH.GAMM$scale
 #Model validation shows some residual patterns
 
-#### Visualizing partial effects
+### Visualizing partial effects ----
+
+#Simple visualization
 draw.DEPTH <- draw(DEPTH.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
   scale_y_continuous(trans = inverse_logit_trans)
 draw.DEPTH
 
-### Trunk ----
-#### Model
+## Trunk ----
+### Site scale model ----
+
 TRUNK.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Trunk, bs = "cs") + s(Lake, bs = "re"),
                   family = quasibinomial, data = mod.data, method = "ML")
-summary(TRUNK.GAMM) #Trunk is not significant
-# Adj. R-sq. = 0.62
+summary(TRUNK.GAMM) 
+#Trunk is not significant
+#Adj. R-sq. = 0.62
 #Deviance explained = 69.6%
 
-TRUNK.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(Trunk) + random(Lake), 
-                        family = BB, data = mod.data, REML = TRUE, method = mixed())
-summary(TRUNK.GAMM.BB) #Not significant
+### Model validation ----
 
-#### Model validation
 appraise(TRUNK.GAMM)
-gam.check(TRUNK.GAMM)
 TRUNK.GAMM$scale
 #Model validation shows some residual patterns
 
-#### Visualizing partial effects
+### Visualizing partial effects ----
+
+#Simple visualization
 draw.TRUNK <- draw(TRUNK.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
   scale_y_continuous(trans = inverse_logit_trans)
 draw.TRUNK
 
-### Temperature ----
-#### Model
+## Temperature ----
+### Site scale model ----
+
 TEMP.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Temp.T, bs = "cs") + s(Lake, bs = "re"),
                  family = quasibinomial, data = mod.data, method = "ML")
-summary(TEMP.GAMM) #All variables are significant
+summary(TEMP.GAMM) 
+#All variables are significant
 #Adj. R-sq. = 0.745
 #Deviance explained = 79.5%
 
-TEMP.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(Temp.T) + random(Lake), 
-                        family = BB, data = mod.data, REML = TRUE, method = mixed())
-summary(TEMP.GAMM.BB) #Not significant
+### Model validation ----
 
-#### Model validation
 appraise(TEMP.GAMM)
-gam.check(TEMP.GAMM)
 TEMP.GAMM$scale
-#Validation is fine
+#Validation is OK
 
-#### Visualizing partial effects
+### Visualizing partial effects ----
+
+#Simple visualization
 draw.TEMP <- draw(TEMP.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
-  scale_y_continuous(trans = inverse_logit_trans) + 
-  labs(x = "Temperature", y = "Prevalence", tag = "C") + 
-  theme(text = element_text(size = 20, 
-                            family = "Calibri Light", 
-                            color = "black"),
-        axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
-        axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
-        axis.text.x = element_text(color = "black"),
-        axis.text.y = element_text(color = "black"),
-        panel.background = element_blank(),
-        axis.line.x = element_line(color = "black", 
-                                   lineend = "round"),
-        axis.line.y = element_line(color = "black", 
-                                   lineend = "round"),
-        plot.caption = element_blank(),
-        plot.title = element_blank())
+  scale_y_continuous(trans = inverse_logit_trans)
 draw.TEMP
+#Significativity OK.
 
+#Extracting model estimates and setting graph aesthetics 
 TEMP.sm <- smooth_estimates(TEMP.GAMM) %>%
   add_confint()
 TEMP.pr <- mod.data %>%
@@ -465,7 +437,7 @@ TEMP.pe <- TEMP.sm %>%
   geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = Temp.T), fill = "#682714", alpha = 0.5) +
   geom_line(aes(x = Temp.T, y = est), color = "#682714", lwd = 1.2) +
   scale_y_continuous(trans = inverse_logit_trans) +
-  labs(x = "Temperature (°C)", y = "Partial effect (prevalence)", tag = "C") +
+  labs(x = "Temperature (°C)", y = "Partial effect (prevalence)", tag = "B") +
   theme(text = element_text(size = 20, 
                             family = "Calibri Light", 
                             color = "black"),
@@ -480,8 +452,11 @@ TEMP.pe <- TEMP.sm %>%
                                    lineend = "round"),
         plot.caption = element_blank(),
         plot.title = element_blank())
+TEMP.pe
 
-#### Visualizing summed effect
+### Visualizing summed effect ----
+
+#Combined smooth
 plot_smooth(TEMP.GAMM, view = "Temp.T", rm.ranef = FALSE, 
             transform = plogis, 
             ylim = c(0,1), ylab = "Infection prevalence",
@@ -490,6 +465,7 @@ plot_smooth(TEMP.GAMM, view = "Temp.T", rm.ranef = FALSE,
             rug = FALSE, 
             hide.label = TRUE) 
 
+#Lake's smooths
 plot_smooth(TEMP.GAMM, view = "Temp.T", rm.ranef = FALSE, plot_all = "Lake",
             transform = plogis, 
             ylim = c(0,1), ylab = "Infection prevalence",
@@ -497,49 +473,38 @@ plot_smooth(TEMP.GAMM, view = "Temp.T", rm.ranef = FALSE, plot_all = "Lake",
             rug = FALSE, 
             hide.label = TRUE) 
 
-#### Lake mean effect
+### Lake scale model ----
+
 TEMP.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Temp.L, bs = "cr") + s(Lake, bs = "re"),
                    family = quasibinomial, data = mod.data, method = "ML")
-summary(TEMP.GAMM.L) #unsignificative
+summary(TEMP.GAMM.L) 
+#Unsignificative
 
-### Turbidity ----
-#### Model
+## Turbidity ----
+### Site scale model ----
+
 TURB.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Turb.T, bs = "cs") + s(Lake, bs = "re"),
                  family = quasibinomial, data = mod.data, method = "ML")
-summary(TURB.GAMM) #All variables are significant
+summary(TURB.GAMM) 
+#All variables are significant
 #Adj. R-sq. = 0.853
 #Deviance explained = 88.7%
 
-TURB.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(Turb.T) + random(Lake), 
-                       family = BB, data = mod.data, REML = TRUE, method = mixed())
-#Cannot converge
+### Model validation ----
 
-#### Model validation
-appraise(TURB.GAMM) #pretty good
-gam.check(TURB.GAMM)
+appraise(TURB.GAMM)
 TURB.GAMM$scale
-#Model validation is fine
+#Model validation is OK
 
-#### Visualizing partial effects
+### Visualizing partial effects ----
+
+#Simple visualization
 draw.TURB <- draw(TURB.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
-  scale_y_continuous(trans = inverse_logit_trans) + 
-  labs(x = "Turbidity", y = "Prevalence", tag = "D") +
-  theme(text = element_text(size = 20, 
-                            family = "Calibri Light", 
-                            color = "black"),
-        axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
-        axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
-        axis.text.x = element_text(color = "black"),
-        axis.text.y = element_text(color = "black"),
-        panel.background = element_blank(),
-        axis.line.x = element_line(color = "black", 
-                                   lineend = "round"),
-        axis.line.y = element_line(color = "black", 
-                                   lineend = "round"),
-        plot.caption = element_blank(),
-        plot.title = element_blank())
+  scale_y_continuous(trans = inverse_logit_trans)
 draw.TURB
+#Significativity OK
 
+#Extracting model estimates and setting graph aesthetics 
 TURB.sm <- smooth_estimates(TURB.GAMM) %>%
   add_confint()
 TURB.pr <- mod.data %>%
@@ -553,7 +518,7 @@ TURB.pe <- TURB.sm %>%
   geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = Turb.T), fill = "#682714", alpha = 0.5) +
   geom_line(aes(x = Turb.T, y = est), color = "#682714", lwd = 1.2) +
   scale_y_continuous(trans = inverse_logit_trans) +
-  labs(x = "Turbidity (NTU)", y = "Partial effect (prevalence)", tag = "D") +
+  labs(x = "Turbidity (NTU)", y = "Partial effect (prevalence)", tag = "A") +
   theme(text = element_text(size = 20, 
                             family = "Calibri Light", 
                             color = "black"),
@@ -568,8 +533,11 @@ TURB.pe <- TURB.sm %>%
                                    lineend = "round"),
         plot.caption = element_blank(),
         plot.title = element_blank())
+TURB.pe
 
-#### Visualizing summed effects
+### Visualizing summed effects ----
+
+#Combined smooth
 plot_smooth(TURB.GAMM, view = "Turb.T", rm.ranef = FALSE, 
             transform = plogis, 
             ylim = c(0,1), ylab = "Infection prevalence",
@@ -578,6 +546,7 @@ plot_smooth(TURB.GAMM, view = "Turb.T", rm.ranef = FALSE,
             rug = FALSE, 
             hide.label = TRUE) 
 
+#Lake's smooths
 plot_smooth(TURB.GAMM, view = "Turb.T", rm.ranef = FALSE, plot_all = "Lake",
             transform = plogis, 
             ylim = c(0,1), ylab = "Infection prevalence",
@@ -585,49 +554,38 @@ plot_smooth(TURB.GAMM, view = "Turb.T", rm.ranef = FALSE, plot_all = "Lake",
             rug = FALSE, 
             hide.label = TRUE) 
 
-#### Lake mean model
+### Lake scale model ----
+
 TURB.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Turb.L, bs = "cr") + s(Lake, bs = "re"),
                    family = quasibinomial, data = mod.data, method = "ML")
-summary(TURB.GAMM.L) #unsignificative
+summary(TURB.GAMM.L) 
+#Unsignificative
 
-### pH ----
-#### Model
+## pH ----
+### Site scale model ----
+
 PH.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(pH.T, bs = "cs") + s(Lake, bs = "re"),
                family = quasibinomial, data = mod.data, method = "ML")
-summary(PH.GAMM) #All variables are significant
+summary(PH.GAMM) 
+#All variables are significant
 #Adj. R-sq. = 0.649
 #Deviance explained = 70.5%
 
-PH.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(pH.T) + random(Lake), 
-                       family = BB, data = mod.data, REML = TRUE, method = mixed())
-summary(PH.GAMM.BB) #All variable significant
+### Model validation ----
 
-#### Model validation
 appraise(PH.GAMM)
-gam.check(PH.GAMM)
 PH.GAMM$scale
-#Model validation is fine
+#Model validation is OK
 
-#### Visualizing partial effects
+### Visualizing partial effects ----
+
+#Simple visualization
 draw.PH <- draw(PH.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) +
-  scale_y_continuous(trans = inverse_logit_trans) + 
-  labs(x = "pH", y = "Prevalence", tag = "E") +
-  theme(text = element_text(size = 20, 
-                            family = "Calibri Light", 
-                            color = "black"),
-        axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
-        axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
-        axis.text.x = element_text(color = "black"),
-        axis.text.y = element_text(color = "black"),
-        panel.background = element_blank(),
-        axis.line.x = element_line(color = "black", 
-                                   lineend = "round"),
-        axis.line.y = element_line(color = "black", 
-                                   lineend = "round"),
-        plot.caption = element_blank(),
-        plot.title = element_blank())
+  scale_y_continuous(trans = inverse_logit_trans) 
 draw.PH
+#Significativity OK
 
+#Extracting model estimates and setting graph aesthetics 
 PH.sm <- smooth_estimates(PH.GAMM) %>%
   add_confint()
 PH.pr <- mod.data %>%
@@ -641,7 +599,7 @@ PH.pe <- PH.sm %>%
   geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = pH.T), fill = "#682714", alpha = 0.5) +
   geom_line(aes(x = pH.T, y = est), color = "#682714", lwd = 1.2) +
   scale_y_continuous(trans = inverse_logit_trans) +
-  labs(x = "pH", y = "Partial effect(prevalence)", tag = "E") +
+  labs(x = "pH", y = "Partial effect(prevalence)", tag = "C") +
   theme(text = element_text(size = 20, 
                             family = "Calibri Light", 
                             color = "black"),
@@ -656,8 +614,11 @@ PH.pe <- PH.sm %>%
                                    lineend = "round"),
         plot.caption = element_blank(),
         plot.title = element_blank())
+PH.pe
 
-#### Visualizing summed effects
+### Visualizing summed effects ----
+
+#Combined smooth
 plot_smooth(PH.GAMM, view = "pH.T", rm.ranef = FALSE, 
             transform = plogis,
             ylim = c(0,1), ylab = "Infection prevalence",
@@ -666,6 +627,7 @@ plot_smooth(PH.GAMM, view = "pH.T", rm.ranef = FALSE,
             rug = FALSE, 
             hide.label = TRUE) 
 
+#Lake's smooths
 plot_smooth(PH.GAMM, view = "pH.T", rm.ranef = FALSE, plot_all = "Lake",
             transform = plogis, 
             ylim = c(0,1), ylab = "Infection prevalence",
@@ -673,49 +635,37 @@ plot_smooth(PH.GAMM, view = "pH.T", rm.ranef = FALSE, plot_all = "Lake",
             rug = FALSE, 
             hide.label = TRUE) 
 
-#### Lake mean model
+### Lake scale model ----
+
 PH.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(pH.L, bs = "cr") + s(Lake, bs = "re"),
                  family = quasibinomial, data = mod.data, method = "ML")
-summary(PH.GAMM.L) #significative
+summary(PH.GAMM.L) 
+#Significative
 
-### Oxygen ----
-#### Model
+## Dissolved oxygen ----
+### Site scale model ----
+
 DO.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(DO.T, bs = "cs") + s(Lake, bs = "re"),
                family = quasibinomial, data = mod.data, method = "ML")
-summary(DO.GAMM) #All variables are significant
+summary(DO.GAMM) 
+#All variables are significant
 #Adj. R-sq. = 0.683
 #Deviance explained = 75.3%
 
-DO.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(DO.T) + random(Lake), 
-                     family = BB, data = mod.data, REML = TRUE, method = mixed())
-#Connot converge
-
-#### Model validation
+### Model validation ----
 appraise(DO.GAMM, method = "simulate")
-gam.check(DO.GAMM)
 DO.GAMM$scale
-#Some residual patterns, but OK
+#Some residual patterns. Scale slightly better than Null model
 
-#### Visualizing partial effects
+### Visualizing partial effects ----
+
+#Simple visualization
 draw.DO <- draw(DO.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
-  scale_y_continuous(trans = inverse_logit_trans) + 
-  labs(x = "DO", y = "Prevalence", tag = "F") +
-  theme(text = element_text(size = 20, 
-                            family = "Calibri Light", 
-                            color = "black"),
-        axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
-        axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
-        axis.text.x = element_text(color = "black"),
-        axis.text.y = element_text(color = "black"),
-        panel.background = element_blank(),
-        axis.line.x = element_line(color = "black", 
-                                   lineend = "round"),
-        axis.line.y = element_line(color = "black", 
-                                   lineend = "round"),
-        plot.caption = element_blank(),
-        plot.title = element_blank())
+  scale_y_continuous(trans = inverse_logit_trans) 
 draw.DO
+#Significativity not OK
 
+#Extracting model estimates and setting graph aesthetics 
 DO.sm <- smooth_estimates(DO.GAMM) %>%
   add_confint()
 DO.pr <- mod.data %>%
@@ -729,7 +679,7 @@ DO.pe <- DO.sm %>%
   geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = DO.T), fill = "#682714", alpha = 0.5) +
   geom_line(aes(x = DO.T, y = est), color = "#682714", lwd = 1.2) +
   scale_y_continuous(trans = inverse_logit_trans) +
-  labs(x = "Dissolved oxygen (mg/L)", y = "Partial effect (prevalence)", tag = "F") +
+  labs(x = "Dissolved oxygen (mg/L)", y = "Partial effect (prevalence)", tag = "E") +
   theme(text = element_text(size = 20, 
                             family = "Calibri Light", 
                             color = "black"),
@@ -744,8 +694,11 @@ DO.pe <- DO.sm %>%
                                    lineend = "round"),
         plot.caption = element_blank(),
         plot.title = element_blank())
+DO.pe
 
-#### Visualizing summed effects
+### Visualizing summed effects ----
+
+#Combined smooth
 plot_smooth(DO.GAMM, view = "DO.T", rm.ranef = FALSE, 
             transform = plogis, 
             ylim = c(0,1), ylab = "Infection prevalence",
@@ -754,6 +707,7 @@ plot_smooth(DO.GAMM, view = "DO.T", rm.ranef = FALSE,
             rug = FALSE, 
             hide.label = TRUE) 
 
+#Lake's smooths
 plot_smooth(DO.GAMM, view = "DO.T", rm.ranef = FALSE, plot_all = "Lake",
             transform = plogis, 
             ylim = c(0,1), ylab = "Infection prevalence",
@@ -761,50 +715,37 @@ plot_smooth(DO.GAMM, view = "DO.T", rm.ranef = FALSE, plot_all = "Lake",
             rug = FALSE, 
             hide.label = TRUE) 
 
-#### Lake mean model
+### Lake scale model ----
+
 DO.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(DO.L, bs = "cr") + s(Lake, bs = "re"),
                  family = quasibinomial, data = mod.data, method = "ML")
-summary(DO.GAMM.L) #unsignificative
+summary(DO.GAMM.L) 
+#Unsignificative
 
-### Conductivity ----
-#### Model
+## Conductivity ----
+### Site scale model ----
+
 COND.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Cond.T, bs = "cs") + s(Lake, bs = "re"),
                  family = quasibinomial, data = mod.data, method = "ML")
-summary(COND.GAMM) #Conductivity is significant (but not Lake)
+summary(COND.GAMM) 
+#Conductivity is significant (but not Lake). I tested without the random effect from the lake and it didn't change the model estimates.
 #Adj. R-sq. = 0.536
 #Deviance explained = 56.4%
 
-COND.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(Cond.T) + random(Lake), 
-                     family = BB, data = mod.data, REML = TRUE, method = mixed())
-summary(COND.GAMM.BB) #All variables are significant
-plot(COND.GAMM.BB)
-
-#### Model validation
+### Model validation ----
 appraise(COND.GAMM)
-gam.check(COND.GAMM)
 COND.GAMM$scale
-#Model validation is not good
+#Model validation is not good. Big gap in data
 
-#### Visualizing partial effects
+### Visualizing partial effects ----
+
+#Simple visualization
 draw.COND <- draw(COND.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
-  scale_y_continuous(trans = inverse_logit_trans) + 
-  labs(x = "Conductivity", y = "Prevalence", tag = "G") +
-  theme(text = element_text(size = 20, 
-                            family = "Calibri Light", 
-                            color = "black"),
-        axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
-        axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
-        axis.text.x = element_text(color = "black"),
-        axis.text.y = element_text(color = "black"),
-        panel.background = element_blank(),
-        axis.line.x = element_line(color = "black", 
-                                   lineend = "round"),
-        axis.line.y = element_line(color = "black", 
-                                   lineend = "round"),
-        plot.caption = element_blank(),
-        plot.title = element_blank())
+  scale_y_continuous(trans = inverse_logit_trans) 
 draw.COND
+#Significativity OK
 
+#Extracting model estimates and setting graph aesthetics 
 COND.sm <- smooth_estimates(COND.GAMM) %>%
   add_confint()
 COND.pr <- mod.data %>%
@@ -818,7 +759,7 @@ COND.pe <- COND.sm %>%
   geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = Cond.T), fill = "#682714", alpha = 0.5) +
   geom_line(aes(x = Cond.T, y = est), color = "#682714", lwd = 1.2) +
   scale_y_continuous(trans = inverse_logit_trans) +
-  labs(x = "Conductivity (μS/cm)", y = "Partial effect (prevalence)", tag = "G") +
+  labs(x = "Conductivity (μS/cm)", y = "Partial effect (prevalence)", tag = "D") +
   theme(text = element_text(size = 20, 
                             family = "Calibri Light", 
                             color = "black"),
@@ -833,8 +774,11 @@ COND.pe <- COND.sm %>%
                                    lineend = "round"),
         plot.caption = element_blank(),
         plot.title = element_blank())
+COND.pe
 
-#### Visualizing summed effect
+### Visualizing summed effect ----
+
+#Combined smooth
 plot_smooth(COND.GAMM, view = "Cond.T", rm.ranef = FALSE, 
             transform = plogis, 
             ylim = c(0,1), ylab = "Infection prevalence",
@@ -843,6 +787,7 @@ plot_smooth(COND.GAMM, view = "Cond.T", rm.ranef = FALSE,
             rug = FALSE, 
             hide.label = TRUE) 
 
+#Lake's smooths
 plot_smooth(COND.GAMM, view = "Cond.T", rm.ranef = FALSE, plot_all = "Lake",
             transform = plogis, 
             ylim = c(0,1), ylab = "Infection prevalence",
@@ -850,49 +795,38 @@ plot_smooth(COND.GAMM, view = "Cond.T", rm.ranef = FALSE, plot_all = "Lake",
             rug = FALSE, 
             hide.label = TRUE) 
 
-#### Lake mean model
+### Lake scale model ----
+
 COND.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Cond.L, bs = "cr") + s(Lake, bs = "re"),
                    family = quasibinomial, data = mod.data, method = "ML")
-summary(COND.GAMM.L) #significative
+summary(COND.GAMM.L) 
+#Significative (but not lake)
 
-### Area:Perimeter ----
-#### Model
+## Area:Perimeter ----
+### Site scale model ----
+
 AREAPERI.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Area_Perimeter, bs = "cs") + s(Lake, bs = "re"),
                      family = quasibinomial, data = mod.data, method = "ML")
-summary(AREAPERI.GAMM) #Area:Perimeter is significant (but not lake)
+summary(AREAPERI.GAMM) 
+#Area:Perimeter is significant (but not lake)
 #Adj. R-sq. = 0.63
 #Deviance explained = 67.8%
 
-AREAPERI.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(Area_Perimeter) + random(Lake), 
-                       family = BB, data = mod.data, REML = TRUE, method = mixed())
-summary(AREAPERI.GAMM.BB) #Area:Perimeter is significant
+### Model validation ----
 
-#### Model validation
 appraise(AREAPERI.GAMM)
-gam.check(AREAPERI.GAMM)
 AREAPERI.GAMM$scale
-#Model validation shows some residual patterns
+#Model validation shows some residual patterns, but scale is better than Null model
 
-#### Visualizing partial effects
+### Visualizing partial effects ----
+
+#Simple visualization
 draw.AREAPERI <- draw(AREAPERI.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
-  scale_y_continuous(trans = inverse_logit_trans) +
-  labs(x = "Area:Perimeter", y = "Prevalence", tag = "I") +
-  theme(text = element_text(size = 20, 
-                            family = "Calibri Light", 
-                            color = "black"),
-        axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
-        axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
-        axis.text.x = element_text(color = "black"),
-        axis.text.y = element_text(color = "black"),
-        panel.background = element_blank(),
-        axis.line.x = element_line(color = "black", 
-                                   lineend = "round"),
-        axis.line.y = element_line(color = "black", 
-                                   lineend = "round"),
-        plot.caption = element_blank(),
-        plot.title = element_blank())
+  scale_y_continuous(trans = inverse_logit_trans)
 draw.AREAPERI
+#Significativity OK. 
 
+#Extracting model estimates and setting graph aesthetics 
 AREAPERI.sm <- smooth_estimates(AREAPERI.GAMM) %>%
   add_confint()
 AREAPERI.pr <- mod.data %>%
@@ -906,7 +840,7 @@ AREAPERI.pe <- AREAPERI.sm %>%
   geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = Area_Perimeter), fill = "#682714", alpha = 0.5) +
   geom_line(aes(x = Area_Perimeter, y = est), color = "#682714", lwd = 1.2) +
   scale_y_continuous(trans = inverse_logit_trans) +
-  labs(x = "Area:Perimeter (m)", y = "Partial effect (prevalence)", tag = "I") +
+  labs(x = "Area:Perimeter (m)", y = "Partial effect (prevalence)", tag = "H") +
   theme(text = element_text(size = 20, 
                             family = "Calibri Light", 
                             color = "black"),
@@ -921,8 +855,11 @@ AREAPERI.pe <- AREAPERI.sm %>%
                                    lineend = "round"),
         plot.caption = element_blank(),
         plot.title = element_blank())
+AREAPERI.pe
 
-#### Visualizng summed effect
+### Visualizng summed effect ----
+
+#Combined smooth
 plot_smooth(AREAPERI.GAMM, view = "Area_Perimeter", rm.ranef = FALSE, 
             transform = plogis, 
             ylim = c(0,1), ylab = "Infection prevalence",
@@ -931,6 +868,7 @@ plot_smooth(AREAPERI.GAMM, view = "Area_Perimeter", rm.ranef = FALSE,
             rug = FALSE, 
             hide.label = TRUE) 
 
+#Lake's smooth
 plot_smooth(AREAPERI.GAMM, view = "Area_Perimeter", rm.ranef = FALSE, plot_all = "Lake",
             transform = plogis, 
             ylim = c(0,1), ylab = "Infection prevalence",
@@ -938,67 +876,54 @@ plot_smooth(AREAPERI.GAMM, view = "Area_Perimeter", rm.ranef = FALSE, plot_all =
             rug = FALSE, 
             hide.label = TRUE) 
 
-### Area ----
-#### Model
+## Surface area ----
+### Site scale model ----
+
 AREA.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Lake_area, bs = "cs") + s(Lake, bs = "fs"),
                  family = quasibinomial, data = mod.data, method = "ML")
-summary(AREA.GAMM) #Lake area is not significant
+summary(AREA.GAMM) 
+#Lake surface area is not significant
 #Adj. R-sq. = 0.62
 #Deviance explained = 69.6%
 
-AREA.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(Lake_area) + random(Lake), 
-                           family = BB, data = mod.data, REML = TRUE, method = mixed())
-#Model cannot converge
-
-#### Model validation
+### Model validation ----
 appraise(AREA.GAMM)
-gam.check(AREA.GAMM)
 AREA.GAMM$scale
 #Model validation show some residual patterns
 
-#### Visualizing partial effects
+### Visualizing partial effects ----
+
+#Simple visualization
 draw.AREA <- draw(AREA.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
   scale_y_continuous(trans = inverse_logit_trans)
 draw.AREA
+#Significativity not OK
 
-### Perimeter ----
-#### Model 
+## Perimeter ----
+### Site scale model ----
+
 PERI.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Perimeter, bs = "cs") + s(Lake, bs = "re"),
                  family = quasibinomial, data = mod.data, method = "ML")
-summary(PERI.GAMM) #Perimeter is significant (but not lake)
+summary(PERI.GAMM) 
+#Perimeter is significant (but not lake)
 #Adj. R-sq. = 0.63
 #Deviance explained = 69.9%
 
-PERI.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(Perimeter) + random(Lake), 
-                       family = BB, data = mod.data, REML = TRUE, method = mixed())
-#Model cannot converge
+### Model validation ----
 
-#### Mode validation
 appraise(PERI.GAMM)
-gam.check(PERI.GAMM)
 PERI.GAMM$scale
-#Model validation shows some residual patterns
+#Model validation shows some residual patterns, but scale is better than Null model
 
-#### Visualizing partial effects
+### Visualizing partial effects ----
+
+#Simple visualization
 draw.PERI <- draw(PERI.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
-  scale_y_continuous(trans = inverse_logit_trans) + 
-  labs(x = "Perimeter", y = "Prevalence", tag = "I") +
-  theme(text = element_text(size = 20, 
-                            family = "Calibri Light", 
-                            color = "black"),
-        axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
-        axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
-        axis.text.x = element_text(color = "black"),
-        axis.text.y = element_text(color = "black"),
-        panel.background = element_blank(),
-        axis.line.x = element_line(color = "black", 
-                                   lineend = "round"),
-        axis.line.y = element_line(color = "black", 
-                                   lineend = "round"),
-        plot.caption = element_blank(),
-        plot.title = element_blank())
+  scale_y_continuous(trans = inverse_logit_trans) 
 draw.PERI
+#Significativity OK
 
+#Extracting model estimates and setting graph aesthetics 
 PERI.sm <- smooth_estimates(PERI.GAMM) %>%
   add_confint()
 PERI.pr <- mod.data %>%
@@ -1012,7 +937,7 @@ PERI.pe <- PERI.sm %>%
   geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = Perimeter), fill ="#682714", alpha = 0.5) +
   geom_line(aes(x = Perimeter, y = est), color = "#682714", lwd = 1.2) +
   scale_y_continuous(trans = inverse_logit_trans) +
-  labs(x = "Perimeter (m)", y = "Partial effect (prevalence)") +
+  labs(x = "Perimeter (m)", y = "Partial effect (prevalence)", tag = "I") +
   theme(text = element_text(size = 20, 
                             family = "Calibri Light", 
                             color = "black"),
@@ -1027,8 +952,11 @@ PERI.pe <- PERI.sm %>%
                                    lineend = "round"),
         plot.caption = element_blank(),
         plot.title = element_blank())
+PERI.pe
 
-#### Visualizing summed effect
+### Visualizing summed effect ----
+
+#Combined smooth
 plot_smooth(PERI.GAMM, view = "Perimeter", rm.ranef = FALSE, 
             transform = plogis, 
             ylim = c(0,1), ylab = "Infection prevalence",
@@ -1037,6 +965,7 @@ plot_smooth(PERI.GAMM, view = "Perimeter", rm.ranef = FALSE,
             rug = FALSE, 
             hide.label = TRUE) 
 
+#Lake's smooths
 plot_smooth(PERI.GAMM, view = "Perimeter", rm.ranef = FALSE, plot_all = "Lake",
             transform = plogis, 
             ylim = c(0,1), ylab = "Infection prevalence",
@@ -1044,134 +973,149 @@ plot_smooth(PERI.GAMM, view = "Perimeter", rm.ranef = FALSE, plot_all = "Lake",
             rug = FALSE, 
             hide.label = TRUE) 
 
-### Mean depth ----
+## Mean lake depth ----
+### Site scale model ----
+
 MDEPTH.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(MeanDepth.lake, bs = "cs") + s(Lake, bs = "re"),
                    family = quasibinomial, data = mod.data, method = "ML")
-summary(MDEPTH.GAMM) #Mean depth is not significant
+summary(MDEPTH.GAMM) 
+#Mean depth is not significant
 #Adj. R-sq. = 0.62
 #Deviance explained = 69.6%
 
-MDEPTH.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(MeanDepth.lake) + random(Lake), 
-                       family = BB, data = mod.data, REML = TRUE, method = mixed())
-summary(MDEPTH.GAMM.BB) #Model is not significant
+### Model validation ----
 
-#### Model validation
 appraise(MDEPTH.GAMM)
-gam.check(MDEPTH.GAMM)
 MDEPTH.GAMM$scale
 #Model validation show some residual patterns
 
-#### Visualizing partial effects
+### Visualizing partial effects ----
+
+#Simple visualization
 draw.MDEPTH <- draw(MDEPTH.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
   scale_y_continuous(trans = inverse_logit_trans)
 draw.MDEPTH
+#Significativity not OK
 
-### Maximum depth ----
+## Maximum lake depth ----
+### Site scale model ----
+
 XDEPTH.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Max_depth, bs = "cs") + s(Lake, bs = "re"),
                    family = quasibinomial, data = mod.data, method = "ML")
-summary(XDEPTH.GAMM) #Maximum depth is not significant
+summary(XDEPTH.GAMM) 
+#Maximum depth is not significant
 #Adj. R-sq. = 0.62
 #Deviance explained = 69.6%
 
-XDEPTH.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(Max_depth) + random(Lake), 
-                         family = BB, data = mod.data, REML = TRUE, method = mixed())
-summary(XDEPTH.GAMM.BB) #Model is not significant
+### Model validation ----
 
-#### Model validation
 appraise(XDEPTH.GAMM)
-gam.check(XDEPTH.GAMM)
 XDEPTH.GAMM$scale
 #Model validation show some residual patterns
 
-#### Visualizing partial effects
+### Visualizing partial effects ----
+
+#Simple visualization
 draw.XDEPTH <- draw(XDEPTH.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
   scale_y_continuous(trans = inverse_logit_trans)
 draw.XDEPTH
+#Significativity not OK
 
-### Water residence time ----
-#### Model
+## Water residence time ----
+### Site scale model ----
+
 WRT.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(WRT, bs = "cs") + s(Lake, bs = "re"),
                 family = quasibinomial, data = mod.data, method = "ML") 
-summary(WRT.GAMM) #WRT is not significant
+summary(WRT.GAMM) 
+#WRT is not significant
 #Adj. R-sq. = 0.62
 #Deviance explained = 69.6%
 
-WRT.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(WRT) + random(Lake), 
-                         family = BB, data = mod.data, REML = TRUE, method = mixed())
-#Model cannot converge
-
-#### Model validation
+### Model validation ----
 appraise(WRT.GAMM)
-gam.check(WRT.GAMM)
 WRT.GAMM$scale
 #Model validation show some residual patterns
 
-#### Visualizing partial effects
+### Visualizing partial effects ----
+
+#Simple visualization
 draw.WRT <- draw(WRT.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
   scale_y_continuous(trans = inverse_logit_trans)
 draw.WRT
+#Significativity not OK
 
-### Drainage area ----
-#### Model
+## Drainage area ----
+### Site scale model ----
+
 DRAIN.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Drainage_area, bs = "cs") + s(Lake, bs = "re"),
                   family = quasibinomial, data = mod.data, method = "ML")
-summary(DRAIN.GAMM) #Drainage area is not significant
+summary(DRAIN.GAMM) 
+#Drainage area is not significant
 #Adj. R-sq. = 0.621
 #Deviance explained = 69.7%
 
-DRAIN.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(Drainage_area) + random(Lake), 
-                      family = BB, data = mod.data, REML = TRUE, method = mixed())
-#Model cannot converge
-
-#### Model validation
+### Model validation ----
 appraise(DRAIN.GAMM)
-gam.check(DRAIN.GAMM)
 DRAIN.GAMM$scale
 #Model validation shows some residual patterns
 
-#### Visualizing partial effects
+### Visualizing partial effects
+
+#Simple visualization
 draw.DRAIN <- draw(DRAIN.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
   scale_y_continuous(trans = inverse_logit_trans)
 draw.DRAIN
+#Significativity not OK. Might be something there but not enough large drainage area in our data
 
-### Elevation ----
-#### Model
+## Elevation ----
+### Site scale model ----
+
 ELEV.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Elevation, bs = "cs") + s(Lake, bs = "re"),
                  family = quasibinomial, data = mod.data, method = "ML")
-summary(ELEV.GAMM) #Elevation is not significant
+summary(ELEV.GAMM) 
+#Elevation is not significant
 #Adj. R-sq. = 0.62
 #Deviance explained = 69.6%
 
-ELEV.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(Elevation) + random(Lake), 
-                        family = BB, data = mod.data, REML = TRUE, method = mixed())
-#Model cannot converge
+### Model validation ----
 
-#### Model validation
 appraise(ELEV.GAMM)
-gam.check(ELEV.GAMM)
 ELEV.GAMM$scale
 #Model validation shows some residual patterns
 
-#### Visualizing partial effects
+### Visualizing partial effects ----
+
+#Simple visualization
 draw.ELEV <- draw(ELEV.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
   scale_y_continuous(trans = inverse_logit_trans)
 draw.ELEV
+#Significativity not OK
 
-### Fish abundance ----
+## Fish abundance ----
+### Site scale model ----
+
 FISH.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(tot_fish, bs = "cs") + s(Lake, bs = "re"),
                  family = quasibinomial, data = mod.data, method = "ML")
-summary(FISH.GAMM) #Centrarchids is not significant
+summary(FISH.GAMM) 
+#All variables are significant
+#Adj. R-sq. = 0.747
+#Deviance explained = 80.8%
 
-#### Model validation
+### Model validation ----
+
 appraise(FISH.GAMM)
-gam.check(FISH.GAMM)
 FISH.GAMM$scale
+#Some residual patterns, but scale is better than Null model
 
-#### Visualizing partial effects
+### Visualizing partial effects ----
+
+#Simple visualization
 draw.FISH <- draw(FISH.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
   scale_y_continuous(trans = inverse_logit_trans)
 draw.FISH
+#Significativity is OK
 
+#Extracting model estimates and setting graph aesthetics 
 FISH.sm <- smooth_estimates(FISH.GAMM) %>%
   add_confint()
 FISH.pr <- mod.data %>%
@@ -1185,7 +1129,7 @@ FISH.pe <- FISH.sm %>%
   geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = tot_fish), fill = "#682714", alpha = 0.5) +
   geom_line(aes(x = tot_fish, y = est), color = "#682714", lwd = 1.2) +
   scale_y_continuous(trans = inverse_logit_trans) +
-  labs(x = "fish abundance", y = "Partial effect (prevalence)", tag = "K") +
+  labs(x = "Fish abundance", y = "Partial effect (prevalence)", tag = "J") +
   theme(text = element_text(size = 20, 
                             family = "Calibri Light", 
                             color = "black"),
@@ -1200,22 +1144,52 @@ FISH.pe <- FISH.sm %>%
                                    lineend = "round"),
         plot.caption = element_blank(),
         plot.title = element_blank()) 
+FISH.pe
 
-### Non-host abundance ----
+### Visualizing summed effects ----
+
+#Combined smooth
+plot_smooth(FISH.GAMM, view = "tot_fish", rm.ranef = FALSE, 
+            transform = plogis, 
+            ylim = c(0,1), ylab = "Infection prevalence",
+            xlim = c(0, 0.7), xlab = "Fish abundance",
+            col = "orange",
+            rug = FALSE, 
+            hide.label = TRUE) 
+
+#Lake's smooths
+plot_smooth(FISH.GAMM, view = "tot_fish", rm.ranef = FALSE, plot_all = "Lake",
+            transform = plogis, 
+            ylim = c(0,1), ylab = "Infection prevalence",
+            xlim = c(0, 0.7), xlab = "Fish abundance",
+            rug = FALSE, 
+            hide.label = TRUE) 
+
+## Non-host abundance ----
+### Site scale model ----
+
 NONHOST.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(tot_Cyprinidae, bs = "cs") + s(Lake, bs = "re"),
                  family = quasibinomial, data = mod.data, method = "ML")
-summary(NONHOST.GAMM) #Centrarchids is not significant
+summary(NONHOST.GAMM)
+#All variables are significant
+#Adj. R-sq. = 0.856
+#Deviance explained = 87.5%
 
-#### Model validation
+### Model validation ----
+
 appraise(NONHOST.GAMM)
-gam.check(NONHOST.GAMM)
 NONHOST.GAMM$scale
+#Some residual patterns but OK. Scale better than Null model
 
-#### Visualizing partial effects
+### Visualizing partial effects ----
+
+#Simple visualization
 draw.NONHOST<- draw(NONHOST.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
   scale_y_continuous(trans = inverse_logit_trans)
 draw.NONHOST
+#Significativity is OK
 
+#Extracting model estimates and setting graph aesthetics 
 NONHOST.sm <- smooth_estimates(NONHOST.GAMM) %>%
   add_confint()
 NONHOST.pr <- mod.data %>%
@@ -1229,7 +1203,7 @@ NONHOST.pe <- NONHOST.sm %>%
   geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = tot_Cyprinidae), fill = "#682714", alpha = 0.5) +
   geom_line(aes(x = tot_Cyprinidae, y = est), color = "#682714", lwd = 1.2) +
   scale_y_continuous(trans = inverse_logit_trans) +
-  labs(x = "non-host abundance", y = "Partial effect (prevalence)", tag = "L") +
+  labs(x = "Non-host abundance", y = "Partial effect (prevalence)", tag = "K") +
   theme(text = element_text(size = 20, 
                             family = "Calibri Light", 
                             color = "black"),
@@ -1244,98 +1218,82 @@ NONHOST.pe <- NONHOST.sm %>%
                                    lineend = "round"),
         plot.caption = element_blank(),
         plot.title = element_blank()) 
+NONHOST.pe
 
-### Centrarchids ----
-#### Model
-CENT.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Centrarchids.T, bs = "cs") + s(Lake, bs = "re"),
-                 family = quasibinomial, data = mod.data, method = "ML")
-summary(CENT.GAMM) #Centrarchids is not significant
+### Visualizing summed effects ----
 
-CENT.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(Centrarchids.T) + random(Lake), 
-                        family = BB, data = mod.data, REML = TRUE, method = mixed())
-#Model cannot converge
+#Combined smooth
+plot_smooth(NONHOST.GAMM, view = "tot_Cyprinidae", rm.ranef = FALSE, 
+            transform = plogis, 
+            ylim = c(0,1), ylab = "Infection prevalence",
+            xlim = c(0, 0.7), xlab = "Non-host abundance",
+            col = "orange",
+            rug = FALSE, 
+            hide.label = TRUE) 
 
-#### Model validation
-appraise(CENT.GAMM)
-gam.check(CENT.GAMM)
-CENT.GAMM$scale
-#Model validation shows some residual patterns
+#Lake's smooths
+plot_smooth(NONHOST.GAMM, view = "tot_Cyprinidae", rm.ranef = FALSE, plot_all = "Lake",
+            transform = plogis, 
+            ylim = c(0,1), ylab = "Infection prevalence",
+            xlim = c(0, 0.7), xlab = "Non-host abundance",
+            rug = FALSE, 
+            hide.label = TRUE) 
 
-#### Visualizing partial effects
-draw.CENT <- draw(CENT.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
-  scale_y_continuous(trans = inverse_logit_trans)
-draw.CENT
+## Species richness ----
+### Site scale model ----
 
-#### Lake mean model
-CENT.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Centrarchids.L, bs = "cr") + s(Lake, bs = "re"),
-                   family = quasibinomial, data = mod.data, method = "ML")
-summary(CENT.GAMM.L) #unsignificative
-
-### Species richness ----
-#### Model
 SP.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Species_richness.T, bs = "cs", k = 5) + s(Lake, bs = "re"),
                family = quasibinomial, data = mod.data, method = "ML")
-summary(SP.GAMM) #Species richness is not significant
+summary(SP.GAMM) 
+#Species richness is not significant
 #Adj. R-sq. = 0.664
 #Deviance explained = 73.6%
 
-SP.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(Species_richness.T) + random(Lake), 
-                      family = BB, data = mod.data, REML = TRUE, method = mixed())
-summary(SP.GAMM.BB) #Model is not significant
+### Model validation ----
 
-#### Model validation
 appraise(SP.GAMM)
-gam.check(SP.GAMM)
 SP.GAMM$scale
-#Model validation shows some patterns
+#Model validation shows some residual patterns
 
-#### Visualizing partial effects
+### Visualizing partial effects ----
+
+#Simple visualization
 draw.SP <- draw(SP.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
   scale_y_continuous(trans = inverse_logit_trans)
 draw.SP
+#Significativity not OK
 
-#### Lake mean model
+### Lake scale model ----
+
 SP.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Species_richness.L, bs = "cr", k = 4) + s(Lake, bs = "re"),
                  family = quasibinomial, data = mod.data, method = "ML")
 summary(SP.GAMM.L) #Species richness is significant
 
-### Diversity ----
+## Diversity Index ----
+### Site scale model ----
+
 DIVERS.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Diversity.T, bs = "cs") + s(Lake, bs = "re"),
                    family = quasibinomial, data = mod.data, method = "ML")
-summary(DIVERS.GAMM) #All variables are significant
+summary(DIVERS.GAMM) 
+#All variables are significant
 #Adj. R-sq. = 0.743
 #Deviance explained = 79.7%
 
-DIVERS.GAMM.BB <- gamlss(cbind(inf_fish, tot_fish - inf_fish) ~ cs(Diversity.T) + random(Lake), 
-                     family = BB, data = mod.data, REML = TRUE, method = mixed())
-#Model cannot converge
+### Model validation ----
 
-#### Model validation
 appraise(DIVERS.GAMM)
-gam.check(DIVERS.GAMM)
 DIVERS.GAMM$scale
-#Model validation shows some residual patterns, but OK. 
+#Model validation shows some residual patterns, but OK. Scale is better than Null model
 
-#### Visualizing partial effects
+### Visualizing partial effects ----
+
+#Simple visualization
 draw.DIVERS <- draw(DIVERS.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
-  scale_y_continuous(trans = inverse_logit_trans) + 
-  labs(x = "Simpson iversity", y = "Prevalence", tag = "H") +
-  theme(text = element_text(size = 20, 
-                            family = "Calibri Light", 
-                            color = "black"),
-        axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
-        axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
-        axis.text.x = element_text(color = "black"),
-        axis.text.y = element_text(color = "black"),
-        panel.background = element_blank(),
-        axis.line.x = element_line(color = "black", 
-                                   lineend = "round"),
-        axis.line.y = element_line(color = "black", 
-                                   lineend = "round"),
-        plot.caption = element_blank(),
-        plot.title = element_blank())
+  scale_y_continuous(trans = inverse_logit_trans) 
 draw.DIVERS
+#Significativity not OK
 
+#Extracting model estimates and setting graph aesthetics 
 DIVERS.sm <- smooth_estimates(DIVERS.GAMM) %>%
   add_confint()
 DIVERS.pr <- mod.data %>%
@@ -1349,7 +1307,7 @@ DIVERS.pe <- DIVERS.sm %>%
   geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = Diversity.T), fill = "#682714", alpha = 0.5) +
   geom_line(aes(x = Diversity.T, y = est), color = "#682714", lwd = 1.2) +
   scale_y_continuous(trans = inverse_logit_trans) +
-  labs(x = "Simpson's Diversity Index", y = "Partial effect (prevalence)", tag = "H") +
+  labs(x = "Simpson's Diversity Index", y = "Partial effect (prevalence)", tag = "L") +
   theme(text = element_text(size = 20, 
                             family = "Calibri Light", 
                             color = "black"),
@@ -1364,13 +1322,11 @@ DIVERS.pe <- DIVERS.sm %>%
                                    lineend = "round"),
         plot.caption = element_blank(),
         plot.title = element_blank()) 
+DIVERS.pe
 
-#### Visualizing summed effects
-DIVERS.fv <- fitted_values(DIVERS.GAMM, data = mod.data, scale = "response")
-ggplot(DIVERS.fv) +
-  geom_point(aes(x = Diversity.T, y = fitted, color = Lake)) + 
-  geom_smooth(aes(x = Diversity.T, y = fitted), color = "black", method = "gam", formula = y~s(x, bs = "cr"))
+### Visualizing summed effects ----
 
+#Combined smooth
 plot_smooth(DIVERS.GAMM, view = "Diversity.T", rm.ranef = FALSE, 
             transform = plogis, 
             ylim = c(0,1), ylab = "Infection prevalence",
@@ -1379,6 +1335,7 @@ plot_smooth(DIVERS.GAMM, view = "Diversity.T", rm.ranef = FALSE,
             rug = FALSE, 
             hide.label = TRUE) 
 
+#Lake's smooths
 plot_smooth(DIVERS.GAMM, view = "Diversity.T", rm.ranef = FALSE, plot_all = "Lake",
             transform = plogis, 
             ylim = c(0,1), ylab = "Infection prevalence",
@@ -1386,17 +1343,55 @@ plot_smooth(DIVERS.GAMM, view = "Diversity.T", rm.ranef = FALSE, plot_all = "Lak
             rug = FALSE, 
             hide.label = TRUE) 
 
-#### Lake mean model
+### Lake scale model ----
+
 DIVERS.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Diversity.L, bs = "cr") + s(Lake, bs = "re"),
                      family = quasibinomial, data = mod.data, method = "ML")
-summary(DIVERS.GAMM.L) #unsignificative
+summary(DIVERS.GAMM.L) 
+#Unsignificative
 
 # ---- Figures ----
-## Significant one variable GAMMs summed plots ----
-pdf(paste0(to.figs, "GAM_SummedEffects.pdf"), width = 30, height = 15)
+## Significant GAMMs summed plots summary ----
 
-par(mfrow = c(2, 5), mar = c(5,5,3,1))
+pdf(paste0(to.figs, "GAMMs_SummedEffects.pdf"), width = 30, height = 15)
 
+par(mfrow = c(3, 4), mar = c(5,5,3,1))
+
+plot_smooth(TURB.GAMM, view = "Turb.T", rm.ranef = FALSE, 
+            transform = plogis, 
+            ylim = c(0,1), ylab = "Infection prevalence",
+            xlim = c(0,5), xlab = "Turbidity",
+            col = "orange",
+            rug = FALSE, 
+            hide.label = TRUE) 
+plot_smooth(TEMP.GAMM, view = "Temp.T", rm.ranef = FALSE, 
+            transform = plogis, 
+            ylim = c(0,1), ylab = "Infection prevalence",
+            xlim = c(19,26), xlab = "Temperature",
+            col = "orange",
+            rug = FALSE, 
+            hide.label = TRUE) 
+plot_smooth(PH.GAMM, view = "pH.T", rm.ranef = FALSE, 
+            transform = plogis,
+            ylim = c(0,1), ylab = "Infection prevalence",
+            xlim = c(5,8.5), xlab = "pH",
+            col = "orange",
+            rug = FALSE, 
+            hide.label = TRUE) 
+plot_smooth(COND.GAMM, view = "Cond.T", rm.ranef = FALSE, 
+            transform = plogis, 
+            ylim = c(0,1), ylab = "Infection prevalence",
+            xlim = c(0,200), xlab = "Conductivity",
+            col = "orange",
+            rug = FALSE, 
+            hide.label = TRUE) 
+plot_smooth(DO.GAMM, view = "DO.T", rm.ranef = FALSE, 
+            transform = plogis, 
+            ylim = c(0,1), ylab = "Infection prevalence",
+            xlim = c(4,10), xlab = "DO",
+            col = "orange",
+            rug = FALSE, 
+            hide.label = TRUE) 
 plot_smooth(TNTP.GAMM, view = "TN_TP.T", rm.ranef = FALSE, 
             transform = plogis, 
             ylim = c(0,1), ylab = "Infection prevalence",
@@ -1411,41 +1406,6 @@ plot_smooth(MACRO.GAMM, view = "Macrophyte", rm.ranef = FALSE,
             col = "orange",
             rug = FALSE, 
             hide.label = TRUE) 
-plot_smooth(TEMP.GAMM, view = "Temp.T", rm.ranef = FALSE, 
-            transform = plogis, 
-            ylim = c(0,1), ylab = "Infection prevalence",
-            xlim = c(19,26), xlab = "Temperature",
-            col = "orange",
-            rug = FALSE, 
-            hide.label = TRUE) 
-plot_smooth(TURB.GAMM, view = "Turb.T", rm.ranef = FALSE, 
-            transform = plogis, 
-            ylim = c(0,1), ylab = "Infection prevalence",
-            xlim = c(0,5), xlab = "Turbidity",
-            col = "orange",
-            rug = FALSE, 
-            hide.label = TRUE) 
-plot_smooth(PH.GAMM, view = "pH.T", rm.ranef = FALSE, 
-            transform = plogis,
-            ylim = c(0,1), ylab = "Infection prevalence",
-            xlim = c(5,8.5), xlab = "pH",
-            col = "orange",
-            rug = FALSE, 
-            hide.label = TRUE) 
-plot_smooth(DO.GAMM, view = "DO.T", rm.ranef = FALSE, 
-            transform = plogis, 
-            ylim = c(0,1), ylab = "Infection prevalence",
-            xlim = c(4,10), xlab = "DO",
-            col = "orange",
-            rug = FALSE, 
-            hide.label = TRUE) 
-plot_smooth(COND.GAMM, view = "Cond.T", rm.ranef = FALSE, 
-            transform = plogis, 
-            ylim = c(0,1), ylab = "Infection prevalence",
-            xlim = c(0,200), xlab = "Conductivity",
-            col = "orange",
-            rug = FALSE, 
-            hide.label = TRUE) 
 plot_smooth(AREAPERI.GAMM, view = "Area_Perimeter", rm.ranef = FALSE, 
             transform = plogis, 
             ylim = c(0,1), ylab = "Infection prevalence",
@@ -1460,46 +1420,60 @@ plot_smooth(PERI.GAMM, view = "Perimeter", rm.ranef = FALSE,
             col = "orange",
             rug = FALSE, 
             hide.label = TRUE) 
+plot_smooth(FISH.GAMM, view = "tot_fish", rm.ranef = FALSE, 
+            transform = plogis, 
+            ylim = c(0,1), ylab = "Infection prevalence",
+            xlim = c(0, 0.7), xlab = "Fish abundance",
+            col = "orange",
+            rug = FALSE, 
+            hide.label = TRUE) 
+plot_smooth(NONHOST.GAMM, view = "tot_Cyprinidae", rm.ranef = FALSE, 
+            transform = plogis, 
+            ylim = c(0,1), ylab = "Infection prevalence",
+            xlim = c(0, 0.7), xlab = "Non-host abundance",
+            col = "orange",
+            rug = FALSE, 
+            hide.label = TRUE) 
 plot_smooth(DIVERS.GAMM, view = "Diversity.T", rm.ranef = FALSE, 
             transform = plogis, 
             ylim = c(0,1), ylab = "Infection prevalence",
             xlim = c(0, 0.7), xlab = "Diversity",
             col = "orange",
             rug = FALSE, 
-            hide.label = TRUE) 
-
+            hide.label = TRUE)
 dev.off()
 
 ## Correlation plot of significant variables ----
+
 significant.data <- mod.data %>% 
-  select_("TN_TP.T", "Macrophyte", "Temp.T", "Turb.T", "pH.T", "DO.T", "Cond.T", "Area_Perimeter", "Perimeter", "Diversity.T")
+  select_("TN_TP.T", "Macrophyte", "Temp.T", "Turb.T", "pH.T", "DO.T", "Cond.T", "Area_Perimeter", "Perimeter", "Diversity.T", "tot_fish", "tot_Cyprinidae")
 
 par(mfrow = c(1, 1), mar = c(3,3,3,1))
-
-pdf(paste0(to.figs, "GAM_Corrplot.pdf"), width = 10, height = 10)
+pdf(paste0(to.figs, "GAMMs_Corrplot.pdf"), width = 10, height = 10)
 
 significant.corrplot <- rquery.cormat(significant.data, type = "full")
 
 dev.off()
 
-## Summary figure ----
+## Significant GAMMs partial plots summary ----
 
-Summary.plot <- TNTP.pe + MACRO.pe + TEMP.pe + TURB.pe + PH.pe + DO.pe + COND.pe + DIVERS.pe + FISH.pe + NONHOST.pe + PERI.pe + AREAPERI.pe &
+Summary.plot <- TURB.pe + TEMP.pe + PH.pe + COND.pe + DO.pe + TNTP.pe + MACRO.pe + AREAPERI.pe + PERI.pe + FISH.pe + NONHOST.pe + DIVERS.pe &
   theme(text = element_text(family = "Calibri Light", size = 40, color = "black"))
 
 
-ggsave(paste0(to.figs, "GAMMs_summary.png"), plot = Summary.plot, dpi = 300, width = 45, height = 30)
+ggsave(paste0(to.figs, "GAMMs_PartialEffects.png"), plot = Summary.plot, dpi = 300, width = 45, height = 30)
 ggsave(paste0(to.rédaction, "Figures/Figure5_GAMMs.png"), plot = Summary.plot, dpi = 300, width = 35, height = 30)
 
 ## Perimeter figure ----
 
-PERI.pe
+#PERI.pe
 
-ggsave(paste0(to.figs, "GAMMs_Perimeter.png"), plot = PERI.pe, dpi = 300, width = 10, height = 10)  
-ggsave(paste0(to.rédaction, "./Support_information/Figure_S1.png"), plot = PERI.pe, dpi = 300, width = 10, height = 10)  
+#ggsave(paste0(to.figs, "GAMMs_Perimeter.png"), plot = PERI.pe, dpi = 300, width = 10, height = 10)  
+#ggsave(paste0(to.rédaction, "./Support_information/Figure_S1.png"), plot = PERI.pe, dpi = 300, width = 10, height = 10)  
 
-## Summary table ----
+## Model parametric coefficient and smooth terms summary table ----
 
+#Extracting deviance explained, parametric coefficient and smooth terms for all models
 tab.NULL.par <- tidy(NULL.GAMM, parametric = TRUE) %>% 
   mutate(Model = "Null", .before = "term",
          Deviance = summary(NULL.GAMM)$dev.expl)
@@ -1684,14 +1658,6 @@ tab.ELEV.smooth <- tidy(ELEV.GAMM, parametric = FALSE) %>%
          Deviance = summary(ELEV.GAMM)$dev.expl)
 tab.ELEV <- merge(tab.ELEV.par, tab.ELEV.smooth, all = TRUE)
 
-tab.CENT.par <- tidy(CENT.GAMM, parametric = TRUE) %>% 
-  mutate(Model = "Centrarchids", .before = "term",
-         Deviance = summary(CENT.GAMM)$dev.expl)
-tab.CENT.smooth <- tidy(CENT.GAMM, parametric = FALSE) %>% 
-  mutate(Model = "Centrarchids", .before = "term",
-         Deviance = summary(CENT.GAMM)$dev.expl)
-tab.CENT <- merge(tab.CENT.par, tab.CENT.smooth, all = TRUE)
-
 tab.SP.par <- tidy(SP.GAMM, parametric = TRUE) %>% 
   mutate(Model = "Species richness", .before = "term",
          Deviance = summary(SP.GAMM)$dev.expl)
@@ -1708,7 +1674,24 @@ tab.DIVERS.smooth <- tidy(DIVERS.GAMM, parametric = FALSE) %>%
          Deviance = summary(DIVERS.GAMM)$dev.expl)
 tab.DIVERS <- merge(tab.DIVERS.par, tab.DIVERS.smooth, all = TRUE)
 
-Tab.summary.GAMMs <- rbind(tab.NULL, tab.TNTP, tab.TN, tab.TP, tab.TOC, tab.SUB1, tab.SUB2, tab.MACRO, tab.DEPTH, tab.TRUNK, tab.TEMP, tab.TURB, tab.PH, tab.DO, tab.COND, tab.AREAPERI, tab.AREA, tab.PERI, tab.MDEPTH, tab.XDEPTH, tab.WRT, tab.DRAIN, tab.ELEV, tab.CENT, tab.SP, tab.DIVERS) %>%
+tab.FISH.par <- tidy(FISH.GAMM, parametric = TRUE) %>% 
+  mutate(Model = "Fish abundance", .before = "term",
+         Deviance = summary(FISH.GAMM)$dev.expl)
+tab.FISH.smooth <- tidy(FISH.GAMM, parametric = FALSE) %>% 
+  mutate(Model = "Fish abundance", .before = "term",
+         Deviance = summary(FISH.GAMM)$dev.expl)
+tab.FISH <- merge(tab.FISH.par, tab.FISH.smooth, all = TRUE)
+
+tab.NONHOST.par <- tidy(NONHOST.GAMM, parametric = TRUE) %>% 
+  mutate(Model = "Non-host abundance", .before = "term",
+         Deviance = summary(NONHOST.GAMM)$dev.expl)
+tab.NONHOST.smooth <- tidy(NONHOST.GAMM, parametric = FALSE) %>% 
+  mutate(Model = "Non-host abundance", .before = "term",
+         Deviance = summary(NONHOST.GAMM)$dev.expl)
+tab.NONHOST <- merge(tab.NONHOST.par, tab.NONHOST.smooth, all = TRUE)
+
+#Creating summary table
+Tab.summary.GAMMs <- rbind(tab.NULL, tab.TNTP, tab.TN, tab.TP, tab.TOC, tab.SUB1, tab.SUB2, tab.MACRO, tab.DEPTH, tab.TRUNK, tab.TEMP, tab.TURB, tab.PH, tab.DO, tab.COND, tab.AREAPERI, tab.AREA, tab.PERI, tab.MDEPTH, tab.XDEPTH, tab.WRT, tab.DRAIN, tab.ELEV, tab.FISH, tab.NONHOST, tab.SP, tab.DIVERS) %>%
   group_by(Model) %>% 
   gt() %>% 
   tab_row_group(
@@ -1781,30 +1764,34 @@ Tab.summary.GAMMs <- rbind(tab.NULL, tab.TNTP, tab.TN, tab.TP, tab.TOC, tab.SUB1
     label = md("<p>Elevation<br>(D<sup>2</sup> = 69.64%)</p>"),
     rows = c(66:68)) %>% 
   tab_row_group(
-    label = md("<p>Centrarchids<br>(D<sup>2</sup> = 69.64%)</p>"),
+    label = md("<p>Fish abundance<br>(D<sup>2</sup> = 80.8%)</p>"),
     rows = c(69:71)) %>% 
   tab_row_group(
-    label = md("<p>Species richness<br>(D<sup>2</sup> = 73.61%)</p>"),
+    label = md("<p>Non-host abundance<br>(D<sup>2</sup> = 87.5%)</p>"),
     rows = c(72:74)) %>% 
   tab_row_group(
-    label = md("<p>Diversity index<br>(D<sup>2</sup> = 79.69%)</p>"),
+    label = md("<p>Species richness<br>(D<sup>2</sup> = 73.61%)</p>"),
     rows = c(75:77)) %>% 
+  tab_row_group(
+    label = md("<p>Diversity index<br>(D<sup>2</sup> = 79.69%)</p>"),
+    rows = c(78:80)) %>% 
   cols_hide(c("ref.df", "Deviance")) %>% 
   cols_label(term = md("**Term**"), statistic = md("**Statistic**"), p.value = md("**p-value**"), estimate = md("**Estimate**"), std.error = md("**Standard error**"), edf = md("**edf**")) %>% 
-  tab_header(md("**TABLE S17.** Estimated parameteric coefficients and approximate significance of smooth terms of the fine-scale prevalence community GAMMs.The deviance explained (D<sup>2</sup>) is given for every model.")) %>% 
+  tab_header(md("**TABLE S17.** Estimated parameteric coefficients and approximate significance of smooth terms of the fine-scale prevalence community GAMMs. The deviance explained (D<sup>2</sup>) is given for every model as a measure of the model fit.")) %>% 
   tab_spanner(label = "Parametric coefficient", columns = c("estimate", "std.error", "statistic", "p.value")) %>% 
   tab_spanner(label = "Smooth terms", columns = c("statistic", "p.value", "edf")) %>% 
   tab_footnote(footnote = "Effective degrees of freedom", 
                locations = cells_column_labels(columns = "edf")) %>% 
   tab_footnote(footnote = "F-value", 
-               locations = cells_body(columns = "statistic", rows = c(2,4,5,7,8,10,11,13,14,16,17,19,20,22,23,25,26,28,29,31,32,34,35,37,38,40,41,43,44,46,47,49,50,52,53,55,56,58,59,61,62,64,65,67,68,70,71,73,74,76,77))) %>% 
+               locations = cells_body(columns = "statistic", rows = c(2,4,5,7,8,10,11,13,14,16,17,19,20,22,23,25,26,28,29,31,32,34,35,37,38,40,41,43,44,46,47,49,50,52,53,55,56,58,59,61,62,64,65,67,68,70,71,73,74,76,77,79,80))) %>% 
   tab_footnote(footnote = "t-value", 
-             locations = cells_body(columns = "statistic", rows = c(1,3,6,9,12,15,18,21,24,27,30,33,36,39,42,45,48,51,54,57,60,63,66,69,72,75))) %>% 
+             locations = cells_body(columns = "statistic", rows = c(1,3,6,9,12,15,18,21,24,27,30,33,36,39,42,45,48,51,54,57,60,63,66,69,72,75,78))) %>% 
   fmt_number(decimals = 3) %>% 
   sub_values(columns = "term", values = "(Intercept)", replacement = "Intercept") %>% 
   sub_values(columns = "term", values = "s(Diversity.T)", replacement = "s(Diversity)") %>% 
   sub_values(columns = "term", values = "s(Species_richness.T)", replacement = "s(Species_richness)") %>% 
-  sub_values(columns = "term", values = "s(Centrarchids.T)", replacement = "s(Centrarchids)") %>% 
+  sub_values(columns = "term", values = "s(tot_fish)", replacement = "s(tot_fish)") %>% 
+  sub_values(columns = "term", values = "s(tot_Cyprinidae)", replacement = "s(tot_Cyprinidae)") %>% 
   sub_values(columns = "term", values = "s(Cond.T)", replacement = "s(Cond)") %>% 
   sub_values(columns = "term", values = "s(DO.T)", replacement = "s(DO)") %>% 
   sub_values(columns = "term", values = "s(pH.T)", replacement = "s(pH)") %>% 
