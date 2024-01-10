@@ -49,7 +49,8 @@ sequential_hcl(palette = "YlOrBr", 5)
 col.pal <- c("#682714", "#C75C00", "#F2A400", "#FAE094", "#FEFEE3")
 
 ## Null ----
-### Model----
+### Site scale model ----
+
 #Our null model is a random effects model
 
 NULL.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Lake, bs = "re"),
@@ -236,48 +237,144 @@ summary(TOC.GAMM.L) #unsignificative
 ## Substrate 1 ----
 ### Site scale model ----
 
-SUB1.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Sub1, bs = "cs") + s(Lake, bs = "re"),
-                 family = quasibinomial, data = mod.data, method = "ML")
-summary(SUB1.GAMM) 
+#SUB1.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Sub1, bs = "cs") + s(Lake, bs = "re"),
+                 #family = quasibinomial, data = mod.data, method = "ML")
+#summary(SUB1.GAMM) 
 #Sub1 is not significant
 #Adj. R-sq. = 0.62
 #Deviance explained  = 69.6%
 
 ### Model validation ----
 
-appraise(SUB1.GAMM)
-SUB1.GAMM$scale
+#appraise(SUB1.GAMM)
+#SUB1.GAMM$scale
 #Model validation shows some residual patterns
 
 ### Visualizing partial effects ----
 
 #Simple visualization
-draw.SUB1 <- draw(SUB1.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) +
-  scale_y_continuous(trans = inverse_logit_trans)
-draw.SUB1
+#draw.SUB1 <- draw(SUB1.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) +
+ # scale_y_continuous(trans = inverse_logit_trans)
+#draw.SUB1
 
 ## Substrate 2 ----
 ### Site scale model ----
 
-SUB2.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Sub2, bs = "cs") + s(Lake, bs = "re"),
-                 family = quasibinomial, data = mod.data, method = "ML")
-summary(SUB2.GAMM) 
+#SUB2.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Sub2, bs = "cs") + s(Lake, bs = "re"),
+                # family = quasibinomial, data = mod.data, method = "ML")
+#summary(SUB2.GAMM) 
 #Sub2 is not significant
 #Adj. R-sq. = 0.62
 #Deviance explained = 69.6%
 
 ### Model validation ----
 
-appraise(SUB2.GAMM)
-SUB2.GAMM$scale
+#appraise(SUB2.GAMM)
+#SUB2.GAMM$scale
 #Model validation shows some residual patterns
 
 ### Visualizing partial effects ----
 
 #Simple visualization
-draw.SUB2 <- draw(SUB2.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
+#draw.SUB2 <- draw(SUB2.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
+ # scale_y_continuous(trans = inverse_logit_trans)
+#draw.SUB2
+
+## Silt ----
+### Site scale model ----
+
+SILT.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Silt, bs = "cs") + s(Lake, bs = "re"),
+                  family = quasibinomial, data = mod.data, method = "ML")
+summary(SILT.GAMM) 
+#Unsignificative
+#Adj. R-Sq. = 0.62
+#Deviance explained = 69.6%
+
+### Model validation ----
+
+appraise(SILT.GAMM)
+SILT.GAMM$scale
+#Model validation shows some residual patterns
+
+### Visualizing partial effects ----
+
+#Simple visualization
+draw.SILT <- draw(SILT.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
   scale_y_continuous(trans = inverse_logit_trans)
-draw.SUB2
+draw.SILT
+#Signiticativity not OK
+
+## Sand ----
+### Site scale model ----
+
+SAND.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Sand, bs = "cs") + s(Lake, bs = "re"),
+                 family = quasibinomial, data = mod.data, method = "ML")
+summary(SAND.GAMM) 
+#Unsignificative
+#Adj. R-Sq. = 0.663
+#Deviance explained = 74.2%
+
+### Model validation ----
+
+appraise(SAND.GAMM)
+SAND.GAMM$scale
+#Model validation shows some residual patterns, scale better than Null model
+
+### Visualizing partial effects ----
+
+#Simple visualization
+draw.SAND <- draw(SAND.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
+  scale_y_continuous(trans = inverse_logit_trans)
+draw.SAND
+#Signiticativity not OK, evidence a negative trend
+
+## Rock ----
+### Site scale model ----
+
+ROCK.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Rock, bs = "cs") + s(Lake, bs = "re"),
+                 family = quasibinomial, data = mod.data, method = "ML")
+summary(ROCK.GAMM) 
+#Unsignificative
+#Adj. R-Sq. = 0.62
+#Deviance explained = 69.6%
+
+### Model validation ----
+
+appraise(ROCK.GAMM)
+ROCK.GAMM$scale
+#Model validation shows some residual patterns
+
+### Visualizing partial effects ----
+
+#Simple visualization
+draw.ROCK <- draw(ROCK.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
+  scale_y_continuous(trans = inverse_logit_trans)
+draw.ROCK
+#Signiticativity not OK
+
+## Boulder ----
+### Site scale model ----
+
+BLOCK.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Metric_block, bs = "cs") + s(Lake, bs = "re"),
+                 family = quasibinomial, data = mod.data, method = "ML")
+summary(BLOCK.GAMM) 
+#Unsignificative
+#Adj. R-Sq. = 0.62
+#Deviance explained = 69.6%
+
+### Model validation ----
+
+appraise(BLOCK.GAMM)
+BLOCK.GAMM$scale
+#Model validation shows some residual patterns
+
+### Visualizing partial effects ----
+
+#Simple visualization
+draw.BLOCK <- draw(BLOCK.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
+  scale_y_continuous(trans = inverse_logit_trans)
+draw.BLOCK
+#Signiticativity not OK
 
 ## Macrophyte ----
 ### Site scale model ----
@@ -1514,21 +1611,53 @@ tab.TOC.smooth <- tidy(TOC.GAMM, parametric = FALSE) %>%
          Deviance = summary(TOC.GAMM)$dev.expl)
 tab.TOC <- merge(tab.TOC.par, tab.TOC.smooth, all = TRUE)
 
-tab.SUB1.par <- tidy(SUB1.GAMM, parametric = TRUE) %>% 
-  mutate(Model = "Substrate 1", .before = "term",
-         Deviance = summary(SUB1.GAMM)$dev.expl)
-tab.SUB1.smooth <- tidy(SUB1.GAMM, parametric = FALSE) %>% 
-  mutate(Model = "Substrate 1", .before = "term",
-         Deviance = summary(SUB1.GAMM)$dev.expl)
-tab.SUB1 <- merge(tab.SUB1.par, tab.SUB1.smooth, all = TRUE)
+#tab.SUB1.par <- tidy(SUB1.GAMM, parametric = TRUE) %>% 
+ # mutate(Model = "Substrate 1", .before = "term",
+  #       Deviance = summary(SUB1.GAMM)$dev.expl)
+#tab.SUB1.smooth <- tidy(SUB1.GAMM, parametric = FALSE) %>% 
+  #mutate(Model = "Substrate 1", .before = "term",
+   #      Deviance = summary(SUB1.GAMM)$dev.expl)
+#tab.SUB1 <- merge(tab.SUB1.par, tab.SUB1.smooth, all = TRUE)
 
-tab.SUB2.par <- tidy(SUB2.GAMM, parametric = TRUE) %>% 
-  mutate(Model = "Substrate 2", .before = "term",
-         Deviance = summary(SUB2.GAMM)$dev.expl)
-tab.SUB2.smooth <- tidy(SUB2.GAMM, parametric = FALSE) %>% 
-  mutate(Model = "Substrate 2", .before = "term",
-         Deviance = summary(SUB2.GAMM)$dev.expl)
-tab.SUB2 <- merge(tab.SUB2.par, tab.SUB2.smooth, all = TRUE)
+#tab.SUB2.par <- tidy(SUB2.GAMM, parametric = TRUE) %>% 
+ # mutate(Model = "Substrate 2", .before = "term",
+  #       Deviance = summary(SUB2.GAMM)$dev.expl)
+#tab.SUB2.smooth <- tidy(SUB2.GAMM, parametric = FALSE) %>% 
+ # mutate(Model = "Substrate 2", .before = "term",
+  #       Deviance = summary(SUB2.GAMM)$dev.expl)
+#tab.SUB2 <- merge(tab.SUB2.par, tab.SUB2.smooth, all = TRUE)
+
+tab.SILT.par <- tidy(SILT.GAMM, parametric = TRUE) %>% 
+  mutate(Model = "Silt", .before = "term",
+         Deviance = summary(SILT.GAMM)$dev.expl)
+tab.SILT.smooth <- tidy(SILT.GAMM, parametric = FALSE) %>% 
+  mutate(Model = "Silt", .before = "term",
+         Deviance = summary(SILT.GAMM)$dev.expl)
+tab.SILT <- merge(tab.SILT.par, tab.SILT.smooth, all = TRUE)
+
+tab.SAND.par <- tidy(SAND.GAMM, parametric = TRUE) %>% 
+  mutate(Model = "Sand", .before = "term",
+         Deviance = summary(SAND.GAMM)$dev.expl)
+tab.SAND.smooth <- tidy(SAND.GAMM, parametric = FALSE) %>% 
+  mutate(Model = "Sand", .before = "term",
+         Deviance = summary(SAND.GAMM)$dev.expl)
+tab.SAND <- merge(tab.SAND.par, tab.SAND.smooth, all = TRUE)
+
+tab.ROCK.par <- tidy(ROCK.GAMM, parametric = TRUE) %>% 
+  mutate(Model = "Rock", .before = "term",
+         Deviance = summary(ROCK.GAMM)$dev.expl)
+tab.ROCK.smooth <- tidy(ROCK.GAMM, parametric = FALSE) %>% 
+  mutate(Model = "Rock", .before = "term",
+         Deviance = summary(ROCK.GAMM)$dev.expl)
+tab.ROCK <- merge(tab.ROCK.par, tab.ROCK.smooth, all = TRUE)
+
+tab.BLOCK.par <- tidy(BLOCK.GAMM, parametric = TRUE) %>% 
+  mutate(Model = "Boulder", .before = "term",
+         Deviance = summary(BLOCK.GAMM)$dev.expl)
+tab.BLOCK.smooth <- tidy(BLOCK.GAMM, parametric = FALSE) %>% 
+  mutate(Model = "Boulder", .before = "term",
+         Deviance = summary(BLOCK.GAMM)$dev.expl)
+tab.BLOCK <- merge(tab.BLOCK.par, tab.BLOCK.smooth, all = TRUE)
 
 tab.MACRO.par <- tidy(MACRO.GAMM, parametric = TRUE) %>% 
   mutate(Model = "Macrophyte cover", .before = "term",
@@ -1691,7 +1820,8 @@ tab.NONHOST.smooth <- tidy(NONHOST.GAMM, parametric = FALSE) %>%
 tab.NONHOST <- merge(tab.NONHOST.par, tab.NONHOST.smooth, all = TRUE)
 
 #Creating summary table
-Tab.summary.GAMMs <- rbind(tab.NULL, tab.TNTP, tab.TN, tab.TP, tab.TOC, tab.SUB1, tab.SUB2, tab.MACRO, tab.DEPTH, tab.TRUNK, tab.TEMP, tab.TURB, tab.PH, tab.DO, tab.COND, tab.AREAPERI, tab.AREA, tab.PERI, tab.MDEPTH, tab.XDEPTH, tab.WRT, tab.DRAIN, tab.ELEV, tab.FISH, tab.NONHOST, tab.SP, tab.DIVERS) %>%
+Tab.summary.GAMMs <- rbind(tab.NULL, tab.TNTP, tab.TN, tab.TP, tab.TOC, #tab.SUB1, tab.SUB2, 
+                           tab.SILT, tab.SAND, tab.ROCK, tab.BLOCK, tab.MACRO, tab.DEPTH, tab.TRUNK, tab.TEMP, tab.TURB, tab.PH, tab.DO, tab.COND, tab.AREAPERI, tab.AREA, tab.PERI, tab.MDEPTH, tab.XDEPTH, tab.WRT, tab.DRAIN, tab.ELEV, tab.FISH, tab.NONHOST, tab.SP, tab.DIVERS) %>%
   group_by(Model) %>% 
   gt() %>% 
   tab_row_group(
@@ -1709,72 +1839,84 @@ Tab.summary.GAMMs <- rbind(tab.NULL, tab.TNTP, tab.TN, tab.TP, tab.TOC, tab.SUB1
   tab_row_group(
     label = md("<p>TOC<br>(D<sup>2</sup> = 69.63%)</p>"),
     rows = c(12:14)) %>% 
+  #tab_row_group(
+   # label = md("<p>Subrate 1<br>(D<sup>2</sup> = 69.64%)</p>"),
+    #rows = c(15:17)) %>% 
+  #tab_row_group(
+    #label = md("<p>Substrate 2<br>(D<sup>2</sup> = 69.64%)</p>"),
+    #rows = c(18:20)) %>% 
   tab_row_group(
-    label = md("<p>Subrate 1<br>(D<sup>2</sup> = 69.64%)</p>"),
-    rows = c(15:17)) %>% 
+   label = md("<p>Silt<br>(D<sup>2</sup> = 69.64%)</p>"),
+   rows = c(15:17)) %>% 
   tab_row_group(
-    label = md("<p>Substrate 2<br>(D<sup>2</sup> = 69.64%)</p>"),
-    rows = c(18:20)) %>% 
+   label = md("<p>Sand<br>(D<sup>2</sup> = 74.18%)</p>"),
+   rows = c(18:20)) %>% 
   tab_row_group(
-    label = md("<p>Macrophyte cover<br>(D<sup>2</sup> = 84.167%)</p>"),
+    label = md("<p>Rock<br>(D<sup>2</sup> = 69.64%)</p>"),
     rows = c(21:23)) %>% 
   tab_row_group(
-    label = md("<p>Transect depth<br>(D<sup>2</sup> = 69.64%)</p>"),
+    label = md("<p>Boulder<br>(D<sup>2</sup> = 69.64%)</p>"),
     rows = c(24:26)) %>% 
   tab_row_group(
-    label = md("<p>Trunk<br>(D<sup>2</sup> = 69.64%)</p>"),
+    label = md("<p>Macrophyte cover<br>(D<sup>2</sup> = 84.167%)</p>"),
     rows = c(27:29)) %>% 
   tab_row_group(
-    label = md("<p>Temperature<br>(D<sup>2</sup> = 79.54%)</p>"),
+    label = md("<p>Transect depth<br>(D<sup>2</sup> = 69.64%)</p>"),
     rows = c(30:32)) %>% 
   tab_row_group(
-    label = md("<p>Turbidity<br>(D<sup>2</sup> = 88.71%)</p>"),
+    label = md("<p>Trunk<br>(D<sup>2</sup> = 69.64%)</p>"),
     rows = c(33:35)) %>% 
   tab_row_group(
-    label = md("<p>pH<br>(D<sup>2</sup> = 70.52%)</p>"),
+    label = md("<p>Temperature<br>(D<sup>2</sup> = 79.54%)</p>"),
     rows = c(36:38)) %>% 
   tab_row_group(
-    label = md("<p>DO<br>(D<sup>2</sup> = 75.28%)</p>"),
+    label = md("<p>Turbidity<br>(D<sup>2</sup> = 88.71%)</p>"),
     rows = c(39:41)) %>% 
   tab_row_group(
-    label = md("<p>Conductivity<br>(D<sup>2</sup> = 56.41%)</p>"),
+    label = md("<p>pH<br>(D<sup>2</sup> = 70.52%)</p>"),
     rows = c(42:44)) %>% 
   tab_row_group(
-    label = md("<p>Area:Perimeter<br>(D<sup>2</sup> = 67.77%)</p>"),
+    label = md("<p>DO<br>(D<sup>2</sup> = 75.28%)</p>"),
     rows = c(45:47)) %>% 
   tab_row_group(
-    label = md("<p>Area<br>(D<sup>2</sup> = 69.64%)</p>"),
+    label = md("<p>Conductivity<br>(D<sup>2</sup> = 56.41%)</p>"),
     rows = c(48:50)) %>% 
   tab_row_group(
-    label = md("<p>Perimeter<br>(D<sup>2</sup> = 69.90%)</p>"),
+    label = md("<p>Area:Perimeter<br>(D<sup>2</sup> = 67.77%)</p>"),
     rows = c(51:53)) %>% 
   tab_row_group(
-    label = md("<p>Lake mean depth<br>(D<sup>2</sup> = 69.64%)</p>"),
+    label = md("<p>Surface area<br>(D<sup>2</sup> = 69.64%)</p>"),
     rows = c(54:56)) %>% 
   tab_row_group(
-    label = md("<p>Lake maximum depth<br>(D<sup>2</sup> = 69.64%)</p>"),
+    label = md("<p>Perimeter<br>(D<sup>2</sup> = 69.90%)</p>"),
     rows = c(57:59)) %>% 
   tab_row_group(
-    label = md("<p>Water residence time<br>(D<sup>2</sup> = 69.64%)</p>"),
+    label = md("<p>Lake mean depth<br>(D<sup>2</sup> = 69.64%)</p>"),
     rows = c(60:62)) %>% 
   tab_row_group(
-    label = md("<p>Drainage area<br>(D<sup>2</sup> = 69.73%)</p>"),
+    label = md("<p>Lake maximum depth<br>(D<sup>2</sup> = 69.64%)</p>"),
     rows = c(63:65)) %>% 
   tab_row_group(
-    label = md("<p>Elevation<br>(D<sup>2</sup> = 69.64%)</p>"),
+    label = md("<p>Water residence time<br>(D<sup>2</sup> = 69.64%)</p>"),
     rows = c(66:68)) %>% 
   tab_row_group(
-    label = md("<p>Fish abundance<br>(D<sup>2</sup> = 80.8%)</p>"),
+    label = md("<p>Drainage area<br>(D<sup>2</sup> = 69.73%)</p>"),
     rows = c(69:71)) %>% 
   tab_row_group(
-    label = md("<p>Non-host abundance<br>(D<sup>2</sup> = 87.5%)</p>"),
+    label = md("<p>Elevation<br>(D<sup>2</sup> = 69.64%)</p>"),
     rows = c(72:74)) %>% 
   tab_row_group(
-    label = md("<p>Species richness<br>(D<sup>2</sup> = 73.61%)</p>"),
+    label = md("<p>Fish abundance<br>(D<sup>2</sup> = 80.8%)</p>"),
     rows = c(75:77)) %>% 
   tab_row_group(
-    label = md("<p>Diversity index<br>(D<sup>2</sup> = 79.69%)</p>"),
+    label = md("<p>Non-host abundance<br>(D<sup>2</sup> = 87.5%)</p>"),
     rows = c(78:80)) %>% 
+  tab_row_group(
+    label = md("<p>Species richness<br>(D<sup>2</sup> = 73.61%)</p>"),
+    rows = c(81:83)) %>% 
+  tab_row_group(
+    label = md("<p>Diversity index<br>(D<sup>2</sup> = 79.69%)</p>"),
+    rows = c(84:86)) %>% 
   cols_hide(c("ref.df", "Deviance")) %>% 
   cols_label(term = md("**Term**"), statistic = md("**Statistic**"), p.value = md("**p-value**"), estimate = md("**Estimate**"), std.error = md("**Standard error**"), edf = md("**edf**")) %>% 
   tab_header(md("**TABLE S17.** Estimated parameteric coefficients and approximate significance of smooth terms of the fine-scale prevalence community GAMMs. The deviance explained (D<sup>2</sup>) is given for every model as a measure of the model fit.")) %>% 
@@ -1783,9 +1925,9 @@ Tab.summary.GAMMs <- rbind(tab.NULL, tab.TNTP, tab.TN, tab.TP, tab.TOC, tab.SUB1
   tab_footnote(footnote = "Effective degrees of freedom", 
                locations = cells_column_labels(columns = "edf")) %>% 
   tab_footnote(footnote = "F-value", 
-               locations = cells_body(columns = "statistic", rows = c(2,4,5,7,8,10,11,13,14,16,17,19,20,22,23,25,26,28,29,31,32,34,35,37,38,40,41,43,44,46,47,49,50,52,53,55,56,58,59,61,62,64,65,67,68,70,71,73,74,76,77,79,80))) %>% 
+               locations = cells_body(columns = "statistic", rows = c(2,4,5,7,8,10,11,13,14,16,17,19,20,22,23,25,26,28,29,31,32,34,35,37,38,40,41,43,44,46,47,49,50,52,53,55,56,58,59,61,62,64,65,67,68,70,71,73,74,76,77,79,80,82,83,85,86))) %>% 
   tab_footnote(footnote = "t-value", 
-             locations = cells_body(columns = "statistic", rows = c(1,3,6,9,12,15,18,21,24,27,30,33,36,39,42,45,48,51,54,57,60,63,66,69,72,75,78))) %>% 
+             locations = cells_body(columns = "statistic", rows = c(1,3,6,9,12,15,18,21,24,27,30,33,36,39,42,45,48,51,54,57,60,63,66,69,72,75,78,81,84))) %>% 
   fmt_number(decimals = 3) %>% 
   sub_values(columns = "term", values = "(Intercept)", replacement = "Intercept") %>% 
   sub_values(columns = "term", values = "s(Diversity.T)", replacement = "s(Diversity)") %>% 

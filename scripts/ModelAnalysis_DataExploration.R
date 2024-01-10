@@ -420,20 +420,20 @@ sub2 <- site.scores[,2] #PCA2 - sub2 explains most of the variation in percentag
 mod.data <- ParaSpaceMod %>% 
   mutate(TN_TP.T = TN.T / TP.T) %>% relocate(TN_TP.T, .after = "TOC.T") %>% #Creating TN:TP ratio for transect scale
   mutate(TN_TP.L = TN.L /TP.L) %>% relocate(TN_TP.L, .after = "TOC.L") %>%  #Creating TN:TP ratio for lake scale
-  mutate(Area_Perimeter = (Lake_area*1000000/Perimeter)) %>% relocate(Area_Perimeter, .before = "MeanDepth.lake") %>%  #Creating Area:Perimeter ratio
-  mutate(Sub1 = sub1) %>% relocate(Sub1, .before = "Macrophyte") %>% #Adding new substrate variables
-  mutate(Sub2 = sub2)  %>% relocate(Sub2, .before = "Macrophyte")
+  mutate(Area_Perimeter = (Lake_area*1000000/Perimeter)) %>% relocate(Area_Perimeter, .before = "MeanDepth.lake") #%>%  #Creating Area:Perimeter ratio
+  #mutate(Sub1 = sub1) %>% relocate(Sub1, .before = "Macrophyte") %>% #Adding new substrate variables
+  #mutate(Sub2 = sub2)  %>% relocate(Sub2, .before = "Macrophyte")
 
-mod.data <- within(mod.data, rm("Silt", "Sand", "Rock", "Metric_block")) #Deleting original substrate variables
+#mod.data <- within(mod.data, rm("Silt", "Sand", "Rock", "Metric_block")) #Deleting original substrate variables
 mod.data <- mod.data[-2,] #Deleting ACHI2 as prevalence & Diversity index cannot be calculated on absence of fish
 
 ## Verifications ----
 #Rerunning correlation matrix
 trans.corr.adj <- mod.data %>% #Transect scale
-  select("Sub1", "Sub2", "Macrophyte", "MeanDepth.site", "Trunk", 
+  select("Silt", "Sand", "Rock", "Metric_block", "Macrophyte", "MeanDepth.site", "Trunk", 
           "Temp.T", "Cond.T", "DO.T", "Turb.T", "pH.T", 
           "TOC.T", "TN.T", "TP.T", "TN_TP.T",
-          "Lake_area", "Perimeter", "MeanDepth.lake", "Max_depth", "WRT", "Area_Perimeter", "ShorelineComplx",
+          "Lake_area", "Perimeter", "MeanDepth.lake", "Max_depth", "WRT", "Area_Perimeter",
           "Drainage_area", "Elevation", "Connectivity", 
           "Centrarchids.T", "Species_richness.T", "Diversity.T")
 
@@ -442,7 +442,7 @@ rquery.cormat(trans.corr.adj, type = "full")
 lake.corr.adj <- mod.data %>% #Lake scale
   select("Temp.L", "Cond.L", "DO.L", "Turb.L", "pH.L", 
           "TOC.L", "TN.L", "TP.L", "TN_TP.L",
-          "Lake_area", "Perimeter", "MeanDepth.lake", "Max_depth", "WRT", "Area_Perimeter", "ShorelineComplx",
+          "Lake_area", "Perimeter", "MeanDepth.lake", "Max_depth", "WRT", "Area_Perimeter",
           "Drainage_area", "Elevation", "Connectivity", 
           "Centrarchids.L", "Species_richness.L", "Diversity.L")
 
@@ -458,9 +458,9 @@ par(mfrow = c(3, 2), mar = c(3, 3, 3, 1))
 dotchart(mod.data$TN_TP.T, main = "TN_TP.T", group = as.factor(mod.data$Lake))
 dotchart(mod.data$TN_TP.L, main = "TN_TP.L", group = as.factor(ParaSpaceMod$Lake))
 dotchart(mod.data$Area_Perimeter, main = "AREA:PERIMETER", group = as.factor(mod.data$Lake))
-dotchart(mod.data$ShorelineComplx, main = "SHORELINE COMPLEXITY", group = as.factor(mod.data$Lake))
-dotchart(mod.data$Sub1, main = "SUB1", group = as.factor(mod.data$Lake))
-dotchart(mod.data$Sub2, main = "SUB2", group = as.factor(mod.data$Lake))
+#dotchart(mod.data$ShorelineComplx, main = "SHORELINE COMPLEXITY", group = as.factor(mod.data$Lake))
+#dotchart(mod.data$Sub1, main = "SUB1", group = as.factor(mod.data$Lake))
+#dotchart(mod.data$Sub2, main = "SUB2", group = as.factor(mod.data$Lake))
 
 dev.off()
 #Manipulations doesn't correct all of the outliers
@@ -473,14 +473,12 @@ lake.TNTP <- ggplot(data = mod.data) +
   geom_point(aes(TN_TP.L, prev_fish))
 lake.AREAPERI <- ggplot(data = mod.data) + 
   geom_point(aes(Area_Perimeter, prev_fish))
-Lake.SHORELINE <- ggplot(data = mod.data) + 
-  geom_point(aes(ShorelineComplx, prev_fish))
-trans.SUB1 <- ggplot(data = mod.data) + 
-  geom_point(aes(Sub1, prev_fish))
-trans.SUB2 <- ggplot(data = mod.data) + 
-  geom_point(aes(Sub2, prev_fish))
+#trans.SUB1 <- ggplot(data = mod.data) + 
+ # geom_point(aes(Sub1, prev_fish))
+#trans.SUB2 <- ggplot(data = mod.data) + 
+ # geom_point(aes(Sub2, prev_fish))
 
-relationships.newvars <- plot_grid(trans.TNTP, lake.TNTP, lake.AREAPERI, Lake.SHORELINE, trans.SUB1, trans.SUB2,
+relationships.newvars <- plot_grid(trans.TNTP, lake.TNTP, lake.AREAPERI, #trans.SUB1, trans.SUB2,
                                 ncol = 2, nrow = 3)
 
 ggsave(paste0(to.figs, "Relationships_newvars.pdf"), plot = relationships.newvars, dpi = 500, width = 20, height = 10) #Saving plot grid
