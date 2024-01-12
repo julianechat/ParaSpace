@@ -38,6 +38,7 @@ TransectData <- read.csv(paste0(to.output, "Transects_WideData.csv"))
 References <- read.csv(paste0(to.doc, "Appendix_S4_BSxHost.csv"), sep = ";")
 
 source("~/Library/CloudStorage/Dropbox/ParaSpace/scripts/InfectionPrevalence.R", echo=TRUE)
+source("~/Library/CloudStorage/Dropbox/ParaSpace/scripts/AccumulationCurves.R", echo=TRUE)
 
 # ---- Table S1 : Geographical and morphometric characteristics ----
 
@@ -741,10 +742,14 @@ Reg.T.data <- c(Method = "Transect", Prevalence = Reg.pool.prev.T)
 Reg.summary.data <- data.frame(rbind(Reg.A.data, Reg.MT.data, Reg.S.data, Reg.T.data), row.names = NULL)
 Reg.summary.data$Prevalence <- as.numeric(Reg.summary.data$Prevalence)
 
+SimluationPrev <- c(prev.stab.A, prev.stab.MT, prev.stab.S, prev.stab.T)
+Reg.summary.data <- Reg.summary.data %>% 
+  mutate("Simulated prevalence" = SimluationPrev*100)
+
 #Creating table
 Table.Sx <- gt(Reg.summary.data) %>% 
   tab_header(md("**TABLE Sx.** Landscape prevalence estimated by each sampling method")) %>% 
-  cols_label(Prevalence = md("Prevalence (%)")) %>% 
+  cols_label(Prevalence = md("Observed prevalence (%)"), "Simulated prevalence" = md("Simulated prevalence (%)")) %>% 
   tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "left"),
             locations = cells_title("title")) %>% 
   tab_style(cell_text(color = "black", font = "Calibri light", weight = "bold", size = 9, align = "center", v_align = "middle"),
@@ -760,14 +765,14 @@ Table.Sx <- gt(Reg.summary.data) %>%
             location = list(cells_column_labels())) %>% 
   tab_style(style= cell_borders(sides = c("bottom"), weight = px(2)), 
             location = list(cells_body(rows = 4))) %>% 
-  fmt_number(columns = Prevalence, rows = c(1:4), decimals = 2)
+  fmt_number(columns = c(2,3), decimals = 2)
 
 Table.Sx %>% #Saving gt tab
   gtsave("Tab_RegionalPrev_Methods.png", paste0(to.figs))
 Table.Sx %>% 
   gtsave("Table_Sx.png", paste0(to.rédaction, "./Support_information/"))
 
-## Table Sy ----
+## Table Sxy ----
 
 Loc.summary.tab <- data.frame(rbind(Loc.All.tab, Loc.MT.tab, Loc.S.tab, Loc.T.tab)) %>% 
   arrange(Lake)
