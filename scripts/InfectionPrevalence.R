@@ -106,43 +106,6 @@ Reg.pool.tot.T <- sum(Reg.pool.tot.T)
 
 Reg.pool.prev.T <- (Reg.pool.inf.T/Reg.pool.tot.T)*100 #Regional prevalence
 
-### Summary table ----
-
-#Creating data frame
-Reg.A.data <- c(Method = "All", Prevalence = Reg.pool.prev.All)
-Reg.MT.data <- c(Method = "Minnow trap", Prevalence = Reg.pool.prev.MT)
-Reg.S.data <- c(Method = "Seine", Prevalence = Reg.pool.prev.S)
-Reg.T.data <- c(Method = "Transect", Prevalence = Reg.pool.prev.T)
-
-Reg.summary.data <- data.frame(rbind(Reg.A.data, Reg.MT.data, Reg.S.data, Reg.T.data), row.names = NULL)
-Reg.summary.data$Prevalence <- as.numeric(Reg.summary.data$Prevalence)
-
-#Creating table
-Table.Sx <- gt(Reg.summary.data) %>% 
-  tab_header(md("**TABLE Sx.** Landscape prevalence estimated by each sampling method")) %>% 
-  cols_label(Prevalence = md("Prevalence (%)")) %>% 
-  tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "left"),
-            locations = cells_title("title")) %>% 
-  tab_style(cell_text(color = "black", font = "Calibri light", weight = "bold", size = 9, align = "center", v_align = "middle"),
-            locations = cells_column_labels()) %>% 
-  tab_style(cell_text(color = "black", font = "Calibri light", size = 9, align = "center", v_align = "middle"),
-            locations = cells_body()) %>% 
-  tab_options(table.border.top.style = "hidden",
-              heading.border.bottom.color = "black",
-              row.striping.include_table_body = TRUE,
-              page.orientation = "paysage",
-              table.width = pct(100)) %>% 
-  tab_style(style= cell_borders(sides = c("bottom", "top"), weight = px(2)), 
-            location = list(cells_column_labels())) %>% 
-  tab_style(style= cell_borders(sides = c("bottom"), weight = px(2)), 
-            location = list(cells_body(rows = 4))) %>% 
-  fmt_number(columns = Prevalence, rows = c(1:4), decimals = 2)
-
-Table.Sx %>% #Saving gt tab
-  gtsave("Tab_RegionalPrev_Methods.png", paste0(to.figs))
-Table.Sx %>% 
-  gtsave("Table_Sx.png", paste0(to.rédaction, "./Support_information/"))
-
 ## Species prevalence by methods ----
 
 ### All methods ----
@@ -304,6 +267,9 @@ Loc.pool.prev.All <- merge(Loc.pool.inf.All, Loc.pool.tot.All, by = "Lake") %>% 
 
 Loc.mean.All <- weighted.mean(Loc.pool.prev.All$prev_fish, Loc.pool.prev.All$tot_fish) #Regional prevalence by mean of local communities prevalence
 
+Loc.All.tab <- Loc.pool.prev.All %>% 
+  mutate(Method = "All", .after = Lake)
+  
 ### Minnow trap ----
 
 Loc.pool.MT <- CombinedData %>% 
@@ -333,6 +299,9 @@ Loc.pool.prev.MT <- merge(Loc.pool.inf.MT, Loc.pool.tot.MT, by = "Lake") %>% #Lo
   mutate(prev_fish = (inf_fish/tot_fish)*100)
 
 Loc.mean.MT <- weighted.mean(Loc.pool.prev.MT$prev_fish, Loc.pool.prev.MT$tot_fish) #Regional prevalence by mean of local communities prevalence
+
+Loc.MT.tab <- Loc.pool.prev.MT %>% 
+  mutate(Method = "Minnow trap", .after = Lake)
 
 ### Seine net ----
 
@@ -364,6 +333,9 @@ Loc.pool.prev.S <- merge(Loc.pool.inf.S, Loc.pool.tot.S, by = "Lake") %>% #Local
 
 Loc.mean.S <- weighted.mean(Loc.pool.prev.S$prev_fish, Loc.pool.prev.S$tot_fish) #Regional prevalence by mean of local communities prevalence
 
+Loc.S.tab <- Loc.pool.prev.S %>% 
+  mutate(Method = "Seine net", .after = Lake)
+
 ### Transect ----
 
 Loc.pool.T <- CombinedData %>% 
@@ -393,6 +365,9 @@ Loc.pool.prev.T <- merge(Loc.pool.inf.T, Loc.pool.tot.T, by = "Lake") %>% #Local
   mutate(prev_fish = (inf_fish/tot_fish)*100)
 
 Loc.mean.T <- weighted.mean(Loc.pool.prev.T$prev_fish, Loc.pool.prev.T$tot_fish) #Regional prevalence by mean of local communities prevalence
+
+Loc.T.tab <- Loc.pool.prev.T %>% 
+  mutate(Method = "Transect", .after = Lake)
 
 ## Species prevalence by methods ----
 
