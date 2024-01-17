@@ -736,20 +736,18 @@ Table.S15 %>%
 
 Reg.A.data <- c(Method = "All", Prevalence = Reg.pool.prev.All)
 Reg.MT.data <- c(Method = "Minnow trap", Prevalence = Reg.pool.prev.MT)
-Reg.S.data <- c(Method = "Seine", Prevalence = Reg.pool.prev.S)
+Reg.S.data <- c(Method = "Seine net", Prevalence = Reg.pool.prev.S)
 Reg.T.data <- c(Method = "Transect", Prevalence = Reg.pool.prev.T)
 
 Reg.summary.data <- data.frame(rbind(Reg.A.data, Reg.MT.data, Reg.S.data, Reg.T.data), row.names = NULL)
 Reg.summary.data$Prevalence <- as.numeric(Reg.summary.data$Prevalence)
 
-SimluationPrev <- c(prev.stab.A, prev.stab.MT, prev.stab.S, prev.stab.T)
-Reg.summary.data <- Reg.summary.data %>% 
-  mutate("Simulated prevalence" = SimluationPrev*100)
+Reg.summary.data <- merge(Reg.summary.data, prev.resamp, by = "Method")
 
 #Creating table
 Table.Sx <- gt(Reg.summary.data) %>% 
-  tab_header(md("**TABLE Sx.** Landscape prevalence estimated by each sampling method")) %>% 
-  cols_label(Prevalence = md("Observed prevalence (%)"), "Simulated prevalence" = md("Simulated prevalence (%)")) %>% 
+  tab_header(md("**TABLE Sx.** Landscape observed and resampled prevalence estimated by each sampling method. All values are given in percentage.")) %>% 
+  cols_label(Prevalence = md("Observed"), "5" = md("N<sub>5</sub>"), "10" = md("N<sub>10</sub>"), "15" = md("N<sub>15</sub>"), "20" = md("N<sub>20</sub>"), "25" = md("N<sub>25</sub>"), "30" = md("N<sub>30</sub>"), "35" = md("N<sub>35</sub>")) %>% 
   tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "left"),
             locations = cells_title("title")) %>% 
   tab_style(cell_text(color = "black", font = "Calibri light", weight = "bold", size = 9, align = "center", v_align = "middle"),
@@ -765,7 +763,7 @@ Table.Sx <- gt(Reg.summary.data) %>%
             location = list(cells_column_labels())) %>% 
   tab_style(style= cell_borders(sides = c("bottom"), weight = px(2)), 
             location = list(cells_body(rows = 4))) %>% 
-  fmt_number(columns = c(2,3), decimals = 2)
+  fmt_number(decimals = 2)
 
 Table.Sx %>% #Saving gt tab
   gtsave("Tab_RegionalPrev_Methods.png", paste0(to.figs))

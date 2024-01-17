@@ -51,6 +51,8 @@ creeks <- st_read(paste0(to.carto, "Attribute_templates/Template_creeks.shp"))
 lakes <- st_read(paste0(to.carto, "Attribute_templates/Template_lacs.shp"))
 watersheds <- st_read(paste0(to.carto, "Attribute_templates/Watershed_template.shp"))
 
+source("~/Library/CloudStorage/Dropbox/ParaSpace/scripts/Histograms.R", echo=TRUE)
+
 # ---- Intra lake LeGi prevalence bubble map ----
 
 col.pal <- c("chocolate", "goldenrod", "olivedrab") #Setting color palette
@@ -561,15 +563,173 @@ ggsave(paste0(to.figs, "PrevalenceMap_Fish_Transect+BV.png"), plot = FishMap.T, 
 
 ### Summary ----
 
-Summary.map <- FishMap.All + FishMap.T + FishMap.S + FishMap.MT +
+All.hist <- ggplot(All.prev, aes(prev_fish)) + 
+  geom_histogram(bins = 6, fill = "#7E7E7E", color = "black", alpha = 0.8) +
+  labs(x = "Prevalence", y = "Frequency") +x
+  ylim(0,4) +
+  theme(text = element_text(size = 9, family = "Calibri Light", color = "black"),
+        axis.text.x = element_text(color = "black"),
+        axis.text.y = element_text(color = "black"),
+        panel.background = element_blank(),
+        axis.line.x = element_line(color = "black",lineend = "round"),
+        axis.line.y = element_line(color = "black", lineend = "round"))
+
+All.Grob <- ggplotGrob(All.hist)
+
+AllMap.Sum <- ggplot() + 
+  geom_sf(data = cropped.lakes, fill = "lightblue", alpha = 0.5, color = "lightblue") +
+  geom_sf(data = cropped.creeks, color = "lightblue", alpha = 0.5) +
+  geom_sf(data = lake.attributes.All, aes(fill = (prev_fish*100)), color = "black", size = 0.5) +
+  scale_fill_continuous_sequential(palette = "YlOrBr", limits = c(0, 100), aesthetics = "fill") +
+  theme(legend.position = "none",
+        panel.background = element_rect(fill = NA, color = "black"),
+        plot.background = element_rect(fill = "white"),
+        plot.margin = margin(0, 0, 0, 0, unit = "mm"),
+        panel.spacing = margin(0, 0, 0, 0, unit = "mm"),
+        panel.grid = element_line(NA), 
+        axis.ticks = element_blank(),
+        axis.text = element_blank()) +
+  annotation_scale(location = "tl", 
+                   bar_cols = c("grey60", "white"),
+                   height = unit(0.25, "cm"),
+                   text_cex = 0.75,
+                   text_family = "Calibri Light") + 
+  annotation_north_arrow(location = "tl", 
+                         which_north = "true", 
+                         pad_x = unit(0.35, "cm"), 
+                         pad_y = unit(0.65, "cm"), 
+                         style = north_arrow_nautical(fill = c("grey60", "white"), line_col = "black", text_size = 10, text_family = "Calibri Light"),
+                         height = unit(1, "cm"),
+                         width = unit(1, "cm")) +
+    annotation_custom(All.Grob, 
+                      xmax = -73.935,
+                      xmin = -73.992,
+                      ymax = 46.005,
+                      ymin = 45.965)
+AllMap.Sum
+
+Trap.hist <- ggplot(Trap.prev, aes(prev_fish)) + 
+  geom_histogram(bins = 6, fill = "#2A5676", color = "black", alpha = 0.8) +
+  labs(x = "Prevalence", y = "Frequency") + 
+  ylim(0,4) +
+  theme(text = element_text(size = 9, family = "Calibri Light", color = "black"),
+        axis.text.x = element_text(color = "black"),
+        axis.text.y = element_text(color = "black"),
+        panel.background = element_blank(),
+        axis.line.x = element_line(color = "black", lineend = "round"),
+        axis.line.y = element_line(color = "black", lineend = "round"))
+
+T.Grob <- ggplotGrob(Trap.hist)
+
+MTMap.Sum <- ggplot() + 
+  geom_sf(data = cropped.lakes, fill = "lightblue", alpha = 0.5, color = "lightblue") +
+  geom_sf(data = cropped.creeks, color = "lightblue", alpha = 0.5) +
+  geom_sf(data = lake.attributes.MT, aes(fill = (prev_fish*100)), color = "black", size = 0.5) +
+  scale_fill_continuous_sequential(palette = "YlOrBr", limits = c(0, 100), aesthetics = "fill") +
+  theme(legend.position = c(1.2, 0.2),
+        legend.text = element_text(color = "black", size = 9, family = "Calibri Light"),
+        legend.title = element_text(color = "black", size = 9, family = "Calibri Bold"),
+        legend.key.size = unit(0.7, "cm"),
+        legend.key = element_rect(linewidth = 2),
+        legend.background = element_blank(), 
+        panel.background = element_rect(fill = NA, color = "black"),
+        plot.background = element_rect(fill = "white"),
+        plot.margin = margin(0, 0, 0, 0, unit = "mm"), 
+        panel.spacing = margin(0, 0, 0, 0, unit = "mm"),
+        panel.grid = element_line(NA), 
+        axis.ticks = element_blank(),
+        axis.text = element_blank()) +
+  guides(fill = guide_colorbar(title = "Prevalence (%)",
+                               label.position = "right",
+                               title.position = "left", title.theme = element_text(angle = 90, size = 12, hjust = 0.5),
+                               frame.colour = "black",
+                               frame.linewidth = 0.3,
+                               ticks.colour = "black")) +
+  annotation_custom(T.Grob, 
+                    xmax = -73.935,
+                    xmin = -73.992,
+                    ymax = 46.005,
+                    ymin = 45.965)
+
+MTMap.Sum
+
+Seine.hist <- ggplot(Seine.prev, aes(prev_fish)) + 
+  geom_histogram(bins = 6, fill = "#999600", color = "black", alpha = 0.8) +
+  labs(x = "Prevalence", y = "Frequency") + 
+  ylim(0,4) +
+  theme(text = element_text(size = 9, family = "Calibri Light", color = "black"),
+        axis.text.x = element_text(color = "black"),
+        axis.text.y = element_text(color = "black"),
+        panel.background = element_blank(),
+        axis.line.x = element_line(color = "black",lineend = "round"),
+        axis.line.y = element_line(color = "black", lineend = "round"))
+
+S.Grob <- ggplotGrob(Seine.hist)
+
+SMap.Sum <- ggplot() + 
+  geom_sf(data = cropped.lakes, fill = "lightblue", alpha = 0.5, color = "lightblue") +
+  geom_sf(data = cropped.creeks, color = "lightblue", alpha = 0.5) +
+  geom_sf(data = lake.attributes.S, aes(fill = (prev_fish*100)), color = "black", size = 0.5) +
+  scale_fill_continuous_sequential(palette = "YlOrBr", limits = c(0, 100), aesthetics = "fill") +
+  theme(legend.position = "none",
+        panel.background = element_rect(fill = NA, color = "black"),
+        plot.background = element_rect(fill = "white"),
+        plot.margin = margin(0, 0, 0, 0, unit = "mm"), 
+        panel.grid = element_line(NA), 
+        panel.spacing = margin(0, 0, 0, 0, unit = "mm"),
+        axis.ticks = element_blank(),
+        axis.text = element_blank()) +
+  annotation_custom(S.Grob, 
+                    xmax = -73.935,
+                    xmin = -73.992,
+                    ymax = 46.005,
+                    ymin = 45.965)
+SMap.Sum
+
+
+Trans.hist <- ggplot(Trans.prev, aes(prev_fish)) + 
+  geom_histogram(bins = 6, fill = "#966F1E", color = "black", alpha = 0.8) +
+  labs(x = "Prevalence", y = "Frequency") + 
+  ylim(0,4) +
+  theme(text = element_text(size = 9, family = "Calibri Light", color = "black"),
+        axis.text.x = element_text(color = "black"),
+        axis.text.y = element_text(color = "black"),
+        panel.background = element_blank(),
+        axis.line.x = element_line(color = "black",lineend = "round"),
+        axis.line.y = element_line(color = "black", lineend = "round"))
+
+T.Grob <- ggplotGrob(Trans.hist)
+
+TMap.Sum <- ggplot() + 
+  geom_sf(data = cropped.lakes, fill = "lightblue", alpha = 0.5, color = "lightblue") +
+  geom_sf(data = cropped.creeks, color = "lightblue", alpha = 0.5) +
+  geom_sf(data = lake.attributes.T, aes(fill = (prev_fish*100)), color = "black", size = 0.5) +
+  scale_fill_continuous_sequential(palette = "YlOrBr", limits = c(0, 100), aesthetics = "fill") +
+  theme(legend.position = "none",
+        panel.background = element_rect(fill = NA, color = "black"),
+        plot.background = element_rect(fill = "white"),
+        plot.margin = margin(0, 0, 0, 0, unit = "mm"), 
+        panel.grid = element_line(NA), 
+        panel.spacing = margin(0, 0, 0, 0, unit = "mm"),
+        axis.text = element_blank(),
+        axis.ticks = element_blank()) +
+  annotation_custom(T.Grob, 
+                    xmax = -73.935,
+                    xmin = -73.992,
+                    ymax = 46.005,
+                    ymin = 45.965)
+TMap.Sum
+
+##
+Summary.map <- AllMap.Sum + TMap.Sum + SMap.Sum + MTMap.Sum +
   plot_layout(ncol = 2,
-              nrow = 2, 
-              tag_level = "new") +
-  plot_annotation(tag_levels = "A", 
-                  title = "Community prevalence maps (A) All methods. (B) Transect. (C) Seine net. (D) Minnow trap",
-                  theme = list(title = element_text(size = 20, 
-                                                    family = "Calibri Light", 
-                                                    color = "black")))
+              nrow = 2,
+              tag_level = "new",
+              guides = "keep") + 
+  plot_annotation(tag_levels = "A") &
+  theme(text = element_text(family = "Calibri Light"),
+        plot.tag.position = c(0.05, 0.04))
+
 Summary.map
 
-ggsave(paste0(to.figs, "PrevalenceMap_Fish_Summary.png"), plot = Summary.map, dpi = 300, width = 10, height = 15, units = "cm")
+ggsave(paste0(to.figs, "PrevalenceMap_Fish_Summary.png"), plot = Summary.map, dpi = 300, width = 20, height = 20, units = "cm")

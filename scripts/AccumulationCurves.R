@@ -27,6 +27,7 @@ library(patchwork)
 library(dplyr)
 library(gt)
 library(broom)
+library(tidyr)
 
 ## Loading data ----
 
@@ -597,36 +598,20 @@ summary.acc.plot <- inf.acc.plot + tot.acc.plot + prev.acc.plot +
 
 ggsave(paste0(to.figs, "AccumulationCurves_summary.png"), plot = summary.acc.plot, dpi = 300, width = 30, height = 12)
 
-## Extraction of final prevalence value ----
+## Extraction of resampled mean values ----
 
-### All ----
+prev.resamp <- df.prev %>% 
+  select(Method, N, Prevalence) %>% 
+  group_by(Method) %>% 
+  filter(N == c("5", "10", "15", "20", "25", "30", "35")) 
 
-prev.stab.A <- df.prev %>% 
-  filter(Method == "All") %>% 
-  filter(N == "35")
+prev.resamp <- prev.resamp %>% 
+  group_by(Method, N) %>% 
+  summarise(across(.cols = Prevalence, mean))
 
-prev.stab.A <- mean(prev.stab.A$Prevalence)
+prev.resamp$Prevalence <- (prev.resamp$Prevalence)*100
 
-### Minnow trap ----
-
-prev.stab.MT <- df.prev %>% 
-  filter(Method == "Minnow trap") %>% 
-  filter(N == "35")
-
-prev.stab.MT <- mean(prev.stab.MT$Prevalence)
-
-### Seine net ----
-
-prev.stab.S <- df.prev %>% 
-  filter(Method == "Seine net") %>% 
-  filter(N == "35")
-
-prev.stab.S <- mean(prev.stab.S$Prevalence)
-
-### Transect ----
-
-prev.stab.T <- df.prev %>% 
-  filter(Method == "Transect") %>% 
-  filter(N == "35")
-
-prev.stab.T <- mean(prev.stab.T$Prevalence)
+prev.resamp <- prev.resamp %>% 
+  pivot_wider(names_from = N, values_from = Prevalence)
+  
+  
