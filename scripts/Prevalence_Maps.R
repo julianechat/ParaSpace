@@ -51,8 +51,6 @@ creeks <- st_read(paste0(to.carto, "Attribute_templates/Template_creeks.shp"))
 lakes <- st_read(paste0(to.carto, "Attribute_templates/Template_lacs.shp"))
 watersheds <- st_read(paste0(to.carto, "Attribute_templates/Watershed_template.shp"))
 
-source("~/Library/CloudStorage/Dropbox/ParaSpace/scripts/Histograms.R", echo=TRUE)
-
 # ---- Intra lake LeGi prevalence bubble map ----
 
 col.pal <- c("chocolate", "goldenrod", "olivedrab") #Setting color palette
@@ -563,9 +561,12 @@ ggsave(paste0(to.figs, "PrevalenceMap_Fish_Transect+BV.png"), plot = FishMap.T, 
 
 ### Summary ----
 
+
+source("~/Library/CloudStorage/Dropbox/ParaSpace/scripts/Histograms.R", echo=TRUE)
+
 All.hist <- ggplot(All.prev, aes(prev_fish)) + 
   geom_histogram(bins = 6, fill = "#7E7E7E", color = "black", alpha = 0.8) +
-  labs(x = "Prevalence", y = "Frequency") +x
+  labs(x = "Prevalence", y = "Frequency") +
   ylim(0,4) +
   theme(text = element_text(size = 9, family = "Calibri Light", color = "black"),
         axis.text.x = element_text(color = "black"),
@@ -581,6 +582,7 @@ AllMap.Sum <- ggplot() +
   geom_sf(data = cropped.creeks, color = "lightblue", alpha = 0.5) +
   geom_sf(data = lake.attributes.All, aes(fill = (prev_fish*100)), color = "black", size = 0.5) +
   scale_fill_continuous_sequential(palette = "YlOrBr", limits = c(0, 100), aesthetics = "fill") +
+  labs(tag = "A) Combined methods") +
   theme(legend.position = "none",
         panel.background = element_rect(fill = NA, color = "black"),
         plot.background = element_rect(fill = "white"),
@@ -588,7 +590,9 @@ AllMap.Sum <- ggplot() +
         panel.spacing = margin(0, 0, 0, 0, unit = "mm"),
         panel.grid = element_line(NA), 
         axis.ticks = element_blank(),
-        axis.text = element_blank()) +
+        axis.text = element_blank(),
+        plot.tag.position = c(0.32, 0.05),
+        plot.tag = element_text(family = "Calibri Light")) +
   annotation_scale(location = "tl", 
                    bar_cols = c("grey60", "white"),
                    height = unit(0.25, "cm"),
@@ -619,13 +623,14 @@ Trap.hist <- ggplot(Trap.prev, aes(prev_fish)) +
         axis.line.x = element_line(color = "black", lineend = "round"),
         axis.line.y = element_line(color = "black", lineend = "round"))
 
-T.Grob <- ggplotGrob(Trap.hist)
+MT.Grob <- ggplotGrob(Trap.hist)
 
 MTMap.Sum <- ggplot() + 
   geom_sf(data = cropped.lakes, fill = "lightblue", alpha = 0.5, color = "lightblue") +
   geom_sf(data = cropped.creeks, color = "lightblue", alpha = 0.5) +
   geom_sf(data = lake.attributes.MT, aes(fill = (prev_fish*100)), color = "black", size = 0.5) +
   scale_fill_continuous_sequential(palette = "YlOrBr", limits = c(0, 100), aesthetics = "fill") +
+  labs(tag = "D) Minnow trap") +
   theme(legend.position = c(1.2, 0.2),
         legend.text = element_text(color = "black", size = 9, family = "Calibri Light"),
         legend.title = element_text(color = "black", size = 9, family = "Calibri Bold"),
@@ -638,14 +643,16 @@ MTMap.Sum <- ggplot() +
         panel.spacing = margin(0, 0, 0, 0, unit = "mm"),
         panel.grid = element_line(NA), 
         axis.ticks = element_blank(),
-        axis.text = element_blank()) +
+        axis.text = element_blank(),
+        plot.tag.position = c(0.23, 0.05),
+        plot.tag = element_text(family = "Calibri Light")) +
   guides(fill = guide_colorbar(title = "Prevalence (%)",
                                label.position = "right",
                                title.position = "left", title.theme = element_text(angle = 90, size = 12, hjust = 0.5),
                                frame.colour = "black",
                                frame.linewidth = 0.3,
                                ticks.colour = "black")) +
-  annotation_custom(T.Grob, 
+  annotation_custom(MT.Grob, 
                     xmax = -73.935,
                     xmin = -73.992,
                     ymax = 46.005,
@@ -671,6 +678,7 @@ SMap.Sum <- ggplot() +
   geom_sf(data = cropped.creeks, color = "lightblue", alpha = 0.5) +
   geom_sf(data = lake.attributes.S, aes(fill = (prev_fish*100)), color = "black", size = 0.5) +
   scale_fill_continuous_sequential(palette = "YlOrBr", limits = c(0, 100), aesthetics = "fill") +
+  labs(tag = "C) Seine net") +
   theme(legend.position = "none",
         panel.background = element_rect(fill = NA, color = "black"),
         plot.background = element_rect(fill = "white"),
@@ -678,7 +686,9 @@ SMap.Sum <- ggplot() +
         panel.grid = element_line(NA), 
         panel.spacing = margin(0, 0, 0, 0, unit = "mm"),
         axis.ticks = element_blank(),
-        axis.text = element_blank()) +
+        axis.text = element_blank(),
+        plot.tag.position = c(0.185, 0.05),
+        plot.tag = element_text(family = "Calibri Light")) +
   annotation_custom(S.Grob, 
                     xmax = -73.935,
                     xmin = -73.992,
@@ -705,6 +715,7 @@ TMap.Sum <- ggplot() +
   geom_sf(data = cropped.creeks, color = "lightblue", alpha = 0.5) +
   geom_sf(data = lake.attributes.T, aes(fill = (prev_fish*100)), color = "black", size = 0.5) +
   scale_fill_continuous_sequential(palette = "YlOrBr", limits = c(0, 100), aesthetics = "fill") +
+  labs(tag = "B) Transect") +
   theme(legend.position = "none",
         panel.background = element_rect(fill = NA, color = "black"),
         plot.background = element_rect(fill = "white"),
@@ -712,7 +723,9 @@ TMap.Sum <- ggplot() +
         panel.grid = element_line(NA), 
         panel.spacing = margin(0, 0, 0, 0, unit = "mm"),
         axis.text = element_blank(),
-        axis.ticks = element_blank()) +
+        axis.ticks = element_blank(),
+        plot.tag.position = c(0.17, 0.05),
+        plot.tag = element_text(family = "Calibri Light")) +
   annotation_custom(T.Grob, 
                     xmax = -73.935,
                     xmin = -73.992,
@@ -724,11 +737,8 @@ TMap.Sum
 Summary.map <- AllMap.Sum + TMap.Sum + SMap.Sum + MTMap.Sum +
   plot_layout(ncol = 2,
               nrow = 2,
-              tag_level = "new",
-              guides = "keep") + 
-  plot_annotation(tag_levels = "A") &
-  theme(text = element_text(family = "Calibri Light"),
-        plot.tag.position = c(0.05, 0.04))
+              tag_level = "keep",
+              guides = "keep")
 
 Summary.map
 
