@@ -106,6 +106,42 @@ Reg.pool.tot.T <- sum(Reg.pool.tot.T)
 
 Reg.pool.prev.T <- (Reg.pool.inf.T/Reg.pool.tot.T)*100 #Regional prevalence
 
+### Summary table ----
+
+Reg.A.data <- c(Method = "Combined", Prevalence = Reg.pool.prev.All)
+Reg.MT.data <- c(Method = "Minnow trap", Prevalence = Reg.pool.prev.MT)
+Reg.S.data <- c(Method = "Seine net", Prevalence = Reg.pool.prev.S)
+Reg.T.data <- c(Method = "Transect", Prevalence = Reg.pool.prev.T)
+
+Reg.summary.data <- data.frame(rbind(Reg.A.data, Reg.MT.data, Reg.S.data, Reg.T.data), row.names = NULL)
+Reg.summary.data$Prevalence <- as.numeric(Reg.summary.data$Prevalence)
+
+Table.Syy <- gt(Reg.summary.data) %>% 
+  tab_header(md("**TABLE Syy.** Observed landscape prevalence estimated by each sampling method. All values are given in percentage.")) %>% 
+  cols_label(Prevalence = md("Prevalence (%)")) %>% 
+  tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "left"),
+            locations = cells_title("title")) %>% 
+  tab_style(cell_text(color = "black", font = "Calibri light", weight = "bold", size = 9, align = "center", v_align = "middle"),
+            locations = cells_column_labels()) %>% 
+  tab_style(cell_text(color = "black", font = "Calibri light", size = 9, align = "center", v_align = "middle"),
+            locations = cells_body()) %>% 
+  tab_options(table.border.top.style = "hidden",
+              heading.border.bottom.color = "black",
+              row.striping.include_table_body = TRUE,
+              page.orientation = "paysage",
+              table.width = pct(100)) %>% 
+  tab_style(style= cell_borders(sides = c("bottom", "top"), weight = px(2)), 
+            location = list(cells_column_labels())) %>% 
+  tab_style(style= cell_borders(sides = c("bottom"), weight = px(2)), 
+            location = list(cells_body(rows = 4))) %>% 
+  fmt_number(decimals = 2)
+Table.Syy
+
+Table.Syy %>% #Saving gt tab
+  gtsave("Tab_LandscapePrev_Methods.png", paste0(to.figs))
+Table.Syy %>% 
+  gtsave("Table_Syy.png", paste0(to.rédaction, "./Support_information/"))
+
 ## Species prevalence by methods ----
 
 ### All methods ----
@@ -369,6 +405,66 @@ Loc.mean.T <- weighted.mean(Loc.pool.prev.T$prev_fish, Loc.pool.prev.T$tot_fish)
 Loc.T.tab <- Loc.pool.prev.T %>% 
   mutate(Method = "Transect", .after = Lake)
 
+### Summary table ----
+
+Loc.T.data <- Loc.T.tab %>% 
+  select(Lake, Method, prev_fish)
+Loc.T.data <- Loc.T.data %>% 
+  pivot_wider(names_from = Lake, values_from = prev_fish)
+Loc.T.data <- Loc.T.data %>% 
+  mutate(Beaver = NA, .after = "Achigan") %>% 
+  mutate(Montaubois = NA, .after = "Fournelle") %>% 
+  mutate("St-Onge" = NA, .after = "Pin_rouge") %>% 
+  mutate(Tracy = NA, .before = "Triton")
+  
+Loc.A.data <- Loc.All.tab %>% 
+  select(Lake, Method, prev_fish)
+Loc.A.data <- Loc.A.data %>% 
+  pivot_wider(names_from = Lake, values_from = prev_fish)
+Loc.A.data$Method[1] <- "Combined"
+
+Loc.MT.data <- Loc.MT.tab %>% 
+  select(Lake, Method, prev_fish)
+Loc.MT.data <- Loc.MT.data %>% 
+  pivot_wider(names_from = Lake, values_from = prev_fish)
+
+Loc.S.data <- Loc.S.tab %>% 
+  select(Lake, Method, prev_fish)
+Loc.S.data <- Loc.S.data %>% 
+  pivot_wider(names_from = Lake, values_from = prev_fish)
+
+Loc.summary.data <- rbind(Loc.A.data, Loc.MT.data, Loc.S.data, Loc.T.data)
+
+Table.Suu <- gt(Loc.summary.data) %>% 
+  tab_header(md("**TABLE Suu.** Observed lake prevalence estimated by each sampling method. All values are given in percentage. Lake Tracy was not included because only one fish was caughted through all methods. NAs mean that the lake was not sampled with the corresponding method.")) %>% 
+  cols_label(Pin_rouge = md("Pin rouge")) %>% 
+  tab_spanner(md("Prevalence (%)"), columns = c(2:16)) %>% 
+  tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "center", weight = "bold"),
+            locations = cells_column_spanners()) %>% 
+  tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "left"),
+            locations = cells_title("title")) %>% 
+  tab_style(cell_text(color = "black", font = "Calibri light", weight = "bold", size = 9, align = "center", v_align = "middle"),
+            locations = cells_column_labels()) %>% 
+  tab_style(cell_text(color = "black", font = "Calibri light", size = 9, align = "center", v_align = "middle"),
+            locations = cells_body()) %>% 
+  tab_options(table.border.top.style = "hidden",
+              heading.border.bottom.color = "black",
+              row.striping.include_table_body = TRUE,
+              page.orientation = "paysage",
+              table.width = pct(100)) %>% 
+  tab_style(style= cell_borders(sides = c("bottom", "top"), weight = px(2)), 
+            location = list(cells_column_labels())) %>% 
+  tab_style(style= cell_borders(sides = c("bottom"), weight = px(2)), 
+            location = list(cells_body(rows = 4))) %>% 
+  fmt_number(decimals = 2) %>% 
+  cols_hide(Tracy)
+Table.Suu
+
+Table.Suu %>% #Saving gt tab
+  gtsave("Tab_LocalPrev_Methods.png", paste0(to.figs))
+Table.Suu %>% 
+  gtsave("Table_Suu.png", paste0(to.rédaction, "./Support_information/"))
+
 ## Species prevalence by methods ----
 
 ### All methods ----
@@ -497,25 +593,27 @@ Loc.sp.prev.T <- Loc.sp.T %>% #Local prevalence by species
 ### All methods ----
 
 Fine.pool.All <- CombinedData %>% #Selecting abundance data
-  select(Sampling_ID, starts_with(c("tot", "inf"))) %>% 
+  select(Lake, Sampling_ID, starts_with(c("tot", "inf"))) %>% 
   na.omit()
 
 Fine.pool.inf.All <- Fine.pool.All %>% #Fine-scale infected fish abundance
-  select(Sampling_ID, starts_with("inf")) %>% 
+  select(Lake, Sampling_ID, starts_with("inf")) %>% 
   adorn_totals(where = "col", name = "inf_fish")
 
 Fine.pool.inf.All <- Fine.pool.inf.All %>% #Extracting fine-scale infected fish abundance
-  select(Sampling_ID, inf_fish)
+  select(Lake, Sampling_ID, inf_fish)
 
 Fine.pool.tot.All <- Fine.pool.All %>% #Fine-scale total fish abundance
-  select(Sampling_ID, starts_with("tot")) %>% 
+  select(Lake, Sampling_ID, starts_with("tot")) %>% 
   adorn_totals(where = "col", name = "tot_fish")
 
 Fine.pool.tot.All <- Fine.pool.tot.All %>% #Extracting fine-scale total fish abundance
-  select(Sampling_ID, tot_fish)
+  select(Lake, Sampling_ID, tot_fish)
 
 Fine.pool.prev.All <- merge(Fine.pool.inf.All, Fine.pool.tot.All, by = "Sampling_ID") %>% #Fine-scale prevalence
-  mutate(prev_fish = (inf_fish/tot_fish)*100)
+  mutate(prev_fish = (inf_fish/tot_fish)*100) 
+
+Fine.pool.prev.All <- Fine.pool.prev.All[-4]
 
 Fine.mean.All <- weighted.mean(Fine.pool.prev.All$prev_fish, Fine.pool.prev.All$tot_fish) #Regional prevalence by mean of fine-scale communities prevalence
 
@@ -523,25 +621,27 @@ Fine.mean.All <- weighted.mean(Fine.pool.prev.All$prev_fish, Fine.pool.prev.All$
 
 Fine.pool.MT <- CombinedData %>% 
   filter(Sampling_method == "Minnow_trap") %>% #Selecting method
-  select(Sampling_ID, starts_with(c("tot", "inf"))) %>% #Selecting abundance data
+  select(Sampling_ID, Lake, starts_with(c("tot", "inf"))) %>% #Selecting abundance data
   na.omit()
 
 Fine.pool.inf.MT <- Fine.pool.MT %>% #Fine-scale infected fish abundance
-  select(Sampling_ID, starts_with("inf")) %>% 
+  select(Sampling_ID, Lake, starts_with("inf")) %>% 
   adorn_totals(where = "col", name = "inf_fish")
 
 Fine.pool.inf.MT <- Fine.pool.inf.MT %>% #Extracting fine-scale infected fish abundance
-  select(Sampling_ID, inf_fish)
+  select(Lake, Sampling_ID, inf_fish)
 
 Fine.pool.tot.MT <- Fine.pool.MT %>% #Fine-scale total fish abundance
-  select(Sampling_ID, starts_with("tot")) %>% 
+  select(Lake, Sampling_ID, starts_with("tot")) %>% 
   adorn_totals(where = "col", name = "tot_fish")
 
 Fine.pool.tot.MT <- Fine.pool.tot.MT %>% #Extracting fine-scale total fish abundance
-  select(Sampling_ID, tot_fish)
+  select(Lake, Sampling_ID, tot_fish)
 
 Fine.pool.prev.MT <- merge(Fine.pool.inf.MT, Fine.pool.tot.MT, by = "Sampling_ID") %>% #Fine-scale prevalence
   mutate(prev_fish = (inf_fish/tot_fish)*100)
+
+Fine.pool.prev.MT <- Fine.pool.prev.MT[-4]
 
 Fine.mean.MT <- weighted.mean(Fine.pool.prev.MT$prev_fish, Fine.pool.prev.MT$tot_fish) #Regional prevalence by mean of fine-scale communities prevalence
 
@@ -549,25 +649,27 @@ Fine.mean.MT <- weighted.mean(Fine.pool.prev.MT$prev_fish, Fine.pool.prev.MT$tot
 
 Fine.pool.S <- CombinedData %>% 
   filter(Sampling_method == "Seine") %>% #Selecting method
-  select(Sampling_ID, starts_with(c("tot", "inf"))) %>% #Selecting abundance data
+  select(Lake, Sampling_ID, starts_with(c("tot", "inf"))) %>% #Selecting abundance data
   na.omit()
 
 Fine.pool.inf.S <- Fine.pool.S %>% #Fine-scale infected fish abundance
-  select(Sampling_ID, starts_with("inf")) %>% 
+  select(Lake, Sampling_ID, starts_with("inf")) %>% 
   adorn_totals(where = "col", name = "inf_fish")
 
 Fine.pool.inf.S <- Fine.pool.inf.S %>% #Extracting fine-scale infected fish abundance
-  select(Sampling_ID, inf_fish)
+  select(Lake, Sampling_ID, inf_fish)
 
 Fine.pool.tot.S <- Fine.pool.S %>%  #Fine-scale total fish abundance
-  select(Sampling_ID, starts_with("tot")) %>% 
+  select(Lake, Sampling_ID, starts_with("tot")) %>% 
   adorn_totals(where = "col", name = "tot_fish")
 
 Fine.pool.tot.S <- Fine.pool.tot.S %>% #Extracting fine-scale total fish abundance
-  select(Sampling_ID, tot_fish)
+  select(Lake, Sampling_ID, tot_fish)
 
 Fine.pool.prev.S <- merge(Fine.pool.inf.S, Fine.pool.tot.S, by = "Sampling_ID") %>% #Fine-scale prevalence
   mutate(prev_fish = (inf_fish/tot_fish)*100)
+
+Fine.pool.prev.S <- Fine.pool.prev.S[-4]
 
 Fine.mean.S <- weighted.mean(Fine.pool.prev.S$prev_fish, Fine.pool.prev.S$tot_fish) #Regional prevalence by mean of fine-scale communities prevalence
 
@@ -575,27 +677,101 @@ Fine.mean.S <- weighted.mean(Fine.pool.prev.S$prev_fish, Fine.pool.prev.S$tot_fi
 
 Fine.pool.T <- CombinedData %>% 
   filter(Sampling_method == "Transect") %>% #Selecting method
-  select(Sampling_ID, starts_with(c("tot", "inf"))) %>% #Selecting abundance data
+  select(Lake, Sampling_ID, starts_with(c("tot", "inf"))) %>% #Selecting abundance data
   na.omit()
 
 Fine.pool.inf.T <- Fine.pool.T %>% #Fine-scale infected fish abundance
-  select(Sampling_ID, starts_with("inf")) %>% 
+  select(Lake, Sampling_ID, starts_with("inf")) %>% 
   adorn_totals(where = "col", name = "inf_fish")
 
 Fine.pool.inf.T <- Fine.pool.inf.T %>% #Extracting fine-scale infected fish abundance
-  select(Sampling_ID, inf_fish)
+  select(Lake, Sampling_ID, inf_fish)
 
 Fine.pool.tot.T <- Fine.pool.T %>% #Fine-scale total fish abundance
-  select(Sampling_ID, starts_with("tot")) %>% 
+  select(Lake, Sampling_ID, starts_with("tot")) %>% 
   adorn_totals(where = "col", name = "tot_fish")
 
 Fine.pool.tot.T <- Fine.pool.tot.T %>% #Extracting fine-scale total fish abundance
-  select(Sampling_ID, tot_fish)
+  select(Lake, Sampling_ID, tot_fish)
 
 Fine.pool.prev.T <- merge(Fine.pool.inf.T, Fine.pool.tot.T, by = "Sampling_ID") %>% #Fine-scale prevalence
   mutate(prev_fish = (inf_fish/tot_fish)*100)
 
+Fine.pool.prev.T <- Fine.pool.prev.T[-4]
+  
 Fine.mean.T <- weighted.mean(Fine.pool.prev.T$prev_fish, Fine.pool.prev.T$tot_fish) #Regional prevalence by mean of fine-scale communities prevalence
+
+### Summary table ----
+
+Fine.All.data <- Fine.pool.prev.All %>% 
+  select(Lake.x, Sampling_ID, prev_fish) %>% 
+  mutate(Method = "Combined", .before = "Sampling_ID") %>% 
+  na.omit()
+Fine.All.data <- Fine.All.data %>% 
+  pivot_wider(names_from = Lake.x, values_from = prev_fish)
+
+Fine.MT.data <- Fine.pool.prev.MT %>% 
+  select(Lake.x, Sampling_ID, prev_fish) %>% 
+  mutate(Method = "Minnow trap", .before = "Sampling_ID") %>% 
+  na.omit()
+Fine.MT.data <- Fine.MT.data %>% 
+  pivot_wider(names_from = Lake.x, values_from = prev_fish)
+
+Fine.S.data <- Fine.pool.prev.S %>% 
+  select(Lake.x, Sampling_ID, prev_fish) %>% 
+  mutate(Method = "Seine net", .before = "Sampling_ID") %>% 
+  na.omit()
+Fine.S.data <- Fine.S.data %>% 
+  pivot_wider(names_from = Lake.x, values_from = prev_fish)
+Fine.S.data <- Fine.S.data %>% 
+  mutate(Tracy = NA, .before = "Triton")
+
+Fine.T.data <- Fine.pool.prev.T %>% 
+  select(Lake.x, Sampling_ID, prev_fish) %>% 
+  mutate(Method = "Transect", .before = "Sampling_ID") %>% 
+  na.omit()
+Fine.T.data <- Fine.T.data %>% 
+  pivot_wider(names_from = Lake.x, values_from = prev_fish) 
+Fine.T.data <- Fine.T.data %>% 
+  mutate(Beaver = NA, .after = "Achigan") %>% 
+  mutate(Montaubois = NA, .after = "Fournelle") %>% 
+  mutate("St-Onge" = NA, .after = "Pin_rouge") %>% 
+  mutate(Tracy = NA, .before = "Triton")
+
+Fine.summary.data <- rbind(Fine.All.data, Fine.MT.data, Fine.S.data, Fine.T.data)
+
+Table.Soo <- gt(Fine.summary.data, groupname_col = "Method") %>% 
+  tab_header(md("**TABLE Soo.** Observed site prevalence estimated by each sampling method. Affiliated lake are given as columns. All values are given in percentage. Samples with no captures were omitted to alleviate the table.")) %>% 
+  cols_label(Sampling_ID = md("Sampling ID"), Pin_rouge = md("Pin rouge")) %>% 
+  tab_spanner(md("Prevalence (%)"), columns = c(3:17)) %>% 
+  tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "center", weight = "bold"),
+            locations = cells_column_spanners()) %>% 
+  tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "left"),
+            locations = cells_title("title")) %>% 
+  tab_style(cell_text(color = "black", font = "Calibri light", weight = "bold", size = 9, align = "center", v_align = "middle"),
+            locations = cells_column_labels()) %>% 
+  tab_style(cell_text(color = "black", font = "Calibri light", size = 9, align = "center", v_align = "middle"),
+            locations = cells_body()) %>% 
+  tab_style(cell_text(color = "black", font = "Calibri light", size = 9, align = "left", v_align = "middle", weight = "bold"),
+            locations = cells_row_groups()) %>% 
+  tab_options(table.border.top.style = "hidden",
+              heading.border.bottom.color = "black",
+              row.striping.include_table_body = TRUE,
+              page.orientation = "paysage",
+              table.width = pct(100)) %>% 
+  tab_style(style= cell_borders(sides = c("bottom", "top"), weight = px(2)), 
+            location = list(cells_column_labels())) %>% 
+  tab_style(style= cell_borders(sides = c("bottom"), weight = px(2)), 
+            location = list(cells_body(rows = 460))) %>% 
+  tab_style(style= cell_borders(sides = c("top", "bottom"), weight = px(2)), 
+            location = list(cells_row_groups())) %>% 
+  fmt_number(decimals = 2)
+Table.Soo
+
+Table.Soo %>% #Saving gt tab
+  gtsave("Tab_FinePrev_Methods.png", paste0(to.figs))
+Table.Soo %>% 
+  gtsave("Table_Soo.png", paste0(to.rédaction, "./Support_information/"))
 
 ## Species prevalence by transect ----
 
