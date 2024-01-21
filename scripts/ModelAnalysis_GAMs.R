@@ -1919,7 +1919,7 @@ Tab.summary.GAMMs <- rbind(tab.NULL, tab.TNTP, tab.TN, tab.TP, tab.TOC, #tab.SUB
     rows = c(84:86)) %>% 
   cols_hide(c("ref.df", "Deviance")) %>% 
   cols_label(term = md("**Term**"), statistic = md("**Statistic**"), p.value = md("**p-value**"), estimate = md("**Estimate**"), std.error = md("**Standard error**"), edf = md("**edf**")) %>% 
-  tab_header(md("**TABLE S17.** Estimated parameteric coefficients and approximate significance of smooth terms of the fine-scale prevalence community GAMMs. The deviance explained (D<sup>2</sup>) is given for every model as a measure of the model fit.")) %>% 
+  tab_header(md("**TABLE S18.** Estimated parameteric coefficients and approximate significance of smooth terms of the fine-scale prevalence community GAMMs. The deviance explained (D<sup>2</sup>) is given for every model as a measure of the model fit.")) %>% 
   tab_spanner(label = "Parametric coefficient", columns = c("estimate", "std.error", "statistic", "p.value")) %>% 
   tab_spanner(label = "Smooth terms", columns = c("statistic", "p.value", "edf")) %>% 
   tab_footnote(footnote = "Effective degrees of freedom", 
@@ -1970,5 +1970,5 @@ Tab.summary.GAMMs <- rbind(tab.NULL, tab.TNTP, tab.TN, tab.TP, tab.TOC, #tab.SUB
 Tab.summary.GAMMs %>% #Saving gt tab
   gtsave("Tab_GAMMs_summary.png", paste0(to.figs))
 Tab.summary.GAMMs %>% 
-  gtsave("Table_S17.png", paste0(to.rédaction, "./Support_information/"))  
+  gtsave("Table_S18.png", paste0(to.rédaction, "./Support_information/"))  
   

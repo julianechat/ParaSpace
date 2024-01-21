@@ -745,8 +745,8 @@ Reg.summary.data$Prevalence <- as.numeric(Reg.summary.data$Prevalence)
 Reg.summary.data <- merge(Reg.summary.data, prev.resamp, by = "Method")
 
 #Creating table
-Table.Sx <- gt(Reg.summary.data) %>% 
-  tab_header(md("**TABLE Sx.** Landscape observed and resampled prevalence estimated by each sampling method. All values are given in percentage.")) %>% 
+Table.S17 <- gt(Reg.summary.data) %>% 
+  tab_header(md("**TABLE S17.** Landscape observed and resampled prevalence estimated by each sampling method. All values are given in percentage.")) %>% 
   cols_label(Prevalence = md("Observed"), "5" = md("N<sub>5</sub>"), "10" = md("N<sub>10</sub>"), "15" = md("N<sub>15</sub>"), "20" = md("N<sub>20</sub>"), "25" = md("N<sub>25</sub>"), "30" = md("N<sub>30</sub>"), "35" = md("N<sub>35</sub>")) %>% 
   tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "left"),
             locations = cells_title("title")) %>% 
@@ -765,10 +765,10 @@ Table.Sx <- gt(Reg.summary.data) %>%
             location = list(cells_body(rows = 4))) %>% 
   fmt_number(decimals = 2)
 
-Table.Sx %>% #Saving gt tab
+Table.S17 %>% #Saving gt tab
   gtsave("Tab_RegionalPrev_Methods.png", paste0(to.figs))
-Table.Sx %>% 
-  gtsave("Table_Sx.png", paste0(to.rédaction, "./Support_information/"))
+Table.S17 %>% 
+  gtsave("Table_S17.png", paste0(to.rédaction, "./Support_information/"))
 
 ## Table Sxy ----
 

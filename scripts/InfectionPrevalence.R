@@ -116,7 +116,7 @@ Reg.T.data <- c(Method = "Transect", Prevalence = Reg.pool.prev.T)
 Reg.summary.data <- data.frame(rbind(Reg.A.data, Reg.MT.data, Reg.S.data, Reg.T.data), row.names = NULL)
 Reg.summary.data$Prevalence <- as.numeric(Reg.summary.data$Prevalence)
 
-Table.Syy <- gt(Reg.summary.data) %>% 
+Table.S12 <- gt(Reg.summary.data) %>% 
   tab_header(md("**TABLE Syy.** Observed landscape prevalence estimated by each sampling method. All values are given in percentage.")) %>% 
   cols_label(Prevalence = md("Prevalence (%)")) %>% 
   tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "left"),
@@ -135,12 +135,12 @@ Table.Syy <- gt(Reg.summary.data) %>%
   tab_style(style= cell_borders(sides = c("bottom"), weight = px(2)), 
             location = list(cells_body(rows = 4))) %>% 
   fmt_number(decimals = 2)
-Table.Syy
+Table.S12
 
-Table.Syy %>% #Saving gt tab
+Table.S12 %>% #Saving gt tab
   gtsave("Tab_LandscapePrev_Methods.png", paste0(to.figs))
-Table.Syy %>% 
-  gtsave("Table_Syy.png", paste0(to.rédaction, "./Support_information/"))
+Table.S12 %>% 
+  gtsave("Table_S12.png", paste0(to.rédaction, "./Support_information/"))
 
 ## Species prevalence by methods ----
 
@@ -414,8 +414,7 @@ Loc.T.data <- Loc.T.data %>%
 Loc.T.data <- Loc.T.data %>% 
   mutate(Beaver = NA, .after = "Achigan") %>% 
   mutate(Montaubois = NA, .after = "Fournelle") %>% 
-  mutate("St-Onge" = NA, .after = "Pin_rouge") %>% 
-  mutate(Tracy = NA, .before = "Triton")
+  mutate("St-Onge" = NA, .after = "Pin_rouge")
   
 Loc.A.data <- Loc.All.tab %>% 
   select(Lake, Method, prev_fish)
@@ -435,10 +434,10 @@ Loc.S.data <- Loc.S.data %>%
 
 Loc.summary.data <- rbind(Loc.A.data, Loc.MT.data, Loc.S.data, Loc.T.data)
 
-Table.Suu <- gt(Loc.summary.data) %>% 
+Table.S13 <- gt(Loc.summary.data) %>% 
   tab_header(md("**TABLE Suu.** Observed lake prevalence estimated by each sampling method. All values are given in percentage. Lake Tracy was not included because only one fish was caughted through all methods. NAs mean that the lake was not sampled with the corresponding method.")) %>% 
   cols_label(Pin_rouge = md("Pin rouge")) %>% 
-  tab_spanner(md("Prevalence (%)"), columns = c(2:16)) %>% 
+  tab_spanner(md("Prevalence (%)"), columns = c(2:15)) %>% 
   tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "center", weight = "bold"),
             locations = cells_column_spanners()) %>% 
   tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "left"),
@@ -456,14 +455,13 @@ Table.Suu <- gt(Loc.summary.data) %>%
             location = list(cells_column_labels())) %>% 
   tab_style(style= cell_borders(sides = c("bottom"), weight = px(2)), 
             location = list(cells_body(rows = 4))) %>% 
-  fmt_number(decimals = 2) %>% 
-  cols_hide(Tracy)
-Table.Suu
+  fmt_number(decimals = 2)
+Table.S13
 
-Table.Suu %>% #Saving gt tab
+Table.S13 %>% #Saving gt tab
   gtsave("Tab_LocalPrev_Methods.png", paste0(to.figs))
-Table.Suu %>% 
-  gtsave("Table_Suu.png", paste0(to.rédaction, "./Support_information/"))
+Table.S13 %>% 
+  gtsave("Table_S13.png", paste0(to.rédaction, "./Support_information/"))
 
 ## Species prevalence by methods ----
 
@@ -723,8 +721,6 @@ Fine.S.data <- Fine.pool.prev.S %>%
   na.omit()
 Fine.S.data <- Fine.S.data %>% 
   pivot_wider(names_from = Lake.x, values_from = prev_fish)
-Fine.S.data <- Fine.S.data %>% 
-  mutate(Tracy = NA, .before = "Triton")
 
 Fine.T.data <- Fine.pool.prev.T %>% 
   select(Lake.x, Sampling_ID, prev_fish) %>% 
@@ -735,15 +731,14 @@ Fine.T.data <- Fine.T.data %>%
 Fine.T.data <- Fine.T.data %>% 
   mutate(Beaver = NA, .after = "Achigan") %>% 
   mutate(Montaubois = NA, .after = "Fournelle") %>% 
-  mutate("St-Onge" = NA, .after = "Pin_rouge") %>% 
-  mutate(Tracy = NA, .before = "Triton")
+  mutate("St-Onge" = NA, .after = "Pin_rouge")
 
 Fine.summary.data <- rbind(Fine.All.data, Fine.MT.data, Fine.S.data, Fine.T.data)
 
-Table.Soo <- gt(Fine.summary.data, groupname_col = "Method") %>% 
-  tab_header(md("**TABLE Soo.** Observed site prevalence estimated by each sampling method. Affiliated lake are given as columns. All values are given in percentage. Samples with no captures were omitted to alleviate the table.")) %>% 
+Table.S14 <- gt(Fine.summary.data, groupname_col = "Method") %>% 
+  tab_header(md("**TABLE S14.** Observed site prevalence estimated by each sampling method. Affiliated lake are given as columns. All values are given in percentage. Samples with no captures were omitted to alleviate the table. Lake Tracy was not included because only one fish was caughted through all methods.")) %>% 
   cols_label(Sampling_ID = md("Sampling ID"), Pin_rouge = md("Pin rouge")) %>% 
-  tab_spanner(md("Prevalence (%)"), columns = c(3:17)) %>% 
+  tab_spanner(md("Prevalence (%)"), columns = c(3:16)) %>% 
   tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "center", weight = "bold"),
             locations = cells_column_spanners()) %>% 
   tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "left"),
@@ -762,16 +757,16 @@ Table.Soo <- gt(Fine.summary.data, groupname_col = "Method") %>%
   tab_style(style= cell_borders(sides = c("bottom", "top"), weight = px(2)), 
             location = list(cells_column_labels())) %>% 
   tab_style(style= cell_borders(sides = c("bottom"), weight = px(2)), 
-            location = list(cells_body(rows = 460))) %>% 
+            location = list(cells_body(rows = 458))) %>% 
   tab_style(style= cell_borders(sides = c("top", "bottom"), weight = px(2)), 
             location = list(cells_row_groups())) %>% 
   fmt_number(decimals = 2)
-Table.Soo
+Table.S14
 
-Table.Soo %>% #Saving gt tab
+Table.S14 %>% #Saving gt tab
   gtsave("Tab_FinePrev_Methods.png", paste0(to.figs))
-Table.Soo %>% 
-  gtsave("Table_Soo.png", paste0(to.rédaction, "./Support_information/"))
+Table.S14 %>% 
+  gtsave("Table_S14.png", paste0(to.rédaction, "./Support_information/"))
 
 ## Species prevalence by transect ----
 
