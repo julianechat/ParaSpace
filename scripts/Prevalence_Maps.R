@@ -271,24 +271,26 @@ cropped.watersheds <- st_crop(watersheds, cropped.frame2)
 lake.attributes <- CombinedData %>% #Selecting abundance data
   select(Lake, Sampling_method, Lat.lake, Long.lake, starts_with(c("tot", "inf")))
 
-### All ----
+### Combined methods ----
 
-lake.attributes.All <- lake.attributes %>% #Lake abundance sums
+lake.attributes.C <- lake.attributes %>% #Lake abundance sums
   select(!(Sampling_method)) %>% 
   group_by(Lake, Lat.lake, Long.lake) %>%
   summarise(across(.cols = everything(), sum, na.rm = TRUE))
 
-lake.attributes.All <- lake.attributes.All %>% #Creating fish abundance columns
+lake.attributes.C <- lake.attributes.C %>% #Creating fish abundance columns
   mutate(tot_fish = tot_AmRu + tot_FuDi + tot_MiDo + tot_LeGi + tot_PeFl + tot_PiPr + tot_ChrosomusSp. + tot_PiNo + tot_SeAt + tot_LuCo + tot_AmNe + tot_CaCo + tot_EsMa + tot_UmLi + tot_RhAt + tot_Centrarchidae + tot_Cyprinidae) %>% 
   mutate(inf_fish = inf_AmRu + inf_FuDi + inf_MiDo + inf_LeGi + inf_PeFl + inf_PiPr + inf_ChrosomusSp. + inf_PiNo + inf_SeAt + inf_LuCo + inf_AmNe + inf_CaCo + inf_EsMa + inf_UmLi + inf_RhAt + inf_Centrarchidae + inf_Cyprinidae) 
 
-lake.attributes.All <- lake.attributes.All %>% #Creating prevalence columns
+lake.attributes.C <- lake.attributes.C %>% #Creating prevalence columns
   mutate(prev_fish = inf_fish/tot_fish) %>% 
   mutate(prev_LeGi = inf_LeGi/tot_LeGi)
 
-lake.attributes.All <- Study.map %>% 
-  mutate(prev_LeGi = lake.attributes.All$prev_LeGi) %>% 
-  mutate(prev_fish = lake.attributes.All$prev_fish)
+lake.attributes.C <- Study.map %>% 
+  mutate(prev_LeGi = lake.attributes.C$prev_LeGi) %>% 
+  mutate(prev_fish = lake.attributes.C$prev_fish)
+
+lake.attributes.C[14,21] <- NA
 
 ### Minnow trap ----
 
@@ -309,6 +311,8 @@ lake.attributes.MT <- lake.attributes.MT %>% #Creating prevalence columns
 lake.attributes.MT <- Study.map %>% 
   mutate(prev_LeGi = lake.attributes.MT$prev_LeGi) %>% 
   mutate(prev_fish = lake.attributes.MT$prev_fish)
+
+lake.attributes.MT[14,21] <- NA
 
 ### Seine net ----
 
@@ -357,7 +361,7 @@ LakesMap <- ggplot() +
   geom_sf(data = cropped.lakes, fill = "lightblue", alpha = 0.5, color = "lightblue") +
   geom_sf(data = cropped.creeks, color = "lightblue", alpha = 0.5) +
   geom_sf(data = cropped.watersheds, fill = NA, linewidth = 0.5, color = "#467092") +
-  geom_sf(data = lake.attributes.All, fill = "#B65000", alpha = 0.8, color = "black", size = 0.5) +
+  geom_sf(data = lake.attributes.C, fill = "grey60", alpha = 0.8, color = "black", size = 0.5) +
   theme(legend.position = c(0.88, 0.15),
         legend.text = element_text(color = "black", size = 9, family = "Calibri Light"),
         legend.title = element_text(color = "black", size = 9, family = "Calibri Bold"),
@@ -386,14 +390,14 @@ LakesMap
 ggsave(paste0(to.figs, "LakesMaps+BV.png"), plot = LakesMap, dpi = 300, width = 10, height = 15, units = "cm")
 #ggsave(paste0(to.figs, "LakesMaps.png"), plot = LakesMap, dpi = 300, width = 10, height = 15, units = "cm") #change pad_y at 0.55 instead of 0.85 & omit watersheds polygon line
 
-### All ----
+### Combined methods ----
 col.pal <- c("#682714", "#B65000", "#EB8500", "#F7BF35", "#FBE9AA", "#FEFEE3")
 
-FishMap.All <- ggplot() + 
+FishMap.C <- ggplot() + 
   geom_sf(data = cropped.lakes, fill = "lightblue", alpha = 0.5, color = "lightblue") +
   geom_sf(data = cropped.creeks, color = "lightblue", alpha = 0.5) +
   geom_sf(data = cropped.watersheds, fill = NA, linewidth = 0.5, color = "#467092") +
-  geom_sf(data = lake.attributes.All, aes(fill = (prev_fish*100)), color = "black", size = 0.5) +
+  geom_sf(data = lake.attributes.C, aes(fill = (prev_fish*100)), color = "black", size = 0.5) +
   scale_fill_continuous_sequential(palette = "YlOrBr", limits = c(0, 100), aesthetics = "fill") +
   theme(legend.position = c(0.88, 0.15),
         legend.text = element_text(color = "black", size = 9, family = "Calibri Light"),
@@ -425,11 +429,10 @@ FishMap.All <- ggplot() +
                                frame.linewidth = 0.3,
                                ticks.colour = "black"))
 
-FishMap.All
+FishMap.C
 
-#ggsave(paste0(to.figs, "PrevalenceMap_Fish_All.png"), plot = FishMap.All, dpi = 300, width = 10, height = 15, units = "cm")
-ggsave(paste0(to.figs, "PrevalenceMap_Fish_All+BV.png"), plot = FishMap.All, dpi = 300, width = 10, height = 15, units = "cm")
-#ggsave(paste0(to.rédaction,"./Figures/", "Figure2_Map.png"), plot = FishMap.All, dpi = 300, width = 10, height = 15, units = "cm")
+#ggsave(paste0(to.figs, "PrevalenceMap_Fish_C.png"), plot = FishMap.C, dpi = 300, width = 10, height = 15, units = "cm")
+ggsave(paste0(to.figs, "PrevalenceMap_Fish_C+BV.png"), plot = FishMap.C, dpi = 300, width = 10, height = 15, units = "cm")
 
 ### Minnow traps ----
 
@@ -559,12 +562,13 @@ FishMap.T
 ggsave(paste0(to.figs, "PrevalenceMap_Fish_Transect+BV.png"), plot = FishMap.T, dpi = 300, width = 10, height = 15, units = "cm")
 
 
-### Summary ----
+### Summary figure ----
+#With frequency distributions
 
+#A) Combined methods
 
-source("~/Library/CloudStorage/Dropbox/ParaSpace/scripts/Histograms.R", echo=TRUE)
-
-All.hist <- ggplot(All.prev, aes(prev_fish)) + 
+#Frequency distribution
+C.hist <- ggplot(lake.attributes.C, aes(prev_fish)) + 
   geom_histogram(bins = 6, fill = "#7E7E7E", color = "black", alpha = 0.8) +
   labs(x = "Prevalence", y = "Frequency") +
   ylim(0,4) +
@@ -575,12 +579,12 @@ All.hist <- ggplot(All.prev, aes(prev_fish)) +
         axis.line.x = element_line(color = "black",lineend = "round"),
         axis.line.y = element_line(color = "black", lineend = "round"))
 
-All.Grob <- ggplotGrob(All.hist)
+C.Grob <- ggplotGrob(C.hist) #Set frequency distribution as a grob
 
-AllMap.Sum <- ggplot() + 
+  C.Map.Sum <- ggplot() + 
   geom_sf(data = cropped.lakes, fill = "lightblue", alpha = 0.5, color = "lightblue") +
   geom_sf(data = cropped.creeks, color = "lightblue", alpha = 0.5) +
-  geom_sf(data = lake.attributes.All, aes(fill = (prev_fish*100)), color = "black", size = 0.5) +
+  geom_sf(data = lake.attributes.C, aes(fill = (prev_fish*100)), color = "black", size = 0.5) +
   scale_fill_continuous_sequential(palette = "YlOrBr", limits = c(0, 100), aesthetics = "fill") +
   labs(tag = "A) Combined methods") +
   theme(legend.position = "none",
@@ -605,14 +609,17 @@ AllMap.Sum <- ggplot() +
                          style = north_arrow_nautical(fill = c("grey60", "white"), line_col = "black", text_size = 10, text_family = "Calibri Light"),
                          height = unit(1, "cm"),
                          width = unit(1, "cm")) +
-    annotation_custom(All.Grob, 
+    annotation_custom(C.Grob, 
                       xmax = -73.935,
                       xmin = -73.992,
                       ymax = 46.005,
                       ymin = 45.965)
-AllMap.Sum
+C.Map.Sum
 
-Trap.hist <- ggplot(Trap.prev, aes(prev_fish)) + 
+#D) Minnow trap
+
+#Frequency distribution
+MT.hist <- ggplot(lake.attributes.T, aes(prev_fish)) + 
   geom_histogram(bins = 6, fill = "#2A5676", color = "black", alpha = 0.8) +
   labs(x = "Prevalence", y = "Frequency") + 
   ylim(0,4) +
@@ -623,9 +630,9 @@ Trap.hist <- ggplot(Trap.prev, aes(prev_fish)) +
         axis.line.x = element_line(color = "black", lineend = "round"),
         axis.line.y = element_line(color = "black", lineend = "round"))
 
-MT.Grob <- ggplotGrob(Trap.hist)
+MT.Grob <- ggplotGrob(MT.hist)
 
-MTMap.Sum <- ggplot() + 
+MT.Map.Sum <- ggplot() + 
   geom_sf(data = cropped.lakes, fill = "lightblue", alpha = 0.5, color = "lightblue") +
   geom_sf(data = cropped.creeks, color = "lightblue", alpha = 0.5) +
   geom_sf(data = lake.attributes.MT, aes(fill = (prev_fish*100)), color = "black", size = 0.5) +
@@ -658,9 +665,12 @@ MTMap.Sum <- ggplot() +
                     ymax = 46.005,
                     ymin = 45.965)
 
-MTMap.Sum
+MT.Map.Sum
 
-Seine.hist <- ggplot(Seine.prev, aes(prev_fish)) + 
+#C) Seine net
+
+#Frequncy distribution
+S.hist <- ggplot(lake.attributes.S, aes(prev_fish)) + 
   geom_histogram(bins = 6, fill = "#999600", color = "black", alpha = 0.8) +
   labs(x = "Prevalence", y = "Frequency") + 
   ylim(0,4) +
@@ -671,9 +681,9 @@ Seine.hist <- ggplot(Seine.prev, aes(prev_fish)) +
         axis.line.x = element_line(color = "black",lineend = "round"),
         axis.line.y = element_line(color = "black", lineend = "round"))
 
-S.Grob <- ggplotGrob(Seine.hist)
+S.Grob <- ggplotGrob(S.hist) #Set frequency distribution as a grob
 
-SMap.Sum <- ggplot() + 
+S.Map.Sum <- ggplot() + 
   geom_sf(data = cropped.lakes, fill = "lightblue", alpha = 0.5, color = "lightblue") +
   geom_sf(data = cropped.creeks, color = "lightblue", alpha = 0.5) +
   geom_sf(data = lake.attributes.S, aes(fill = (prev_fish*100)), color = "black", size = 0.5) +
@@ -694,10 +704,10 @@ SMap.Sum <- ggplot() +
                     xmin = -73.992,
                     ymax = 46.005,
                     ymin = 45.965)
-SMap.Sum
+S.Map.Sum
 
-
-Trans.hist <- ggplot(Trans.prev, aes(prev_fish)) + 
+#B) Transect
+T.hist <- ggplot(lake.attributes.T, aes(prev_fish)) + 
   geom_histogram(bins = 6, fill = "#966F1E", color = "black", alpha = 0.8) +
   labs(x = "Prevalence", y = "Frequency") + 
   ylim(0,4) +
@@ -708,9 +718,9 @@ Trans.hist <- ggplot(Trans.prev, aes(prev_fish)) +
         axis.line.x = element_line(color = "black",lineend = "round"),
         axis.line.y = element_line(color = "black", lineend = "round"))
 
-T.Grob <- ggplotGrob(Trans.hist)
+T.Grob <- ggplotGrob(T.hist)
 
-TMap.Sum <- ggplot() + 
+T.Map.Sum <- ggplot() + 
   geom_sf(data = cropped.lakes, fill = "lightblue", alpha = 0.5, color = "lightblue") +
   geom_sf(data = cropped.creeks, color = "lightblue", alpha = 0.5) +
   geom_sf(data = lake.attributes.T, aes(fill = (prev_fish*100)), color = "black", size = 0.5) +
@@ -731,10 +741,10 @@ TMap.Sum <- ggplot() +
                     xmin = -73.992,
                     ymax = 46.005,
                     ymin = 45.965)
-TMap.Sum
+T.Map.Sum
 
 ##
-Summary.map <- AllMap.Sum + TMap.Sum + SMap.Sum + MTMap.Sum +
+Summary.map <- C.Map.Sum + T.Map.Sum + S.Map.Sum + MT.Map.Sum +
   plot_layout(ncol = 2,
               nrow = 2,
               tag_level = "keep",
@@ -742,4 +752,5 @@ Summary.map <- AllMap.Sum + TMap.Sum + SMap.Sum + MTMap.Sum +
 
 Summary.map
 
-ggsave(paste0(to.figs, "PrevalenceMap_Fish_Summary.png"), plot = Summary.map, dpi = 300, width = 20, height = 20, units = "cm")
+ggsave(paste0(to.figs, "PrevalenceMapHist_Summary.png"), plot = Summary.map, dpi = 300, width = 20, height = 20, units = "cm")
+ggsave(paste0(to.rédaction, "/Figures/Figure5_MapFreqDistribution.png"), plot = Summary.map, dpi = 300, width = 20, height = 20, units = "cm")

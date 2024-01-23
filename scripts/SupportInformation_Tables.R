@@ -139,23 +139,19 @@ Table.S3 %>% #Saving gt tab
 Table.S3 %>% 
   gtsave("Table_S3.png", paste0(to.rédaction, "./Support_information/"))
 
-# ---- Table S4 : Abundance for all methods ----
+# ---- Table S4 : Abundance in combined methods ----
 
-SpAbund.All <- CombinedData %>% #Selecting capture data
-  select(Lake, starts_with("tot")) #%>% 
-  #na.omit()
+SpAbund.C <- CombinedData %>% #Selecting capture data
+  select(Lake, starts_with("tot")) 
 
-SpAbund.All2 <- CombinedData %>% #Selecting capture data
-  select(starts_with("tot")) %>% sum(na.rm = TRUE)
-
-SpAbund.All <- SpAbund.All %>% #Summarizing by lake
+SpAbund.C <- SpAbund.C %>% #Summarizing by lake
   group_by(Lake) %>% 
   summarise(across(.cols = everything(), sum,  na.rm = TRUE)) 
 
-SpAbund.All <- SpAbund.All %>% 
+SpAbund.C <- SpAbund.C %>% 
   adorn_totals(c("row", "col")) #Total by species and total by lake
 
-Table.S4 <- gt(SpAbund.All) %>% #Creating gt tab and editing style
+Table.S4 <- gt(SpAbund.C) %>% #Creating gt tab and editing style
   cols_label(Lake = md("**Lake**"), tot_AmRu = md("***Ameiurus nebulosus***"), tot_FuDi = md("***Fundulus diaphanus***"), tot_MiDo = md("***Micropterus dolomieu***"), tot_LeGi = md("***Lepomis gibbosus***"), tot_PeFl = md("***Perca flavescens***"), tot_PiPr = md("***Pimephales promelas***"), tot_ChrosomusSp. = md("**Chrosomus spp.**"), tot_PiNo = md("***Pimephales notatus***"), tot_SeAt = md("***Semotilus atromaculatus***"), tot_LuCo = md("***Luxilus cornutus***"), tot_AmNe = md("***Ambloplites nebulosus***"), tot_CaCo = md("***Catostomus commersonii***"), tot_EsMa = md("***Esox masquinongy***"), tot_UmLi = md("***Umbra limi***"), tot_RhAt = md("***Rhinichthys atratulus***"), tot_Cyprinidae = md("**Unknown cyprinids**"), tot_Centrarchidae = md("**Unknown centrarchids**"), Total = md("**Total**")) %>% 
   tab_header(md("**TABLE S4.** The abundance of fishes species in the 15 sampled lakes according to all the sampling methods.")) %>% 
   cols_move(columns = c("tot_ChrosomusSp.", "tot_Cyprinidae", "tot_Centrarchidae"), after = "tot_RhAt") %>% 
@@ -187,11 +183,11 @@ Table.S4 <- gt(SpAbund.All) %>% #Creating gt tab and editing style
   sub_values(columns = 1, rows = 12, values = "Pin_rouge", replacement = "Pin rouge")
 
 Table.S4 %>% #Saving gt tab
-  gtsave("Tab_SpAbund_All.png", paste0(to.figs), vwidth = 2000, vheight = 1000)
+  gtsave("Tab_SpAbund_Combined.png", paste0(to.figs), vwidth = 2000, vheight = 1000)
 Table.S4 %>% 
   gtsave("Table_S4.png", paste0(to.rédaction, "./Support_information/"), vwidth = 2000, vheight = 1000)
 
-# ---- Table S5 : Abundance for minnow traps -----
+# ---- Table S5 : Abundance in minnow traps -----
 
 SpAbund.MT <- CombinedData %>% #Selecting capture data
   na.omit() %>% 
@@ -240,7 +236,7 @@ Table.S5 %>% #Saving gt tab
 Table.S5 %>% 
   gtsave("Table_S5.png", paste0(to.rédaction, "./Support_information/"), vwidth = 2000, vheight = 1000)
 
-# ---- Table S6 : Abundance for seine nets ----
+# ---- Table S6 : Abundance in seine nets ----
 
 SpAbund.S <- CombinedData %>% #Selecting capture data
   filter(Sampling_method == "Seine") %>% 
@@ -289,7 +285,7 @@ Table.S6 %>% #Saving gt tab
 Table.S6 %>% 
   gtsave("Table_S6.png", paste0(to.rédaction, "./Support_information/"), vwidth = 2000, vheight = 1000)
 
-# ---- Table S7 : Abundance for transects ----
+# ---- Table S7 : Abundance in transects ----
 
 SpAbund.T <- CombinedData %>% #Selecting capture data
   filter(Sampling_method == "Transect") %>% 
@@ -338,7 +334,7 @@ Table.S7 %>% #Saving gt tab
 Table.S7 %>% 
   gtsave("Table_S7.png", paste0(to.rédaction, "./Support_information/"), vwidth = 2000, vheight = 1000)
 
-# ---- Table S8 :  Overall mean length by lakes ----
+# ---- Table S8 : Overall mean length by lakes ----
 
 FishLength <- FishingRaw %>% #Selecting data of interest
   select(Lake, Species_ID, Length, Abundance) %>% 
@@ -521,131 +517,6 @@ Table.S11 %>% #Saving gt tab
 Table.S11 %>% 
   gtsave("Table_S11.png", paste0(to.rédaction, "./Support_information/"))
 
-# ---- Table 12 : Local prevalence ----
-
-tot.loc <- CombinedData %>% 
-  select(Lake, starts_with("tot")) %>% 
-  na.omit() 
-
-tot.loc <- tot.loc %>% 
-  group_by(Lake) %>% 
-  summarise(across(everything(), sum))
-
-tot.loc <- tot.loc %>% 
-  adorn_totals(where = "col")
-
-tot.loc <- tot.loc %>% 
-  select(Lake, Total)
-
-inf.loc <- CombinedData %>% 
-  select(Lake, starts_with("inf")) %>% 
-  na.omit() 
-
-inf.loc <- inf.loc %>% 
-  group_by(Lake) %>% 
-  summarise(across(everything(), sum))
-
-inf.loc <- inf.loc %>% 
-  adorn_totals(where = "col", name = "Infected")
-
-inf.loc <- inf.loc %>% 
-  select(Lake, Infected)
-
-prev.loc <- merge(inf.loc, tot.loc, by = "Lake") %>% 
-  mutate(Prevalence = Infected/Total)
-
-Table.S12 <- gt(prev.loc) %>% 
-  cols_label(Lake = md("**Lake**"), Infected = md("**Nb. infected**"), Total = md("**Nb. total**"), Prevalence = md("**Prevalence**")) %>% 
-  tab_header(md("**TABLE S12.** Local community prevalence of the 15 lakes sampled. Theses estimations are based on the data from all the sampling methods.")) %>% 
-  tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "left"),
-            locations = cells_title("title")) %>% 
-  tab_options(table.border.top.style = "hidden",
-              row.striping.include_table_body = TRUE,
-              heading.border.bottom.color = "black") %>% 
-  tab_style(cell_text(color = "black", font = "Calibri light", weight = "bold", size = 9, align = "center", v_align = "middle"),
-            locations = cells_column_labels()) %>% 
-  tab_style(cell_text(color = "black", font = "Calibri light", size = 9, align = "center", v_align = "middle"),
-            locations = cells_body()) %>% 
-  tab_style(style= cell_borders(sides = c("bottom", "top"), weight = px(2)), 
-            location = list(cells_column_labels())) %>% 
-  tab_style(style = cell_borders(sides = "bottom", weight = px(2), color = "black"),
-            locations =  cells_body(rows = 15)) %>% 
-  sub_values(columns = 1, rows = 12, values = "Pin_rouge", replacement = "Pin rouge") %>% 
-  fmt_number(columns = 4, decimals = 3)
-  
-Table.S12 %>% #Saving gt tab
-  gtsave("Tab_Prevalence_Local.png", paste0(to.figs))
-Table.S12 %>% 
-  gtsave("Table_S12.png", paste0(to.rédaction, "./Support_information/"))
-
-# ---- Table S13 : Fine-scale prevalence ----
-
-tot.fine <- CombinedData %>% 
-  filter(Sampling_method == "Transect") %>% 
-  select(Lake, Sampling_ID, starts_with("tot")) %>% 
-  na.omit() 
-
-tot.fine <- tot.fine %>% 
-  adorn_totals(where = "col")
-
-tot.fine <- tot.fine %>% 
-  select(Lake, Sampling_ID, Total)
-
-inf.fine <- CombinedData %>% 
-  filter(Sampling_method == "Transect") %>% 
-  select(Lake, Sampling_ID, starts_with("inf")) %>% 
-  na.omit() 
-
-inf.fine <- inf.fine %>% 
-  adorn_totals(where = "col", name = "Infected")
-
-inf.fine <- inf.fine %>% 
-  select(Lake, Sampling_ID, Infected)
-
-prev.fine <- merge(tot.fine, inf.fine, by = c("Lake", "Sampling_ID")) %>% 
-  mutate(Prevalence = Infected / Total)
-
-prev.fine$Lake <- prev.fine$Lake %>% 
-  str_replace_all("Pin_rouge", "Pin rouge")
-
-Table.S13 <- prev.fine %>% 
-  group_by(Lake) %>% 
-  gt() %>% 
-  cols_label(Sampling_ID = md("**Sampling ID**"), Infected = md("**Nb. Infected**"), Total = md("**Nb. total**"), Prevalence = md("**Prevalence**")) %>% 
-  tab_header(md("**TABLE S13.** Fine-scale community prevalence of the 15 lakes sampled. Theses estimations are based on the data from all the sampling methods.")) %>% 
-  tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "left"),
-            locations = cells_title("title")) %>% 
-  tab_options(table.border.top.style = "hidden",
-              row.striping.include_table_body = TRUE,
-              heading.border.bottom.color = "black",
-              row_group.as_column = TRUE) %>% 
-  tab_style(cell_text(color = "black", font = "Calibri light", weight = "bold", size = 9, align = "center", v_align = "middle"),
-            locations = cells_column_labels()) %>% 
-  tab_style(cell_text(color = "black", font = "Calibri light", size = 9, align = "center", v_align = "middle"),
-            locations = cells_body()) %>% 
-  tab_style(style= cell_borders(sides = c("bottom", "top"), weight = px(2)), 
-            location = list(cells_column_labels())) %>% 
-  tab_style(style = cell_borders(sides = "bottom", weight = px(2), color = "black"),
-            locations =  cells_body(rows = 39)) %>% 
-  tab_style(style = cell_text(color = "black", font = "Calibri light", size = 9, align = "center", v_align = "middle", weight = "bold"),
-            locations = cells_row_groups()) %>% 
-  tab_style(style = cell_borders(sides = c("top", "bottom", "right"), color = "darkgrey", weight = px(2)),
-            locations = cells_row_groups()) %>%
-  tab_style(style = cell_borders(side = "top", weight = px(2), color = "black"),
-            locations = cells_row_groups(groups = "Achigan")) %>% 
-  tab_style(style = cell_borders(side = "bottom", weight = px(2), color = "black"),
-            locations = cells_row_groups(groups = "Triton")) %>% 
-  tab_style(style = cell_borders(side = "bottom", weight = px(2), color = "darkgrey"),
-            locations = cells_body(rows = c(6, 10, 14, 16, 19, 22, 27, 30, 34, 37))) %>% 
-  fmt_number(columns = 5, decimals = 3) #%>% 
-  #tab_style(style = cell_borders(side = "right", weight = px(2), color = "darkgrey"),
-            #locations = cells_body(columns = 2))
-
-Table.S13 %>% #Saving gt tab
-  gtsave("Tab_Prevalence_Fine.png", paste0(to.figs))
-Table.S13 %>% 
-  gtsave("Table_S13.png", paste0(to.rédaction, "./Support_information/"))
-
 # ---- Table S14 : Water physico-chemistry ----
 
 WaterQuality <- TransectData %>% 
@@ -667,8 +538,6 @@ Table.S14 <- gt(WaterQuality, groupname_col = "Lake") %>%
             locations = cells_row_groups()) %>% 
   tab_style(style = cell_borders(sides = c("top", "bottom", "right"), color = "darkgrey", weight = px(2)),
             locations = cells_row_groups()) %>% 
-  #tab_style(style = cell_borders(sides = "right", color = "darkgrey", weight = px(2)),
-            #locations = cells_body(columns = 2)) %>% 
   tab_style(cell_text(color = "black", font = "Calibri light", weight = "bold", size = 9, align = "center", v_align = "middle"),
             locations = cells_column_labels()) %>% 
   tab_style(cell_text(color = "black", font = "Calibri light", size = 9, align = "center", v_align = "middle"),
@@ -710,8 +579,6 @@ Table.S15 <- gt(Habitat, groupname_col = "Lake") %>%
             locations = cells_row_groups()) %>% 
   tab_style(style = cell_borders(sides = c("top", "bottom", "right"), color = "darkgrey", weight = px(2)),
             locations = cells_row_groups()) %>% 
-  #tab_style(style = cell_borders(sides = "right", color = "darkgrey", weight = px(2)),
-            #locations = cells_body(columns = 2)) %>% 
   tab_style(cell_text(color = "black", font = "Calibri light", weight = "bold", size = 9, align = "center", v_align = "middle"),
             locations = cells_column_labels()) %>% 
   tab_style(cell_text(color = "black", font = "Calibri light", size = 9, align = "center", v_align = "middle"),
@@ -731,76 +598,3 @@ Table.S15 %>% #Saving gt tab
   gtsave("Tab_Habitat.png", paste0(to.figs))
 Table.S15 %>% 
   gtsave("Table_S15.png", paste0(to.rédaction, "./Support_information/"))
-
-## Table Sx ----
-
-Reg.A.data <- c(Method = "All", Prevalence = Reg.pool.prev.All)
-Reg.MT.data <- c(Method = "Minnow trap", Prevalence = Reg.pool.prev.MT)
-Reg.S.data <- c(Method = "Seine net", Prevalence = Reg.pool.prev.S)
-Reg.T.data <- c(Method = "Transect", Prevalence = Reg.pool.prev.T)
-
-Reg.summary.data <- data.frame(rbind(Reg.A.data, Reg.MT.data, Reg.S.data, Reg.T.data), row.names = NULL)
-Reg.summary.data$Prevalence <- as.numeric(Reg.summary.data$Prevalence)
-
-Reg.summary.data <- merge(Reg.summary.data, prev.resamp, by = "Method")
-
-#Creating table
-Table.S17 <- gt(Reg.summary.data) %>% 
-  tab_header(md("**TABLE S17.** Landscape observed and resampled prevalence estimated by each sampling method. All values are given in percentage.")) %>% 
-  cols_label(Prevalence = md("Observed"), "5" = md("N<sub>5</sub>"), "10" = md("N<sub>10</sub>"), "15" = md("N<sub>15</sub>"), "20" = md("N<sub>20</sub>"), "25" = md("N<sub>25</sub>"), "30" = md("N<sub>30</sub>"), "35" = md("N<sub>35</sub>")) %>% 
-  tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "left"),
-            locations = cells_title("title")) %>% 
-  tab_style(cell_text(color = "black", font = "Calibri light", weight = "bold", size = 9, align = "center", v_align = "middle"),
-            locations = cells_column_labels()) %>% 
-  tab_style(cell_text(color = "black", font = "Calibri light", size = 9, align = "center", v_align = "middle"),
-            locations = cells_body()) %>% 
-  tab_options(table.border.top.style = "hidden",
-              heading.border.bottom.color = "black",
-              row.striping.include_table_body = TRUE,
-              page.orientation = "paysage",
-              table.width = pct(100)) %>% 
-  tab_style(style= cell_borders(sides = c("bottom", "top"), weight = px(2)), 
-            location = list(cells_column_labels())) %>% 
-  tab_style(style= cell_borders(sides = c("bottom"), weight = px(2)), 
-            location = list(cells_body(rows = 4))) %>% 
-  fmt_number(decimals = 2)
-
-Table.S17 %>% #Saving gt tab
-  gtsave("Tab_RegionalPrev_Methods.png", paste0(to.figs))
-Table.S17 %>% 
-  gtsave("Table_S17.png", paste0(to.rédaction, "./Support_information/"))
-
-## Table Sxy ----
-
-Loc.summary.tab <- data.frame(rbind(Loc.All.tab, Loc.MT.tab, Loc.S.tab, Loc.T.tab)) %>% 
-  arrange(Lake)
-
-#Creating table
-Table.Sxy <- gt(Loc.summary.tab, groupname_col = "Lake") %>% 
-  tab_header(md("**TABLE Sxy.** Lake prevalence estimated by each sampling method")) %>% 
-  cols_label(inf_fish = md("Infected individuals"), tot_fish = md("Total individuals"), prev_fish = md("Prevalence (%)")) %>% 
-  tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "left"),
-            locations = cells_title("title")) %>% 
-  tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "left", weight = "bold"),
-            locations = cells_row_groups()) %>% 
-  tab_style(cell_text(color = "black", font = "Calibri light", weight = "bold", size = 9, align = "center", v_align = "middle"),
-            locations = cells_column_labels()) %>% 
-  tab_style(cell_text(color = "black", font = "Calibri light", size = 9, align = "center", v_align = "middle"),
-            locations = cells_body()) %>% 
-  tab_options(table.border.top.style = "hidden",
-              heading.border.bottom.color = "black",
-              row.striping.include_table_body = TRUE,
-              page.orientation = "paysage",
-              table.width = pct(100)) %>% 
-  tab_style(style= cell_borders(sides = c("bottom", "top"), weight = px(2)), 
-            location = list(cells_column_labels())) %>% 
-  tab_style(style= cell_borders(sides = c("bottom"), weight = px(2)), 
-            location = list(cells_body(rows = 53))) %>% 
-  fmt_number(columns = prev_fish, decimals = 2) %>% 
-  sub_values(columns = 1, values = "Pin_rouge", replacement = "Pin rouge")
-
-Table.Sxy %>% #Saving gt tab
-  gtsave("Tab_LocalPrev_Methods.png", paste0(to.figs))
-Table.Sxy %>% 
-  gtsave("Table_Sxy.png", paste0(to.rédaction, "./Support_information/"))
-

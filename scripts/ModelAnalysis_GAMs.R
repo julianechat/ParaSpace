@@ -1557,16 +1557,8 @@ dev.off()
 Summary.plot <- TURB.pe + TEMP.pe + PH.pe + COND.pe + DO.pe + TNTP.pe + MACRO.pe + AREAPERI.pe + PERI.pe + FISH.pe + NONHOST.pe + DIVERS.pe &
   theme(text = element_text(family = "Calibri Light", size = 40, color = "black"))
 
-
-ggsave(paste0(to.figs, "GAMMs_PartialEffects.png"), plot = Summary.plot, dpi = 300, width = 45, height = 30)
-ggsave(paste0(to.rédaction, "Figures/Figure5_GAMMs.png"), plot = Summary.plot, dpi = 300, width = 35, height = 30)
-
-## Perimeter figure ----
-
-#PERI.pe
-
-#ggsave(paste0(to.figs, "GAMMs_Perimeter.png"), plot = PERI.pe, dpi = 300, width = 10, height = 10)  
-#ggsave(paste0(to.rédaction, "./Support_information/Figure_S1.png"), plot = PERI.pe, dpi = 300, width = 10, height = 10)  
+ggsave(paste0(to.figs, "GAMMs_PartialEffects.png"), plot = Summary.plot, dpi = 300, width = 45, height = 28)
+ggsave(paste0(to.rédaction, "Figures/Figure7_GAMMs.png"), plot = Summary.plot, dpi = 300, width = 45, height = 28)
 
 ## Model parametric coefficient and smooth terms summary table ----
 
@@ -1610,22 +1602,6 @@ tab.TOC.smooth <- tidy(TOC.GAMM, parametric = FALSE) %>%
   mutate(Model = "TOC", .before = "term",
          Deviance = summary(TOC.GAMM)$dev.expl)
 tab.TOC <- merge(tab.TOC.par, tab.TOC.smooth, all = TRUE)
-
-#tab.SUB1.par <- tidy(SUB1.GAMM, parametric = TRUE) %>% 
- # mutate(Model = "Substrate 1", .before = "term",
-  #       Deviance = summary(SUB1.GAMM)$dev.expl)
-#tab.SUB1.smooth <- tidy(SUB1.GAMM, parametric = FALSE) %>% 
-  #mutate(Model = "Substrate 1", .before = "term",
-   #      Deviance = summary(SUB1.GAMM)$dev.expl)
-#tab.SUB1 <- merge(tab.SUB1.par, tab.SUB1.smooth, all = TRUE)
-
-#tab.SUB2.par <- tidy(SUB2.GAMM, parametric = TRUE) %>% 
- # mutate(Model = "Substrate 2", .before = "term",
-  #       Deviance = summary(SUB2.GAMM)$dev.expl)
-#tab.SUB2.smooth <- tidy(SUB2.GAMM, parametric = FALSE) %>% 
- # mutate(Model = "Substrate 2", .before = "term",
-  #       Deviance = summary(SUB2.GAMM)$dev.expl)
-#tab.SUB2 <- merge(tab.SUB2.par, tab.SUB2.smooth, all = TRUE)
 
 tab.SILT.par <- tidy(SILT.GAMM, parametric = TRUE) %>% 
   mutate(Model = "Silt", .before = "term",
@@ -1820,8 +1796,12 @@ tab.NONHOST.smooth <- tidy(NONHOST.GAMM, parametric = FALSE) %>%
 tab.NONHOST <- merge(tab.NONHOST.par, tab.NONHOST.smooth, all = TRUE)
 
 #Creating summary table
-Tab.summary.GAMMs <- rbind(tab.NULL, tab.TNTP, tab.TN, tab.TP, tab.TOC, #tab.SUB1, tab.SUB2, 
-                           tab.SILT, tab.SAND, tab.ROCK, tab.BLOCK, tab.MACRO, tab.DEPTH, tab.TRUNK, tab.TEMP, tab.TURB, tab.PH, tab.DO, tab.COND, tab.AREAPERI, tab.AREA, tab.PERI, tab.MDEPTH, tab.XDEPTH, tab.WRT, tab.DRAIN, tab.ELEV, tab.FISH, tab.NONHOST, tab.SP, tab.DIVERS) %>%
+Tab.summary.GAMMs <- rbind(tab.NULL, tab.TNTP, tab.TN, tab.TP, tab.TOC,
+                           tab.SILT, tab.SAND, tab.ROCK, tab.BLOCK, tab.MACRO, tab.DEPTH, tab.TRUNK, 
+                           tab.TEMP, tab.TURB, tab.PH, tab.DO, tab.COND, 
+                           tab.AREAPERI, tab.AREA, tab.PERI, tab.MDEPTH, tab.XDEPTH, 
+                           tab.WRT, tab.DRAIN, tab.ELEV, 
+                           tab.FISH, tab.NONHOST, tab.SP, tab.DIVERS) %>%
   group_by(Model) %>% 
   gt() %>% 
   tab_row_group(
@@ -1839,12 +1819,6 @@ Tab.summary.GAMMs <- rbind(tab.NULL, tab.TNTP, tab.TN, tab.TP, tab.TOC, #tab.SUB
   tab_row_group(
     label = md("<p>TOC<br>(D<sup>2</sup> = 69.63%)</p>"),
     rows = c(12:14)) %>% 
-  #tab_row_group(
-   # label = md("<p>Subrate 1<br>(D<sup>2</sup> = 69.64%)</p>"),
-    #rows = c(15:17)) %>% 
-  #tab_row_group(
-    #label = md("<p>Substrate 2<br>(D<sup>2</sup> = 69.64%)</p>"),
-    #rows = c(18:20)) %>% 
   tab_row_group(
    label = md("<p>Silt<br>(D<sup>2</sup> = 69.64%)</p>"),
    rows = c(15:17)) %>% 
