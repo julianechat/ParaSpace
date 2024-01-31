@@ -15,6 +15,7 @@ to.output <- "./output/"
 to.figs <- "./figs/"
 to.R <- "./R/"
 to.carto <- "./carto/"
+to.rédaction <- "./rédaction/"
 
 ## Loading packages & functions ----
 
@@ -30,6 +31,7 @@ source(paste0(to.R, "rquery.cormat.R"))
 ParaSpaceMod <- read.csv(paste0(to.output, "Transects_Lake_Data.csv"))
 
 # ---- Data exploration ----
+
 ## Transect scale ----
 
 ### Outliers ----
@@ -49,16 +51,19 @@ dotchart(ParaSpaceMod$pH.T, main = "PH", group = as.factor(ParaSpaceMod$Lake))
 #Cromwell outlier compared to other lakes, but variance is constant
 
 #Nutrients
-par(mfrow = c(3, 1), mar = c(3, 3, 3, 1))
+par(mfrow = c(2, 2), mar = c(3, 3, 3, 1))
 dotchart(ParaSpaceMod$TOC.T, main = "TOC", group = as.factor(ParaSpaceMod$Lake))
 dotchart(ParaSpaceMod$TN.T, main = "TN", group = as.factor(ParaSpaceMod$Lake))
 dotchart(ParaSpaceMod$TP.T, main = "TP", group = as.factor(ParaSpaceMod$Lake))
+dotchart(ParaSpaceMod$TN_TP.T, main = "TN:TP", group = as.factor(ParaSpaceMod$Lake))
+
 #No outliers
 
 #Morphometry
 par(mfrow = c(3, 2), mar = c(3, 3, 3, 1))
 dotchart(ParaSpaceMod$Lake_area, main = "LAKE AREA", group = as.factor(ParaSpaceMod$Lake))
 dotchart(ParaSpaceMod$Perimeter, main = "PERIMETER", group = as.factor(ParaSpaceMod$Lake))
+dotchart(ParaSpaceMod$Area_Perimeter, main = "AREA:PERIMETER", group = as.factor(ParaSpaceMod$Lake))
 dotchart(ParaSpaceMod$MeanDepth.lake, main = "MEAN DEPTH", group = as.factor(ParaSpaceMod$Lake)) #nned to correct the .x
 dotchart(ParaSpaceMod$Max_depth, main = "MAX DEPTH", group = as.factor(ParaSpaceMod$Lake))
 dotchart(ParaSpaceMod$WRT, main = "WRT", group = as.factor(ParaSpaceMod$Lake))
@@ -72,13 +77,11 @@ dotchart(ParaSpaceMod$Connectivity, main = "CONNECTIVITY", group = as.factor(Par
 #Achigan is an outlier for Drainage area
 
 #Biotic
-par(mfrow = c(3, 2), mar = c(3, 3, 3, 1))
-dotchart(ParaSpaceMod$Centrarchids.T, main = "CENTRARCHIDS", group = as.factor(ParaSpaceMod$Lake))
+par(mfrow = c(2, 2), mar = c(3, 3, 3, 1))
 dotchart(ParaSpaceMod$Species_richness.T, main = "RICHNESS", group = as.factor(ParaSpaceMod$Lake))
 dotchart(ParaSpaceMod$Diversity.T, main = "DIVERSITY", group = as.factor(ParaSpaceMod$Lake))
 dotchart(ParaSpaceMod$tot_Cyprinidae, main = "NON HOST ABUNDANCE", group = as.factor(ParaSpaceMod$Lake))
 dotchart(ParaSpaceMod$tot_fish, main = "COMMUNITY ABUNDANCE", group = as.factor(ParaSpaceMod$Lake))
-#TRIT1 & MORE3 are outliers for Centrarchids abundance
 #ACHI2 is an outlier for Diversity - This data should be excluded as diversity based one fish absence is unrelevant
 
 #Habitat
@@ -94,7 +97,7 @@ dotchart(ParaSpaceMod$Trunk, main = "TRUNK", group = as.factor(ParaSpaceMod$Lake
 #CORN4 is an oulier for Depth & Trunk
 
 #All
-pdf(paste0(to.figs, "Outliers_trans.pdf"), width = 20, height = 15)
+pdf(paste0(to.figs, "Outliers_Trans.pdf"), width = 20, height = 15)
 
 par(mfrow = c(5, 6), mar = c(3, 3, 3, 1))
 dotchart(ParaSpaceMod$prev_fish, main = "PREV_FISH", group = as.factor(ParaSpaceMod$Lake))
@@ -106,15 +109,16 @@ dotchart(ParaSpaceMod$pH.T, main = "PH", group = as.factor(ParaSpaceMod$Lake))
 dotchart(ParaSpaceMod$TOC.T, main = "TOC", group = as.factor(ParaSpaceMod$Lake))
 dotchart(ParaSpaceMod$TN.T, main = "TN", group = as.factor(ParaSpaceMod$Lake))
 dotchart(ParaSpaceMod$TP.T, main = "TP", group = as.factor(ParaSpaceMod$Lake))
+dotchart(ParaSpaceMod$TN_TP.T, main = "TN:TP", group = as.factor(ParaSpaceMod$Lake))
 dotchart(ParaSpaceMod$Lake_area, main = "LAKE AREA", group = as.factor(ParaSpaceMod$Lake))
 dotchart(ParaSpaceMod$Perimeter, main = "PERIMETER", group = as.factor(ParaSpaceMod$Lake))
+dotchart(ParaSpaceMod$Area_Perimeter, main = "AREA:PERIMETER", group = as.factor(ParaSpaceMod$Lake))
 dotchart(ParaSpaceMod$MeanDepth.lake, main = "MEAN DEPTH", group = as.factor(ParaSpaceMod$Lake))
 dotchart(ParaSpaceMod$Max_depth, main = "MAX DEPTH", group = as.factor(ParaSpaceMod$Lake))
 dotchart(ParaSpaceMod$Drainage_area, main = "DRAINAGE AREA", group = as.factor(ParaSpaceMod$Lake))
 dotchart(ParaSpaceMod$WRT, main = "WRT", group = as.factor(ParaSpaceMod$Lake))
 dotchart(ParaSpaceMod$Elevation, main = "ELEVATION", group = as.factor(ParaSpaceMod$Lake))
 dotchart(ParaSpaceMod$Connectivity, main = "CONNECTIVITY", group = as.factor(ParaSpaceMod$Lake))
-dotchart(ParaSpaceMod$Centrarchids.T, main = "CENTRARCHIDS", group = as.factor(ParaSpaceMod$Lake))
 dotchart(ParaSpaceMod$Species_richness.T, main = "RICHNESS", group = as.factor(ParaSpaceMod$Lake))
 dotchart(ParaSpaceMod$Diversity.T, main = "DIVERSITY", group = as.factor(ParaSpaceMod$Lake))
 dotchart(ParaSpaceMod$tot_Cyprinidae, main = "NON HOST ABUNDANCE", group = as.factor(ParaSpaceMod$Lake))
@@ -136,20 +140,14 @@ par(mfrow = c(1, 1), mar = c(3, 3, 3, 1))
 trans.corr.all <- ParaSpaceMod %>% 
   select("Silt", "Sand", "Rock", "Metric_block", "Macrophyte", "MeanDepth.site", "Trunk", 
           "Temp.T", "Cond.T", "DO.T", "Turb.T", "pH.T", 
-          "TOC.T", "TN.T", "TP.T",
-          "Lake_area", "Perimeter", "MeanDepth.lake", "Max_depth", "WRT", 
-          "Drainage_area", "Elevation", "Connectivity", 
-          "Centrarchids.T", "Species_richness.T", "Diversity.T", "tot_fish", "tot_Cyprinidae")
+          "TOC.T", "TN.T", "TP.T", "TN_TP.T",
+          "Lake_area", "Perimeter", "Area_Perimeter", "MeanDepth.lake", "Max_depth", "WRT", 
+          "Drainage_area", "Elevation", "Connectivity",
+          "Species_richness.T", "Diversity.T", "tot_fish", "tot_Cyprinidae")
 
+pdf(paste0(to.figs, "Corrplot_Trans.pdf"), width = 20, height = 15)
 rquery.cormat(trans.corr.all, type = "full")
-
-#Where does it cause problem ? 
-#TN & TP; We could do TN:TP ratio instead.
-#Drainage area & Perimeter + Drainage area & Lake_area; Not in the same model.
-#Lake_area & Perimeter; We could do Area:Perimeter ratio instead.
-#Mean_depth & Max_depth; We will keep Mean_depth as it is more important for littoral fish communities than max_depth.
-#Cond & pH + pH & DO; We will keep only keep pH as it has a potentially strong effect on parasite or snail population.
-#Silt & Rock; We will do a PCA and extract axis as all substrate variables are a fraction of 100%.
+dev.off()
 
 #### Ordination ----
 
@@ -170,7 +168,7 @@ trans.grKM <- as.vector(trans.groups$partition[,3]) #Extracting groups to add on
 trans.grKM <- as.factor(trans.grKM)
 col.groups <- c("yellowgreen","forestgreen","orange","dodgerblue")
 
-pdf(paste0(to.figs, "KmeansPCA_trans.pdf"), width = 20, height = 15)
+pdf(paste0(to.figs, "KmeansPCA_Trans.pdf"), width = 20, height = 15)
 
 plot(trans.rda, scaling = 1, type = "n", main = "PCA + k-means cluster") #Visualization of k-means groups
 with(trans.rda.data, points(trans.rda, display = "sites", col = col.groups[trans.grKM], scaling = 1, pch = 21, bg = col.groups[trans.grKM]))
@@ -199,6 +197,8 @@ trans.TN <- ggplot(data = ParaSpaceMod) +
   geom_point(aes(TN.T, prev_fish))
 trans.TP <- ggplot(data = ParaSpaceMod) + 
   geom_point(aes(TP.T, prev_fish))
+trans.TNTP <- ggplot(data = ParaSpaceMod) + 
+  geom_point(aes(TN_TP.T, prev_fish))
 trans.Mdepth <- ggplot(data = ParaSpaceMod) + 
   geom_point(aes(MeanDepth.lake, prev_fish))
 trans.Xdepth <- ggplot(data = ParaSpaceMod) + 
@@ -207,6 +207,8 @@ trans.Area <- ggplot(data = ParaSpaceMod) +
   geom_point(aes(Lake_area, prev_fish))
 trans.Peri <- ggplot(data = ParaSpaceMod) + 
   geom_point(aes(Perimeter, prev_fish))
+trans.AreaPeri <- ggplot(data = ParaSpaceMod) + 
+  geom_point(aes(Area_Perimeter, prev_fish))
 trans.WRT <- ggplot(data = ParaSpaceMod) + 
   geom_point(aes(WRT, prev_fish))
 trans.DA <- ggplot(data = ParaSpaceMod) + 
@@ -215,8 +217,6 @@ trans.elevation <- ggplot(data = ParaSpaceMod) +
   geom_point(aes(Elevation, prev_fish))
 trans.connect <- ggplot(data = ParaSpaceMod) + 
   geom_point(aes(Connectivity, prev_fish))
-trans.centrar <- ggplot(data = ParaSpaceMod) + 
-  geom_point(aes(Centrarchids.T, prev_fish))
 trans.SR <- ggplot(data = ParaSpaceMod) + 
   geom_point(aes(Species_richness.T, prev_fish))
 trans.NonHost <- ggplot(data = ParaSpaceMod) + 
@@ -240,11 +240,11 @@ trans.trunk <- ggplot(data = ParaSpaceMod) +
 trans.depth <- ggplot(data = ParaSpaceMod) +
   geom_point(aes(MeanDepth.site, prev_fish))
 
-relationships.trans <- plot_grid(trans.temp, trans.turb, trans.pH, trans.DO, trans.cond, trans.TN, trans.TP, trans.TOC, trans.Mdepth, trans.Area, trans.Peri, trans.WRT, trans.DA, trans.elevation, trans.connect, trans.centrar, trans.SR, trans.NonHost, trans.TotFish, trans.diversity, trans.macro, trans.sand, trans.silt, trans.rock, trans.block, trans.trunk, trans.depth,
+relationships.trans <- plot_grid(trans.temp, trans.turb, trans.pH, trans.DO, trans.cond, trans.TN, trans.TP, trans.TNTP, trans.TOC, trans.Mdepth, trans.Area, trans.Peri, trans.AreaPeri, trans.WRT, trans.DA, trans.elevation, trans.connect, trans.SR, trans.NonHost, trans.TotFish, trans.diversity, trans.macro, trans.sand, trans.silt, trans.rock, trans.block, trans.trunk, trans.depth,
           ncol = 6, nrow = 5)
 #Relationships don't always suggest linear patterns
 
-ggsave(paste0(to.figs, "Relationships_trans.pdf"), plot = relationships.trans, dpi = 500, width = 20, height = 10) #Saving plot grid
+ggsave(paste0(to.figs, "Relationships_Trans.pdf"), plot = relationships.trans, dpi = 500, width = 20, height = 10) #Saving plot grid
 
 ## Lake scale ----
 ### Outliers ----
@@ -261,21 +261,21 @@ dotchart(ParaSpaceMod$pH.L, main = "PH", group = as.factor(ParaSpaceMod$Lake))
 #Cromwell is an outlier for DO
 
 #Nutrients
-par(mfrow = c(3, 1), mar = c(3, 3, 3, 1))
+par(mfrow = c(2, 2), mar = c(3, 3, 3, 1))
 dotchart(ParaSpaceMod$TOC.L, main = "TOC", group = as.factor(ParaSpaceMod$Lake))
 dotchart(ParaSpaceMod$TN.L, main = "TN", group = as.factor(ParaSpaceMod$Lake))
 dotchart(ParaSpaceMod$TP.L, main = "TP", group = as.factor(ParaSpaceMod$Lake))
+dotchart(ParaSpaceMod$TN_TP.L, main = "TN_TP", group = as.factor(ParaSpaceMod$Lake))
 #No outliers
 
 #Biotic
-par(mfrow = c(3, 1), mar = c(3, 3, 3, 1))
-dotchart(ParaSpaceMod$Centrarchids.L, main = "CENTRARCHIDS", group = as.factor(ParaSpaceMod$Lake))
+par(mfrow = c(2, 1), mar = c(3, 3, 3, 1))
 dotchart(ParaSpaceMod$Species_richness.L, main = "RICHNESS", group = as.factor(ParaSpaceMod$Lake))
 dotchart(ParaSpaceMod$Diversity.L, main = "DIVERSITY", group = as.factor(ParaSpaceMod$Lake))
 #Triton is an outlier for Diversity
 
 #All
-pdf(paste0(to.figs, "Outliers_lake.pdf"), width = 20, height = 15)
+pdf(paste0(to.figs, "Outliers_Lake.pdf"), width = 20, height = 15)
 
 par(mfrow = c(7, 3), mar = c(3, 3, 3, 1))
 dotchart(ParaSpaceMod$prev_fish, main = "PREV_FISH", group = as.factor(ParaSpaceMod$Lake))
@@ -287,11 +287,12 @@ dotchart(ParaSpaceMod$pH.L, main = "PH", group = as.factor(ParaSpaceMod$Lake))
 dotchart(ParaSpaceMod$TOC.L, main = "TOC", group = as.factor(ParaSpaceMod$Lake))
 dotchart(ParaSpaceMod$TN.L, main = "TN", group = as.factor(ParaSpaceMod$Lake))
 dotchart(ParaSpaceMod$TP.L, main = "TP", group = as.factor(ParaSpaceMod$Lake))
-dotchart(ParaSpaceMod$Centrarchids.L, main = "CENTRARCHIDS", group = as.factor(ParaSpaceMod$Lake))
+dotchart(ParaSpaceMod$TN_TP.L, main = "TN:TP", group = as.factor(ParaSpaceMod$Lake))
 dotchart(ParaSpaceMod$Species_richness.L, main = "RICHNESS", group = as.factor(ParaSpaceMod$Lake))
 dotchart(ParaSpaceMod$Diversity.L, main = "DIVERSITY", group = as.factor(ParaSpaceMod$Lake))
 dotchart(ParaSpaceMod$Lake_area, main = "LAKE AREA", group = as.factor(ParaSpaceMod$Lake))
 dotchart(ParaSpaceMod$Perimeter, main = "PERIMETER", group = as.factor(ParaSpaceMod$Lake))
+dotchart(ParaSpaceMod$Area_Perimeter, main = "AREA:PERIMETER", group = as.factor(ParaSpaceMod$Lake))
 dotchart(ParaSpaceMod$MeanDepth.lake, main = "MEAN DEPTH", group = as.factor(ParaSpaceMod$Lake))
 dotchart(ParaSpaceMod$Max_depth, main = "MAX DEPTH", group = as.factor(ParaSpaceMod$Lake))
 dotchart(ParaSpaceMod$Drainage_area, main = "DRAINAGE AREA", group = as.factor(ParaSpaceMod$Lake))
@@ -308,20 +309,14 @@ par(mfrow = c(1, 1), mar = c(3, 3, 3, 1))
 
 lake.corr.all <- ParaSpaceMod %>% 
   select( "Temp.L", "Cond.L", "DO.L", "Turb.L", "pH.L", 
-          "TOC.L", "TN.L", "TP.L",
-          "Lake_area", "Perimeter", "MeanDepth.lake", "Max_depth", "WRT", 
+          "TOC.L", "TN.L", "TP.L", "TN_TP.L",
+          "Lake_area", "Perimeter", "Area_Perimeter", "MeanDepth.lake", "Max_depth", "WRT", 
           "Drainage_area", "Elevation", "Connectivity", 
-          "Centrarchids.L", "Species_richness.L", "Diversity.L")
+          "Species_richness.L", "Diversity.L")
 
+pdf(paste0(to.figs, "Corrplot_Lake.pdf"), width = 20, height = 15)
 rquery.cormat(lake.corr.all, type = "full")
-
-#Where does it cause problem ?
-#We discriminate at r >= 0.8
-#TN & TP; We will use TN:TP ratio instead.
-#Perimeter & Drainage area + Lake area & Drainage area; Not in the same model.
-#Lake area & Perimeter; We will use Area:Perimeter ratio instead.
-#Mean depth & Max depth ; We will keep Mean depth as it has a potentially more meaningful impact on host-parasite ecology.
-#DO & pH + Cond & pH; We will keep pH as it has a potentially more meaningful impact on host-parasite ecology.
+dev.off()
 
 #### Ordination ----
 
@@ -342,7 +337,7 @@ lake.grKM <- as.vector(lake.groups$partition[,3]) #Extracting groups to add on r
 lake.grKM <- as.factor(lake.grKM)
 col.groups <- c("yellowgreen","forestgreen","orange","dodgerblue")
 
-pdf(paste0(to.figs, "KmeansPCA_lake.pdf"), width = 20, height = 15)
+pdf(paste0(to.figs, "KmeansPCA_Lake.pdf"), width = 20, height = 15)
 
 plot(lake.rda, scaling = 1, type = "n", main = "PCA + k-means cluster") #Visualization of k-means groups
 with(lake.rda.data, points(lake.rda, display = "sites", col = col.groups[lake.grKM], scaling = 1, pch = 21, bg = col.groups[lake.grKM]))
@@ -371,8 +366,8 @@ lake.TN <- ggplot(data = ParaSpaceMod) +
   geom_point(aes(TN.L, prev_fish))
 lake.TP <- ggplot(data = ParaSpaceMod) + 
   geom_point(aes(TP.L, prev_fish))
-lake.centrar <- ggplot(data = ParaSpaceMod) + 
-  geom_point(aes(Centrarchids.L, prev_fish))
+lake.TNTP <- ggplot(data = ParaSpaceMod) + 
+  geom_point(aes(TN_TP.L, prev_fish))
 lake.SR <- ggplot(data = ParaSpaceMod) + 
   geom_point(aes(Species_richness.L, prev_fish))
 lake.diversity <- ggplot(data = ParaSpaceMod) + 
@@ -385,6 +380,8 @@ lake.Area <- ggplot(data = ParaSpaceMod) +
   geom_point(aes(Lake_area, prev_fish))
 lake.Peri <- ggplot(data = ParaSpaceMod) + 
   geom_point(aes(Perimeter, prev_fish))
+lake.AreaPeri <- ggplot(data = ParaSpaceMod) + 
+  geom_point(aes(Area_Perimeter, prev_fish))
 lake.WRT <- ggplot(data = ParaSpaceMod) + 
   geom_point(aes(WRT, prev_fish))
 lake.DA <- ggplot(data = ParaSpaceMod) + 
@@ -394,94 +391,15 @@ lake.elevation <- ggplot(data = ParaSpaceMod) +
 lake.connect <- ggplot(data = ParaSpaceMod) + 
   geom_point(aes(Connectivity, prev_fish))
 
-relationships.lake <- plot_grid(lake.temp, lake.turb, lake.pH, lake.DO, lake.cond, lake.TOC, lake.TN, lake.TP, lake.centrar, lake.SR, lake.diversity, lake.Mdepth, lake.Xdepth, lake.Area, lake.Peri, lake.WRT, lake.DA, lake.elevation, lake.connect,
+relationships.lake <- plot_grid(lake.temp, lake.turb, lake.pH, lake.DO, lake.cond, lake.TOC, lake.TN, lake.TP, lake.TNTP, lake.SR, lake.diversity, lake.Mdepth, lake.Xdepth, lake.Area, lake.Peri, lake.AreaPeri, lake.WRT, lake.DA, lake.elevation, lake.connect,
                                  ncol = 4, nrow = 5)
 #Relationships don't necessarly suggest linear patterns...
 
-ggsave(paste0(to.figs, "Relationships_lake.pdf"), plot = relationships.lake, dpi = 500, width = 20, height = 10) #Saving plot grid
+ggsave(paste0(to.figs, "Relationships_Lake.pdf"), plot = relationships.lake, dpi = 500, width = 20, height = 10) #Saving plot grid
 
 # ---- Variables corrections ----
-## Data manipulations ----
 
-#Creating new subsrtate variables with PCA axis
-substrate.vars <- trans.corr.all %>% 
-  select("Silt", "Sand", "Rock", "Metric_block")
-
-substrate.rda <- rda(substrate.vars, scale = FALSE) 
-summary(substrate.rda)
-biplot(substrate.rda, scaling = 1)
-biplot(substrate.rda, scaling = 2)
-
-site.scores <- scores(substrate.rda, choices = c(1,2), display= "sites", tidy = FALSE) #Extracting axis 
-sub1 <- site.scores[,1] #PCA1 - sub1 explains most of the variation in percentage of silt & rock
-sub2 <- site.scores[,2] #PCA2 - sub2 explains most of the variation in percentage of block
-
-#Ajusting data frame
-mod.data <- ParaSpaceMod %>% 
-  mutate(TN_TP.T = TN.T / TP.T) %>% relocate(TN_TP.T, .after = "TOC.T") %>% #Creating TN:TP ratio for transect scale
-  mutate(TN_TP.L = TN.L /TP.L) %>% relocate(TN_TP.L, .after = "TOC.L") %>%  #Creating TN:TP ratio for lake scale
-  mutate(Area_Perimeter = (Lake_area*1000000/Perimeter)) %>% relocate(Area_Perimeter, .before = "MeanDepth.lake") #%>%  #Creating Area:Perimeter ratio
-  #mutate(Sub1 = sub1) %>% relocate(Sub1, .before = "Macrophyte") %>% #Adding new substrate variables
-  #mutate(Sub2 = sub2)  %>% relocate(Sub2, .before = "Macrophyte")
-
-#mod.data <- within(mod.data, rm("Silt", "Sand", "Rock", "Metric_block")) #Deleting original substrate variables
-mod.data <- mod.data[-2,] #Deleting ACHI2 as prevalence & Diversity index cannot be calculated on absence of fish
-
-## Verifications ----
-#Rerunning correlation matrix
-trans.corr.adj <- mod.data %>% #Transect scale
-  select("Silt", "Sand", "Rock", "Metric_block", "Macrophyte", "MeanDepth.site", "Trunk", 
-          "Temp.T", "Cond.T", "DO.T", "Turb.T", "pH.T", 
-          "TOC.T", "TN.T", "TP.T", "TN_TP.T",
-          "Lake_area", "Perimeter", "MeanDepth.lake", "Max_depth", "WRT", "Area_Perimeter",
-          "Drainage_area", "Elevation", "Connectivity", 
-          "Centrarchids.T", "Species_richness.T", "Diversity.T")
-
-rquery.cormat(trans.corr.adj, type = "full")
-
-lake.corr.adj <- mod.data %>% #Lake scale
-  select("Temp.L", "Cond.L", "DO.L", "Turb.L", "pH.L", 
-          "TOC.L", "TN.L", "TP.L", "TN_TP.L",
-          "Lake_area", "Perimeter", "MeanDepth.lake", "Max_depth", "WRT", "Area_Perimeter",
-          "Drainage_area", "Elevation", "Connectivity", 
-          "Centrarchids.L", "Species_richness.L", "Diversity.L")
-
-rquery.cormat(lake.corr.adj, type = "full")
-#No new collinearity problems detected
-#Defenitly less collinearity for data at transect scale
-
-#Running outliers for new variables
-pdf(paste0(to.figs, "Outliers_newvars.pdf"), width = 20, height = 15) #Transect scale
-
-par(mfrow = c(3, 2), mar = c(3, 3, 3, 1))
-
-dotchart(mod.data$TN_TP.T, main = "TN_TP.T", group = as.factor(mod.data$Lake))
-dotchart(mod.data$TN_TP.L, main = "TN_TP.L", group = as.factor(ParaSpaceMod$Lake))
-dotchart(mod.data$Area_Perimeter, main = "AREA:PERIMETER", group = as.factor(mod.data$Lake))
-#dotchart(mod.data$ShorelineComplx, main = "SHORELINE COMPLEXITY", group = as.factor(mod.data$Lake))
-#dotchart(mod.data$Sub1, main = "SUB1", group = as.factor(mod.data$Lake))
-#dotchart(mod.data$Sub2, main = "SUB2", group = as.factor(mod.data$Lake))
-
-dev.off()
-#Manipulations doesn't correct all of the outliers
-#Achigan is still an outlier in Area:Perimeter ratio
-
-#Running relationships for new variables
-trans.TNTP <- ggplot(data = mod.data) + 
-  geom_point(aes(TN_TP.T, prev_fish))
-lake.TNTP <- ggplot(data = mod.data) + 
-  geom_point(aes(TN_TP.L, prev_fish))
-lake.AREAPERI <- ggplot(data = mod.data) + 
-  geom_point(aes(Area_Perimeter, prev_fish))
-#trans.SUB1 <- ggplot(data = mod.data) + 
- # geom_point(aes(Sub1, prev_fish))
-#trans.SUB2 <- ggplot(data = mod.data) + 
- # geom_point(aes(Sub2, prev_fish))
-
-relationships.newvars <- plot_grid(trans.TNTP, lake.TNTP, lake.AREAPERI, #trans.SUB1, trans.SUB2,
-                                ncol = 2, nrow = 3)
-
-ggsave(paste0(to.figs, "Relationships_newvars.pdf"), plot = relationships.newvars, dpi = 500, width = 20, height = 10) #Saving plot grid
+mod.data <- ParaSpaceMod[-2,] #Deleting ACHI2 as prevalence & Diversity index cannot be calculated on absence of fish
 
 ## Saving new data set ----
 

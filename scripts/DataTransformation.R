@@ -14,6 +14,8 @@ to.script <- "./scripts/"
 to.output <- "./output/"
 to.figs <- "./figs/"
 to.R <- "./R/"
+to.carto <- "./carto/"
+to.rédaction <- "./rédaction/"
 
 ## Loading packages -----
 
@@ -40,7 +42,8 @@ attach(Fishing_RawData)
 Abund_inf <- ifelse(Intensity_class > 0, Abundance, 0) #Creating new abundance column for infected fish
 Abund_inf <- replace_na(Abund_inf, 0) #Replacing NA by 0's - Meaning there is no infected fish
 
-CompleteData <- mutate(Fishing_RawData, Abund_inf) #Inserting the new column in the data frame
+CompleteData <- Fishing_RawData %>% 
+  mutate(Abund_inf = Abund_inf) #Inserting the new column in the data frame
 names(CompleteData)[names(CompleteData) == 'Abundance'] <- 'Abund_tot'
 
 #Summarize data
@@ -249,6 +252,8 @@ CombinedData$Long.lake <- str_remove(CombinedData$Long.lake, " W")
 CombinedData$Long.lake <- str_remove(CombinedData$Long.lake, '"')
 CombinedData$Long.lake <- conv_unit(CombinedData$Long.lake, from = "deg_min_sec", to = "dec_deg") #Coordinates conversion
 CombinedData$Long.lake <- as.numeric(CombinedData$Long.lake)*(-1)
+
+#Creating new variable of interest
 
 write_xlsx(CombinedData, paste0(to.output, "CombinedData.xlsx")) #Exporting data frame
 write.csv(CombinedData, paste0(to.output, "CombinedData.csv"), row.names = FALSE)

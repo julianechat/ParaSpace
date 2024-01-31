@@ -15,6 +15,7 @@ to.output <- "./output/"
 to.figs <- "./figs/"
 to.R <- "./R/"
 to.carto <- "./carto/"
+to.rédaction <- "./rédaction/"
 
 ## Loading packages & functions ----
 
@@ -67,8 +68,9 @@ colnames(trans.mod)[c(15:22, 31:33)] <- c("Temp.T", "Cond.T", "DO.T", "Turb.T", 
                                    "TOC.T", "TN.T", "TP.T",
                                    "Centrarchids.T", "Species_richness.T", "Diversity.T")
 
-## Creating lake scale mean variables ----
-
+## Creating new variables ----
+  
+#lake scale mean variables
 trans.mod <- trans.mod %>% #Filling NA's water parameters values by lake means
   group_by(Lake) %>% 
   mutate(Temp.L = mean(Temp.T)) %>% relocate("Temp.L", .after = "Temp.T") %>% 
@@ -87,6 +89,11 @@ trans.mod <- trans.mod %>% #Relocating columns
   relocate("Centrarchids.L", .after = "Centrarchids.T") %>% 
   relocate("Species_richness.L", .after = "Species_richness.T") %>% 
   relocate("Diversity.L", .after = "Diversity.T")
+
+trans.mod <- trans.mod %>% 
+  mutate(TN_TP.T = TN.T / TP.T) %>% relocate(TN_TP.T, .after = "TOC.T") %>% #Creating TN:TP ratio for transect scale
+  mutate(TN_TP.L = TN.L /TP.L) %>% relocate(TN_TP.L, .after = "TOC.L") %>%  #Creating TN:TP ratio for lake scale
+  mutate(Area_Perimeter = (Lake_area*1000000/Perimeter)) %>% relocate(Area_Perimeter, .before = "MeanDepth.lake") #%>%  #Creating Area:Perimeter ratio
 
 trans.mod$Lake <- as.factor(trans.mod$Lake)
 trans.mod$Transect_ID <- as.factor(trans.mod$Transect_ID)
