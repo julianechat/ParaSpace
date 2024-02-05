@@ -267,11 +267,56 @@ Land.sp.prev.T <- Land.sp.prev.T %>%  #Landional prevalence by species
   mutate(prev_UmLi = (inf_UmLi/tot_UmLi)*100, .keep = "unused") %>%
   mutate(prev_RhAt = (inf_RhAt/tot_RhAt)*100, .keep = "unused")
 
+### Summary table ----
+
+Land.sp.sum.C <- cbind(Method = "Combined", Land.sp.prev.C)
+Land.sp.sum.MT <- cbind(Method = "Minnow trap", Land.sp.prev.MT)
+Land.sp.sum.S <- cbind(Method = "Seine net", Land.sp.prev.S)
+Land.sp.sum.T <- cbind(Method = "Transect", Land.sp.prev.T)
+
+Land.sp.sum.data <- data.frame(rbind(Land.sp.sum.C, Land.sp.sum.MT, Land.sp.sum.S, Land.sp.sum.T), row.names = NULL)
+
+Land.sp.sum.data <- pivot_longer(Land.sp.sum.data, cols = c(2:18), names_to = "Species", values_to = "Prevalence")
+Land.sp.sum.data <- pivot_wider(Land.sp.sum.data, names_from = "Method", values_from = "Prevalence")
+
+Species <- c("Ambloplites rupestris", "Fundulus diaphanus", "Micropterus dolomieu","Unknown centrarchids", "Lepomis gibbosus", "Perca flavescens", "Pimephales promelas", "Chrosomus spp.", "Pimephales notatus", "Unknown cyprinids", "Semotilus atromaculatus", "Luxilus cornutus", "Ameiurus nebulosus", "Catostomus commersonii", "Esox masquinongy", "Umbra limi", "Rhinichthys atratulus")
+
+Land.sp.sum.data$Species <- Species
+
+Table.S19 <- gt(Land.sp.sum.data) %>% 
+  tab_header(md("**TABLE S19.** Host specificity of the black spot disease at landscape-scale accrording to the different sampling methods. NaN means that no fish were caught in the corresponding category.")) %>% 
+  tab_spanner("Method", columns = c(2:5)) %>% 
+  tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "left"),
+            locations = cells_title("title")) %>% 
+  tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "center", weight = "bold"),
+            locations = cells_column_spanners()) %>% 
+  tab_style(cell_text(color = "black", font = "Calibri light", weight = "bold", size = 9, align = "center", v_align = "middle"),
+            locations = cells_column_labels()) %>% 
+  tab_style(cell_text(color = "black", font = "Calibri light", size = 9, align = "center", v_align = "middle"),
+            locations = cells_body()) %>% 
+  tab_style(cell_text(color = "black", font = "Calibri light", size = 9, align = "center", v_align = "middle", style = "italic"),
+            locations = cells_body(columns = 1, rows = c(1:3, 5:9, 11:17))) %>% 
+  tab_options(table.border.top.style = "hidden",
+              heading.border.bottom.color = "black",
+              row.striping.include_table_body = TRUE,
+              page.orientation = "paysage",
+              table.width = pct(100)) %>% 
+  tab_style(style= cell_borders(sides = c("bottom", "top"), weight = px(2)), 
+            location = list(cells_column_labels())) %>% 
+  tab_style(style= cell_borders(sides = c("bottom"), weight = px(2)), 
+            location = list(cells_body(rows = 17))) %>% 
+  fmt_number(decimals = 2)
+Table.S19  
+
+Table.S19 %>% #Saving gt tab
+  gtsave("Tab_LandscapeSpec_Methods.png", paste0(to.figs))
+Table.S19 %>% 
+  gtsave("Table_S19.png", paste0(to.rédaction, "./Support_information/"))
+
 # ---- Lake prevalence ----
 
 CombinedData <- CombinedData %>% #Deleting lake Tracy because we cannot calculate a prevalence on a unique data point (1 fish)
   filter(!(Lake == "Tracy"))
-
 
 ## Community prevalence by methods ----
 

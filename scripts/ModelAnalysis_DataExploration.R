@@ -149,7 +149,7 @@ pdf(paste0(to.figs, "Corrplot_Trans.pdf"), width = 20, height = 15)
 rquery.cormat(trans.corr.all, type = "full")
 dev.off()
 
-pdf(paste0(to.rédaction, "Support_information/FigureS1.pdf"), width = 20, height = 15)
+pdf(paste0(to.rédaction, "Support_information/Figure_S1.pdf"), width = 20, height = 15)
 rquery.cormat(trans.corr.all, type = "full")
 dev.off()
 
