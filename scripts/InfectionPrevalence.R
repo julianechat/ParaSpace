@@ -838,3 +838,4 @@ Site.sp.prev.T <- Site.sp.T %>% #Site-scale prevalence by species
   mutate(prev_EsMa = (inf_EsMa/tot_EsMa)*100, .keep = "unused") %>%
   mutate(prev_UmLi = (inf_UmLi/tot_UmLi)*100, .keep = "unused") %>%
   mutate(prev_RhAt = (inf_RhAt/tot_RhAt)*100, .keep = "unused")
+

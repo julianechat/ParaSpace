@@ -514,17 +514,30 @@ Table.S11 %>% #Saving gt tab
 Table.S11 %>% 
   gtsave("Table_S11.png", paste0(to.rédaction, "./Support_information/"))
 
-# ---- Table S14 : Water physico-chemistry ----
+# ---- Table S15 : Site characteristics ----
 
-WaterQuality <- TransectData %>% 
-  select(Lake, Transect_ID, Temperature, Conductivity, DO, Turbidity, pH, TOC, TN, TP)
+Site.desc <- TransectData %>% 
+  select(Lake, Transect_ID, 
+         Temperature, Conductivity, DO, Turbidity, pH, 
+         TOC, TN, TP,
+         Trunk,
+         Silt, 
+         Sand,
+         Rock,
+         Metric_block,
+         Macrophyte,
+         Mean_depth)
 
-WaterQuality$Lake <- WaterQuality$Lake %>% 
+Site.desc$Lake <- Site.desc$Lake %>% 
   str_replace_all("Pin_rouge", "Pin rouge")
 
-Table.S14 <- gt(WaterQuality, groupname_col = "Lake") %>% 
-  cols_label(Lake = md("**Lake**"), Transect_ID = md("**Transect ID**"), Temperature = md("**Temperature (°C)**"), Conductivity = md("**Conductivity (μS/cm)**"), DO = md("**Dissolved oxygen (%)**"), Turbidity = md("**Turbidity (NTU)**"), pH = md("**pH**"), TOC = md("**TOC (mg/L)**"), TN = md("**TN (mg/L)**"), TP = md("**TP (mg/L)**")) %>% 
-  tab_header(md("**TABLE S14.** Physico-chemistry and nutrients results. Water quality parameters were measured on 48 transects sites, at mid-depth of the transect starting point. The results are grouped by lake.")) %>% 
+Table.X <- gt(Site.desc, groupname_col = "Lake") %>% 
+  cols_label(Transect_ID = md("Transect ID"), 
+             Temperature = md("Temperature (°C)"), Conductivity = md("Conductivity (μS/cm)"), DO = md("Dissolved oxygen (%)"), Turbidity = md("Turbidity (NTU)"), pH = md("pH"), 
+             TOC = md("TOC (mg/L)"), TN = md("TN (mg/L)"), TP = md("TP (mg/L)"),
+             Silt = md("Silt (%)"), Sand = md("Sand (%)"), Rock = md("Rock (%)"), Metric_block = md("Boulder (%)"),
+             Macrophyte = md("Macrophyte (%)"), Mean_depth = md("Mean depth (cm)")) %>% 
+  tab_header(md("**TABLE X.** Transect sites water and habitat characteristics. The results are grouped by lake.")) %>% 
   tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "left"),
             locations = cells_title("title")) %>% 
   tab_options(table.border.top.style = "hidden",
@@ -550,12 +563,12 @@ Table.S14 <- gt(WaterQuality, groupname_col = "Lake") %>%
   tab_style(style = cell_borders(side = "bottom", weight = px(2), color = "darkgrey"),
             locations = cells_body(rows = c(6, 8, 12, 16 ,18, 21, 24, 29, 32, 35, 39, 42, 44, 46)))
  
-Table.S14 %>% #Saving gt tab
+Table.S15 %>% #Saving gt tab
   gtsave("Tab_PhysicoChem.png", paste0(to.figs))
-Table.S14 %>% 
-  gtsave("Table_S14.png", paste0(to.rédaction, "./Support_information/"))
+Table.S15 %>% 
+  gtsave("Table_S15.png", paste0(to.rédaction, "./Support_information/"))
 
-## Table S15 : Physical habitat characteristics ----
+# Table S16 : Physical habitat characteristics ----
 
 Habitat <- TransectData %>% 
   select(Lake, Transect_ID, Trunk, Silt, Sand, Rock, Metric_block, Macrophyte, Mean_depth)
@@ -563,9 +576,9 @@ Habitat <- TransectData %>%
 Habitat$Lake <- Habitat$Lake %>% 
   str_replace_all("Pin_rouge", "Pin rouge")
 
-Table.S15 <- gt(Habitat, groupname_col = "Lake") %>% 
+Table.S16 <- gt(Habitat, groupname_col = "Lake") %>% 
   cols_label(Lake = md("**Lake**"), Transect_ID = md("**Transect ID**"), Trunk = md("**Trunk**"), Silt = md("**Silt (%)**"), Sand = md("**Sand (%)**"), Rock = md("**Rock (%)**"), Metric_block = md("**Metric block (%)**"), Macrophyte = md("**Macrophyte cover (%)**"), Mean_depth = md("**Mean depth (cm)**")) %>% 
-  tab_header(md("**TABLE S15.** Description of the physical habitat. The results presented for the 48 transects are means of every 10 m estimations, exept the trunks are the total by transect. Results are grouped by lake. Lakes Beaver, Tracy, Montaubois and St-Onge were not sampled for the prevalence estimation by the transect method.")) %>% 
+  tab_header(md("**TABLE S16.** Description of the physical habitat. The results presented for the 48 transects are means of every 10 m estimations, exept the trunks are the total by transect. Results are grouped by lake. Lakes Beaver, Tracy, Montaubois and St-Onge were not sampled for the prevalence estimation by the transect method.")) %>% 
   tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "left"),
             locations = cells_title("title")) %>% 
   tab_options(table.border.top.style = "hidden",
@@ -591,7 +604,7 @@ Table.S15 <- gt(Habitat, groupname_col = "Lake") %>%
   tab_style(style = cell_borders(side = "bottom", weight = px(2), color = "darkgrey"),
             locations = cells_body(rows = c(6, 8, 12, 16 ,18, 21, 24, 29, 32, 35, 39, 42, 44, 46)))
 
-Table.S15 %>% #Saving gt tab
+Table.S16 %>% #Saving gt tab
   gtsave("Tab_Habitat.png", paste0(to.figs))
-Table.S15 %>% 
-  gtsave("Table_S15.png", paste0(to.rédaction, "./Support_information/"))
+Table.S16 %>% 
+  gtsave("Table_S16.png", paste0(to.rédaction, "./Support_information/"))
