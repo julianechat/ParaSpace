@@ -539,6 +539,31 @@ Lake.sp.prev.C <- Lake.sp.C %>% #Lakeal prevalence by species
   mutate(prev_UmLi = (inf_UmLi/tot_UmLi)*100, .keep = "unused") %>%
   mutate(prev_RhAt = (inf_RhAt/tot_RhAt)*100, .keep = "unused")
 
+Table.A1 <- gt(Lake.sp.prev.C) %>% 
+  tab_header(md("**TABLE A1.** Prévalence d'infection pour chaque espèce de poisson dans les lacs échantillonnés. NaN indique qu'aucun individu n'a été observé pour la catégorie correspondante. Les valeurs de prévalence sont présentées en pourcentage.")) %>% 
+  cols_label(prev_AmRu = md("*Ambloplites rupestris*"), prev_FuDi = md("*Fundulus diaphanus*"), prev_MiDo = md("*Micropterus dolomieu*"), prev_Centrarchidae = md("Unknown centrarchids"), prev_LeGi = md("*Lepomis gibbosus*"), prev_PeFl = md("*Perca flavescens*"), prev_PiPr = md("*Pimephales promelas*"), prev_ChrosomusSp. = md("*Chrosomus* spp."), prev_PiNo = md("*Pimephales notatus*"), prev_Cyprinidae = md("Unknown cyprinids"), prev_SeAt = md("*Semotilus atromaculatus*"), prev_LuCo = md("*Luxilus cornutus*"), prev_AmNe = md("*Ameiurus nebulosus*"), prev_CaCo = md("*Catostomus commersonii*"), prev_EsMa = md("*Esox masquinongy*"), prev_UmLi = md("*Umbra limi*"), prev_RhAt = md("*Rhinichthys atratulus*")) %>% 
+  tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "left"),
+            locations = cells_title("title")) %>% 
+  tab_style(cell_text(color = "black", font = "Calibri light", weight = "bold", size = 9, align = "center", v_align = "middle"),
+            locations = cells_column_labels()) %>% 
+  tab_style(cell_text(color = "black", font = "Calibri light", size = 9, align = "center", v_align = "middle"),
+            locations = cells_body()) %>% 
+  tab_options(table.border.top.style = "hidden",
+              heading.border.bottom.color = "black",
+              row.striping.include_table_body = TRUE,
+              page.orientation = "paysage",
+              table.width = pct(100)) %>% 
+  tab_style(style= cell_borders(sides = c("bottom", "top"), weight = px(2)), 
+            location = list(cells_column_labels())) %>% 
+  tab_style(style= cell_borders(sides = c("bottom"), weight = px(2)), 
+            location = list(cells_body(rows = 14))) %>% 
+  sub_values(values = "Pin_rouge", replacement = "Pin rouge") %>% 
+  fmt_number(decimals = 2)
+Table.A1 
+
+Table.A1 %>% #Saving gt tab
+  gtsave("Tab_LakeSpec.png", paste0(to.figs))
+
 ### Minnow trap ----
 
 Lake.sp.MT <- CombinedData %>% 
