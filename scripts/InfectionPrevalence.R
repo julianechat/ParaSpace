@@ -283,7 +283,7 @@ Species <- c("Ambloplites rupestris", "Fundulus diaphanus", "Micropterus dolomie
 
 Land.sp.sum.data$Species <- Species
 
-Table.S19 <- gt(Land.sp.sum.data) %>% 
+Table.S18 <- gt(Land.sp.sum.data) %>% 
   tab_header(md("**TABLE S19.** Host specificity of the black spot disease at landscape-scale accrording to the different sampling methods. NaN means that no fish were caught in the corresponding category.")) %>% 
   tab_spanner("Method", columns = c(2:5)) %>% 
   tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "left"),
@@ -306,12 +306,12 @@ Table.S19 <- gt(Land.sp.sum.data) %>%
   tab_style(style= cell_borders(sides = c("bottom"), weight = px(2)), 
             location = list(cells_body(rows = 17))) %>% 
   fmt_number(decimals = 2)
-Table.S19  
+Table.S18
 
-Table.S19 %>% #Saving gt tab
+Table.S18 %>% #Saving gt tab
   gtsave("Tab_LandscapeSpec_Methods.png", paste0(to.figs))
-Table.S19 %>% 
-  gtsave("Table_S19.png", paste0(to.rédaction, "./Support_information/"))
+Table.S18 %>% 
+  gtsave("Table_S18.png", paste0(to.rédaction, "./Support_information/"))
 
 # ---- Lake prevalence ----
 
@@ -550,7 +550,7 @@ Table.A1 <- gt(Lake.sp.prev.C) %>%
             locations = cells_body()) %>% 
   tab_options(table.border.top.style = "hidden",
               heading.border.bottom.color = "black",
-              row.striping.include_table_body = TRUE,
+              row.striping.include_table_body = TRUE, 
               page.orientation = "paysage",
               table.width = pct(100)) %>% 
   tab_style(style= cell_borders(sides = c("bottom", "top"), weight = px(2)), 
@@ -562,7 +562,7 @@ Table.A1 <- gt(Lake.sp.prev.C) %>%
 Table.A1 
 
 Table.A1 %>% #Saving gt tab
-  gtsave("Tab_LakeSpec.png", paste0(to.figs))
+  gtsave("Tab_LakeSpec.html", paste0(to.figs))
 
 ### Minnow trap ----
 
@@ -771,13 +771,6 @@ Site.mean.T <- weighted.mean(Site.pool.prev.T$prev_fish, Site.pool.prev.T$tot_fi
 
 ### Summary table ----
 
-Site.C.data <- Site.pool.prev.C %>% 
-  select(Lake.x, Sampling_ID, prev_fish) %>% 
-  mutate(Method = "Combined", .before = "Sampling_ID") %>% 
-  na.omit()
-Site.C.data <- Site.C.data %>% 
-  pivot_wider(names_from = Lake.x, values_from = prev_fish)
-
 Site.MT.data <- Site.pool.prev.MT %>% 
   select(Lake.x, Sampling_ID, prev_fish) %>% 
   mutate(Method = "Minnow trap", .before = "Sampling_ID") %>% 
@@ -803,7 +796,7 @@ Site.T.data <- Site.T.data %>%
   mutate(Montaubois = NA, .after = "Fournelle") %>% 
   mutate("St-Onge" = NA, .after = "Pin_rouge")
 
-Site.summary.data <- rbind(Site.C.data, Site.MT.data, Site.S.data, Site.T.data)
+Site.summary.data <- rbind(Site.MT.data, Site.S.data, Site.T.data)
 
 Table.S14 <- gt(Site.summary.data, groupname_col = "Method") %>% 
   tab_header(md("**TABLE S14.** Observed site prevalence estimated by each sampling method. Affiliated lake are given as columns. All values are given in percentage. Samples with no captures were omitted to alleviate the table. Lake Tracy was not included because only one fish was caughted through all methods.")) %>% 
@@ -827,7 +820,7 @@ Table.S14 <- gt(Site.summary.data, groupname_col = "Method") %>%
   tab_style(style= cell_borders(sides = c("bottom", "top"), weight = px(2)), 
             location = list(cells_column_labels())) %>% 
   tab_style(style= cell_borders(sides = c("bottom"), weight = px(2)), 
-            location = list(cells_body(rows = 458))) %>% 
+            location = list(cells_body(rows = 229))) %>% 
   tab_style(style= cell_borders(sides = c("top", "bottom"), weight = px(2)), 
             location = list(cells_row_groups())) %>% 
   fmt_number(decimals = 2)

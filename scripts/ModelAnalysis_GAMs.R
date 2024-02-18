@@ -1118,6 +1118,29 @@ draw.XDEPTH <- draw(XDEPTH.GAMM, unconditional = TRUE, overall_uncertainty = TRU
 draw.XDEPTH
 #Significativity not OK
 
+## Nearest lake ----
+### Site scale model ----
+
+NEAR.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Connectivity, bs = "cs") + s(Lake, bs = "re"),
+                  family = quasibinomial, data = mod.data, method = "ML")
+summary(NEAR.GAMM) 
+#Distance to nearest lake is not significant
+#Adj. R-sq. = 0.62
+#Deviance explained = 69.6%
+
+### Model validation ----
+appraise(NEAR.GAMM)
+NEAR.GAMM$scale
+#Model validation shows some residual patterns
+
+### Visualizing partial effects
+
+#Simple visualization
+draw.NEAR <- draw(NEAR.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
+  scale_y_continuous(trans = inverse_logit_trans)
+draw.NEAR
+#Significativity not OK.
+
 ## Water residence time ----
 ### Site scale model ----
 
@@ -1739,6 +1762,14 @@ tab.XDEPTH.smooth <- tidy(XDEPTH.GAMM, parametric = FALSE) %>%
          Deviance = summary(XDEPTH.GAMM)$dev.expl)
 tab.XDEPTH <- merge(tab.XDEPTH.par, tab.XDEPTH.smooth, all = TRUE)
 
+tab.NEAR.par <- tidy(NEAR.GAMM, parametric = TRUE) %>% 
+  mutate(Model = "Distance to nearest lake", .before = "term",
+         Deviance = summary(NEAR.GAMM)$dev.expl)
+tab.NEAR.smooth <- tidy(NEAR.GAMM, parametric = FALSE) %>% 
+  mutate(Model = "Distance to nearest lake", .before = "term",
+         Deviance = summary(NEAR.GAMM)$dev.expl)
+tab.NEAR <- merge(tab.NEAR.par, tab.NEAR.smooth, all = TRUE)
+
 tab.WRT.par <- tidy(WRT.GAMM, parametric = TRUE) %>% 
   mutate(Model = "Water residence time", .before = "term",
          Deviance = summary(WRT.GAMM)$dev.expl)
@@ -1800,7 +1831,7 @@ Tab.summary.GAMMs <- rbind(tab.NULL, tab.TNTP, tab.TN, tab.TP, tab.TOC,
                            tab.SILT, tab.SAND, tab.ROCK, tab.BLOCK, tab.MACRO, tab.DEPTH, tab.TRUNK, 
                            tab.TEMP, tab.TURB, tab.PH, tab.DO, tab.COND, 
                            tab.AREAPERI, tab.AREA, tab.PERI, tab.MDEPTH, tab.XDEPTH, 
-                           tab.WRT, tab.DRAIN, tab.ELEV, 
+                           tab.NEAR, tab.WRT, tab.DRAIN, tab.ELEV, 
                            tab.FISH, tab.NONHOST, tab.SP, tab.DIVERS) %>%
   group_by(Model) %>% 
   gt() %>% 
@@ -1871,29 +1902,32 @@ Tab.summary.GAMMs <- rbind(tab.NULL, tab.TNTP, tab.TN, tab.TP, tab.TOC,
     label = md("<p>Lake maximum depth<br>(D<sup>2</sup> = 69.64%)</p>"),
     rows = c(63:65)) %>% 
   tab_row_group(
-    label = md("<p>Water residence time<br>(D<sup>2</sup> = 69.64%)</p>"),
+    label = md("<p>Distance to nearest lake<br>(D<sup>2</sup> = 69.64%)</p>"),
     rows = c(66:68)) %>% 
   tab_row_group(
-    label = md("<p>Drainage area<br>(D<sup>2</sup> = 69.73%)</p>"),
+    label = md("<p>Water residence time<br>(D<sup>2</sup> = 69.64%)</p>"),
     rows = c(69:71)) %>% 
   tab_row_group(
-    label = md("<p>Elevation<br>(D<sup>2</sup> = 69.64%)</p>"),
+    label = md("<p>Drainage area<br>(D<sup>2</sup> = 69.73%)</p>"),
     rows = c(72:74)) %>% 
   tab_row_group(
-    label = md("<p>Fish abundance<br>(D<sup>2</sup> = 80.8%)</p>"),
+    label = md("<p>Elevation<br>(D<sup>2</sup> = 69.64%)</p>"),
     rows = c(75:77)) %>% 
   tab_row_group(
-    label = md("<p>Non-host abundance<br>(D<sup>2</sup> = 87.5%)</p>"),
+    label = md("<p>Fish abundance<br>(D<sup>2</sup> = 80.8%)</p>"),
     rows = c(78:80)) %>% 
   tab_row_group(
-    label = md("<p>Species richness<br>(D<sup>2</sup> = 73.61%)</p>"),
+    label = md("<p>Non-host abundance<br>(D<sup>2</sup> = 87.5%)</p>"),
     rows = c(81:83)) %>% 
   tab_row_group(
-    label = md("<p>Diversity index<br>(D<sup>2</sup> = 79.69%)</p>"),
+    label = md("<p>Species richness<br>(D<sup>2</sup> = 73.61%)</p>"),
     rows = c(84:86)) %>% 
+  tab_row_group(
+    label = md("<p>Diversity index<br>(D<sup>2</sup> = 79.69%)</p>"),
+    rows = c(87:89)) %>% 
   cols_hide(c("ref.df", "Deviance")) %>% 
   cols_label(term = md("**Term**"), statistic = md("**Statistic**"), p.value = md("**p-value**"), estimate = md("**Estimate**"), std.error = md("**Standard error**"), edf = md("**edf**")) %>% 
-  tab_header(md("**TABLE S18.** Estimated parameteric coefficients and approximate significance of smooth terms of the fine-scale prevalence community GAMMs. The deviance explained (D<sup>2</sup>) is given for every model as a measure of the model fit.")) %>% 
+  tab_header(md("**TABLE S16.** Estimated parameteric coefficients and approximate significance of smooth terms of the fine-scale prevalence community GAMMs. The deviance explained (D<sup>2</sup>) is given for every model as a measure of the model fit.")) %>% 
   tab_spanner(label = "Parametric coefficient", columns = c("estimate", "std.error", "statistic", "p.value")) %>% 
   tab_spanner(label = "Smooth terms", columns = c("statistic", "p.value", "edf")) %>% 
   tab_footnote(footnote = "Effective degrees of freedom", 
@@ -1944,5 +1978,5 @@ Tab.summary.GAMMs <- rbind(tab.NULL, tab.TNTP, tab.TN, tab.TP, tab.TOC,
 Tab.summary.GAMMs %>% #Saving gt tab
   gtsave("Tab_GAMMs_summary.png", paste0(to.figs))
 Tab.summary.GAMMs %>% 
-  gtsave("Table_S18.png", paste0(to.rédaction, "./Support_information/"))  
+  gtsave("Table_S16.png", paste0(to.rédaction, "./Support_information/"))  
   

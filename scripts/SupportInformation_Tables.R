@@ -41,7 +41,7 @@ References <- read.csv(paste0(to.doc, "Appendix_S4_BSxHost.csv"), sep = ";")
 
 Table.S1 <- gt(LakesCharacteristics) %>% 
   cols_label(Lake = md("**Lake**"), Watershed = md("**Watershed**"), Latitude = md("**Latitude**"), Longitude = md("**Longitude**"), Lake_area = md("**Area (km<sup>2</sup>)**"), Max_depth = md("**Maximum depth (m)**"), Mean_depth = md("**Mean depth (m)**"), WRT = md("**Residence time (year)**"), Drainage_area = md("**Drainage area (km<sup>2</sup>)**"), Elevation = md("**Elevation (m)**"), Perimeter = md("**Perimeter (m)**"), Connectivity = md("**Distance to nearest lake (m)**")) %>%
-  tab_header(md("**TABLE S1.** Geographical and morphometric lake characteristics on the 15 lakes sampled.")) %>% 
+  tab_header(md("**TABLE S1.** Geographical and morphometric lake characteristics of the 15 lakes sampled.")) %>% 
   tab_style(cell_text(color = "black", font = "Calibri light", size = 9, align = "left"),
             locations = cells_title("title")) %>% 
   tab_options(table.border.top.style = "hidden",
@@ -150,7 +150,7 @@ SpAbund.C <- SpAbund.C %>%
 
 Table.S4 <- gt(SpAbund.C) %>% #Creating gt tab and editing style
   cols_label(Lake = md("**Lake**"), tot_AmRu = md("***Ambloplites rupestris***"), tot_FuDi = md("***Fundulus diaphanus***"), tot_MiDo = md("***Micropterus dolomieu***"), tot_LeGi = md("***Lepomis gibbosus***"), tot_PeFl = md("***Perca flavescens***"), tot_PiPr = md("***Pimephales promelas***"), tot_ChrosomusSp. = md("**Chrosomus spp.**"), tot_PiNo = md("***Pimephales notatus***"), tot_SeAt = md("***Semotilus atromaculatus***"), tot_LuCo = md("***Luxilus cornutus***"), tot_AmNe = md("***Ameiurus nebulosus***"), tot_CaCo = md("***Catostomus commersonii***"), tot_EsMa = md("***Esox masquinongy***"), tot_UmLi = md("***Umbra limi***"), tot_RhAt = md("***Rhinichthys atratulus***"), tot_Cyprinidae = md("**Unknown cyprinids**"), tot_Centrarchidae = md("**Unknown centrarchids**"), Total = md("**Total**")) %>% 
-  tab_header(md("**TABLE S4.** The abundance of fishes species in the 15 sampled lakes according to all the sampling methods.")) %>% 
+  tab_header(md("**TABLE S4.** Abundance of fish species in the 15 sampled lakes according to all the sampling methods.")) %>% 
   cols_move(columns = c("tot_ChrosomusSp.", "tot_Cyprinidae", "tot_Centrarchidae"), after = "tot_RhAt") %>% 
   tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "left"),
             locations = cells_title("title")) %>% 
@@ -200,7 +200,7 @@ SpAbund.MT <-SpAbund.MT %>%
 
 Table.S5 <- gt(SpAbund.MT) %>% #Creating gt tab and editing style
   cols_label(Lake = md("**Lake**"), tot_AmRu = md("***Ambloplites rupestris***"), tot_FuDi = md("***Fundulus diaphanus***"), tot_MiDo = md("***Micropterus dolomieu***"), tot_LeGi = md("***Lepomis gibbosus***"), tot_PeFl = md("***Perca flavescens***"), tot_PiPr = md("***Pimephales promelas***"), tot_ChrosomusSp. = md("**Chrosomus spp.**"), tot_PiNo = md("***Pimephales notatus***"), tot_SeAt = md("***Semotilus atromaculatus***"), tot_LuCo = md("***Luxilus cornutus***"), tot_AmNe = md("***Ameiurus nebulosus***"), tot_CaCo = md("***Catostomus commersonii***"), tot_EsMa = md("***Esox masquinongy***"), tot_UmLi = md("***Umbra limi***"), tot_RhAt = md("***Rhinichthys atratulus***"), tot_Cyprinidae = md("**Unknown cyprinids**"), tot_Centrarchidae = md("**Unknown centrarchids**"), Total = md("**Total**")) %>% 
-  tab_header(md("**TABLE S5.** Abundance of fish species in the 15 sampled lakes according to the minnow trap method.")) %>% 
+  tab_header(md("**TABLE S5.** Abundance of fish species in the 15 sampled lakes caught by minnow traps.")) %>% 
   cols_move(columns = c("tot_ChrosomusSp.", "tot_Cyprinidae", "tot_Centrarchidae"), after = "tot_RhAt") %>% 
   tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "left"),
             locations = cells_title("title")) %>% 
@@ -248,7 +248,7 @@ SpAbund.S <-SpAbund.S %>%
 
 Table.S6 <- gt(SpAbund.S) %>% #Creating gt tab and editing style
   cols_label(Lake = md("**Lake**"), tot_AmRu = md("***Ambloplites rupestris***"), tot_FuDi = md("***Fundulus diaphanus***"), tot_MiDo = md("***Micropterus dolomieu***"), tot_LeGi = md("***Lepomis gibbosus***"), tot_PeFl = md("***Perca flavescens***"), tot_PiPr = md("***Pimephales promelas***"), tot_ChrosomusSp. = md("**Chrosomus spp.**"), tot_PiNo = md("***Pimephales notatus***"), tot_SeAt = md("***Semotilus atromaculatus***"), tot_LuCo = md("***Luxilus cornutus***"), tot_AmNe = md("***Ameiurus nebulosus***"), tot_CaCo = md("***Catostomus commersonii***"), tot_EsMa = md("***Esox masquinongy***"), tot_UmLi = md("***Umbra limi***"), tot_RhAt = md("***Rhinichthys atratulus***"), tot_Cyprinidae = md("**Unknown cyprinids**"), tot_Centrarchidae = md("**Unknown centrarchids**"), Total = md("**Total**")) %>% 
-  tab_header(md("**TABLE S6.** Abundance of fish species in the 15 sampled lakes according to the seine net method.")) %>% 
+  tab_header(md("**TABLE S6.** Abundance of fish species in the 15 sampled lakes caught by seine nets.")) %>% 
   cols_move(columns = c("tot_ChrosomusSp.", "tot_Cyprinidae", "tot_Centrarchidae"), after = "tot_RhAt") %>% 
   tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "left"),
             locations = cells_title("title")) %>% 
@@ -297,7 +297,7 @@ SpAbund.T <-SpAbund.T %>%
 
 Table.S7 <- gt(SpAbund.T) %>% #Creating gt tab and editing style
   cols_label(Lake = md("**Lake**"), tot_AmRu = md("***Ambloplites rupestris***"), tot_FuDi = md("***Fundulus diaphanus***"), tot_MiDo = md("***Micropterus dolomieu***"), tot_LeGi = md("***Lepomis gibbosus***"), tot_PeFl = md("***Perca flavescens***"), tot_PiPr = md("***Pimephales promelas***"), tot_ChrosomusSp. = md("**Chrosomus spp.**"), tot_PiNo = md("***Pimephales notatus***"), tot_SeAt = md("***Semotilus atromaculatus***"), tot_LuCo = md("***Luxilus cornutus***"), tot_AmNe = md("***Ameiurus nebulosus***"), tot_CaCo = md("***Catostomus commersonii***"), tot_EsMa = md("***Esox masquinongy***"), tot_UmLi = md("***Umbra limi***"), tot_RhAt = md("***Rhinichthys atratulus***"), tot_Cyprinidae = md("**Unknown cyprinids**"), tot_Centrarchidae = md("**Unknown centrarchids**"), Total = md("**Total**")) %>% 
-  tab_header(md("**TABLE S7.** Abundance of fish species in the 15 sampled lakes according to the transect method.")) %>% 
+  tab_header(md("**TABLE S7.** Abundance of fish species in the 15 sampled lakes observed in snorkeling transects.")) %>% 
   cols_move(columns = c("tot_ChrosomusSp.", "tot_Cyprinidae", "tot_Centrarchidae"), after = "tot_RhAt") %>% 
   tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "left"),
             locations = cells_title("title")) %>% 
@@ -372,7 +372,7 @@ Length.LakeMean <- FishLength %>% #Summary statistic by lake
 
 Table.S8 <- gt(Length.LakeMean) %>% #Creating gt tab and editing style
   cols_label(Lake = md("**Lake**"), md("**Mean**"), md("**sd**"), md("**N**")) %>% 
-  tab_header(md("**TABLE S8.** Overall mean fish length for the 15 sampled lakes. The fishes were caught with minnow traps and seine nets.")) %>% 
+  tab_header(md("**TABLE S8.** Mean fish length for the 15 sampled lakes. The fishes were caught with minnow traps and seine nets.")) %>% 
   tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "left"),
             locations = cells_title("title")) %>% 
   tab_options(table.border.top.style = "hidden",
@@ -405,7 +405,7 @@ Length.SpeciesMean <- FishLength %>% #Summary statistic by species
 
 Table.S9 <- gt(Length.SpeciesMean) %>% #Creating gt tab and editing style
   cols_label(Species_ID = md("**Species**"), md("**Mean**"), md("**sd**"), md("**N**")) %>% 
-  tab_header(md("**TABLE S9.** Overall mean fish length for each species. The fishes were caught with minnow traps and seine nets.")) %>% 
+  tab_header(md("**TABLE S9.** Mean fish species length. The fishes were caught with minnow traps and seine nets.")) %>% 
   tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "left"),
             locations = cells_title("title")) %>% 
   tab_options(table.border.top.style = "hidden",
@@ -440,7 +440,7 @@ Length.SpeciesLakeMean <- FishLength %>% #Summarizing number of individuals, mea
 
 Table.S10 <- gt(Length.SpeciesLakeMean) %>% 
   cols_label(Species_ID = md("**Species**"), md("**Mean**"), md("**sd**"), md("**N**")) %>% 
-  tab_header(md("**TABLE S10.** Mean length for each species within each lake sampled. The fishes were caught with minnow traps and seine nets.")) %>% 
+  tab_header(md("**TABLE S10.** Mean species length within each lake sampled. The fishes were caught with minnow traps and seine nets.")) %>% 
   tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "left"),
             locations = cells_title("title")) %>% 
   tab_options(table.border.top.style = "hidden",
@@ -479,7 +479,7 @@ Table.S10 %>%
 Table.S11 <- gt(References, groupname_col = "Species_name") %>% 
   cols_hide(columns = "Species_ID") %>% 
   cols_label(BlacksSpot_Sp = md("**Black spot trematode species**"), Mention = md("**References**")) %>% 
-  tab_header(md("**TABLE S11.** References of the black spot disease in the fishes species sampled our study system. *Ameiurus nebulosus* and *Esox masquinongy* have no mention of black spot disease. This table is not an exhaustive review.")) %>% 
+  tab_header(md("**TABLE S11.** References of the black spot disease in the fish species sampled our study system. *Ameiurus nebulosus* and *Esox masquinongy* have no mention of black spot disease. This table is not an exhaustive review.")) %>% 
   tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "left"),
             locations = cells_title("title")) %>% 
   tab_options(table.border.top.style = "hidden",
@@ -531,13 +531,13 @@ Site.desc <- TransectData %>%
 Site.desc$Lake <- Site.desc$Lake %>% 
   str_replace_all("Pin_rouge", "Pin rouge")
 
-Table.X <- gt(Site.desc, groupname_col = "Lake") %>% 
+Table.S17 <- gt(Site.desc, groupname_col = "Lake") %>% 
   cols_label(Transect_ID = md("Transect ID"), 
              Temperature = md("Temperature (°C)"), Conductivity = md("Conductivity (μS/cm)"), DO = md("Dissolved oxygen (%)"), Turbidity = md("Turbidity (NTU)"), pH = md("pH"), 
              TOC = md("TOC (mg/L)"), TN = md("TN (mg/L)"), TP = md("TP (mg/L)"),
              Silt = md("Silt (%)"), Sand = md("Sand (%)"), Rock = md("Rock (%)"), Metric_block = md("Boulder (%)"),
              Macrophyte = md("Macrophyte (%)"), Mean_depth = md("Mean depth (cm)")) %>% 
-  tab_header(md("**TABLE X.** Transect sites water and habitat characteristics. The results are grouped by lake.")) %>% 
+  tab_header(md("**TABLE S17.** Transect sites water and habitat characteristics. The results are grouped by lake.")) %>% 
   tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "left"),
             locations = cells_title("title")) %>% 
   tab_options(table.border.top.style = "hidden",
@@ -563,48 +563,7 @@ Table.X <- gt(Site.desc, groupname_col = "Lake") %>%
   tab_style(style = cell_borders(side = "bottom", weight = px(2), color = "darkgrey"),
             locations = cells_body(rows = c(6, 8, 12, 16 ,18, 21, 24, 29, 32, 35, 39, 42, 44, 46)))
  
-Table.S15 %>% #Saving gt tab
-  gtsave("Tab_PhysicoChem.png", paste0(to.figs))
-Table.S15 %>% 
-  gtsave("Table_S15.png", paste0(to.rédaction, "./Support_information/"))
-
-# Table S16 : Physical habitat characteristics ----
-
-Habitat <- TransectData %>% 
-  select(Lake, Transect_ID, Trunk, Silt, Sand, Rock, Metric_block, Macrophyte, Mean_depth)
-
-Habitat$Lake <- Habitat$Lake %>% 
-  str_replace_all("Pin_rouge", "Pin rouge")
-
-Table.S16 <- gt(Habitat, groupname_col = "Lake") %>% 
-  cols_label(Lake = md("**Lake**"), Transect_ID = md("**Transect ID**"), Trunk = md("**Trunk**"), Silt = md("**Silt (%)**"), Sand = md("**Sand (%)**"), Rock = md("**Rock (%)**"), Metric_block = md("**Metric block (%)**"), Macrophyte = md("**Macrophyte cover (%)**"), Mean_depth = md("**Mean depth (cm)**")) %>% 
-  tab_header(md("**TABLE S16.** Description of the physical habitat. The results presented for the 48 transects are means of every 10 m estimations, exept the trunks are the total by transect. Results are grouped by lake. Lakes Beaver, Tracy, Montaubois and St-Onge were not sampled for the prevalence estimation by the transect method.")) %>% 
-  tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "left"),
-            locations = cells_title("title")) %>% 
-  tab_options(table.border.top.style = "hidden",
-              row.striping.include_table_body = TRUE,
-              heading.border.bottom.color = "black", 
-              row_group.as_column = TRUE) %>% 
-  tab_style(style = cell_text(color = "black", font = "Calibri light", size = 9, align = "center", v_align = "middle", weight = "bold"),
-            locations = cells_row_groups()) %>% 
-  tab_style(style = cell_borders(sides = c("top", "bottom", "right"), color = "darkgrey", weight = px(2)),
-            locations = cells_row_groups()) %>% 
-  tab_style(cell_text(color = "black", font = "Calibri light", weight = "bold", size = 9, align = "center", v_align = "middle"),
-            locations = cells_column_labels()) %>% 
-  tab_style(cell_text(color = "black", font = "Calibri light", size = 9, align = "center", v_align = "middle"),
-            locations = cells_body()) %>% 
-  tab_style(style= cell_borders(sides = c("bottom", "top"), weight = px(2)), 
-            location = list(cells_column_labels())) %>% 
-  tab_style(style = cell_borders(side = "top", weight = px(2), color = "black"),
-            locations = cells_row_groups(groups = "Achigan")) %>% 
-  tab_style(style = cell_borders(sides = "bottom", weight = px(2), color = "black"),
-            locations =  cells_body(rows = 48)) %>% 
-  tab_style(style = cell_borders(side = "bottom", weight = px(2), color = "black"),
-            locations = cells_row_groups(groups = "Triton")) %>% 
-  tab_style(style = cell_borders(side = "bottom", weight = px(2), color = "darkgrey"),
-            locations = cells_body(rows = c(6, 8, 12, 16 ,18, 21, 24, 29, 32, 35, 39, 42, 44, 46)))
-
-Table.S16 %>% #Saving gt tab
-  gtsave("Tab_Habitat.png", paste0(to.figs))
-Table.S16 %>% 
-  gtsave("Table_S16.png", paste0(to.rédaction, "./Support_information/"))
+Table.S17 %>% #Saving gt tab
+  gtsave("Tab_SiteDescription.png", paste0(to.figs))
+Table.S17 %>% 
+  gtsave("Table_S17.png", paste0(to.rédaction, "./Support_information/"))

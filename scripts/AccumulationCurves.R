@@ -543,8 +543,8 @@ prev.resamp <- prev.resamp %>%
   cbind(Observed = Observed)
 
 #Comparative table
-Table.S17 <- gt(prev.resamp, groupname_col = NA) %>% 
-  tab_header(md("**TABLE S17.** Landscape observed and resampled prevalence estimated by each sampling method. All values are given in percentage.")) %>% 
+Table.S15 <- gt(prev.resamp, groupname_col = NA) %>% 
+  tab_header(md("**TABLE S15.** Landscape observed and resampled prevalence estimated by each sampling method. All values are given in percentage.")) %>% 
   cols_label("5" = md("N<sub>5</sub>"), "10" = md("N<sub>10</sub>"), "15" = md("N<sub>15</sub>"), "20" = md("N<sub>20</sub>"), "25" = md("N<sub>25</sub>"), "30" = md("N<sub>30</sub>"), "35" = md("N<sub>35</sub>")) %>% 
   tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "left"),
             locations = cells_title("title")) %>% 
@@ -564,10 +564,10 @@ Table.S17 <- gt(prev.resamp, groupname_col = NA) %>%
   fmt_number(decimals = 2, columns = c(2:8)) %>% 
   cols_move(columns = "Observed", after = "Method")
 
-Table.S17 %>% #Saving gt tab
+Table.S15 %>% #Saving gt tab
   gtsave("Tab_ResampledPrev_Methods.png", paste0(to.figs))
-Table.S17 %>% 
-  gtsave("Table_S17.png", paste0(to.rédaction, "./Support_information/"))
+Table.S15 %>% 
+  gtsave("Table_S15.png", paste0(to.rédaction, "./Support_information/"))
 
 # ---- Summary accumulation panel ----
 

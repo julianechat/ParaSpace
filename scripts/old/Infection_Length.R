@@ -1,43 +1,81 @@
-## Infection - Length relations ##
+## Script name : Infection & fish length relationships
 
-# ----- R Setup ----- #
+## Authors : Juliane Vigneault
+## Date created : September 20, 2022
+
+## Copyright (c) Juliane Vigneault, 2022
+## Email: juliane.vigneault@umontreal.ca
+
+# ---- Script setup ----
+
+## R Setup ----- 
 
 to.data <- "./data/"
 to.script <- "./scripts/"
 to.output <- "./output/"
 to.figs <- "./figs/"
 to.R <- "./R/"
+to.carto <- "./carto/"
+to.rédaction <- "./rédaction/"
 
-# ----- Loading packages and functions ----- #
+## Loading packages and functions ----
 
 library(dplyr)
 library(ggplot2)
+library(cowplot)
+
 source(paste0(to.R, "bartlettperm.r"))
 source(paste0(to.R, "anova.1way.R"))
 
-# ----- Loading data ----- #
+## Loading data ----
 
 Fishing_RawData <- read.csv(paste0(to.data, "Fishing_RawData.csv"), sep=";")
 
-# --------------------------- #
+# ---- Intensity & Length relationships ----
 
-#### Length - Intensity ####
 Fish_Data <- Fishing_RawData[-c(596,613),] #Deleting lost data
 
 PeFl_Data <- Fish_Data %>% filter(Species_ID == "PeFl") #Selecting only PeFl data
 PeFl_Data2 <- PeFl_Data[rep(row.names(PeFl_Data), PeFl_Data$Abundance), 1:12] #Repeating data by abundance column
+PeFl_Data2$Intensity_class <- as.factor(PeFl_Data2$Intensity_class)
 
 LeGi_Data <- Fish_Data %>% filter(Species_ID == "LeGi") #Selecting only LeGi data
 LeGi_Data2 <- LeGi_Data[rep(row.names(LeGi_Data), LeGi_Data$Abundance), 1:12] #Repeating data by abundance column
+LeGi_Data2$Intensity_class <- as.factor(LeGi_Data2$Intensity_class)
 
-## Boxplot representation of data ##
-attach(PeFl_Data2)
-boxplot(Length~Intensity_class, col = "gold")
+## Boxplots ----
 
-attach(LeGi_Data2)
-boxplot(Length~Intensity_class, col = "lightblue", add = TRUE)
-legend(5.5,25.3, c("LeGi", "PeFl"),
-       fill = c("lightblue", "gold"))
+PeFl.boxplot <- ggplot(PeFl_Data2, aes(y = Length, x = Intensity_class)) +
+  geom_boxplot(color = "#6C464F", fill = "#6C464F", alpha = 0.5) +
+  scale_y_continuous(breaks = c(5,10,15,20,25)) +
+  labs(x = "Infection intensity class", y = "Length (cm)") +
+  theme(panel.background = element_blank(),
+        axis.line = element_line(color = "black", linewidth = 0.5), 
+        panel.grid.major = element_blank(),
+        axis.text = element_text(family = "Calibri Light", size = 20),
+        axis.title.y = element_text(family = "Calibri Light", size = 20, vjust = 5),
+        axis.title.x = element_text(family = "Calibri Light", size = 20, vjust = -2),
+        plot.margin = unit(c(1,1,1,1), "cm")) 
+PeFl.boxplot  
+
+ggsave(paste0(to.figs, "Intensity_Length_PeFl.png"), plot = PeFl.boxplot, dpi = 500, width = 15, height = 10)
+
+
+
+LeGi.boxplot <- ggplot(LeGi_Data2, aes(y = Length, x = Intensity_class)) +
+  geom_boxplot(color = "#587289", fill = "#587289", alpha = 0.5) +
+  scale_y_continuous(breaks = c(5,10,15,20,25)) +
+  labs(x = "Infection intensity class", y = "Length (cm)") +
+  theme(panel.background = element_blank(),
+        axis.line = element_line(color = "black", linewidth = 0.5), 
+        panel.grid.major = element_blank(),
+        axis.text = element_text(family = "Calibri Light", size = 20),
+        axis.title.y = element_text(family = "Calibri Light", size = 20, vjust = 5),
+        axis.title.x = element_text(family = "Calibri Light", size = 20, vjust = -2),
+        plot.margin = unit(c(1,1,1,1), "cm")) 
+LeGi.boxplot
+
+ggsave(paste0(to.figs, "Intensity_Length_LeGi.png"), plot = LeGi.boxplot, dpi = 500, width = 15, height = 10)
 
 ## ANOVA test ##
 # Terms of application #
@@ -54,7 +92,8 @@ anova.1way(Length~Intensity_class, data = PeFl_Data3, nperm=999) #Means are diff
 anova.1way(Length~Intensity_class, data = LeGi_Data3, nperm=999) #Means are different between LeGi groups
 ##TukeyHSD(anova.1way(Length~Intensity_class, data = LeGi_Data2, nperm=999))##FONCTIONNE PAS##
 
-#### Length - Prevalence ####
+# ---- Prevalence & Length relationships ----
+
 LeGi_AllData <- LeGi_Data[-c(1:11)] #Deleting unnecessary columns
 
 LeGi_InfData <- Fish_Data %>% filter(Species_ID == "LeGi" & Intensity_class >0) #Infected LeGi
@@ -86,6 +125,7 @@ attach(Df_Length3)
 Prev_Length <- AbundanceInf/AbundanceAll #Prevalence values
 Df_Prev_Length <- cbind(Df_Length3, Prev_Length) 
 Df_Prev_Length2 <- Df_Prev_Length[-c(2,3)]
+Df_Prev_Length2$Prev_Length <- Df_Prev_Length2$Prev_Length*100
 
 # PeFl #
 PeFl_LengthSum <- PeFl_AllData %>% #Abundance of LeGi per length
@@ -110,25 +150,63 @@ df.PeFl2 <- df.PeFl1[-3]
 df.PeFl3 <- `colnames<-`(df.PeFl2, c("Length","All_Abund", "Inf_Abund"))
 attach(df.PeFl3)
 df.PeFl4 <- cbind(df.PeFl3, c(Inf_Abund/All_Abund))
+df.PeFl4 <- df.PeFl4[c(1,4)]
+df.PeFl4 <- `colnames<-`(df.PeFl4, c("Length", "Prevalence"))
 
-## Data representation ##
-# LeGi #
-ggplot(data=Df_Prev_Length2) + 
-  geom_point(mapping=aes(LengthInf, Prev_Length)) + 
-  xlab("Length") +
-  ylab("Prevalence") +
-  ggtitle("LeGi")
+## Tendency plot ----
 
+## Lepomis gibbosus ----
+
+LeGi.plot <- ggplot(Df_Prev_Length2, aes(x = LengthInf, y = Prev_Length)) + 
+  geom_point(color = "#587289", fill = "#587289") +
+  geom_smooth(method="glm", method.args=list(family="binomial"), color = "#587289", fill = "#587289", alpha = 0.2) +
+  labs(x = "Length (cm)", y = "Prevalence") +
+  scale_y_continuous(labels = scales::percent) +
+  theme(panel.background = element_blank(),
+        axis.line = element_line(color = "black", linewidth = 0.5), 
+        panel.grid.major = element_blank(),
+        axis.text = element_text(family = "Calibri Light", size = 20),
+        axis.title.y = element_text(family = "Calibri Light", size = 20, vjust = 5),
+        axis.title.x = element_text(family = "Calibri Light", size = 20, vjust = -2),
+        plot.margin = unit(c(1,1,1,1), "cm"))
+LeGi.plot
+
+ggsave(paste0(to.figs, "Prevalence_Length_LeGi.png"), plot = LeGi.plot, dpi = 500, width = 25, height = 10)
+                    
 cor.test(LengthInf, Prev_Length) 
       
-# PeFl #
-cor.test(df.PeFl4$Length,df.PeFl4$`c(Inf_Abund/All_Abund)`)
+## Perca flavescens ----
 
-ggplot(data=df.PeFl4) + 
-  geom_point(mapping=aes(Length, `c(Inf_Abund/All_Abund)`)) +
-  xlab("Length") +
-  ylab("Prevalence") + 
-  ggtitle("PeFl")
+PeFl.plot <- ggplot(df.PeFl4, aes(x = Length, y = Prevalence)) + 
+  geom_point(color = "#6C464F", fill ="#6C464F") +
+  geom_smooth(method="glm", method.args=list(family="binomial"), color = "#6C464F", fill = "#6C464F", alpha = 0.2) +
+  labs(x = "Length (cm)") +
+  scale_y_continuous(labels = scales::percent) +
+  scale_x_continuous(breaks = c(5,10,15,20,25)) +
+  theme(panel.background = element_blank(),
+        axis.line = element_line(color = "black", linewidth = 0.5), 
+        panel.grid.major = element_blank(),
+        axis.text = element_text(family = "Calibri Light", size = 20),
+        axis.title.y = element_text(family = "Calibri Light", size = 20, vjust = 5),
+        axis.title.x = element_text(family = "Calibri Light", size = 20, vjust = -2),
+        plot.margin = unit(c(1,1,1,1), "cm"))
+PeFl.plot
+
+ggsave(paste0(to.figs, "Prevalence_Length_PeFl.png"), plot = PeFl.plot, dpi = 500, width = 15, height = 10)
+
+cor.test(df.PeFl4$Length,df.PeFl4$Prevalence)
+
+# Summary plot ----
+  
+length.sum.plot <- plot_grid(LeGi.boxplot, LeGi.plot, PeFl.boxplot, PeFl.plot,
+                             nrow = 2, ncol = 2,
+                             labels = "AUTO", 
+                             label_fontface = "plain",
+                             label_fontfamily = "Calibri Light", 
+                             label_size = 20)
+
+length.sum.plot
+ggsave(paste0(to.figs, "Infection_Length_Summary.png"), plot = length.sum.plot, dpi = 500, width = 15, height = 10)
 
 # Prevalence values by length for each lake #
 all.length.lake <- LeGi_Data %>% 
