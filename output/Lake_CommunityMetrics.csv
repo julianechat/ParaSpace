@@ -1,0 +1,124 @@
+"Method","Metric","Lake","Value"
+"Minnow_trap","Species richness","Achigan",1
+"Minnow_trap","Species richness","Beaver",2
+"Minnow_trap","Species richness","Coeur",3
+"Minnow_trap","Species richness","Cornu",3
+"Minnow_trap","Species richness","Corriveau",5
+"Minnow_trap","Species richness","Croche",4
+"Minnow_trap","Species richness","Cromwell",3
+"Minnow_trap","Species richness","Echo",4
+"Minnow_trap","Species richness","Fournelle",2
+"Minnow_trap","Species richness","Montaubois",2
+"Minnow_trap","Species richness","Morency",1
+"Minnow_trap","Species richness","Pin_rouge",3
+"Minnow_trap","Species richness","St-Onge",2
+"Minnow_trap","Species richness","Tracy",1
+"Minnow_trap","Species richness","Triton",2
+"Minnow_trap","Diversity","Achigan",0
+"Minnow_trap","Diversity","Beaver",0.375
+"Minnow_trap","Diversity","Coeur",0.556213017751479
+"Minnow_trap","Diversity","Cornu",0.473372781065089
+"Minnow_trap","Diversity","Corriveau",0.561675136410743
+"Minnow_trap","Diversity","Croche",0.253446999808119
+"Minnow_trap","Diversity","Cromwell",0.435727788279773
+"Minnow_trap","Diversity","Echo",0.306036139946175
+"Minnow_trap","Diversity","Fournelle",0.486111111111111
+"Minnow_trap","Diversity","Montaubois",0.104938271604938
+"Minnow_trap","Diversity","Morency",0
+"Minnow_trap","Diversity","Pin_rouge",0.1789802289282
+"Minnow_trap","Diversity","St-Onge",0.21875
+"Minnow_trap","Diversity","Tracy",0
+"Minnow_trap","Diversity","Triton",0.189164201183432
+"Minnow_trap","Evenness","Achigan",NA
+"Minnow_trap","Evenness","Beaver",0.811278124459133
+"Minnow_trap","Evenness","Coeur",0.81751953118667
+"Minnow_trap","Evenness","Cornu",0.755969902989267
+"Minnow_trap","Evenness","Corriveau",0.596421461917725
+"Minnow_trap","Evenness","Croche",0.38728855535951
+"Minnow_trap","Evenness","Cromwell",0.630629837585218
+"Minnow_trap","Evenness","Echo",0.44418221254423
+"Minnow_trap","Evenness","Fournelle",0.979868756651153
+"Minnow_trap","Evenness","Montaubois",0.309543429150325
+"Minnow_trap","Evenness","Morency",NA
+"Minnow_trap","Evenness","Pin_rouge",0.34546757713881
+"Minnow_trap","Evenness","St-Onge",0.543564443199596
+"Minnow_trap","Evenness","Tracy",NA
+"Minnow_trap","Evenness","Triton",0.487021283159773
+"Seine","Species richness","Achigan",4
+"Seine","Species richness","Beaver",3
+"Seine","Species richness","Coeur",3
+"Seine","Species richness","Cornu",2
+"Seine","Species richness","Corriveau",4
+"Seine","Species richness","Croche",3
+"Seine","Species richness","Cromwell",4
+"Seine","Species richness","Echo",7
+"Seine","Species richness","Fournelle",4
+"Seine","Species richness","Montaubois",2
+"Seine","Species richness","Morency",3
+"Seine","Species richness","Pin_rouge",3
+"Seine","Species richness","St-Onge",2
+"Seine","Species richness","Tracy",0
+"Seine","Species richness","Triton",2
+"Seine","Diversity","Achigan",0.606371129427489
+"Seine","Diversity","Beaver",0.429549026072375
+"Seine","Diversity","Coeur",0.490925925925926
+"Seine","Diversity","Cornu",0.13265306122449
+"Seine","Diversity","Corriveau",0.20255872037411
+"Seine","Diversity","Croche",0.319259259259259
+"Seine","Diversity","Cromwell",0.613001470279353
+"Seine","Diversity","Echo",0.410309527348395
+"Seine","Diversity","Fournelle",0.314792899408284
+"Seine","Diversity","Montaubois",0.156734693877551
+"Seine","Diversity","Morency",0.372696683223842
+"Seine","Diversity","Pin_rouge",0.210059171597633
+"Seine","Diversity","St-Onge",0.0950000000000001
+"Seine","Diversity","Tracy",1
+"Seine","Diversity","Triton",0.0935232464391293
+"Seine","Evenness","Achigan",0.783351686286848
+"Seine","Evenness","Beaver",0.581910383947227
+"Seine","Evenness","Coeur",0.660949897075341
+"Seine","Evenness","Cornu",0.371232326640876
+"Seine","Evenness","Corriveau",0.310566477797334
+"Seine","Evenness","Croche",0.534915351140464
+"Seine","Evenness","Cromwell",0.748956651874619
+"Seine","Evenness","Echo",0.37964578455045
+"Seine","Evenness","Fournelle",0.441113836477071
+"Seine","Evenness","Montaubois",0.422000516883153
+"Seine","Evenness","Morency",0.611030266715154
+"Seine","Evenness","Pin_rouge",0.392377826823129
+"Seine","Evenness","St-Onge",0.286396957115956
+"Seine","Evenness","Tracy",0
+"Seine","Evenness","Triton",0.282904792979892
+"Transect","Species richness","Achigan",4
+"Transect","Species richness","Coeur",4
+"Transect","Species richness","Cornu",5
+"Transect","Species richness","Corriveau",3
+"Transect","Species richness","Croche",3
+"Transect","Species richness","Cromwell",4
+"Transect","Species richness","Echo",6
+"Transect","Species richness","Fournelle",5
+"Transect","Species richness","Morency",4
+"Transect","Species richness","Pin_rouge",5
+"Transect","Species richness","Triton",3
+"Transect","Diversity","Achigan",0.63087207350203
+"Transect","Diversity","Coeur",0.52744291311543
+"Transect","Diversity","Cornu",0.544438600336036
+"Transect","Diversity","Corriveau",0.279972551710617
+"Transect","Diversity","Croche",0.490099143031303
+"Transect","Diversity","Cromwell",0.532273114527973
+"Transect","Diversity","Echo",0.587264138925549
+"Transect","Diversity","Fournelle",0.416686718759894
+"Transect","Diversity","Morency",0.340675827944346
+"Transect","Diversity","Pin_rouge",0.338446554662771
+"Transect","Diversity","Triton",0.00235017301038076
+"Transect","Evenness","Achigan",0.755579914864783
+"Transect","Evenness","Coeur",0.613783233564026
+"Transect","Evenness","Cornu",0.537053305659002
+"Transect","Evenness","Corriveau",0.412527034758763
+"Transect","Evenness","Croche",0.621887624404689
+"Transect","Evenness","Cromwell",0.608441074982698
+"Transect","Evenness","Echo",0.610956767465272
+"Transect","Evenness","Fournelle",0.436217629650035
+"Transect","Evenness","Morency",0.425866251648039
+"Transect","Evenness","Pin_rouge",0.39934571810731
+"Transect","Evenness","Triton",0.00829350858807001
