@@ -51,236 +51,239 @@ creeks <- st_read(paste0(to.carto, "Attribute_templates/Template_creeks.shp"))
 lakes <- st_read(paste0(to.carto, "Attribute_templates/Template_lacs.shp"))
 watersheds <- st_read(paste0(to.carto, "Attribute_templates/Watershed_template.shp"))
 
-# ---- Intra lake LeGi prevalence bubble map ----
+# ---- Lake bubble map ----
 
-col.pal <- c("chocolate", "goldenrod", "olivedrab") #Setting color palette
+#Pumpkinseed sunfish prevalence at site-scale
+#Bubbles are colored according to the method and sized according to the prevalence value
 
 ## Attribute table ----
 
 attributes <- CombinedData %>% 
-  select("Sampling_ID", "Lake", "Sampling_method", "Lat.trans", "Long.trans", "tot_LeGi", "inf_LeGi") %>% 
-  mutate(prev_LeGi = inf_LeGi/tot_LeGi, .keep = "unused") 
+  select(Sampling_ID, Lake, Sampling_method, tot_LeGi, inf_LeGi, Site_latitude, Site_longitude) %>% 
+  mutate(prev_LeGi = inf_LeGi/tot_LeGi, .keep = "unused") #Prevalence column
+
+col.pal <- c("olivedrab", "chocolate", "darkslategrey")
 
 ## Cromwell ----
 
 CROM.att <- attributes %>% 
-  filter(Lake == "Cromwell")
+  filter(Lake == "Cromwell") #Select lake
 
-CROM.plot <- ggplot() + 
+CROM.plot <- ggplot() + #Bubble map
   geom_sf(data = CROM, fill = "lightblue") +
   geom_point(data = CROM.att, 
-             aes(x = Long.trans, y = Lat.trans, size = prev_LeGi, color = Sampling_method)) +
+             aes(x = Site_longitude, y = Site_latitude, size = prev_LeGi, color = Sampling_method)) +
   scale_color_manual(values = col.pal) + 
-  geom_text(data = CROM.att, aes(x = Long.trans, y = Lat.trans, label = Sampling_ID), size = 2) +
+  geom_text(data = CROM.att, aes(x = Site_longitude, y = Site_latitude, label = Sampling_ID), size = 2) +
   theme_void()
 CROM.plot
 
 ## Croche ----
 
 CROC.att <- attributes %>% 
-  filter(Lake == "Croche")
+  filter(Lake == "Croche")  #Select lake
 
-CROC.plot <- ggplot() + 
+CROC.plot <- ggplot() + #Bubble map
   geom_sf(data = CROC, fill = "lightblue") +
-  geom_point(data = CROC.att, aes(x = Long.trans, y = Lat.trans, size = prev_LeGi, color = Sampling_method)) + 
+  geom_point(data = CROC.att, aes(x = Site_longitude, y = Site_latitude, size = prev_LeGi, color = Sampling_method)) + 
   scale_color_manual(values = col.pal) +
-  geom_text(data = CROC.att, aes(x = Long.trans, y = Lat.trans, label = Sampling_ID), size = 2) +
+  geom_text(data = CROC.att, aes(x = Site_longitude, y = Site_latitude, label = Sampling_ID), size = 2) +
   theme_void()
 CROC.plot
 
 ## Corriveau ---
 
 CORR.att <- attributes %>% 
-  filter(Lake == "Corriveau")
+  filter(Lake == "Corriveau") #Select lake
 
-CORR.plot <- ggplot() + 
+CORR.plot <- ggplot() + #Bubble map
   geom_sf(data = CORR, fill = "lightblue") +
-  geom_point(data = CORR.att, aes(x = Long.trans, y = Lat.trans, size = prev_LeGi, color = Sampling_method)) + 
+  geom_point(data = CORR.att, aes(x = Site_longitude, y = Site_latitude, size = prev_LeGi, color = Sampling_method)) + 
   scale_color_manual(values = col.pal) +
-  geom_text(data = CORR.att, aes(x = Long.trans, y = Lat.trans, label = Sampling_ID), size = 2) +
+  geom_text(data = CORR.att, aes(x = Site_longitude, y = Site_latitude, label = Sampling_ID), size = 2) +
   theme_void()
-CORR.plot ##Bubbles shifted
+CORR.plot
 
 ## Echo ----
 
 ECHO.att <- attributes %>% 
-  filter(Lake == "Echo")
+  filter(Lake == "Echo") #Select lake
 
-ECHO.plot <- ggplot() + 
+ECHO.plot <- ggplot() + #Bubble map
   geom_sf(data = ECHO, fill = "lightblue") +
-  geom_point(data = ECHO.att, aes(x = Long.trans, y = Lat.trans, size = prev_LeGi, color = Sampling_method)) + 
+  geom_point(data = ECHO.att, aes(x = Site_longitude, y = Site_latitude, size = prev_LeGi, color = Sampling_method)) + 
   scale_color_manual(values = col.pal) +
-  geom_text(data = ECHO.att, aes(x = Long.trans, y = Lat.trans, label = Sampling_ID), size = 2) +
+  geom_text(data = ECHO.att, aes(x = Site_longitude, y = Site_latitude, label = Sampling_ID), size = 2) +
   theme_void()
 ECHO.plot
 
 ## Achigan ----
 
 ACHI.att <- attributes %>% 
-  filter(Lake == "Achigan")
+  filter(Lake == "Achigan") #Select lake
 
-ACHI.plot <- ggplot() + 
+ACHI.plot <- ggplot() + #Bubble map
   geom_sf(data = ACHI, fill = "lightblue") +
-  geom_point(data = ACHI.att, aes(x = Long.trans, y = Lat.trans, size = prev_LeGi, color = Sampling_method)) + 
+  geom_point(data = ACHI.att, aes(x = Site_longitude, y = Site_latitude, size = prev_LeGi, color = Sampling_method)) + 
   scale_color_manual(values = col.pal) +
-  geom_text(data = ACHI.att, aes(x = Long.trans, y = Lat.trans, label = Sampling_ID), size = 2) +
+  geom_text(data = ACHI.att, aes(x = Site_longitude, y = Site_latitude, label = Sampling_ID), size = 2) +
   theme_void()
 ACHI.plot
 
 ## Fournelle ----
 
 FOUR.att <- attributes %>% 
-  filter(Lake == "Fournelle")
+  filter(Lake == "Fournelle") #Select lake
 
-FOUR.plot <- ggplot() + 
+FOUR.plot <- ggplot() + #Bubble map
   geom_sf(data = FOUR, fill = "lightblue") +
-  geom_point(data = FOUR.att, aes(x = Long.trans, y = Lat.trans, size = prev_LeGi, color = Sampling_method)) + 
+  geom_point(data = FOUR.att, aes(x = Site_longitude, y = Site_latitude, size = prev_LeGi, color = Sampling_method)) + 
   scale_color_manual(values = col.pal) +
-  geom_text(data = FOUR.att, aes(x = Long.trans, y = Lat.trans, label = Sampling_ID), size = 2) +
+  geom_text(data = FOUR.att, aes(x = Site_longitude, y = Site_latitude, label = Sampling_ID), size = 2) +
   theme_void()
 FOUR.plot
 
 ## Morency ---
 
 MORE.att <- attributes %>% 
-  filter(Lake == "Morency")
+  filter(Lake == "Morency") #Select lake
 
-MORE.plot <- ggplot() + 
+MORE.plot <- ggplot() + #Bubble map
   geom_sf(data = MORE, fill = "lightblue") +
-  geom_point(data = MORE.att, aes(x = Long.trans, y = Lat.trans, size = prev_LeGi, color = Sampling_method)) + 
+  geom_point(data = MORE.att, aes(x = Site_longitude, y = Site_latitude, size = prev_LeGi, color = Sampling_method)) + 
   scale_color_manual(values = col.pal) +
-  geom_text(data = MORE.att, aes(x = Long.trans, y = Lat.trans, label = Sampling_ID), size = 2) +
+  geom_text(data = MORE.att, aes(x = Site_longitude, y = Site_latitude, label = Sampling_ID), size = 2) +
   theme_void()
 MORE.plot 
 
 ## Cornu ----
 
 CORN.att <- attributes %>% 
-  filter(Lake == "Cornu")
+  filter(Lake == "Cornu") #Select lake
 
-CORN.plot <- ggplot() + 
+CORN.plot <- ggplot() + #Bubble map
   geom_sf(data = CORN, fill = "lightblue") +
-  geom_point(data = CORN.att, aes(x = Long.trans, y = Lat.trans, size = prev_LeGi, color = Sampling_method)) + 
+  geom_point(data = CORN.att, aes(x = Site_longitude, y = Site_latitude, size = prev_LeGi, color = Sampling_method)) + 
   scale_color_manual(values = col.pal) +
-  geom_text(data = CORN.att, aes(x = Long.trans, y = Lat.trans, label = Sampling_ID), size = 2) +
+  geom_text(data = CORN.att, aes(x = Site_longitude, y = Site_latitude, label = Sampling_ID), size = 2) +
   theme_void()
 CORN.plot
 
 ## Beaver ----
 
 BEAV.att <- attributes %>% 
-  filter(Lake == "Beaver")
+  filter(Lake == "Beaver") #Select lake
 
-BEAV.plot <- ggplot() + 
+BEAV.plot <- ggplot() + #Bubble map
   geom_sf(data = BEAV, fill = "lightblue") +
-  geom_point(data = BEAV.att, aes(x = Long.trans, y = Lat.trans, size = prev_LeGi, color = Sampling_method)) + 
+  geom_point(data = BEAV.att, aes(x = Site_longitude, y = Site_latitude, size = prev_LeGi, color = Sampling_method)) + 
   scale_color_manual(values = col.pal) +
-  geom_text(data = BEAV.att, aes(x = Long.trans, y = Lat.trans, label = Sampling_ID), size = 2) +
+  geom_text(data = BEAV.att, aes(x = Site_longitude, y = Site_latitude, label = Sampling_ID), size = 2) +
   theme_void()
 BEAV.plot #Some shifted coordinates
 
 ## Montaubois ----
 
 MONT.att <- attributes %>% 
-  filter(Lake == "Montaubois")
+  filter(Lake == "Montaubois") #Select lake
 
-MONT.plot <- ggplot() + 
+MONT.plot <- ggplot() + #Bubble map
   geom_sf(data = MONT, fill = "lightblue") +
-  geom_point(data = MONT.att, aes(x = Long.trans, y = Lat.trans, size = prev_LeGi, color = Sampling_method)) + 
+  geom_point(data = MONT.att, aes(x = Site_longitude, y = Site_latitude, size = prev_LeGi, color = Sampling_method)) + 
   scale_color_manual(values = col.pal) +
-  geom_text(data = MONT.att, aes(x = Long.trans, y = Lat.trans, label = Sampling_ID), size = 2) +
+  geom_text(data = MONT.att, aes(x = Site_longitude, y = Site_latitude, label = Sampling_ID), size = 2) +
   theme_void()
 MONT.plot
 
 ## Tracy ----
 
 TRAC.att <- attributes %>% 
-  filter(Lake == "Tracy")
+  filter(Lake == "Tracy") #Select lake
 
-TRAC.plot <- ggplot() + 
+TRAC.plot <- ggplot() + #Bubble map
   geom_sf(data = TRAC, fill = "lightblue") +
-  geom_point(data = TRAC.att, aes(x = Long.trans, y = Lat.trans, size = prev_LeGi, color = Sampling_method)) + 
+  geom_point(data = TRAC.att, aes(x = Site_longitude, y = Site_latitude, size = prev_LeGi, color = Sampling_method)) + 
   scale_color_manual(values = col.pal) +
-  geom_text(data = TRAC.att, aes(x = Long.trans, y = Lat.trans, label = Sampling_ID), size = 2) +
+  geom_text(data = TRAC.att, aes(x = Site_longitude, y = Site_latitude, label = Sampling_ID), size = 2) +
   theme_void()
 TRAC.plot
 
 ## Coeur ----
 
 COEU.att <- attributes %>% 
-  filter(Lake == "Coeur")
+  filter(Lake == "Coeur") #Select lake
 
-COEU.plot <- ggplot() + 
+COEU.plot <- ggplot() + #Bubble map
   geom_sf(data = COEU, fill = "lightblue") +
-  geom_point(data = COEU.att, aes(x = Long.trans, y = Lat.trans, size = prev_LeGi, color = Sampling_method)) + 
+  geom_point(data = COEU.att, aes(x = Site_longitude, y = Site_latitude, size = prev_LeGi, color = Sampling_method)) + 
   scale_color_manual(values = col.pal) +
-  geom_text(data = COEU.att, aes(x = Long.trans, y = Lat.trans, label = Sampling_ID), size = 2) +
+  geom_text(data = COEU.att, aes(x = Site_longitude, y = Site_latitude, label = Sampling_ID), size = 2) +
   theme_void()
 COEU.plot
 
 ## Pin rouge ----
 
 PINR.att <- attributes %>% 
-  filter(Lake == "Pin_rouge")
+  filter(Lake == "Pin_rouge") #Select lake
 
-PINR.plot <- ggplot() + 
+PINR.plot <- ggplot() + #Bubble map
   geom_sf(data = PINR, fill = "lightblue") +
-  geom_point(data = PINR.att, aes(x = Long.trans, y = Lat.trans, size = prev_LeGi, color = Sampling_method)) + 
+  geom_point(data = PINR.att, aes(x = Site_longitude, y = Site_latitude, size = prev_LeGi, color = Sampling_method)) + 
   scale_color_manual(values = col.pal) +
-  geom_text(data = PINR.att, aes(x = Long.trans, y = Lat.trans, label = Sampling_ID), size = 2) +
+  geom_text(data = PINR.att, aes(x = Site_longitude, y = Site_latitude, label = Sampling_ID), size = 2) +
   theme_void()
 PINR.plot
 
 ## St-Onge ----
 
 STON.att <- attributes %>% 
-  filter(Lake == "St-Onge")
+  filter(Lake == "St-Onge") #Select lake
 
-STON.plot <- ggplot() + 
+STON.plot <- ggplot() + #Bubble map
   geom_sf(data = STON, fill = "lightblue") +
-  geom_point(data = STON.att, aes(x = Long.trans, y = Lat.trans, size = prev_LeGi, color = Sampling_method)) + 
+  geom_point(data = STON.att, aes(x = Site_longitude, y = Site_latitude, size = prev_LeGi, color = Sampling_method)) + 
   scale_color_manual(values = col.pal) +
-  geom_text(data = STON.att, aes(x = Long.trans, y = Lat.trans, label = Sampling_ID), size = 2) +
+  geom_text(data = STON.att, aes(x = Site_longitude, y = Site_latitude, label = Sampling_ID), size = 2) +
   theme_void()
 STON.plot #Shifted coordinates
 
 # ---- Study area cartography ----
+
 #Prevalence maps at community level
 
 ## Map frame ----
 
-Study.map <- rbind(ACHI, BEAV, COEU, CORN, CORR, CROC, CROM, ECHO, FOUR, MONT, MORE, PINR, STON, TRAC, TRIT)
+Study.map <- rbind(ACHI, BEAV, COEU, CORN, CORR, CROC, CROM, ECHO, FOUR, MONT, MORE, PINR, STON, TRAC, TRIT) #Study map attribute table
 
-cropped.frame <- c(xmin = -74.08, 
+cropped.frame <- c(xmin = -74.08, #Frame for map
                    ymin = 45.87,
                    xmax = -73.94,
                    ymax = 46.00)
 
-cropped.frame2 <- c(xmin = -433485,
+cropped.frame2 <- c(xmin = -433485, #Frame for watershed
                     ymin = 223316,
                     xmax = -421000,
                     ymax =  239250)
 
-cropped.creeks <- st_crop(creeks, cropped.frame)
-cropped.lakes <- st_crop(lakes, cropped.frame)
-
-cropped.watersheds <- st_crop(watersheds, cropped.frame2)
+cropped.creeks <- st_crop(creeks, cropped.frame) #Crop creeks attributes to determined frame
+cropped.lakes <- st_crop(lakes, cropped.frame) #Crop lakes attributes to determined frame
+cropped.watersheds <- st_crop(watersheds, cropped.frame2) #Crop watershed attributes to determined frame
 
 ## Prevalence data ----
 
 lake.attributes <- CombinedData %>% #Selecting abundance data
-  select(Lake, Sampling_method, Lat.lake, Long.lake, starts_with(c("tot", "inf")))
+  select(Lake, Sampling_method, Site_latitude, Site_longitude, starts_with(c("tot", "inf")))
 
 ### Combined methods ----
 
 lake.attributes.C <- lake.attributes %>% #Lake abundance sums
   select(!(Sampling_method)) %>% 
-  group_by(Lake, Lat.lake, Long.lake) %>%
+  group_by(Lake) %>%
   summarise(across(.cols = everything(), sum, na.rm = TRUE))
 
 lake.attributes.C <- lake.attributes.C %>% #Creating fish abundance columns
-  mutate(tot_fish = tot_AmRu + tot_FuDi + tot_MiDo + tot_LeGi + tot_PeFl + tot_PiPr + tot_ChrosomusSp. + tot_PiNo + tot_SeAt + tot_LuCo + tot_AmNe + tot_CaCo + tot_EsMa + tot_UmLi + tot_RhAt + tot_Centrarchidae + tot_Cyprinidae) %>% 
-  mutate(inf_fish = inf_AmRu + inf_FuDi + inf_MiDo + inf_LeGi + inf_PeFl + inf_PiPr + inf_ChrosomusSp. + inf_PiNo + inf_SeAt + inf_LuCo + inf_AmNe + inf_CaCo + inf_EsMa + inf_UmLi + inf_RhAt + inf_Centrarchidae + inf_Cyprinidae) 
+  mutate(tot_fish = tot_AmRu + tot_FuDi + tot_MiDo + tot_LeGi + tot_PeFl + tot_PiPr + tot_ChrosomusSpp. + tot_PiNo + tot_SeAt + tot_LuCo + tot_AmNe + tot_CaCo + tot_EsMa + tot_UmLi + tot_RhAt + tot_Centrarchidae + tot_Cyprinidae) %>% 
+  mutate(inf_fish = inf_AmRu + inf_FuDi + inf_MiDo + inf_LeGi + inf_PeFl + inf_PiPr + inf_ChrosomusSpp. + inf_PiNo + inf_SeAt + inf_LuCo + inf_AmNe + inf_CaCo + inf_EsMa + inf_UmLi + inf_RhAt + inf_Centrarchidae + inf_Cyprinidae) 
 
 lake.attributes.C <- lake.attributes.C %>% #Creating prevalence columns
   mutate(prev_fish = inf_fish/tot_fish) %>% 
@@ -290,19 +293,19 @@ lake.attributes.C <- Study.map %>%
   mutate(prev_LeGi = lake.attributes.C$prev_LeGi) %>% 
   mutate(prev_fish = lake.attributes.C$prev_fish)
 
-lake.attributes.C[14,21] <- NA
+lake.attributes.C[14,21] <- NA #Changing Tracy value into NA to avoid coloring in maps
 
 ### Minnow trap ----
 
 lake.attributes.MT <- lake.attributes %>% #Lake abundance sums
   filter(Sampling_method == "Minnow_trap") %>% 
   select(!(Sampling_method)) %>% 
-  group_by(Lake, Lat.lake, Long.lake) %>%
+  group_by(Lake) %>%
   summarise(across(.cols = everything(), sum, na.rm = TRUE))
 
 lake.attributes.MT <- lake.attributes.MT %>% #Creating fish abundance columns
-  mutate(tot_fish = tot_AmRu + tot_FuDi + tot_MiDo + tot_LeGi + tot_PeFl + tot_PiPr + tot_ChrosomusSp. + tot_PiNo + tot_SeAt + tot_LuCo + tot_AmNe + tot_CaCo + tot_EsMa + tot_UmLi + tot_RhAt + tot_Centrarchidae + tot_Cyprinidae) %>% 
-  mutate(inf_fish = inf_AmRu + inf_FuDi + inf_MiDo + inf_LeGi + inf_PeFl + inf_PiPr + inf_ChrosomusSp. + inf_PiNo + inf_SeAt + inf_LuCo + inf_AmNe + inf_CaCo + inf_EsMa + inf_UmLi + inf_RhAt + inf_Centrarchidae + inf_Cyprinidae) 
+  mutate(tot_fish = tot_AmRu + tot_FuDi + tot_MiDo + tot_LeGi + tot_PeFl + tot_PiPr + tot_ChrosomusSpp. + tot_PiNo + tot_SeAt + tot_LuCo + tot_AmNe + tot_CaCo + tot_EsMa + tot_UmLi + tot_RhAt + tot_Centrarchidae + tot_Cyprinidae) %>% 
+  mutate(inf_fish = inf_AmRu + inf_FuDi + inf_MiDo + inf_LeGi + inf_PeFl + inf_PiPr + inf_ChrosomusSpp. + inf_PiNo + inf_SeAt + inf_LuCo + inf_AmNe + inf_CaCo + inf_EsMa + inf_UmLi + inf_RhAt + inf_Centrarchidae + inf_Cyprinidae) 
 
 lake.attributes.MT <- lake.attributes.MT %>% #Creating prevalence columns
   mutate(prev_fish = inf_fish/tot_fish) %>% 
@@ -312,19 +315,19 @@ lake.attributes.MT <- Study.map %>%
   mutate(prev_LeGi = lake.attributes.MT$prev_LeGi) %>% 
   mutate(prev_fish = lake.attributes.MT$prev_fish)
 
-lake.attributes.MT[14,21] <- NA
+lake.attributes.MT[14,21] <- NA #Changing Tracy value into NA to avoid coloring in maps
 
 ### Seine net ----
 
 lake.attributes.S <- lake.attributes %>% #Lake abundance sums
   filter(Sampling_method == "Seine") %>% 
   select(!(Sampling_method)) %>% 
-  group_by(Lake, Lat.lake, Long.lake) %>%
+  group_by(Lake) %>%
   summarise(across(.cols = everything(), sum, na.rm = TRUE))
 
 lake.attributes.S <- lake.attributes.S %>% #Creating fish abundance columns
-  mutate(tot_fish = tot_AmRu + tot_FuDi + tot_MiDo + tot_LeGi + tot_PeFl + tot_PiPr + tot_ChrosomusSp. + tot_PiNo + tot_SeAt + tot_LuCo + tot_AmNe + tot_CaCo + tot_EsMa + tot_UmLi + tot_RhAt + tot_Centrarchidae + tot_Cyprinidae) %>% 
-  mutate(inf_fish = inf_AmRu + inf_FuDi + inf_MiDo + inf_LeGi + inf_PeFl + inf_PiPr + inf_ChrosomusSp. + inf_PiNo + inf_SeAt + inf_LuCo + inf_AmNe + inf_CaCo + inf_EsMa + inf_UmLi + inf_RhAt + inf_Centrarchidae + inf_Cyprinidae) 
+  mutate(tot_fish = tot_AmRu + tot_FuDi + tot_MiDo + tot_LeGi + tot_PeFl + tot_PiPr + tot_ChrosomusSpp. + tot_PiNo + tot_SeAt + tot_LuCo + tot_AmNe + tot_CaCo + tot_EsMa + tot_UmLi + tot_RhAt + tot_Centrarchidae + tot_Cyprinidae) %>% 
+  mutate(inf_fish = inf_AmRu + inf_FuDi + inf_MiDo + inf_LeGi + inf_PeFl + inf_PiPr + inf_ChrosomusSpp. + inf_PiNo + inf_SeAt + inf_LuCo + inf_AmNe + inf_CaCo + inf_EsMa + inf_UmLi + inf_RhAt + inf_Centrarchidae + inf_Cyprinidae) 
 
 lake.attributes.S <- lake.attributes.S %>% #Creating prevalence columns
   mutate(prev_fish = inf_fish/tot_fish) %>% 
@@ -339,12 +342,12 @@ lake.attributes.S <- Study.map %>%
 lake.attributes.T <- lake.attributes %>% #Lake abundance sums
   filter(Sampling_method == "Transect") %>% 
   select(!(Sampling_method)) %>% 
-  group_by(Lake, Lat.lake, Long.lake) %>%
+  group_by(Lake) %>%
   summarise(across(.cols = everything(), sum, na.rm = TRUE))
 
 lake.attributes.T <- lake.attributes.T %>% #Creating fish abundance columns
-  mutate(tot_fish = tot_AmRu + tot_FuDi + tot_MiDo + tot_LeGi + tot_PeFl + tot_PiPr + tot_ChrosomusSp. + tot_PiNo + tot_SeAt + tot_LuCo + tot_AmNe + tot_CaCo + tot_EsMa + tot_UmLi + tot_RhAt + tot_Centrarchidae + tot_Cyprinidae) %>% 
-  mutate(inf_fish = inf_AmRu + inf_FuDi + inf_MiDo + inf_LeGi + inf_PeFl + inf_PiPr + inf_ChrosomusSp. + inf_PiNo + inf_SeAt + inf_LuCo + inf_AmNe + inf_CaCo + inf_EsMa + inf_UmLi + inf_RhAt + inf_Centrarchidae + inf_Cyprinidae) 
+  mutate(tot_fish = tot_AmRu + tot_FuDi + tot_MiDo + tot_LeGi + tot_PeFl + tot_PiPr + tot_ChrosomusSpp. + tot_PiNo + tot_SeAt + tot_LuCo + tot_AmNe + tot_CaCo + tot_EsMa + tot_UmLi + tot_RhAt + tot_Centrarchidae + tot_Cyprinidae) %>% 
+  mutate(inf_fish = inf_AmRu + inf_FuDi + inf_MiDo + inf_LeGi + inf_PeFl + inf_PiPr + inf_ChrosomusSpp. + inf_PiNo + inf_SeAt + inf_LuCo + inf_AmNe + inf_CaCo + inf_EsMa + inf_UmLi + inf_RhAt + inf_Centrarchidae + inf_Cyprinidae) 
 
 lake.attributes.T <- lake.attributes.T %>% #Creating prevalence columns
   mutate(prev_fish = inf_fish/tot_fish) %>% 
@@ -353,7 +356,6 @@ lake.attributes.T <- lake.attributes.T %>% #Creating prevalence columns
 lake.attributes.T <- Study.map %>% 
   mutate(prev_LeGi = lake.attributes.T$prev_LeGi) %>% 
   mutate(prev_fish = lake.attributes.T$prev_fish)
-
 
 ## Maps ----
 
@@ -391,7 +393,6 @@ ggsave(paste0(to.figs, "LakesMaps+BV.png"), plot = LakesMap, dpi = 300, width = 
 #ggsave(paste0(to.figs, "LakesMaps.png"), plot = LakesMap, dpi = 300, width = 10, height = 15, units = "cm") #change pad_y at 0.55 instead of 0.85 & omit watersheds polygon line
 
 ### Combined methods ----
-col.pal <- c("#682714", "#B65000", "#EB8500", "#F7BF35", "#FBE9AA", "#FEFEE3")
 
 FishMap.C <- ggplot() + 
   geom_sf(data = cropped.lakes, fill = "lightblue", alpha = 0.5, color = "lightblue") +
@@ -563,6 +564,7 @@ ggsave(paste0(to.figs, "PrevalenceMap_Fish_Transect+BV.png"), plot = FishMap.T, 
 
 
 ### Summary figure ----
+
 #With frequency distributions
 
 #A) Combined methods

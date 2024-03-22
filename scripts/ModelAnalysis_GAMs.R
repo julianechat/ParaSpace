@@ -7,6 +7,7 @@
 ## Email: juliane.vigneault@umontreal.ca
 
 # ---- Script setup ----
+
 ## R Setup ----
 
 to.data <- "./data/"
@@ -25,7 +26,6 @@ library(cowplot)
 library(patchwork)
 library(gratia)
 library(mgcv)
-library(gamlss)
 library(itsadug)
 library(colorspace)
 library(broom)
@@ -37,13 +37,13 @@ source(paste0(to.R, "inverse_logit_trans.R"))
 
 ## Loading data ----
 
-mod.data <- read.csv(paste0(to.output, "ModelAnalysis_Df.csv"))
+mod.data <- read.csv(paste0(to.output, "ModelAnalysis_Corrected.csv"))
 
 # ---- Data analysis ----
 
 mod.data$Lake <- as.factor(mod.data$Lake)
 mod.data$Watershed <- as.factor(mod.data$Watershed)
-mod.data$Transect_ID <- as.factor(mod.data$Transect_ID)
+mod.data$Transect_ID <- as.factor(mod.data$Sampling_ID)
 
 sequential_hcl(palette = "YlOrBr", 5)
 col.pal <- c("#682714", "#C75C00", "#F2A400", "#FAE094", "#FEFEE3")
@@ -69,7 +69,7 @@ NULL.GAMM$scale
 ## TN:TP ----
 ### Site scale model ----
 
-TNTP.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN_TP.T, bs = "cr") + s(Lake, bs = "re"),
+TNTP.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN_TP, bs = "cr") + s(Lake, bs = "re"),
                   family = quasibinomial, data = mod.data, method = "ML")
 summary(TNTP.GAMM) 
 #All variable significant
@@ -95,13 +95,13 @@ TNTP.sm <- smooth_estimates(TNTP.GAMM) %>%
 TNTP.pr <- mod.data %>%
   add_partial_residuals(TNTP.GAMM)
 TNTP.pe <- TNTP.sm %>%
-  filter(smooth == "s(TN_TP.T)") %>%
+  filter(smooth == "s(TN_TP)") %>%
   ggplot( unconditional = TRUE, overall_uncertainty = TRUE) +
-  geom_rug(aes(x = TN_TP.T),
+  geom_rug(aes(x = TN_TP),
            data = TNTP.pr,
            sides = "b", length = grid::unit(0.02, "npc")) +
-  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = TN_TP.T), fill = "#682714", alpha = 0.5) +
-  geom_line(aes(x = TN_TP.T, y = est), color = "#682714", lwd = 1.2) +
+  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = TN_TP), fill = "#682714", alpha = 0.5) +
+  geom_line(aes(x = TN_TP, y = est), color = "#682714", lwd = 1.2) +
   scale_y_continuous(trans = inverse_logit_trans) +
   labs(x = "TN:TP", y = "Partial effect (prevalence)", tag = "F") +
   theme(text = element_text(size = 20, 
@@ -123,7 +123,7 @@ TNTP.pe
 ### Visualizing summed effects ----
 
 #Combined smooth
-plot_smooth(TNTP.GAMM, view = "TN_TP.T", rm.ranef = FALSE, 
+plot_smooth(TNTP.GAMM, view = "TN_TP", rm.ranef = FALSE, 
             transform = plogis, 
             ylim = c(0,1), ylab = "Infection prevalence",
             xlim = c(25,55), xlab = "TN:TP",
@@ -132,7 +132,7 @@ plot_smooth(TNTP.GAMM, view = "TN_TP.T", rm.ranef = FALSE,
             hide.label = TRUE) 
 
 #Lake's smooths
-plot_smooth(TNTP.GAMM, view = "TN_TP.T", rm.ranef = FALSE, plot_all = "Lake",
+plot_smooth(TNTP.GAMM, view = "TN_TP", rm.ranef = FALSE, plot_all = "Lake",
             transform = plogis, 
             ylim = c(0,1), ylab = "Infection prevalence",
             xlim = c(25,55), xlab = "TN:TP",
@@ -149,7 +149,7 @@ summary(TNTP.GAMM.L)
 ## Nitrogen ----
 ### Site scale model ----
 
-TN.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN.T, bs = "cr") + s(Lake, bs = "re"),
+TN.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TN, bs = "cr") + s(Lake, bs = "re"),
                family = quasibinomial, data = mod.data, method = "ML")
 summary(TN.GAMM) 
 #TN unsignificative
@@ -179,7 +179,7 @@ summary(TN.GAMM.L)
 ## Phosphorus ----
 ### Site scale model ----
 
-TP.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TP.T, bs = "cr") + s(Lake, bs = "re"),
+TP.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TP, bs = "cr") + s(Lake, bs = "re"),
                family = quasibinomial, data = mod.data, method = "ML")
 summary(TP.GAMM) 
 #TP not significative
@@ -209,7 +209,7 @@ summary(TP.GAMM.L)
 ## Carbon ----
 ### Site scale model ----
 
-TOC.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TOC.T, bs = "cs") + s(Lake, bs = "re"),
+TOC.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TOC, bs = "cs") + s(Lake, bs = "re"),
                 family = quasibinomial, data = mod.data, method = "ML")
 summary(TOC.GAMM) 
 #TOC not significant
@@ -234,53 +234,8 @@ TOC.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(TOC.L, bs = "cr") + s
                   family = quasibinomial, data = mod.data, method = "ML")
 summary(TOC.GAMM.L) #unsignificative
 
-## Substrate 1 ----
-### Site scale model ----
-
-#SUB1.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Sub1, bs = "cs") + s(Lake, bs = "re"),
-                 #family = quasibinomial, data = mod.data, method = "ML")
-#summary(SUB1.GAMM) 
-#Sub1 is not significant
-#Adj. R-sq. = 0.62
-#Deviance explained  = 69.6%
-
-### Model validation ----
-
-#appraise(SUB1.GAMM)
-#SUB1.GAMM$scale
-#Model validation shows some residual patterns
-
-### Visualizing partial effects ----
-
-#Simple visualization
-#draw.SUB1 <- draw(SUB1.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) +
- # scale_y_continuous(trans = inverse_logit_trans)
-#draw.SUB1
-
-## Substrate 2 ----
-### Site scale model ----
-
-#SUB2.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Sub2, bs = "cs") + s(Lake, bs = "re"),
-                # family = quasibinomial, data = mod.data, method = "ML")
-#summary(SUB2.GAMM) 
-#Sub2 is not significant
-#Adj. R-sq. = 0.62
-#Deviance explained = 69.6%
-
-### Model validation ----
-
-#appraise(SUB2.GAMM)
-#SUB2.GAMM$scale
-#Model validation shows some residual patterns
-
-### Visualizing partial effects ----
-
-#Simple visualization
-#draw.SUB2 <- draw(SUB2.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
- # scale_y_continuous(trans = inverse_logit_trans)
-#draw.SUB2
-
 ## Silt ----
+
 ### Site scale model ----
 
 SILT.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Silt, bs = "cs") + s(Lake, bs = "re"),
@@ -305,6 +260,7 @@ draw.SILT
 #Signiticativity not OK
 
 ## Sand ----
+
 ### Site scale model ----
 
 SAND.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Sand, bs = "cs") + s(Lake, bs = "re"),
@@ -355,28 +311,29 @@ draw.ROCK
 ## Boulder ----
 ### Site scale model ----
 
-BLOCK.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Metric_block, bs = "cs") + s(Lake, bs = "re"),
+BOULD.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Boulder, bs = "cs") + s(Lake, bs = "re"),
                  family = quasibinomial, data = mod.data, method = "ML")
-summary(BLOCK.GAMM) 
+summary(BOULD.GAMM) 
 #Unsignificative
 #Adj. R-Sq. = 0.62
 #Deviance explained = 69.6%
 
 ### Model validation ----
 
-appraise(BLOCK.GAMM)
-BLOCK.GAMM$scale
+appraise(BOULD.GAMM)
+BOULD.GAMM$scale
 #Model validation shows some residual patterns
 
 ### Visualizing partial effects ----
 
 #Simple visualization
-draw.BLOCK <- draw(BLOCK.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
+draw.BOULD <- draw(BOULD.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
   scale_y_continuous(trans = inverse_logit_trans)
-draw.BLOCK
+draw.BOULD
 #Signiticativity not OK
 
 ## Macrophyte ----
+
 ### Site scale model ----
 
 MACRO.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Macrophyte, bs = "cs") + s(Lake, bs = "re"),
@@ -451,9 +408,10 @@ plot_smooth(MACRO.GAMM, view = "Macrophyte", rm.ranef = FALSE, plot_all = "Lake"
             hide.label = TRUE) 
 
 ## Transect depth ----
+
 ### Site scale model ----
 
-DEPTH.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(MeanDepth.site, bs = "cs") + s(Lake, bs = "re"),
+DEPTH.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Site_depth, bs = "cs") + s(Lake, bs = "re"),
                   family = quasibinomial, data = mod.data, method = "ML")
 summary(DEPTH.GAMM) 
 #Depth is not significant
@@ -474,6 +432,7 @@ draw.DEPTH <- draw(DEPTH.GAMM, unconditional = TRUE, overall_uncertainty = TRUE,
 draw.DEPTH
 
 ## Trunk ----
+
 ### Site scale model ----
 
 TRUNK.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Trunk, bs = "cs") + s(Lake, bs = "re"),
@@ -497,9 +456,10 @@ draw.TRUNK <- draw(TRUNK.GAMM, unconditional = TRUE, overall_uncertainty = TRUE,
 draw.TRUNK
 
 ## Temperature ----
+
 ### Site scale model ----
 
-TEMP.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Temp.T, bs = "cs") + s(Lake, bs = "re"),
+TEMP.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Temperature, bs = "cs") + s(Lake, bs = "re"),
                  family = quasibinomial, data = mod.data, method = "ML")
 summary(TEMP.GAMM) 
 #All variables are significant
@@ -526,13 +486,13 @@ TEMP.sm <- smooth_estimates(TEMP.GAMM) %>%
 TEMP.pr <- mod.data %>%
   add_partial_residuals(TEMP.GAMM)
 TEMP.pe <- TEMP.sm %>%
-  filter(smooth == "s(Temp.T)") %>%
+  filter(smooth == "s(Temperature)") %>%
   ggplot( unconditional = TRUE, overall_uncertainty = TRUE) +
-  geom_rug(aes(x = Temp.T),
+  geom_rug(aes(x = Temperature),
            data = TEMP.pr,
            sides = "b", length = grid::unit(0.02, "npc")) +
-  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = Temp.T), fill = "#682714", alpha = 0.5) +
-  geom_line(aes(x = Temp.T, y = est), color = "#682714", lwd = 1.2) +
+  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = Temperature), fill = "#682714", alpha = 0.5) +
+  geom_line(aes(x = Temperature, y = est), color = "#682714", lwd = 1.2) +
   scale_y_continuous(trans = inverse_logit_trans) +
   labs(x = "Temperature (°C)", y = "Partial effect (prevalence)", tag = "B") +
   theme(text = element_text(size = 20, 
@@ -554,7 +514,7 @@ TEMP.pe
 ### Visualizing summed effect ----
 
 #Combined smooth
-plot_smooth(TEMP.GAMM, view = "Temp.T", rm.ranef = FALSE, 
+plot_smooth(TEMP.GAMM, view = "Temperature", rm.ranef = FALSE, 
             transform = plogis, 
             ylim = c(0,1), ylab = "Infection prevalence",
             xlim = c(19,26), xlab = "Temperature",
@@ -563,7 +523,7 @@ plot_smooth(TEMP.GAMM, view = "Temp.T", rm.ranef = FALSE,
             hide.label = TRUE) 
 
 #Lake's smooths
-plot_smooth(TEMP.GAMM, view = "Temp.T", rm.ranef = FALSE, plot_all = "Lake",
+plot_smooth(TEMP.GAMM, view = "Temperature", rm.ranef = FALSE, plot_all = "Lake",
             transform = plogis, 
             ylim = c(0,1), ylab = "Infection prevalence",
             xlim = c(19,26), xlab = "Temperature",
@@ -578,9 +538,10 @@ summary(TEMP.GAMM.L)
 #Unsignificative
 
 ## Turbidity ----
+
 ### Site scale model ----
 
-TURB.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Turb.T, bs = "cs") + s(Lake, bs = "re"),
+TURB.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Turbidity, bs = "cs") + s(Lake, bs = "re"),
                  family = quasibinomial, data = mod.data, method = "ML")
 summary(TURB.GAMM) 
 #All variables are significant
@@ -607,13 +568,13 @@ TURB.sm <- smooth_estimates(TURB.GAMM) %>%
 TURB.pr <- mod.data %>%
   add_partial_residuals(TURB.GAMM)
 TURB.pe <- TURB.sm %>%
-  filter(smooth == "s(Turb.T)") %>%
+  filter(smooth == "s(Turbidity)") %>%
   ggplot( unconditional = TRUE, overall_uncertainty = TRUE) +
-  geom_rug(aes(x = Turb.T),
+  geom_rug(aes(x = Turbidity),
            data = TURB.pr,
            sides = "b", length = grid::unit(0.02, "npc")) +
-  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = Turb.T), fill = "#682714", alpha = 0.5) +
-  geom_line(aes(x = Turb.T, y = est), color = "#682714", lwd = 1.2) +
+  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = Turbidity), fill = "#682714", alpha = 0.5) +
+  geom_line(aes(x = Turbidity, y = est), color = "#682714", lwd = 1.2) +
   scale_y_continuous(trans = inverse_logit_trans) +
   labs(x = "Turbidity (NTU)", y = "Partial effect (prevalence)", tag = "A") +
   theme(text = element_text(size = 20, 
@@ -635,7 +596,7 @@ TURB.pe
 ### Visualizing summed effects ----
 
 #Combined smooth
-plot_smooth(TURB.GAMM, view = "Turb.T", rm.ranef = FALSE, 
+plot_smooth(TURB.GAMM, view = "Turbidity", rm.ranef = FALSE, 
             transform = plogis, 
             ylim = c(0,1), ylab = "Infection prevalence",
             xlim = c(0,5), xlab = "Turbidity",
@@ -644,7 +605,7 @@ plot_smooth(TURB.GAMM, view = "Turb.T", rm.ranef = FALSE,
             hide.label = TRUE) 
 
 #Lake's smooths
-plot_smooth(TURB.GAMM, view = "Turb.T", rm.ranef = FALSE, plot_all = "Lake",
+plot_smooth(TURB.GAMM, view = "Turbidity", rm.ranef = FALSE, plot_all = "Lake",
             transform = plogis, 
             ylim = c(0,1), ylab = "Infection prevalence",
             xlim = c(0,5), xlab = "Turbidity",
@@ -659,9 +620,10 @@ summary(TURB.GAMM.L)
 #Unsignificative
 
 ## pH ----
+
 ### Site scale model ----
 
-PH.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(pH.T, bs = "cs") + s(Lake, bs = "re"),
+PH.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(pH, bs = "cs") + s(Lake, bs = "re"),
                family = quasibinomial, data = mod.data, method = "ML")
 summary(PH.GAMM) 
 #All variables are significant
@@ -688,13 +650,13 @@ PH.sm <- smooth_estimates(PH.GAMM) %>%
 PH.pr <- mod.data %>%
   add_partial_residuals(PH.GAMM)
 PH.pe <- PH.sm %>%
-  filter(smooth == "s(pH.T)") %>%
+  filter(smooth == "s(pH)") %>%
   ggplot( unconditional = TRUE, overall_uncertainty = TRUE) +
-  geom_rug(aes(x = pH.T),
+  geom_rug(aes(x = pH),
            data = PH.pr,
            sides = "b", length = grid::unit(0.02, "npc")) +
-  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = pH.T), fill = "#682714", alpha = 0.5) +
-  geom_line(aes(x = pH.T, y = est), color = "#682714", lwd = 1.2) +
+  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = pH), fill = "#682714", alpha = 0.5) +
+  geom_line(aes(x = pH, y = est), color = "#682714", lwd = 1.2) +
   scale_y_continuous(trans = inverse_logit_trans) +
   labs(x = "pH", y = "Partial effect(prevalence)", tag = "C") +
   theme(text = element_text(size = 20, 
@@ -716,7 +678,7 @@ PH.pe
 ### Visualizing summed effects ----
 
 #Combined smooth
-plot_smooth(PH.GAMM, view = "pH.T", rm.ranef = FALSE, 
+plot_smooth(PH.GAMM, view = "pH", rm.ranef = FALSE, 
             transform = plogis,
             ylim = c(0,1), ylab = "Infection prevalence",
             xlim = c(5,8.5), xlab = "pH",
@@ -725,7 +687,7 @@ plot_smooth(PH.GAMM, view = "pH.T", rm.ranef = FALSE,
             hide.label = TRUE) 
 
 #Lake's smooths
-plot_smooth(PH.GAMM, view = "pH.T", rm.ranef = FALSE, plot_all = "Lake",
+plot_smooth(PH.GAMM, view = "pH", rm.ranef = FALSE, plot_all = "Lake",
             transform = plogis, 
             ylim = c(0,1), ylab = "Infection prevalence",
             xlim = c(5,8.5), xlab = "pH",
@@ -740,9 +702,10 @@ summary(PH.GAMM.L)
 #Significative
 
 ## Dissolved oxygen ----
+
 ### Site scale model ----
 
-DO.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(DO.T, bs = "cs") + s(Lake, bs = "re"),
+DO.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(DO, bs = "cs") + s(Lake, bs = "re"),
                family = quasibinomial, data = mod.data, method = "ML")
 summary(DO.GAMM) 
 #All variables are significant
@@ -768,13 +731,13 @@ DO.sm <- smooth_estimates(DO.GAMM) %>%
 DO.pr <- mod.data %>%
   add_partial_residuals(DO.GAMM)
 DO.pe <- DO.sm %>%
-  filter(smooth == "s(DO.T)") %>%
+  filter(smooth == "s(DO)") %>%
   ggplot(unconditional = TRUE, overall_uncertainty = TRUE) +
-  geom_rug(aes(x = DO.T),
+  geom_rug(aes(x = DO),
            data = DO.pr,
            sides = "b", length = grid::unit(0.02, "npc")) +
-  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = DO.T), fill = "#682714", alpha = 0.5) +
-  geom_line(aes(x = DO.T, y = est), color = "#682714", lwd = 1.2) +
+  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = DO), fill = "#682714", alpha = 0.5) +
+  geom_line(aes(x = DO, y = est), color = "#682714", lwd = 1.2) +
   scale_y_continuous(trans = inverse_logit_trans) +
   labs(x = "Dissolved oxygen (mg/L)", y = "Partial effect (prevalence)", tag = "E") +
   theme(text = element_text(size = 20, 
@@ -796,7 +759,7 @@ DO.pe
 ### Visualizing summed effects ----
 
 #Combined smooth
-plot_smooth(DO.GAMM, view = "DO.T", rm.ranef = FALSE, 
+plot_smooth(DO.GAMM, view = "DO", rm.ranef = FALSE, 
             transform = plogis, 
             ylim = c(0,1), ylab = "Infection prevalence",
             xlim = c(4,10), xlab = "DO",
@@ -805,7 +768,7 @@ plot_smooth(DO.GAMM, view = "DO.T", rm.ranef = FALSE,
             hide.label = TRUE) 
 
 #Lake's smooths
-plot_smooth(DO.GAMM, view = "DO.T", rm.ranef = FALSE, plot_all = "Lake",
+plot_smooth(DO.GAMM, view = "DO", rm.ranef = FALSE, plot_all = "Lake",
             transform = plogis, 
             ylim = c(0,1), ylab = "Infection prevalence",
             xlim = c(5,8.5), xlab = "DO",
@@ -820,9 +783,10 @@ summary(DO.GAMM.L)
 #Unsignificative
 
 ## Conductivity ----
+
 ### Site scale model ----
 
-COND.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Cond.T, bs = "cs") + s(Lake, bs = "re"),
+COND.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Conductivity, bs = "cs") + s(Lake, bs = "re"),
                  family = quasibinomial, data = mod.data, method = "ML")
 summary(COND.GAMM) 
 #Conductivity is significant (but not Lake). I tested without the random effect from the lake and it didn't change the model estimates.
@@ -848,13 +812,13 @@ COND.sm <- smooth_estimates(COND.GAMM) %>%
 COND.pr <- mod.data %>%
   add_partial_residuals(COND.GAMM)
 COND.pe <- COND.sm %>%
-  filter(smooth == "s(Cond.T)") %>%
+  filter(smooth == "s(Conductivity)") %>%
   ggplot(unconditional = TRUE, overall_uncertainty = TRUE) +
-  geom_rug(aes(x = Cond.T),
+  geom_rug(aes(x = Conductivity),
            data = COND.pr,
            sides = "b", length = grid::unit(0.02, "npc")) +
-  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = Cond.T), fill = "#682714", alpha = 0.5) +
-  geom_line(aes(x = Cond.T, y = est), color = "#682714", lwd = 1.2) +
+  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = Conductivity), fill = "#682714", alpha = 0.5) +
+  geom_line(aes(x = Conductivity, y = est), color = "#682714", lwd = 1.2) +
   scale_y_continuous(trans = inverse_logit_trans) +
   labs(x = "Conductivity (μS/cm)", y = "Partial effect (prevalence)", tag = "D") +
   theme(text = element_text(size = 20, 
@@ -876,7 +840,7 @@ COND.pe
 ### Visualizing summed effect ----
 
 #Combined smooth
-plot_smooth(COND.GAMM, view = "Cond.T", rm.ranef = FALSE, 
+plot_smooth(COND.GAMM, view = "Conductivity", rm.ranef = FALSE, 
             transform = plogis, 
             ylim = c(0,1), ylab = "Infection prevalence",
             xlim = c(0,200), xlab = "Conductivity",
@@ -885,7 +849,7 @@ plot_smooth(COND.GAMM, view = "Cond.T", rm.ranef = FALSE,
             hide.label = TRUE) 
 
 #Lake's smooths
-plot_smooth(COND.GAMM, view = "Cond.T", rm.ranef = FALSE, plot_all = "Lake",
+plot_smooth(COND.GAMM, view = "Conductivity", rm.ranef = FALSE, plot_all = "Lake",
             transform = plogis, 
             ylim = c(0,1), ylab = "Infection prevalence",
             xlim = c(0,200), xlab = "Conductivity",
@@ -894,7 +858,7 @@ plot_smooth(COND.GAMM, view = "Cond.T", rm.ranef = FALSE, plot_all = "Lake",
 
 ### Lake scale model ----
 
-COND.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Cond.L, bs = "cr") + s(Lake, bs = "re"),
+COND.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Conductivity, bs = "cr") + s(Lake, bs = "re"),
                    family = quasibinomial, data = mod.data, method = "ML")
 summary(COND.GAMM.L) 
 #Significative (but not lake)
@@ -974,6 +938,7 @@ plot_smooth(AREAPERI.GAMM, view = "Area_Perimeter", rm.ranef = FALSE, plot_all =
             hide.label = TRUE) 
 
 ## Surface area ----
+
 ### Site scale model ----
 
 AREA.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Lake_area, bs = "cs") + s(Lake, bs = "fs"),
@@ -984,6 +949,7 @@ summary(AREA.GAMM)
 #Deviance explained = 69.6%
 
 ### Model validation ----
+
 appraise(AREA.GAMM)
 AREA.GAMM$scale
 #Model validation show some residual patterns
@@ -997,6 +963,7 @@ draw.AREA
 #Significativity not OK
 
 ## Perimeter ----
+
 ### Site scale model ----
 
 PERI.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Perimeter, bs = "cs") + s(Lake, bs = "re"),
@@ -1071,9 +1038,10 @@ plot_smooth(PERI.GAMM, view = "Perimeter", rm.ranef = FALSE, plot_all = "Lake",
             hide.label = TRUE) 
 
 ## Mean lake depth ----
+
 ### Site scale model ----
 
-MDEPTH.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(MeanDepth.lake, bs = "cs") + s(Lake, bs = "re"),
+MDEPTH.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Mean_depth, bs = "cs") + s(Lake, bs = "re"),
                    family = quasibinomial, data = mod.data, method = "ML")
 summary(MDEPTH.GAMM) 
 #Mean depth is not significant
@@ -1095,6 +1063,7 @@ draw.MDEPTH
 #Significativity not OK
 
 ## Maximum lake depth ----
+
 ### Site scale model ----
 
 XDEPTH.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Max_depth, bs = "cs") + s(Lake, bs = "re"),
@@ -1119,6 +1088,7 @@ draw.XDEPTH
 #Significativity not OK
 
 ## Nearest lake ----
+
 ### Site scale model ----
 
 NEAR.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Connectivity, bs = "cs") + s(Lake, bs = "re"),
@@ -1142,6 +1112,7 @@ draw.NEAR
 #Significativity not OK.
 
 ## Water residence time ----
+
 ### Site scale model ----
 
 WRT.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(WRT, bs = "cs") + s(Lake, bs = "re"),
@@ -1165,6 +1136,7 @@ draw.WRT
 #Significativity not OK
 
 ## Drainage area ----
+
 ### Site scale model ----
 
 DRAIN.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Drainage_area, bs = "cs") + s(Lake, bs = "re"),
@@ -1286,6 +1258,7 @@ plot_smooth(FISH.GAMM, view = "tot_fish", rm.ranef = FALSE, plot_all = "Lake",
             hide.label = TRUE) 
 
 ## Non-host abundance ----
+
 ### Site scale model ----
 
 NONHOST.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(tot_Cyprinidae, bs = "cs") + s(Lake, bs = "re"),
@@ -1360,9 +1333,10 @@ plot_smooth(NONHOST.GAMM, view = "tot_Cyprinidae", rm.ranef = FALSE, plot_all = 
             hide.label = TRUE) 
 
 ## Species richness ----
+
 ### Site scale model ----
 
-SP.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Species_richness.T, bs = "cs", k = 5) + s(Lake, bs = "re"),
+SP.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Species_richness, bs = "cs", k = 5) + s(Lake, bs = "re"),
                family = quasibinomial, data = mod.data, method = "ML")
 summary(SP.GAMM) 
 #Species richness is not significant
@@ -1385,14 +1359,15 @@ draw.SP
 
 ### Lake scale model ----
 
-SP.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Species_richness.L, bs = "cr", k = 4) + s(Lake, bs = "re"),
+SP.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(SpR.L, bs = "cr", k = 4) + s(Lake, bs = "re"),
                  family = quasibinomial, data = mod.data, method = "ML")
 summary(SP.GAMM.L) #Species richness is significant
 
 ## Diversity Index ----
+
 ### Site scale model ----
 
-DIVERS.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Diversity.T, bs = "cs") + s(Lake, bs = "re"),
+DIVERS.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Diversity, bs = "cs") + s(Lake, bs = "re"),
                    family = quasibinomial, data = mod.data, method = "ML")
 summary(DIVERS.GAMM) 
 #All variables are significant
@@ -1419,13 +1394,13 @@ DIVERS.sm <- smooth_estimates(DIVERS.GAMM) %>%
 DIVERS.pr <- mod.data %>%
   add_partial_residuals(DIVERS.GAMM)
 DIVERS.pe <- DIVERS.sm %>%
-  filter(smooth == "s(Diversity.T)") %>%
+  filter(smooth == "s(Diversity)") %>%
   ggplot(unconditional = TRUE, overall_uncertainty = TRUE) +
-  geom_rug(aes(x = Diversity.T),
+  geom_rug(aes(x = Diversity),
            data = DIVERS.pr,
            sides = "b", length = grid::unit(0.02, "npc")) +
-  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = Diversity.T), fill = "#682714", alpha = 0.5) +
-  geom_line(aes(x = Diversity.T, y = est), color = "#682714", lwd = 1.2) +
+  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = Diversity), fill = "#682714", alpha = 0.5) +
+  geom_line(aes(x = Diversity, y = est), color = "#682714", lwd = 1.2) +
   scale_y_continuous(trans = inverse_logit_trans) +
   labs(x = "Simpson's Diversity Index", y = "Partial effect (prevalence)", tag = "L") +
   theme(text = element_text(size = 20, 
@@ -1447,7 +1422,7 @@ DIVERS.pe
 ### Visualizing summed effects ----
 
 #Combined smooth
-plot_smooth(DIVERS.GAMM, view = "Diversity.T", rm.ranef = FALSE, 
+plot_smooth(DIVERS.GAMM, view = "Diversity", rm.ranef = FALSE, 
             transform = plogis, 
             ylim = c(0,1), ylab = "Infection prevalence",
             xlim = c(0, 0.7), xlab = "Diversity",
@@ -1456,7 +1431,7 @@ plot_smooth(DIVERS.GAMM, view = "Diversity.T", rm.ranef = FALSE,
             hide.label = TRUE) 
 
 #Lake's smooths
-plot_smooth(DIVERS.GAMM, view = "Diversity.T", rm.ranef = FALSE, plot_all = "Lake",
+plot_smooth(DIVERS.GAMM, view = "Diversity", rm.ranef = FALSE, plot_all = "Lake",
             transform = plogis, 
             ylim = c(0,1), ylab = "Infection prevalence",
             xlim = c(0, 0.7), xlab = "Diversity",
@@ -1470,49 +1445,82 @@ DIVERS.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Diversity.L, bs = 
 summary(DIVERS.GAMM.L) 
 #Unsignificative
 
+## Evenness ----
+
+### Site scale model ----
+
+EVEN.GAMM <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Evenness, bs = "cs") + s(Lake, bs = "re"),
+                   family = quasibinomial, data = mod.data, method = "ML")
+summary(EVEN.GAMM) 
+#All variables are significant
+#Adj. R-sq. = 0.625
+#Deviance explained = 69.9%
+
+### Model validation ----
+
+appraise(EVEN.GAMM)
+EVEN.GAMM$scale
+#Model validation shows some residual patterns.
+
+### Visualizing partial effects ----
+
+#Simple visualization
+draw.EVEN <- draw(EVEN.GAMM, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
+  scale_y_continuous(trans = inverse_logit_trans) 
+draw.EVEN
+#Significativity not OK
+
+### Lake scale model ----
+
+EVEN.GAMM.L <- gam(cbind(inf_fish, tot_fish - inf_fish) ~ s(Evenness.L, bs = "cr") + s(Lake, bs = "re"),
+                     family = quasibinomial, data = mod.data, method = "ML")
+summary(EVEN.GAMM.L) 
+#Unsignificative
+
 # ---- Figures ----
+
 ## Significant GAMMs summed plots summary ----
 
 pdf(paste0(to.figs, "GAMMs_SummedEffects.pdf"), width = 30, height = 15)
 
 par(mfrow = c(3, 4), mar = c(5,5,3,1))
 
-plot_smooth(TURB.GAMM, view = "Turb.T", rm.ranef = FALSE, 
+plot_smooth(TURB.GAMM, view = "Turbidity", rm.ranef = FALSE, 
             transform = plogis, 
             ylim = c(0,1), ylab = "Infection prevalence",
             xlim = c(0,5), xlab = "Turbidity",
             col = "orange",
             rug = FALSE, 
             hide.label = TRUE) 
-plot_smooth(TEMP.GAMM, view = "Temp.T", rm.ranef = FALSE, 
+plot_smooth(TEMP.GAMM, view = "Temperature", rm.ranef = FALSE, 
             transform = plogis, 
             ylim = c(0,1), ylab = "Infection prevalence",
             xlim = c(19,26), xlab = "Temperature",
             col = "orange",
             rug = FALSE, 
             hide.label = TRUE) 
-plot_smooth(PH.GAMM, view = "pH.T", rm.ranef = FALSE, 
+plot_smooth(PH.GAMM, view = "pH", rm.ranef = FALSE, 
             transform = plogis,
             ylim = c(0,1), ylab = "Infection prevalence",
             xlim = c(5,8.5), xlab = "pH",
             col = "orange",
             rug = FALSE, 
             hide.label = TRUE) 
-plot_smooth(COND.GAMM, view = "Cond.T", rm.ranef = FALSE, 
+plot_smooth(COND.GAMM, view = "Conductivity", rm.ranef = FALSE, 
             transform = plogis, 
             ylim = c(0,1), ylab = "Infection prevalence",
             xlim = c(0,200), xlab = "Conductivity",
             col = "orange",
             rug = FALSE, 
             hide.label = TRUE) 
-plot_smooth(DO.GAMM, view = "DO.T", rm.ranef = FALSE, 
+plot_smooth(DO.GAMM, view = "DO", rm.ranef = FALSE, 
             transform = plogis, 
             ylim = c(0,1), ylab = "Infection prevalence",
             xlim = c(4,10), xlab = "DO",
             col = "orange",
             rug = FALSE, 
             hide.label = TRUE) 
-plot_smooth(TNTP.GAMM, view = "TN_TP.T", rm.ranef = FALSE, 
+plot_smooth(TNTP.GAMM, view = "TN_TP", rm.ranef = FALSE, 
             transform = plogis, 
             ylim = c(0,1), ylab = "Infection prevalence",
             xlim = c(25,55), xlab = "TN:TP",
@@ -1554,7 +1562,7 @@ plot_smooth(NONHOST.GAMM, view = "tot_Cyprinidae", rm.ranef = FALSE,
             col = "orange",
             rug = FALSE, 
             hide.label = TRUE) 
-plot_smooth(DIVERS.GAMM, view = "Diversity.T", rm.ranef = FALSE, 
+plot_smooth(DIVERS.GAMM, view = "Diversity", rm.ranef = FALSE, 
             transform = plogis, 
             ylim = c(0,1), ylab = "Infection prevalence",
             xlim = c(0, 0.7), xlab = "Diversity",
@@ -1566,7 +1574,7 @@ dev.off()
 ## Correlation plot of significant variables ----
 
 significant.data <- mod.data %>% 
-  select_("TN_TP.T", "Macrophyte", "Temp.T", "Turb.T", "pH.T", "DO.T", "Cond.T", "Area_Perimeter", "Perimeter", "Diversity.T", "tot_fish", "tot_Cyprinidae")
+  select_("TN_TP", "Macrophyte", "Temperature", "Turbidity", "pH", "DO", "Conductivity", "Area_Perimeter", "Perimeter", "Diversity", "tot_fish", "tot_Cyprinidae")
 
 par(mfrow = c(1, 1), mar = c(3,3,3,1))
 pdf(paste0(to.figs, "GAMMs_Corrplot.pdf"), width = 10, height = 10)
@@ -1650,13 +1658,13 @@ tab.ROCK.smooth <- tidy(ROCK.GAMM, parametric = FALSE) %>%
          Deviance = summary(ROCK.GAMM)$dev.expl)
 tab.ROCK <- merge(tab.ROCK.par, tab.ROCK.smooth, all = TRUE)
 
-tab.BLOCK.par <- tidy(BLOCK.GAMM, parametric = TRUE) %>% 
+tab.BOULD.par <- tidy(BOULD.GAMM, parametric = TRUE) %>% 
   mutate(Model = "Boulder", .before = "term",
-         Deviance = summary(BLOCK.GAMM)$dev.expl)
-tab.BLOCK.smooth <- tidy(BLOCK.GAMM, parametric = FALSE) %>% 
+         Deviance = summary(BOULD.GAMM)$dev.expl)
+tab.BOULD.smooth <- tidy(BOULD.GAMM, parametric = FALSE) %>% 
   mutate(Model = "Boulder", .before = "term",
-         Deviance = summary(BLOCK.GAMM)$dev.expl)
-tab.BLOCK <- merge(tab.BLOCK.par, tab.BLOCK.smooth, all = TRUE)
+         Deviance = summary(BOULD.GAMM)$dev.expl)
+tab.BOULD <- merge(tab.BOULD.par, tab.BOULD.smooth, all = TRUE)
 
 tab.MACRO.par <- tidy(MACRO.GAMM, parametric = TRUE) %>% 
   mutate(Model = "Macrophyte cover", .before = "term",
@@ -1826,13 +1834,21 @@ tab.NONHOST.smooth <- tidy(NONHOST.GAMM, parametric = FALSE) %>%
          Deviance = summary(NONHOST.GAMM)$dev.expl)
 tab.NONHOST <- merge(tab.NONHOST.par, tab.NONHOST.smooth, all = TRUE)
 
+tab.EVEN.par <- tidy(EVEN.GAMM, parametric = TRUE) %>% 
+  mutate(Model = "Evenness", .before = "term",
+         Deviance = summary(EVEN.GAMM)$dev.expl)
+tab.EVEN.smooth <- tidy(EVEN.GAMM, parametric = FALSE) %>% 
+  mutate(Model = "Evenness", .before = "term",
+         Deviance = summary(EVEN.GAMM)$dev.expl)
+tab.EVEN <- merge(tab.EVEN.par, tab.EVEN.smooth, all = TRUE)
+
 #Creating summary table
 Tab.summary.GAMMs <- rbind(tab.NULL, tab.TNTP, tab.TN, tab.TP, tab.TOC,
-                           tab.SILT, tab.SAND, tab.ROCK, tab.BLOCK, tab.MACRO, tab.DEPTH, tab.TRUNK, 
+                           tab.SILT, tab.SAND, tab.ROCK, tab.BOULD, tab.MACRO, tab.DEPTH, tab.TRUNK, 
                            tab.TEMP, tab.TURB, tab.PH, tab.DO, tab.COND, 
                            tab.AREAPERI, tab.AREA, tab.PERI, tab.MDEPTH, tab.XDEPTH, 
                            tab.NEAR, tab.WRT, tab.DRAIN, tab.ELEV, 
-                           tab.FISH, tab.NONHOST, tab.SP, tab.DIVERS) %>%
+                           tab.FISH, tab.NONHOST, tab.SP, tab.DIVERS, tab.EVEN) %>%
   group_by(Model) %>% 
   gt() %>% 
   tab_row_group(
@@ -1925,6 +1941,9 @@ Tab.summary.GAMMs <- rbind(tab.NULL, tab.TNTP, tab.TN, tab.TP, tab.TOC,
   tab_row_group(
     label = md("<p>Diversity index<br>(D<sup>2</sup> = 79.69%)</p>"),
     rows = c(87:89)) %>% 
+  tab_row_group(
+    label = md("<p>Evenness<br>(D<sup>2</sup> = 69.93%)</p>"),
+    rows = c(90:92)) %>% 
   cols_hide(c("ref.df", "Deviance")) %>% 
   cols_label(term = md("**Term**"), statistic = md("**Statistic**"), p.value = md("**p-value**"), estimate = md("**Estimate**"), std.error = md("**Standard error**"), edf = md("**edf**")) %>% 
   tab_header(md("**TABLE S16.** Estimated parameteric coefficients and approximate significance of smooth terms of the fine-scale prevalence community GAMMs. The deviance explained (D<sup>2</sup>) is given for every model as a measure of the model fit.")) %>% 
@@ -1933,24 +1952,11 @@ Tab.summary.GAMMs <- rbind(tab.NULL, tab.TNTP, tab.TN, tab.TP, tab.TOC,
   tab_footnote(footnote = "Effective degrees of freedom", 
                locations = cells_column_labels(columns = "edf")) %>% 
   tab_footnote(footnote = "F-value", 
-               locations = cells_body(columns = "statistic", rows = c(2,4,5,7,8,10,11,13,14,16,17,19,20,22,23,25,26,28,29,31,32,34,35,37,38,40,41,43,44,46,47,49,50,52,53,55,56,58,59,61,62,64,65,67,68,70,71,73,74,76,77,79,80,82,83,85,86))) %>% 
+               locations = cells_body(columns = "statistic", rows = c(2,4,5,7,8,10,11,13,14,16,17,19,20,22,23,25,26,28,29,31,32,34,35,37,38,40,41,43,44,46,47,49,50,52,53,55,56,58,59,61,62,64,65,67,68,70,71,73,74,76,77,79,80,82,83,85,86,88,89,91,92))) %>% 
   tab_footnote(footnote = "t-value", 
-             locations = cells_body(columns = "statistic", rows = c(1,3,6,9,12,15,18,21,24,27,30,33,36,39,42,45,48,51,54,57,60,63,66,69,72,75,78,81,84))) %>% 
+             locations = cells_body(columns = "statistic", rows = c(1,3,6,9,12,15,18,21,24,27,30,33,36,39,42,45,48,51,54,57,60,63,66,69,72,75,78,81,84,87,90))) %>% 
   fmt_number(decimals = 3) %>% 
   sub_values(columns = "term", values = "(Intercept)", replacement = "Intercept") %>% 
-  sub_values(columns = "term", values = "s(Diversity.T)", replacement = "s(Diversity)") %>% 
-  sub_values(columns = "term", values = "s(Species_richness.T)", replacement = "s(Species_richness)") %>% 
-  sub_values(columns = "term", values = "s(tot_fish)", replacement = "s(tot_fish)") %>% 
-  sub_values(columns = "term", values = "s(tot_Cyprinidae)", replacement = "s(tot_Cyprinidae)") %>% 
-  sub_values(columns = "term", values = "s(Cond.T)", replacement = "s(Cond)") %>% 
-  sub_values(columns = "term", values = "s(DO.T)", replacement = "s(DO)") %>% 
-  sub_values(columns = "term", values = "s(pH.T)", replacement = "s(pH)") %>% 
-  sub_values(columns = "term", values = "s(Turb.T)", replacement = "s(Turb)") %>% 
-  sub_values(columns = "term", values = "s(Temp.T)", replacement = "s(Temp)") %>% 
-  sub_values(columns = "term", values = "s(TOC.T)", replacement = "s(TOC)") %>% 
-  sub_values(columns = "term", values = "s(TN.T)", replacement = "s(TN)") %>% 
-  sub_values(columns = "term", values = "s(TP.T)", replacement = "s(TP)") %>% 
-  sub_values(columns = "term", values = "s(TN_TP.T)", replacement = "s(TN_TP)") %>% 
   tab_options(row_group.as_column = TRUE,
               row.striping.include_table_body = TRUE,
               table.border.top.style = "hidden",
@@ -1969,7 +1975,7 @@ Tab.summary.GAMMs <- rbind(tab.NULL, tab.TNTP, tab.TN, tab.TP, tab.TOC,
   tab_style(style= cell_borders(sides = c("bottom", "top"), weight = px(2)), 
             location = list(cells_column_labels())) %>% 
   tab_style(style = cell_borders(side = "top", weight = px(2), color = "black"),
-            locations = cells_row_groups(groups = "<p>Diversity index<br>(D<sup>2</sup> = 79.69%)</p>")) %>% 
+            locations = cells_row_groups(groups = "<p>Evenness<br>(D<sup>2</sup> = 69.93%)</p>")) %>% 
   tab_style(style = cell_borders(sides = "bottom", weight = px(2), color = "black"),
             locations =  cells_body(rows = 2)) %>% 
   tab_style(style = cell_borders(side = "bottom", weight = px(2), color = "black"),

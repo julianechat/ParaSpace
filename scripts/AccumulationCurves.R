@@ -38,15 +38,16 @@ CombinedData <- read.csv(paste0(to.output, "CombinedData.csv"))
 ## Combined methods ----
 
 Cdata <- CombinedData %>% 
-  select("Lake", starts_with(c("inf", "tot"))) %>% 
+  select(Lake, starts_with(c("inf", "tot"))) %>% #Select total and infected community matrix
   na.omit()
 
 Cdata.inf <- Cdata %>% 
-  select(starts_with("inf")) 
+  select(starts_with("inf")) #Select infected community matrix
 
 Cdata.tot <- Cdata %>% 
-  select(starts_with("tot"))
+  select(starts_with("tot")) #Select total community matrix
 
+#Infection prevalence data
 Infected <- rowSums(Cdata.inf)
 Total <- rowSums(Cdata.tot)
 Prevalence <- Infected/Total
@@ -58,16 +59,17 @@ Cdata <- data.frame(Lake, Infected, Total, Prevalence) %>%
 ## Minnow trap ----
 
 MTdata <- CombinedData %>% 
-  filter(Sampling_method == "Minnow_trap") %>% 
-  select("Lake", starts_with(c("inf", "tot"))) %>% 
+  filter(Sampling_method == "Minnow_trap") %>% #Select minnow trap method
+  select("Lake", starts_with(c("inf", "tot"))) %>% #Select total and infected community matrix
   na.omit()
 
 MTdata.inf <- MTdata %>% 
-  select(starts_with("inf")) 
+  select(starts_with("inf"))  #Select infected community matrix
 
 MTdata.tot <- MTdata %>% 
-  select(starts_with("tot"))
+  select(starts_with("tot")) #Select total community matrix
 
+#Infection prevalence data
 Infected <- rowSums(MTdata.inf)
 Total <- rowSums(MTdata.tot)
 Prevalence <- Infected/Total
@@ -79,16 +81,17 @@ MTdata <- data.frame(Lake, Infected, Prevalence, Total) %>%
 ## Seine net ----
 
 Sdata <- CombinedData %>% 
-  filter(Sampling_method == "Seine") %>% 
-  select("Lake", starts_with(c("inf", "tot"))) %>% 
+  filter(Sampling_method == "Seine") %>% #Select seine method
+  select("Lake", starts_with(c("inf", "tot"))) %>% #Select total and infected community matrix
   na.omit()
 
 Sdata.inf <- Sdata %>% 
-  select(starts_with("inf")) 
+  select(starts_with("inf")) #Select infected community matrix
 
 Sdata.tot <- Sdata %>% 
-  select(starts_with("tot"))
+  select(starts_with("tot")) #Select total community matrix
 
+#Infection prevalence data
 Infected <- rowSums(Sdata.inf)
 Total <- rowSums(Sdata.tot)
 Prevalence <- Infected/Total
@@ -100,16 +103,17 @@ Sdata <- data.frame(Lake, Infected, Total, Prevalence) %>%
 ## Transect ----
 
 Tdata <- CombinedData %>% 
-  filter(Sampling_method == "Transect") %>% 
-  select("Lake", starts_with(c("inf", "tot"))) %>% 
+  filter(Sampling_method == "Transect") %>% #Select transect method
+  select("Lake", starts_with(c("inf", "tot"))) %>% #Select total and infected community matrix
   na.omit()
 
 Tdata.inf <- Tdata %>% 
-  select(starts_with("inf")) 
+  select(starts_with("inf")) #Select infected community matrix
 
 Tdata.tot <- Tdata %>% 
-  select(starts_with("tot"))
+  select(starts_with("tot")) #Select total community matrix
 
+#Infection prevalence data
 Infected <- rowSums(Tdata.inf)
 Total <- rowSums(Tdata.tot)
 Prevalence <- Infected/Total
@@ -143,25 +147,26 @@ plot(acc.S, col = "#999600", xlab = "sampling", ylab = "species", cex = 1)
 plot(acc.MT, add = TRUE, col = "#2A5676", xlab = "sampling", ylab = "species")
 plot(acc.T, add = TRUE, col = "#966F1E", xlab = "sampling", ylab = "species")
 
-legend("bottomright", legend = c("Seine", "Minnow Trap", "Transect"),
+legend("bottomright", legend = c("Seine net", "Minnow trap", "Transect"),
        fill = c("#999600", "#2A5676", "#966F1E"))
 
 dev.off()
 
 # ---- Infected individuals accumulation curves ----
 
-#Resampling parameters
-N <- 35 #maximum number of samples (i)
-Resampling <- 999 #number of times each i is repeated 
+#Loop parameters
+N <- 35 #Maximum number of samples (i)
+Resampling <- 999 #Number of times each i is repeated 
 
 ## Combined methods ----
 
 C.inf <- data.frame()
 
+#Loop
 for(i in 1:N) {
   for(j in 1:Resampling) {
-    Infected <- sum(sample(Cdata$Infected, i)) #sample i lines randomly
-    output <- data.frame(N = i, Resampling = j, Infected) #save output in temporary data.frame (changed at each iterations)
+    Infected <- sum(sample(Cdata$Infected, i)) #Sample i lines randomly
+    output <- data.frame(N = i, Resampling = j, Infected) #Save output in temporary data.frame (changed at each iterations)
     C.inf <- rbind(C.inf, output)
   }
 }
@@ -175,10 +180,11 @@ boxplot.inf.C <- boxplot(Infected ~ N, data = C.inf)
 
 MT.inf <- data.frame()
 
+#Loop
 for(i in 1:N) {
   for(j in 1:Resampling) {
-    Infected <- sum(sample(MTdata$Infected, i)) #sample i lines randomly
-    output <- data.frame(N = i, Resampling = j, Infected) #save output in temporary data.frame (changed at each iterations)
+    Infected <- sum(sample(MTdata$Infected, i)) #Sample i lines randomly
+    output <- data.frame(N = i, Resampling = j, Infected) #Save output in temporary data.frame (changed at each iterations)
     MT.inf <- rbind(MT.inf, output)
   }
 }
@@ -192,10 +198,11 @@ boxplot.inf.MT <- boxplot(Infected ~ N, data = MT.inf)
 
 S.inf <- data.frame()
 
+#Loop
 for(i in 1:N) {
   for(j in 1:Resampling) {
-    Infected <- sum(sample(Sdata$Infected, i)) #sample i lines randomly
-    output <- data.frame(N = i, Resampling = j, Infected) #save output in temporary data.frame (changed at each iterations)
+    Infected <- sum(sample(Sdata$Infected, i)) #Sample i lines randomly
+    output <- data.frame(N = i, Resampling = j, Infected) #Save output in temporary data.frame (changed at each iterations)
     S.inf <- rbind(S.inf, output)
   }
 }
@@ -209,10 +216,11 @@ boxplot.inf.S <- boxplot(Infected ~ N, data = S.inf)
 
 T.inf <- data.frame()
 
+#Loop
 for(i in 1:N) {
   for(j in 1:Resampling) {
-    Infected <- sum(sample(Tdata$Infected, i)) #sample i lines randomly
-    output <- data.frame(N = i, Resampling = j, Infected) #save output in temporary data.frame (changed at each iterations)
+    Infected <- sum(sample(Tdata$Infected, i)) #Sample i lines randomly
+    output <- data.frame(N = i, Resampling = j, Infected) #Save output in temporary data.frame (changed at each iterations)
     T.inf <- rbind(T.inf, output)
   }
 }
@@ -227,6 +235,7 @@ boxplot.inf.T <- boxplot(Infected ~ N, data = T.inf)
 #Binding data
 df.inf <- rbind(C.inf, MT.inf, S.inf, T.inf)
 
+#Plot
 inf.acc.plot <- ggplot(df.inf) + 
   stat_summary(aes(x = N, y = Infected, group = Method, color = Method, shape = Method), fun = mean, size = 1) +
   geom_smooth(aes(x= N, y = Infected, group = Method, color = Method, fill = Method), method = "lm", se = TRUE, level = 0.95,lineend = "round") +
@@ -248,7 +257,7 @@ theme(text = element_text(size = 20, family = "Calibri Light", color = "black"),
 
 inf.acc.plot
 
-ggsave(paste0(to.figs, "AccumulationCurves_infection.png"), plot = inf.acc.plot, dpi = 300, width = 15, height = 10)  
+ggsave(paste0(to.figs, "AccumulationCurves_infection.png"), plot = inf.acc.plot, dpi = 300, width = 15, height = 10) #Saving plot  
 
 # ---- Individuals accumulation curves ---- 
 
@@ -256,10 +265,11 @@ ggsave(paste0(to.figs, "AccumulationCurves_infection.png"), plot = inf.acc.plot,
 
 C.tot <- data.frame()
 
+#Loop
 for(i in 1:N) {
   for(j in 1:Resampling) {
-    Total <- sum(sample(Cdata$Total, i)) #sample i lines randomly
-    output <- data.frame(N = i, Resampling = j, Total) #save output in temporary data.frame (changed at each iterations)
+    Total <- sum(sample(Cdata$Total, i)) #Sample i lines randomly
+    output <- data.frame(N = i, Resampling = j, Total) #Save output in temporary data.frame (changed at each iterations)
     C.tot <- rbind(C.tot, output)
   }
 }
@@ -273,10 +283,11 @@ boxplot.tot.C <- boxplot(Total ~ N, data = C.tot)
 
 MT.tot <- data.frame()
 
+#Loop
 for(i in 1:N) {
   for(j in 1:Resampling) {
-    Total <- sum(sample(MTdata$Total, i)) #sample i lines randomly
-    output <- data.frame(N = i, Resampling = j, Total) #save output in temporary data.frame (changed at each iterations)
+    Total <- sum(sample(MTdata$Total, i)) #Sample i lines randomly
+    output <- data.frame(N = i, Resampling = j, Total) #Save output in temporary data.frame (changed at each iterations)
     MT.tot <- rbind(MT.tot, output)
   }
 }
@@ -292,8 +303,8 @@ S.tot <- data.frame()
 
 for(i in 1:N) {
   for(j in 1:Resampling) {
-    Total <- sum(sample(Sdata$Total, i)) #sample i lines randomly
-    output <- data.frame(N = i, Resampling = j, Total) #save output in temporary data.frame (changed at each iterations)
+    Total <- sum(sample(Sdata$Total, i)) #Sample i lines randomly
+    output <- data.frame(N = i, Resampling = j, Total) #Save output in temporary data.frame (changed at each iterations)
     S.tot <- rbind(S.tot, output)
   }
 }
@@ -307,10 +318,11 @@ boxplot.tot.S <- boxplot(Total ~ N, data = S.tot)
 
 T.tot <- data.frame()
 
+#Loop
 for(i in 1:N) {
   for(j in 1:Resampling) {
-    Total <- sum(sample(Tdata$Total, i)) #sample i lines randomly
-    output <- data.frame(N = i, Resampling = j, Total) #save output in temporary data.frame (changed at each iterations)
+    Total <- sum(sample(Tdata$Total, i)) #Sample i lines randomly
+    output <- data.frame(N = i, Resampling = j, Total) #Save output in temporary data.frame (changed at each iterations)
     T.tot <- rbind(T.tot, output)
   }
 }
@@ -322,8 +334,10 @@ boxplot.tot.T <- boxplot(Total ~ N, data = T.tot)
 
 ## Comparative plot ----
 
+#Binding data
 df.tot <- rbind(C.tot, MT.tot, S.tot, T.tot)
 
+#Plot
 tot.acc.plot <- ggplot(df.tot) + 
   stat_summary(aes(x = N, y = Total, group = Method, color = Method, shape = Method), fun = mean, size = 1) +
   geom_smooth(aes(x= N, y = Total, group = Method, color = Method, fill = Method), method = "lm", se = TRUE, lineend = "round") +
@@ -353,6 +367,7 @@ ggsave(paste0(to.figs, "AccumulationCurves_individuals.png"), plot = tot.acc.plo
 
 C.prev <- data.frame()
 
+#Loop
 for(i in 1:N) {
   for(j in 1:Resampling) {
     line <- sample(1:nrow(Cdata), i) #sample i lines randomly
@@ -373,6 +388,7 @@ boxplot.prev.C <- boxplot(Prevalence ~ N, data = C.prev)
 
 MT.prev <- data.frame()
 
+#Loop
 for(i in 1:N) {
   for(j in 1:Resampling) {
     line <- sample(1:nrow(MTdata), i) #sample i lines randomly
@@ -393,6 +409,7 @@ boxplot.prev.MT <- boxplot(Prevalence ~ N, data = MT.prev)
 
 S.prev <- data.frame()
 
+#Loop
 for(i in 1:N) {
   for(j in 1:Resampling) {
     line <- sample(1:nrow(Sdata), i) #sample i lines randomly
@@ -413,6 +430,7 @@ boxplot.prev.S <- boxplot(Prevalence ~ N, data = S.prev)
 
 T.prev <- data.frame()
 
+#Loop
 for(i in 1:N) {
   for(j in 1:Resampling) {
     line <- sample(1:nrow(Tdata), i) #sample i lines randomly
@@ -435,7 +453,8 @@ df.prev <- rbind(C.prev, MT.prev, S.prev, T.prev)
 df.prev$N <- as.factor(df.prev$N)
 df.prev$Method <- as.factor(df.prev$Method)
 
-#Boxplots for each method
+### Boxplots ----
+
 boxplot.prev.summary <- df.prev %>% 
   group_by(Method) %>% 
   ggplot(aes(y = Prevalence, x = N, color = Method)) +
@@ -461,42 +480,8 @@ boxplot.prev.summary
 
 ggsave(paste0(to.figs, "AccumulationCurves_prevalence_boxplot.png"), plot = boxplot.prev.summary, dpi = 300, width = 15, height = 10)  
 
-## Plot with confidence interval on values (and not the curve)
-#library(plyr)
-#df.mean <- ddply(df.prev, c("Method", "N"), summarise,
- #     n    = length(Prevalence),
-  #    mean = mean(Prevalence),
-   #   sd   = sd(Prevalence),
-    #  se   = sd / sqrt(n),
-     # df = n-1,
-     # t.score = qt(p = 0.05/2, df = df, lower.tail = FALSE),
-    #  margin = t.score*se,
-    #  lower = mean-margin,
-     # upper = mean+margin)
+### Tendency curves ----
 
-#df.mean$N <- as.numeric(df.mean$N)
-
-#prev.mean.plot <- ggplot(df.mean) +
- # geom_point(aes(x = N, y = mean, group = Method, color = Method, shape = Method), size = 1) +
-  #geom_smooth(aes(x = N, y = mean, group = Method, color = Method, fill = Method), se = FALSE) +
-  #geom_ribbon(aes(x = N, ymin = lower, ymax = upper, color = Method, fill = Method), alpha = 0.3, lineend = "round") + 
-  #scale_y_continuous(labels = scales::percent) +
-  #labs(x = "Number of samples", y = "Mean infection prevalence") +
-  #scale_color_manual(values = c("#7E7E7E", "#2A5676", "#999600", "#966F1E"),
-   #                  aesthetics = c("color", "fill")) +
-  #scale_shape_manual(values = c(0, 5, 2, 1)) +
-  #guides(fill = guide_legend(override.aes = list(fill = NA, linetype = 0))) +
-  #theme(text = element_text(size = 20, family = "Calibri Light", color = "black"),
-   #     panel.background = element_blank(),
-    #    legend.key = element_rect(fill = NA),
-     #   axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
-      #  axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
-       # axis.text.x = element_text(color = "black"),
-        #axis.text.y = element_text(color = "black"),
-        #axis.line.x = element_line(color = "black", lineend = "round"),
-        #axis.line.y = element_line(color = "black", lineend = "round"))
-
-#Tendency curves
 prev.acc.plot <- ggplot(df.prev) + 
   stat_summary(aes(x = N, y = Prevalence, group = Method, color = Method, shape = Method), fun = "mean", size = 1) +
   stat_smooth(aes(x= N, y = Prevalence, group = Method, color = Method, fill = Method), method = "loess", se = TRUE, level = 0.95, lineend = "round", alpha = 0.3) +
@@ -521,24 +506,23 @@ prev.acc.plot
 ggsave(paste0(to.figs, "AccumulationCurves_prevalence_RangeAxis.png"), plot = prev.acc.plot, dpi = 300, width = 15, height = 10)  
 ggsave(paste0(to.rédaction, "Figures/Figure6_PrevRemsampling.png"), plot = prev.acc.plot, dpi = 300, width = 15, height = 10)
 
-## Resampled mean values table ----
+## Resampled mean values extraction ----
 
-#Extraction of mean values
-prev.resamp <- df.prev %>% 
+prev.resamp <- df.prev %>% #Selecting N samples for each method
   select(Method, N, Prevalence) %>% 
   group_by(Method) %>% 
-  filter(N == c("5", "10", "15", "20", "25", "30", "35")) 
+  filter(N == "5" | N == "10"| N == "15" | N == "20" | N == "25" | N == "30" | N == "35" ) 
 
-prev.resamp <- prev.resamp %>% 
+prev.resamp <- prev.resamp %>% #Extraction of mean prevalence values at each chosen N for each sampling method
   group_by(Method, N) %>% 
   summarise(across(.cols = Prevalence, mean))
 
-prev.resamp$Prevalence <- (prev.resamp$Prevalence)*100
+prev.resamp$Prevalence <- (prev.resamp$Prevalence)*100 #Converting prevalence in percentage
 
-prev.resamp <- prev.resamp %>% 
+prev.resamp <- prev.resamp %>% #Formating data frame
   pivot_wider(names_from = N, values_from = Prevalence) 
   
-Observed = c(29.55, 19.20, 20.44, 35.55)
+Observed = c(29.55, 19.20, 20.44, 35.55) #Adding observed prevalence colum
 prev.resamp <- prev.resamp %>% 
   cbind(Observed = Observed)
 
@@ -569,6 +553,50 @@ Table.S15 %>% #Saving gt tab
 Table.S15 %>% 
   gtsave("Table_S15.png", paste0(to.rédaction, "./Support_information/"))
 
+## Minimum sampling effort (N) ----
+
+prev.test.data <- df.prev %>%
+  group_by(Method) %>% 
+  filter(N =="1" | N == "5" | N == "10"| N == "15" | N == "20" | N == "25" | N == "30" | N == "35" ) 
+
+library(dunn.test)
+
+### Combined ----
+
+prev.test.C <- prev.test.data %>% 
+  filter(Method == "Combined")
+
+hist(prev.test.C$Prevalence)
+
+dunn.test(prev.test.C$Prevalence, prev.test.C$N, method = "bh")
+
+### Minnow trap ----
+
+prev.test.MT <- prev.test.data %>% 
+  filter(Method == "Minnow trap")
+
+hist(prev.test.MT$Prevalence)
+
+dunn.test(prev.test.MT$Prevalence, prev.test.MT$N, method = "bh")
+
+### Seine net ----
+
+prev.test.S <- prev.test.data %>% 
+  filter(Method == "Seine net")
+
+hist(prev.test.S$Prevalence)
+
+dunn.test(prev.test.S$Prevalence, prev.test.S$N)
+
+### Transect ----
+
+prev.test.T <- prev.test.data %>% 
+  filter(Method == "Transect")
+
+hist(prev.test.T$Prevalence)
+
+dunn.test(prev.test.T$Prevalence, prev.test.T$N, method = "bh")
+
 # ---- Summary accumulation panel ----
 
 summary.acc.plot <- inf.acc.plot + tot.acc.plot + prev.acc.plot +
@@ -587,3 +615,4 @@ summary.acc.plot <- inf.acc.plot + tot.acc.plot + prev.acc.plot +
 summary.acc.plot 
 
 ggsave(paste0(to.figs, "AccumulationCurves_summary.png"), plot = summary.acc.plot, dpi = 300, width = 30, height = 12)
+

@@ -7,6 +7,7 @@
 ## Email: juliane.vigneault@umontreal.ca
 
 # ---- Script setup ----
+
 ## R Setup ----
 
 to.data <- "./data/"
@@ -20,83 +21,104 @@ to.rédaction <- "./rédaction/"
 ## Loading packages & functions ----
 
 library(dplyr)
+library(tidyr)
 
 ## Loading data ----
 
-TransectData <- read.csv(paste0(to.output, "Transects_WideData.csv"))
-LakesCharacteristics <- read.csv(paste0(to.data, "Lakes_Characteristics.csv"), sep=";")
-TransBiotic <- read.csv(paste0(to.output, "Trans_BioticData.csv"))
-LakeBiotic <- read.csv(paste0(to.output, "Lake_Trans_BioticData.csv"))
+CombinedData <-  read.csv(paste0(to.output, "CombinedData.csv"))
+SiteBiotic <-  read.csv(paste0(to.output, "Site_CommunityMetrics.csv"))
+LakeBiotic <- read.csv(paste0(to.output, "Lake_CommunityMetrics.csv"))
 
-# ---- Building data frame ----
+# ---- Preparing data ----
 
-trans.data <- merge(TransectData, LakesCharacteristics, by = "Lake") #Binding lake charactristics data
-trans.data <- trans.data %>% 
-  rename_at("Latitude.x", ~"Latitude.site") %>% 
-  rename_at("Longitude.x", ~"Longitude.site") %>% 
-  rename_at("Latitude.y", ~"Latitude.lake") %>% 
-  rename_at("Longitude.y", ~"Longitude.lake") %>% 
-  rename_at("Mean_depth.x", ~"MeanDepth.site") %>% 
-  rename_at("Mean_depth.y", ~"MeanDepth.lake")
+## Community metrics ----
 
-trans.data <- merge(trans.data, TransBiotic, by = "Transect_ID") #Binding biotic data
+### Site-scale ----
+
+Biotic.S <- SiteBiotic %>% 
+  filter(Method == "Transect") #Select transect method because it is the only method needed for model analysis
+
+Biotic.S <- Biotic.S %>% #Reshaping data frame in large format
+  pivot_wider(names_from = Metric, values_from = Value) %>% 
+  select(!Method) #Deleting method column
+
+colnames(Biotic.S)[colnames(Biotic.S) == "Site"] <- "Sampling_ID" #Changing site column name
+colnames(Biotic.S)[colnames(Biotic.S) == "Species richness"] <- "Species_richness" #Changing species richness column name
+
+### Lake-scale ----
+
+Biotic.L <- LakeBiotic %>% 
+  filter(Method == "Transect") #Select transect method because it is the only method needed for model analysis
+
+Biotic.L <- Biotic.L %>% #Reshaping data frame in large format
+  pivot_wider(names_from = Metric, values_from = Value) %>% 
+  select(!Method) #Deleting method column
+
+colnames(Biotic.L)[colnames(Biotic.L) == "Species richness"] <- "SpR.L" #Changing species richness column name
+colnames(Biotic.L)[colnames(Biotic.L) == "Diversity"] <- "Diversity.L" #Changing abundance column name
+colnames(Biotic.L)[colnames(Biotic.L) == "Evenness"] <- "Evenness.L" #Changing abundance column name
+
+## Combined data ----
+
+Combined <- CombinedData %>% 
+  filter(Sampling_method == "Transect") %>% #Select transect method because it is the only method needed for model analysis
+  filter(!(Lake == "Beaver"| #Deleting lakes not sampled for transect method
+           Lake == "Tracy"|
+           Lake == "Montaubois"|
+           Lake == "St-Onge"))
+
+# ---- Building data frame ----   
+
+mod.data <- merge(Combined, Biotic.S, by = "Sampling_ID") #Binding biotic data and combined data
+mod.data <- merge(mod.data, Biotic.L, by = "Lake") 
 
 ## Infection prevalence ----
 
-trans.data <- trans.data %>% 
-  mutate(tot_fish = tot_AmRu + tot_MiDo + tot_LeGi + tot_PeFl + tot_Cyprinidae)
-
-trans.data <- trans.data %>% 
-  mutate(inf_fish = inf_AmRu + inf_MiDo + inf_LeGi + inf_PeFl + inf_Cyprinidae)
-
-trans.data <- trans.data %>% 
-  mutate(prev_fish = inf_fish/tot_fish) #Creating prevalence column
+mod.data <- mod.data %>% 
+  mutate(tot_fish = tot_AmRu + tot_MiDo + tot_LeGi + tot_PeFl + tot_Cyprinidae) %>% #Create total fish abundance column
+  mutate(inf_fish = inf_AmRu + inf_MiDo + inf_LeGi + inf_PeFl + inf_Cyprinidae) #Create infected fish abundance column
+  
+mod.data <- mod.data %>% 
+  mutate(prev_fish = inf_fish/tot_fish) #Create prevalence column
 
 ## Variable selection ----
 
-trans.mod <- trans.data %>% 
-  select(Transect_ID, Lake, Watershed,
+mod.data <- mod.data %>% 
+  select(Sampling_ID, Lake, Watershed,
          inf_fish, tot_fish, prev_fish, tot_Cyprinidae,
-         Silt, Sand, Rock, Metric_block, Macrophyte, MeanDepth.site, Trunk,
+         Silt, Sand, Rock, Boulder, Macrophyte, Site_depth, Trunk,
          Temperature, Conductivity, DO, Turbidity, pH, 
          TOC, TN, TP, 
-         Lake_area, Perimeter, MeanDepth.lake, Max_depth, WRT,
+         Lake_area, Perimeter, Mean_depth, Max_depth, WRT,
          Drainage_area, Elevation, Connectivity, 
-         Centrarchids, Species_richness, Diversity)
+         Species_richness, Diversity, Evenness,
+         SpR.L, Diversity.L, Evenness.L)
 
-colnames(trans.mod)[c(15:22, 31:33)] <- c("Temp.T", "Cond.T", "DO.T", "Turb.T", "pH.T", #Adjusting column names
-                                   "TOC.T", "TN.T", "TP.T",
-                                   "Centrarchids.T", "Species_richness.T", "Diversity.T")
-
-## Creating new variables ----
+## Lake scale variables ----
   
-#lake scale mean variables
-trans.mod <- trans.mod %>% #Filling NA's water parameters values by lake means
+#Lake scale mean variables
+mod.data <- mod.data %>%  #Filling NA's water parameters values by lake means
   group_by(Lake) %>% 
-  mutate(Temp.L = mean(Temp.T)) %>% relocate("Temp.L", .after = "Temp.T") %>% 
-  mutate(Cond.L = mean(Cond.T)) %>% relocate("Cond.L", .after = "Cond.T") %>% 
-  mutate(DO.L = mean(DO.T)) %>% relocate("DO.L", .after = "DO.T") %>% 
-  mutate(Turb.L = mean(Turb.T)) %>% relocate("Turb.L", .after = "Turb.T") %>% 
-  mutate(pH.L = mean(pH.T)) %>% relocate("pH.L", .after = "pH.T") %>% 
-  mutate(TOC.L = mean(TOC.T)) %>% relocate("TOC.L", .after = "TOC.T") %>% 
-  mutate(TN.L = mean(TN.T)) %>% relocate("TN.L", .after = "TN.T") %>% 
-  mutate(TP.L = mean(TP.T)) %>% relocate("TP.L", .after = "TP.T")
+  mutate(Temp.L = mean(Temperature)) %>% relocate("Temp.L", .after = "Temperature") %>% 
+  mutate(Cond.L = mean(Conductivity)) %>% relocate("Cond.L", .after = "Conductivity") %>% 
+  mutate(DO.L = mean(DO)) %>% relocate("DO.L", .after = "DO") %>% 
+  mutate(Turb.L = mean(Turbidity)) %>% relocate("Turb.L", .after = "Turbidity") %>% 
+  mutate(pH.L = mean(pH)) %>% relocate("pH.L", .after = "pH") %>% 
+  mutate(TOC.L = mean(TOC)) %>% relocate("TOC.L", .after = "TOC") %>% 
+  mutate(TN.L = mean(TN)) %>% relocate("TN.L", .after = "TN") %>% 
+  mutate(TP.L = mean(TP)) %>% relocate("TP.L", .after = "TP")
 
-trans.mod <- merge(trans.mod, LakeBiotic, by.x = "Lake") #Binding biotic lake data
-colnames(trans.mod)[c(42:44)] <- c("Centrarchids.L", "Species_richness.L", "Diversity.L") #Adjusting column names
+#Relocate lake scale biotic data
+mod.data <- mod.data %>% #Relocating columns
+  relocate("SpR.L", .after = "Species_richness") %>% 
+  relocate("Evenness.L", .after = "Evenness") %>% 
+  relocate("Diversity.L", .after = "Diversity")
 
-trans.mod <- trans.mod %>% #Relocating columns
-  relocate("Centrarchids.L", .after = "Centrarchids.T") %>% 
-  relocate("Species_richness.L", .after = "Species_richness.T") %>% 
-  relocate("Diversity.L", .after = "Diversity.T")
+## New variables ----
 
-trans.mod <- trans.mod %>% 
-  mutate(TN_TP.T = TN.T / TP.T) %>% relocate(TN_TP.T, .after = "TOC.T") %>% #Creating TN:TP ratio for transect scale
+mod.data <- mod.data %>%
+  mutate(TN_TP = TN / TP) %>% relocate(TN_TP, .after = "TOC") %>% #Creating TN:TP ratio for transect scale
   mutate(TN_TP.L = TN.L /TP.L) %>% relocate(TN_TP.L, .after = "TOC.L") %>%  #Creating TN:TP ratio for lake scale
-  mutate(Area_Perimeter = (Lake_area*1000000/Perimeter)) %>% relocate(Area_Perimeter, .before = "MeanDepth.lake") #%>%  #Creating Area:Perimeter ratio
+  mutate(Area_Perimeter = (Lake_area*1000000/Perimeter)) %>% relocate(Area_Perimeter, .before = "Mean_depth") #%>%  #Creating Area:Perimeter ratio
 
-trans.mod$Lake <- as.factor(trans.mod$Lake)
-trans.mod$Transect_ID <- as.factor(trans.mod$Transect_ID)
-trans.mod$Watershed <- as.factor(trans.mod$Watershed)
-
-write.csv(trans.mod, paste0(to.output, "Transects_Lake_Data.csv"), row.names = FALSE) #Saving data set
+write.csv(mod.data, paste0(to.output, "ModelAnalysis_DataFrame.csv"), row.names = FALSE) #Saving data set
