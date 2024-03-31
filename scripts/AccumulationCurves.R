@@ -28,6 +28,7 @@ library(dplyr)
 library(gt)
 library(broom)
 library(tidyr)
+library(dunn.test)
 
 ## Loading data ----
 
@@ -555,48 +556,73 @@ Table.S15 %>%
 
 ## Minimum sampling effort (N) ----
 
-prev.test.data <- df.prev %>%
-  group_by(Method) %>% 
-  filter(N =="1" | N == "5" | N == "10"| N == "15" | N == "20" | N == "25" | N == "30" | N == "35" ) 
+## Comparison final (N = 35) and observed prevalence ----
 
-library(dunn.test)
+CompFinal <- df.prev %>% 
+  filter(N == "35")
 
-### Combined ----
+### Combined methods ----
 
-prev.test.C <- prev.test.data %>% 
+CompFinal.C <- CompFinal %>% 
   filter(Method == "Combined")
 
-hist(prev.test.C$Prevalence)
-
-dunn.test(prev.test.C$Prevalence, prev.test.C$N, method = "bh")
+wilcox.test(CompFinal.C$Prevalence, Cdata$Prevalence, alternative = "greater", paired = FALSE)
+#N35 prevalence is not different than observed prevalence
 
 ### Minnow trap ----
 
-prev.test.MT <- prev.test.data %>% 
+CompFinal.MT <- CompFinal %>% 
   filter(Method == "Minnow trap")
 
-hist(prev.test.MT$Prevalence)
-
-dunn.test(prev.test.MT$Prevalence, prev.test.MT$N, method = "bh")
+wilcox.test(CompFinal.MT$Prevalence, MTdata$Prevalence, alternative = "greater", paired = FALSE)
+#N35 prevalence is not different than observed prevalence
 
 ### Seine net ----
 
-prev.test.S <- prev.test.data %>% 
+CompFinal.S <- CompFinal %>% 
   filter(Method == "Seine net")
 
-hist(prev.test.S$Prevalence)
-
-dunn.test(prev.test.S$Prevalence, prev.test.S$N)
+wilcox.test(CompFinal.S$Prevalence, Sdata$Prevalence, alternative = "greater", paired = FALSE)
+#N35 prevalence is not different than observed prevalence
 
 ### Transect ----
 
-prev.test.T <- prev.test.data %>% 
+CompFinal.T <- CompFinal %>% 
   filter(Method == "Transect")
 
-hist(prev.test.T$Prevalence)
+wilcox.test(CompFinal.T$Prevalence, Tdata$Prevalence, alternative = "greater", paired = FALSE)
+#N35 prevalence is not different than observed prevalence
 
-dunn.test(prev.test.T$Prevalence, prev.test.T$N, method = "bh")
+## Comparison final (N = 35) prevalence between methods ----
 
+kruskal.test(CompFinal$Prevalence, CompFinal$Method)
+dunn.test(CompFinal$Prevalence, CompFinal$Method, method = "bh")
+#Difference between all methods
+
+##Comparison of observed prevalence by methods ----
+
+kruskal.test(CompFinal$Prevalence, CompFinal$Method)
+dunn.obs <- dunn.test(CompFinal$Prevalence, CompFinal$Method, method = "bh")
+
+obs.prev.compared <- data.frame(cbind("Comparison" = dunn.obs$comparison, "Adjusted p-value" = dunn.obs$P.adjusted))
+
+obs.prev.compared.tbl <- gt(obs.prev.compared) %>% 
+  cols_label(Adjusted.p.value = md("Adjusted p-value")) %>% 
+  tab_options(table.border.top.style = "hidden",
+              row.striping.include_table_body = TRUE,
+              heading.border.bottom.color = "black") %>% 
+  tab_header(md("**TABLE SX.** Method comparison of landscape prevalence estimates")) %>% 
+  tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "left"),
+            locations = cells_title("title")) %>% 
+  tab_style(cell_text(color = "black", font = "Calibri light", weight = "bold", size = 9, align = "center", v_align = "middle"),
+            locations = cells_column_labels()) %>% 
+    tab_style(cell_text(color = "black", font = "Calibri light", size = 9, align = "center", v_align = "middle"),
+              locations = cells_body()) %>% 
+    tab_style(style= cell_borders(sides = c("bottom", "top"), weight = px(2)), 
+              location = list(cells_column_labels())) %>%           
+    tab_style(style = cell_borders(sides = "bottom", weight = px(2), color = "black"),
+              locations =  cells_body(rows = 6))
+            
 # ---- Summary accumulation panel ----
 
 summary.acc.plot <- inf.acc.plot + tot.acc.plot + prev.acc.plot +
