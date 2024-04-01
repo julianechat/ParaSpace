@@ -34,75 +34,75 @@ CombinedData <- read.csv(paste0(to.output, "CombinedData.csv"))
 CombinedData <- CombinedData %>% 
   filter(!(Lake == "Tracy")) #Deleting lake Tracy because of insufficient data
 
-## All methods ----
+## Combined methods ----
 
-All.prev <- CombinedData %>% 
+C.prev <- CombinedData %>% 
   select(Lake, starts_with(c("tot", "inf"))) %>% #Select total and infected community matrix
   na.omit()
 
-All.prev <- All.prev %>% 
+C.prev <- C.prev %>% 
   group_by(Lake) %>% #Summarize abundance data by lake
   summarise(across(.cols = everything(), sum))
 
-All.prev <- All.prev %>%  #Sum total and infected fish abundance within lakes
+C.prev <- C.prev %>%  #Sum total and infected fish abundance within lakes
   mutate(tot_fish = tot_AmRu + tot_FuDi + tot_MiDo + tot_LeGi + tot_PeFl + tot_PiPr + tot_ChrosomusSpp. + tot_PiNo + tot_SeAt + tot_LuCo + tot_AmNe + tot_CaCo + tot_EsMa + tot_UmLi + tot_RhAt + tot_Centrarchidae + tot_Cyprinidae, .keep = "unused") %>% 
   mutate(inf_fish = inf_AmRu + inf_FuDi + inf_MiDo + inf_LeGi + inf_PeFl + inf_PiPr + inf_ChrosomusSpp. + inf_PiNo + inf_SeAt + inf_LuCo + inf_AmNe + inf_CaCo + inf_EsMa + inf_UmLi + inf_RhAt + inf_Centrarchidae + inf_Cyprinidae, .keep = "unused") 
 
-All.prev <- All.prev %>% #Calculate community level prevalence for each lake
+C.prev <- C.prev %>% #Calculate community level prevalence for each lake
   mutate(prev_fish = (inf_fish/tot_fish)*100)
 
 ## Transect ----
 
-Trans.prev <- CombinedData %>% 
+T.prev <- CombinedData %>% 
   filter(Sampling_method == "Transect") %>% #Select transect method
   select(Lake, starts_with(c("tot", "inf"))) %>% #Select total and infected community matrix
   na.omit()
 
-Trans.prev <- Trans.prev %>% 
+T.prev <- T.prev %>% 
   group_by(Lake) %>% #Summarize abundance data by lake
   summarise(across(.cols = everything(), sum))
 
-Trans.prev <- Trans.prev %>% #Sum total and infected fish abundance within lakes
+T.prev <- T.prev %>% #Sum total and infected fish abundance within lakes
   mutate(tot_fish = tot_AmRu + tot_FuDi + tot_MiDo + tot_LeGi + tot_PeFl + tot_PiPr + tot_ChrosomusSpp. + tot_PiNo + tot_SeAt + tot_LuCo + tot_AmNe + tot_CaCo + tot_EsMa + tot_UmLi + tot_RhAt + tot_Centrarchidae + tot_Cyprinidae, .keep = "unused") %>% 
   mutate(inf_fish = inf_AmRu + inf_FuDi + inf_MiDo + inf_LeGi + inf_PeFl + inf_PiPr + inf_ChrosomusSpp. + inf_PiNo + inf_SeAt + inf_LuCo + inf_AmNe + inf_CaCo + inf_EsMa + inf_UmLi + inf_RhAt + inf_Centrarchidae + inf_Cyprinidae, .keep = "unused") 
 
-Trans.prev <- Trans.prev %>% #Calculate community level prevalence for each lake
+T.prev <- T.prev %>% #Calculate community level prevalence for each lake
   mutate(prev_fish = (inf_fish/tot_fish)*100)
 
 ## Seine net ----
 
-Seine.prev <- CombinedData %>% 
+S.prev <- CombinedData %>% 
   filter(Sampling_method == "Seine") %>% #Select seine method
   select(Lake, starts_with(c("tot", "inf"))) %>% #Select total and infected community matrix
   na.omit()
 
-Seine.prev <- Seine.prev %>% 
+S.prev <- S.prev %>% 
   group_by(Lake) %>% #Summarize abundance data by lake
   summarise(across(.cols = everything(), sum))
 
-Seine.prev <- Seine.prev %>% #Sum total and infected fish abundance within lakes
+S.prev <- S.prev %>% #Sum total and infected fish abundance within lakes
   mutate(tot_fish = tot_AmRu + tot_FuDi + tot_MiDo + tot_LeGi + tot_PeFl + tot_PiPr + tot_ChrosomusSpp. + tot_PiNo + tot_SeAt + tot_LuCo + tot_AmNe + tot_CaCo + tot_EsMa + tot_UmLi + tot_RhAt + tot_Centrarchidae + tot_Cyprinidae, .keep = "unused") %>% 
   mutate(inf_fish = inf_AmRu + inf_FuDi + inf_MiDo + inf_LeGi + inf_PeFl + inf_PiPr + inf_ChrosomusSpp. + inf_PiNo + inf_SeAt + inf_LuCo + inf_AmNe + inf_CaCo + inf_EsMa + inf_UmLi + inf_RhAt + inf_Centrarchidae + inf_Cyprinidae, .keep = "unused") 
 
-Seine.prev <- Seine.prev %>% #Calculate community level prevalence for each lake
+S.prev <- S.prev %>% #Calculate community level prevalence for each lake
   mutate(prev_fish = (inf_fish/tot_fish)*100)
 
 ## Minnow trap ----
 
-Trap.prev <- CombinedData %>% 
+MT.prev <- CombinedData %>% 
   filter(Sampling_method == "Minnow_trap") %>% #Select minnow trap method
   select(Lake, starts_with(c("tot", "inf"))) %>% #Select total and infected community matrix
   na.omit()
 
-Trap.prev <- Trap.prev %>% 
+MT.prev <- MT.prev %>% 
   group_by(Lake) %>% #Summarize abundance data by lake
   summarise(across(.cols = everything(), sum))
 
-Trap.prev <- Trap.prev %>%  #Sum total and infected fish abundance within lakes
+MT.prev <- MT.prev %>%  #Sum total and infected fish abundance within lakes
   mutate(tot_fish = tot_AmRu + tot_FuDi + tot_MiDo + tot_LeGi + tot_PeFl + tot_PiPr + tot_ChrosomusSpp. + tot_PiNo + tot_SeAt + tot_LuCo + tot_AmNe + tot_CaCo + tot_EsMa + tot_UmLi + tot_RhAt + tot_Centrarchidae + tot_Cyprinidae, .keep = "unused") %>% 
   mutate(inf_fish = inf_AmRu + inf_FuDi + inf_MiDo + inf_LeGi + inf_PeFl + inf_PiPr + inf_ChrosomusSpp. + inf_PiNo + inf_SeAt + inf_LuCo + inf_AmNe + inf_CaCo + inf_EsMa + inf_UmLi + inf_RhAt + inf_Centrarchidae + inf_Cyprinidae, .keep = "unused") 
 
-Trap.prev <- Trap.prev %>% #Calculate community level prevalence for each lake
+MT.prev <- MT.prev %>% #Calculate community level prevalence for each lake
   mutate(prev_fish = (inf_fish/tot_fish)*100)
 
 ### Large trap ----
@@ -145,13 +145,13 @@ Small.prev <- Small.prev %>% #Calculate community level prevalence for each lake
 
 col.pal <- c("#7E7E7E", "#2A5676", "#999600", "#966F1E")
 
-## All methods ----
+## Combined methods ----
 
-All.plain.hist <- hist(All.prev$prev_fish)
+C.plain.hist <- hist(C.prev$prev_fish)
 
-All.hist <- ggplot(All.prev, aes(prev_fish)) + 
+C.hist <- ggplot(C.prev, aes(prev_fish)) + 
   geom_histogram(bins = 6, fill = "#7E7E7E", color = "black", alpha = 0.8) +
-  labs(x = "Prevalence", y = "Frequency", title = "All") + 
+  labs(x = "Prevalence", y = "Frequency", title = "Combined") + 
   ylim(0,5) +
   theme(text = element_text(size = 32, family = "Calibri Light", color = "black"),
         axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
@@ -163,13 +163,15 @@ All.hist <- ggplot(All.prev, aes(prev_fish)) +
         axis.line.y = element_line(color = "black", lineend = "round"),
         plot.title = element_text(hjust = 0.5, vjust = 1))
 
-ggsave(paste0(to.figs, "FrequencyDistribution_All.png"), plot = All.hist, dpi = 300, width = 5, height = 5) #Saving plot
+C.hist
+
+ggsave(paste0(to.figs, "FrequencyDistribution_Combined.png"), plot = C.hist, dpi = 300, width = 5, height = 5) #Saving plot
 
 ## Transect ----
 
-Trans.plain.hist <- hist(Trans.prev$prev_fish)
+T.plain.hist <- hist(T.prev$prev_fish)
 
-Trans.hist <- ggplot(Trans.prev, aes(prev_fish)) + 
+T.hist <- ggplot(T.prev, aes(prev_fish)) + 
   geom_histogram(bins = 6, fill = "#966F1E", color = "black", alpha = 0.8) +
   labs(x = "Prevalence", y = "Frequency", title = "Transect") + 
   ylim(0,5) +
@@ -183,13 +185,15 @@ Trans.hist <- ggplot(Trans.prev, aes(prev_fish)) +
         axis.line.y = element_line(color = "black", lineend = "round"),
         plot.title = element_text(hjust = 0.5, vjust = 1))
 
-ggsave(paste0(to.figs, "FrequencyDistribution_Transect.png"), plot = Trans.hist, dpi = 300, width = 5, height = 5) #Saving plot
+T.hist
+
+ggsave(paste0(to.figs, "FrequencyDistribution_Transect.png"), plot = T.hist, dpi = 300, width = 5, height = 5) #Saving plot
 
 ## Seine net ----
 
-Seine.plain.hist <- hist(Seine.prev$prev_fish)
+S.plain.hist <- hist(S.prev$prev_fish)
 
-Seine.hist <- ggplot(Seine.prev, aes(prev_fish)) + 
+S.hist <- ggplot(S.prev, aes(prev_fish)) + 
   geom_histogram(bins = 6, fill = "#999600", color = "black", alpha = 0.8) +
   labs(x = "Prevalence", y = "Frequency", title = "Seine net") + 
   ylim(0,5) +
@@ -203,13 +207,15 @@ Seine.hist <- ggplot(Seine.prev, aes(prev_fish)) +
         axis.line.y = element_line(color = "black", lineend = "round"),
         plot.title = element_text(hjust = 0.5, vjust = 1))
 
-ggsave(paste0(to.figs, "FrequencyDistribution_Seine.png"), plot = Seine.hist, dpi = 300, width = 5, height = 5) #Saving plot
+S.hist
+
+ggsave(paste0(to.figs, "FrequencyDistribution_Seine.png"), plot = S.hist, dpi = 300, width = 5, height = 5) #Saving plot
 
 ## Minnow trap ----
 
-Trap.plain.hist <- hist(Trap.prev$prev_fish)
+MT.plain.hist <- hist(T.prev$prev_fish)
 
-Trap.hist <- ggplot(Trap.prev, aes(prev_fish)) + 
+MT.hist <- ggplot(T.prev, aes(prev_fish)) + 
   geom_histogram(bins = 6, fill = "#2A5676", color = "black", alpha = 0.8) +
   labs(x = "Prevalence", y = "Frequency", title = "Minnow trap") + 
   ylim(0,5) +
@@ -227,7 +233,9 @@ Trap.hist <- ggplot(Trap.prev, aes(prev_fish)) +
                                    lineend = "round"),
         plot.title = element_text(hjust = 0.5, vjust = 1))
 
-ggsave(paste0(to.figs, "FrequencyDistribution_MinnowTrap.png"), plot = Trap.hist, dpi = 300, width = 5, height = 5) #Saving plot
+MT.hist
+
+ggsave(paste0(to.figs, "FrequencyDistribution_MinnowTrap.png"), plot = MT.hist, dpi = 300, width = 5, height = 5) #Saving plot
 
 ### Small trap ----
 
@@ -249,6 +257,8 @@ Small.hist <- ggplot(Small.prev, aes(prev_fish)) +
         axis.line.y = element_line(color = "black", 
                                    lineend = "round"))
 
+Small.hist
+
 ### Large trap ----
 
 Large.plain.hist <- hist(Large.prev$prev_fish)
@@ -269,9 +279,11 @@ Large.hist <- ggplot(Large.prev, aes(prev_fish)) +
         axis.line.y = element_line(color = "black", 
                                    lineend = "round"))
 
+Large.hist
+
 ## Summary methods figure ----
 
-Summary.plot <- All.hist + Trans.hist + Seine.hist + Trap.hist + 
+Summary.plot <- C.hist + MT.hist + S.hist + T.hist + 
   plot_layout(ncol = 2,
               nrow = 2, 
               tag_level = "new") +
@@ -280,14 +292,15 @@ Summary.plot <- All.hist + Trans.hist + Seine.hist + Trap.hist +
                             family = "Calibri Light", 
                             color = "black"),
         plot.margin=unit(c(10,5,10,5), 'mm'))
-              
+       
+Summary.plot       
                   
 ggsave(paste0(to.figs, "FrequencyDistribution_summary.png"), plot = Summary.plot, dpi = 300, width = 15, height = 17)
 ggsave(paste0(to.rédaction, "Figures/Figure4_FreqDistributions.png"), plot = Summary.plot, dpi = 300, width = 15, height = 17)
 
 ## Summary trap figure ----
 
-Summary.trap <- Trap.hist + Small.hist + Large.hist +
+Summary.trap <- MT.hist + Small.hist + Large.hist +
   plot_layout(ncol = 3,
               nrow = 1, 
               tag_level = "new") +
@@ -299,5 +312,7 @@ Summary.trap <- Trap.hist + Small.hist + Large.hist +
   theme(plot.title = element_text(hjust = 0,
                                   vjust = -160),
         plot.margin = unit(c(0,0,10,0), "mm"))
+
+Summary.trap
 
 ggsave(paste0(to.figs, "FrequencyDistribution_TrapSummary.png"), plot = Summary.trap, dpi = 300, width = 30, height = 10)

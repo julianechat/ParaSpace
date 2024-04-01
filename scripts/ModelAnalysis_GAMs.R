@@ -95,13 +95,13 @@ TNTP.sm <- smooth_estimates(TNTP.GAMM) %>%
 TNTP.pr <- mod.data %>%
   add_partial_residuals(TNTP.GAMM)
 TNTP.pe <- TNTP.sm %>%
-  filter(smooth == "s(TN_TP)") %>%
+  filter(.smooth == "s(TN_TP)") %>%
   ggplot( unconditional = TRUE, overall_uncertainty = TRUE) +
   geom_rug(aes(x = TN_TP),
            data = TNTP.pr,
            sides = "b", length = grid::unit(0.02, "npc")) +
-  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = TN_TP), fill = "#682714", alpha = 0.5) +
-  geom_line(aes(x = TN_TP, y = est), color = "#682714", lwd = 1.2) +
+  geom_ribbon(aes(ymin = .lower_ci, ymax = .upper_ci, x = TN_TP), fill = "#682714", alpha = 0.5) +
+  geom_line(aes(x = TN_TP, y = .estimate), color = "#682714", lwd = 1.2) +
   scale_y_continuous(trans = inverse_logit_trans) +
   labs(x = "TN:TP", y = "Partial effect (prevalence)", tag = "F") +
   theme(text = element_text(size = 20, 
@@ -363,13 +363,13 @@ MACRO.sm <- smooth_estimates(MACRO.GAMM) %>%
 MACRO.pr <- mod.data %>%
   add_partial_residuals(MACRO.GAMM)
 MACRO.pe <- MACRO.sm %>%
-  filter(smooth == "s(Macrophyte)") %>%
-  ggplot( unconditional = TRUE, overall_uncertainty = TRUE) +
+  filter(.smooth == "s(Macrophyte)") %>%
+  ggplot(unconditional = TRUE, overall_uncertainty = TRUE) +
   geom_rug(aes(x = Macrophyte),
            data = MACRO.pr,
            sides = "b", length = grid::unit(0.02, "npc")) +
-  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = Macrophyte), fill = "#682714", alpha = 0.5) +
-  geom_line(aes(x = Macrophyte, y = est), color = "#682714", lwd = 1.2) +
+  geom_ribbon(aes(ymin = .lower_ci, ymax = .upper_ci, x = Macrophyte), fill = "#682714", alpha = 0.5) +
+  geom_line(aes(x = Macrophyte, y = .estimate), color = "#682714", lwd = 1.2) +
   scale_y_continuous(trans = inverse_logit_trans) +
   labs(x = "Macrophyte coverage (%)", y = "Partial effect (prevalence)", tag = "G") +
   theme(text = element_text(size = 20, 
@@ -486,13 +486,13 @@ TEMP.sm <- smooth_estimates(TEMP.GAMM) %>%
 TEMP.pr <- mod.data %>%
   add_partial_residuals(TEMP.GAMM)
 TEMP.pe <- TEMP.sm %>%
-  filter(smooth == "s(Temperature)") %>%
-  ggplot( unconditional = TRUE, overall_uncertainty = TRUE) +
+  filter(.smooth == "s(Temperature)") %>%
+  ggplot(unconditional = TRUE, overall_uncertainty = TRUE) +
   geom_rug(aes(x = Temperature),
            data = TEMP.pr,
            sides = "b", length = grid::unit(0.02, "npc")) +
-  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = Temperature), fill = "#682714", alpha = 0.5) +
-  geom_line(aes(x = Temperature, y = est), color = "#682714", lwd = 1.2) +
+  geom_ribbon(aes(ymin = .lower_ci, ymax = .upper_ci, x = Temperature), fill = "#682714", alpha = 0.5) +
+  geom_line(aes(x = Temperature, y = .estimate), color = "#682714", lwd = 1.2) +
   scale_y_continuous(trans = inverse_logit_trans) +
   labs(x = "Temperature (°C)", y = "Partial effect (prevalence)", tag = "B") +
   theme(text = element_text(size = 20, 
@@ -568,13 +568,13 @@ TURB.sm <- smooth_estimates(TURB.GAMM) %>%
 TURB.pr <- mod.data %>%
   add_partial_residuals(TURB.GAMM)
 TURB.pe <- TURB.sm %>%
-  filter(smooth == "s(Turbidity)") %>%
-  ggplot( unconditional = TRUE, overall_uncertainty = TRUE) +
+  filter(.smooth == "s(Turbidity)") %>%
+  ggplot(unconditional = TRUE, overall_uncertainty = TRUE) +
   geom_rug(aes(x = Turbidity),
            data = TURB.pr,
            sides = "b", length = grid::unit(0.02, "npc")) +
-  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = Turbidity), fill = "#682714", alpha = 0.5) +
-  geom_line(aes(x = Turbidity, y = est), color = "#682714", lwd = 1.2) +
+  geom_ribbon(aes(ymin = .lower_ci, ymax = .upper_ci, x = Turbidity), fill = "#682714", alpha = 0.5) +
+  geom_line(aes(x = Turbidity, y = .estimate), color = "#682714", lwd = 1.2) +
   scale_y_continuous(trans = inverse_logit_trans) +
   labs(x = "Turbidity (NTU)", y = "Partial effect (prevalence)", tag = "A") +
   theme(text = element_text(size = 20, 
@@ -650,13 +650,13 @@ PH.sm <- smooth_estimates(PH.GAMM) %>%
 PH.pr <- mod.data %>%
   add_partial_residuals(PH.GAMM)
 PH.pe <- PH.sm %>%
-  filter(smooth == "s(pH)") %>%
+  filter(.smooth == "s(pH)") %>%
   ggplot( unconditional = TRUE, overall_uncertainty = TRUE) +
   geom_rug(aes(x = pH),
            data = PH.pr,
            sides = "b", length = grid::unit(0.02, "npc")) +
-  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = pH), fill = "#682714", alpha = 0.5) +
-  geom_line(aes(x = pH, y = est), color = "#682714", lwd = 1.2) +
+  geom_ribbon(aes(ymin = .lower_ci, ymax = .upper_ci, x = pH), fill = "#682714", alpha = 0.5) +
+  geom_line(aes(x = pH, y = .estimate), color = "#682714", lwd = 1.2) +
   scale_y_continuous(trans = inverse_logit_trans) +
   labs(x = "pH", y = "Partial effect(prevalence)", tag = "C") +
   theme(text = element_text(size = 20, 
@@ -731,13 +731,13 @@ DO.sm <- smooth_estimates(DO.GAMM) %>%
 DO.pr <- mod.data %>%
   add_partial_residuals(DO.GAMM)
 DO.pe <- DO.sm %>%
-  filter(smooth == "s(DO)") %>%
+  filter(.smooth == "s(DO)") %>%
   ggplot(unconditional = TRUE, overall_uncertainty = TRUE) +
   geom_rug(aes(x = DO),
            data = DO.pr,
            sides = "b", length = grid::unit(0.02, "npc")) +
-  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = DO), fill = "#682714", alpha = 0.5) +
-  geom_line(aes(x = DO, y = est), color = "#682714", lwd = 1.2) +
+  geom_ribbon(aes(ymin = .lower_ci, ymax = .upper_ci, x = DO), fill = "#682714", alpha = 0.5) +
+  geom_line(aes(x = DO, y = .estimate), color = "#682714", lwd = 1.2) +
   scale_y_continuous(trans = inverse_logit_trans) +
   labs(x = "Dissolved oxygen (mg/L)", y = "Partial effect (prevalence)", tag = "E") +
   theme(text = element_text(size = 20, 
@@ -812,13 +812,13 @@ COND.sm <- smooth_estimates(COND.GAMM) %>%
 COND.pr <- mod.data %>%
   add_partial_residuals(COND.GAMM)
 COND.pe <- COND.sm %>%
-  filter(smooth == "s(Conductivity)") %>%
+  filter(.smooth == "s(Conductivity)") %>%
   ggplot(unconditional = TRUE, overall_uncertainty = TRUE) +
   geom_rug(aes(x = Conductivity),
            data = COND.pr,
            sides = "b", length = grid::unit(0.02, "npc")) +
-  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = Conductivity), fill = "#682714", alpha = 0.5) +
-  geom_line(aes(x = Conductivity, y = est), color = "#682714", lwd = 1.2) +
+  geom_ribbon(aes(ymin = .lower_ci, ymax = .upper_ci, x = Conductivity), fill = "#682714", alpha = 0.5) +
+  geom_line(aes(x = Conductivity, y = .estimate), color = "#682714", lwd = 1.2) +
   scale_y_continuous(trans = inverse_logit_trans) +
   labs(x = "Conductivity (μS/cm)", y = "Partial effect (prevalence)", tag = "D") +
   theme(text = element_text(size = 20, 
@@ -893,13 +893,13 @@ AREAPERI.sm <- smooth_estimates(AREAPERI.GAMM) %>%
 AREAPERI.pr <- mod.data %>%
   add_partial_residuals(AREAPERI.GAMM)
 AREAPERI.pe <- AREAPERI.sm %>%
-  filter(smooth == "s(Area_Perimeter)") %>%
+  filter(.smooth == "s(Area_Perimeter)") %>%
   ggplot(unconditional = TRUE, overall_uncertainty = TRUE) +
   geom_rug(aes(x = Area_Perimeter),
            data = AREAPERI.pr,
            sides = "b", length = grid::unit(0.02, "npc")) +
-  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = Area_Perimeter), fill = "#682714", alpha = 0.5) +
-  geom_line(aes(x = Area_Perimeter, y = est), color = "#682714", lwd = 1.2) +
+  geom_ribbon(aes(ymin = .lower_ci, ymax = .upper_ci, x = Area_Perimeter), fill = "#682714", alpha = 0.5) +
+  geom_line(aes(x = Area_Perimeter, y = .estimate), color = "#682714", lwd = 1.2) +
   scale_y_continuous(trans = inverse_logit_trans) +
   labs(x = "Area:Perimeter (m)", y = "Partial effect (prevalence)", tag = "H") +
   theme(text = element_text(size = 20, 
@@ -993,13 +993,13 @@ PERI.sm <- smooth_estimates(PERI.GAMM) %>%
 PERI.pr <- mod.data %>%
   add_partial_residuals(PERI.GAMM)
 PERI.pe <- PERI.sm %>%
-  filter(smooth == "s(Perimeter)") %>%
+  filter(.smooth == "s(Perimeter)") %>%
   ggplot(unconditional = TRUE, overall_uncertainty = TRUE) +
   geom_rug(aes(x = Perimeter),
            data = PERI.pr,
            sides = "b", length = grid::unit(0.02, "npc")) +
-  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = Perimeter), fill ="#682714", alpha = 0.5) +
-  geom_line(aes(x = Perimeter, y = est), color = "#682714", lwd = 1.2) +
+  geom_ribbon(aes(ymin = .lower_ci, ymax = .upper_ci, x = Perimeter), fill ="#682714", alpha = 0.5) +
+  geom_line(aes(x = Perimeter, y = .estimate), color = "#682714", lwd = 1.2) +
   scale_y_continuous(trans = inverse_logit_trans) +
   labs(x = "Perimeter (m)", y = "Partial effect (prevalence)", tag = "I") +
   theme(text = element_text(size = 20, 
@@ -1213,13 +1213,13 @@ FISH.sm <- smooth_estimates(FISH.GAMM) %>%
 FISH.pr <- mod.data %>%
   add_partial_residuals(FISH.GAMM)
 FISH.pe <- FISH.sm %>%
-  filter(smooth == "s(tot_fish)") %>%
+  filter(.smooth == "s(tot_fish)") %>%
   ggplot(unconditional = TRUE, overall_uncertainty = TRUE) +
   geom_rug(aes(x = tot_fish),
            data = FISH.pr,
            sides = "b", length = grid::unit(0.02, "npc")) +
-  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = tot_fish), fill = "#682714", alpha = 0.5) +
-  geom_line(aes(x = tot_fish, y = est), color = "#682714", lwd = 1.2) +
+  geom_ribbon(aes(ymin = .lower_ci, ymax = .upper_ci, x = tot_fish), fill = "#682714", alpha = 0.5) +
+  geom_line(aes(x = tot_fish, y = .estimate), color = "#682714", lwd = 1.2) +
   scale_y_continuous(trans = inverse_logit_trans) +
   labs(x = "Fish abundance", y = "Partial effect (prevalence)", tag = "J") +
   theme(text = element_text(size = 20, 
@@ -1288,13 +1288,13 @@ NONHOST.sm <- smooth_estimates(NONHOST.GAMM) %>%
 NONHOST.pr <- mod.data %>%
   add_partial_residuals(NONHOST.GAMM)
 NONHOST.pe <- NONHOST.sm %>%
-  filter(smooth == "s(tot_Cyprinidae)") %>%
+  filter(.smooth == "s(tot_Cyprinidae)") %>%
   ggplot(unconditional = TRUE, overall_uncertainty = TRUE) +
   geom_rug(aes(x = tot_Cyprinidae),
            data = NONHOST.pr,
            sides = "b", length = grid::unit(0.02, "npc")) +
-  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = tot_Cyprinidae), fill = "#682714", alpha = 0.5) +
-  geom_line(aes(x = tot_Cyprinidae, y = est), color = "#682714", lwd = 1.2) +
+  geom_ribbon(aes(ymin = .lower_ci, ymax = .upper_ci, x = tot_Cyprinidae), fill = "#682714", alpha = 0.5) +
+  geom_line(aes(x = tot_Cyprinidae, y = .estimate), color = "#682714", lwd = 1.2) +
   scale_y_continuous(trans = inverse_logit_trans) +
   labs(x = "Non-host abundance", y = "Partial effect (prevalence)", tag = "K") +
   theme(text = element_text(size = 20, 
@@ -1394,13 +1394,13 @@ DIVERS.sm <- smooth_estimates(DIVERS.GAMM) %>%
 DIVERS.pr <- mod.data %>%
   add_partial_residuals(DIVERS.GAMM)
 DIVERS.pe <- DIVERS.sm %>%
-  filter(smooth == "s(Diversity)") %>%
+  filter(.smooth == "s(Diversity)") %>%
   ggplot(unconditional = TRUE, overall_uncertainty = TRUE) +
   geom_rug(aes(x = Diversity),
            data = DIVERS.pr,
            sides = "b", length = grid::unit(0.02, "npc")) +
-  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = Diversity), fill = "#682714", alpha = 0.5) +
-  geom_line(aes(x = Diversity, y = est), color = "#682714", lwd = 1.2) +
+  geom_ribbon(aes(ymin = .lower_ci, ymax = .upper_ci, x = Diversity), fill = "#682714", alpha = 0.5) +
+  geom_line(aes(x = Diversity, y = .estimate), color = "#682714", lwd = 1.2) +
   scale_y_continuous(trans = inverse_logit_trans) +
   labs(x = "Simpson's Diversity Index", y = "Partial effect (prevalence)", tag = "L") +
   theme(text = element_text(size = 20, 
@@ -1985,4 +1985,3 @@ Tab.summary.GAMMs %>% #Saving gt tab
   gtsave("Tab_GAMMs_summary.png", paste0(to.figs))
 Tab.summary.GAMMs %>% 
   gtsave("Table_S16.png", paste0(to.rédaction, "./Support_information/"))  
-  

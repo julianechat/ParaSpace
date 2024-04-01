@@ -410,7 +410,7 @@ FishMap.C <- ggplot() +
         plot.background = element_rect(fill = "white"),
         panel.grid = element_line(NA), 
         axis.ticks = element_blank(),
-        text = element_blank()) +
+        axis.text = element_blank()) +
   annotation_scale(location = "tl", 
                    bar_cols = c("grey60", "white"),
                    height = unit(0.25, "cm"),
@@ -453,7 +453,7 @@ FishMap.MT <- ggplot() +
         plot.background = element_rect(fill = "white"),
         panel.grid = element_line(NA), 
         axis.ticks = element_blank(),
-        text = element_blank()) +
+        axis.text = element_blank()) +
   annotation_scale(location = "tl", 
                    bar_cols = c("grey60", "white"),
                    height = unit(0.25, "cm"),
@@ -495,7 +495,7 @@ FishMap.S <- ggplot() +
         plot.background = element_rect(fill = "white"),
         panel.grid = element_line(NA), 
         axis.ticks = element_blank(),
-        text = element_blank()) +
+        axis.text = element_blank()) +
   annotation_scale(location = "tl", 
                    bar_cols = c("grey60", "white"),
                    height = unit(0.25, "cm"),
@@ -538,7 +538,7 @@ FishMap.T <- ggplot() +
         plot.background = element_rect(fill = "white"),
         panel.grid = element_line(NA), 
         axis.ticks = element_blank(),
-        text = element_blank()) +
+        axis.text = element_blank()) +
   annotation_scale(location = "tl", 
                    bar_cols = c("grey60", "white"),
                    height = unit(0.25, "cm"),
