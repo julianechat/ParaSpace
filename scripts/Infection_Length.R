@@ -26,6 +26,7 @@ library(cowplot)
 library(splitstackshape)
 library(dunn.test)
 library(tidyr)
+library(gt)
 
 source(paste0(to.R, "anova.1way.R"))
 
@@ -46,10 +47,11 @@ LengthData <- expandRows(LengthData, "Abundance") #Reshaping data frame for 1 ro
 
 ## Landscape-scale ----
 
-### Combined methods (Fishing methods) ----
+### Combined methods ----
 
-Landscape.mean <- mean(LengthData$Length)
-Landscape.sd <- sd(LengthData$Length)
+Landscape.mean.C <- mean(LengthData$Length)
+Landscape.sd.C <- sd(LengthData$Length)
+Landscape.N.C <- length(LengthData$Length)
   
 ### Seine net ----
 
@@ -58,6 +60,7 @@ LengthData.S <- LengthData %>%
 
 Landscape.mean.S <- mean(LengthData.S$Length)
 Landscape.sd.S <- sd(LengthData.S$Length)
+Landscape.N.S <- length(LengthData.S$Length)
 
 ### Minnow traps ----
 
@@ -66,14 +69,45 @@ LengthData.MT <- LengthData %>%
 
 Landscape.mean.MT <- mean(LengthData.MT$Length)
 Landscape.sd.MT <- sd(LengthData.MT$Length)
+Landscape.N.MT <- length(LengthData.MT$Length)
 
 ### Method comparison ----
 
+#Table
+Land.sum.method <- data.frame(Method = c("Combined", "Minnow trap", "Seine net"),
+                              Mean = c(Landscape.mean.C, Landscape.mean.MT, Landscape.mean.S),
+                              sd = c(Landscape.sd.C, Landscape.sd.MT, Landscape.sd.S),
+                              N = c(Landscape.N.C,Landscape.N.MT, Landscape.N.S))
+
+Table.SXX <- gt(Land.sum.method) %>% 
+  tab_header(md("**TABLE SXX.** Mean species length in the landscape according to the sampling method.")) %>% 
+  tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "left"),
+            locations = cells_title("title")) %>% 
+  tab_options(table.border.top.style = "hidden",
+              row.striping.include_table_body = TRUE,
+              row_group.as_column = TRUE,
+              heading.border.bottom.color = "black") %>% 
+  tab_style(cell_text(color = "black", font = "Calibri light", weight = "bold", size = 9, align = "center", v_align = "middle"),
+            locations = cells_column_labels()) %>% 
+  tab_style(cell_text(color = "black", font = "Calibri light", size = 9, align = "center", v_align = "middle"),
+            locations = cells_body()) %>% 
+  tab_style(style= cell_borders(sides = c("bottom", "top"), weight = px(2)), 
+            location = list(cells_column_labels())) %>% 
+  tab_style(style= cell_borders(sides = "bottom", weight = px(2)), 
+            location = list(cells_body(row = 3))) %>% 
+  fmt_number(columns = c(2,3), decimals = 2)
+
+Table.SXX 
+
+Table.SXX %>% #Saving gt tab
+  gtsave("Tab_Length_Landscape.png", paste0(to.figs))
+Table.SXX %>% 
+  gtsave("Table_SXX.png", paste0(to.rédaction, "./Support_information/"))
+
+#Data distribution is right-skewed. Use a non parametric test is needed. 
 hist(LengthData$Length)
 hist(LengthData.MT$Length)
 hist(LengthData.S$Length)
-
-#Data distribution is right-skewed. Use a non parametric test is needed. 
 
 #Test if length distribution of fish caught with minnow traps is different than of fish caught with seine net
 wilcox.test(LengthData.MT$Length, LengthData.S$Length, alternative = "two.sided", paired = FALSE, conf.int = TRUE, conf.level = 0.95)
@@ -105,11 +139,59 @@ Length.SpeciesMean <- LengthData %>% #Summary statistic by species (mean, sd and
   group_by(Species_ID) %>% 
   summarise(Mean = mean(Length), sd = sd(Length), N = n())
 
+Table.S9 <- gt(Length.SpeciesMean) %>% #Creating gt tab and editing style
+  cols_label(Species_ID = md("**Species**"), md("**Mean**"), md("**sd**"), md("**N**")) %>% 
+  tab_header(md("**TABLE S9.** Mean fish species length. The fishes were caught with minnow traps and seine nets.")) %>% 
+  tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "left"),
+            locations = cells_title("title")) %>% 
+  tab_options(table.border.top.style = "hidden",
+              heading.border.bottom.color = "black",
+              row.striping.include_table_body = TRUE) %>% 
+  tab_style(cell_text(color = "black", font = "Calibri light", weight = "bold", size = 9, align = "center", v_align = "middle"),
+            locations = cells_column_labels()) %>% 
+  tab_style(cell_text(color = "black", font = "Calibri light", size = 9, align = "center", v_align = "middle"),
+            locations = cells_body()) %>% 
+  tab_style(style= cell_borders(sides = c("bottom", "top"), weight = px(2)), 
+            location = list(cells_column_labels())) %>% 
+  tab_style(style = cell_borders(sides = "bottom", weight = px(2)),
+            locations =  cells_body(rows = 17)) %>%
+  tab_style(style = cell_text(align = "center"),
+            locations = cells_body(column = everything())) %>% 
+  tab_style(style = cell_text(align = "center", v_align = "middle"), 
+            locations = cells_column_labels()) %>% 
+  tab_style(style = cell_text(style = "italic"),
+            locations = cells_body(columns = 1)) %>% 
+  fmt_number(columns = c(2, 3), decimals = 2) %>% 
+  sub_values(values = "AmRu", replacement = "Ambloplites rupestris") %>% 
+  sub_values(values = "Centrarchidae", replacement = "Unknown centrarchids") %>% 
+  sub_values(values = "FuDi", replacement = "Fundulus diaphanus") %>% 
+  sub_values(values = "LeGi", replacement = "Lepomis gibbosus") %>% 
+  sub_values(values = "MiDo", replacement = "Micropetus dolomieu") %>% 
+  sub_values(values = "PeFl", replacement = "Perca flavescens") %>% 
+  sub_values(values = "Chrosomus sp.", replacement =  "Chrosomus spp.") %>% 
+  sub_values(values = "Cyprinidae", replacement = "Unknown cyprinids") %>% 
+  sub_values(values = "PiNo", replacement = "Pimephales notatus") %>% 
+  sub_values(values = "PiPr", replacement = "Pimephales promelas") %>% 
+  sub_values(values = "SeAt", replacement = "Semotilus atromaculatus") %>% 
+  sub_values(values = "AmNe", replacement = "Ameiurus nebulosus") %>% 
+  sub_values(values = "CaCo", replacement = "Catostomus commersonii") %>% 
+  sub_values(values = "LuCo", replacement = "Luxilus cornutus") %>% 
+  sub_values(values = "EsMa", replacement = "Esox masquinongy") %>% 
+  sub_values(values = "UmLi", replacement = "Umbra limi") %>% 
+  sub_values(values = "RhAt", replacement = "Rhinichthys atratulus")
+
+Table.S9
+
+Table.S9 %>% #Saving gt tab
+  gtsave("Tab_Length_Species.png", paste0(to.figs))
+Table.S9 %>% 
+  gtsave("Table_S9.png", paste0(to.rédaction, "./Support_information/"))
+
 ## Lake-scale ----
 
 ### Combined methods ----
 
-Length.LakeMean <- LengthData %>% #Summary statistic by lake (mean, sd and N)
+Length.LakeMean.C <- LengthData %>% #Summary statistic by lake (mean, sd and N)
   group_by(Lake) %>% 
   summarise(Mean = mean(Length), sd = sd(Length), N = n())
 
@@ -131,6 +213,97 @@ Length.SpeciesLakeMean <- LengthData %>% #Summarizing number of individuals, mea
   group_by(Lake, Species_ID, .add = TRUE) %>% 
   summarise(Mean = mean(Length), sd = sd(Length), N = n())
 
+Table.S10 <- gt(Length.SpeciesLakeMean) %>% #Creating gt tab and editing style
+  cols_label(Species_ID = md("**Species**"), md("**Mean**"), md("**sd**"), md("**N**")) %>% 
+  tab_header(md("**TABLE S9.** Mean fish species length. The fishes were caught with minnow traps and seine nets.")) %>% 
+  tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "left"),
+            locations = cells_title("title")) %>% 
+  tab_options(table.border.top.style = "hidden",
+              heading.border.bottom.color = "black",
+              row.striping.include_table_body = TRUE) %>% 
+  tab_style(style = cell_text(color = "black", font = "Calibri light", size = 9, align = "left", v_align = "middle", weight = "bold"),
+            locations = cells_row_groups()) %>% 
+  tab_style(cell_text(color = "black", font = "Calibri light", weight = "bold", size = 9, align = "center", v_align = "middle"),
+            locations = cells_column_labels()) %>% 
+  tab_style(cell_text(color = "black", font = "Calibri light", size = 9, align = "center", v_align = "middle"),
+            locations = cells_body()) %>% 
+  tab_style(style= cell_borders(sides = c("bottom", "top"), weight = px(2)), 
+            location = list(cells_column_labels())) %>% 
+  tab_style(style = cell_borders(sides = "bottom", weight = px(2)),
+            locations =  cells_body(rows = 60)) %>%
+  tab_style(style = cell_text(align = "center"),
+            locations = cells_body(column = everything())) %>% 
+  tab_style(style = cell_text(align = "center", v_align = "middle"), 
+            locations = cells_column_labels()) %>% 
+  tab_style(style = cell_text(style = "italic"),
+            locations = cells_body(columns = 1)) %>% 
+  tab_style(style = cell_text(style = "italic"),
+            locations = cells_body(columns = 2)) %>% 
+  fmt_number(columns = c(2, 3), decimals = 2) %>% 
+  sub_values(values = "AmRu", replacement = "Ambloplites rupestris") %>% 
+  sub_values(values = "Centrarchidae", replacement = "Unknown centrarchids") %>% 
+  sub_values(values = "FuDi", replacement = "Fundulus diaphanus") %>% 
+  sub_values(values = "LeGi", replacement = "Lepomis gibbosus") %>% 
+  sub_values(values = "MiDo", replacement = "Micropetus dolomieu") %>% 
+  sub_values(values = "PeFl", replacement = "Perca flavescens") %>% 
+  sub_values(values = "Chrosomus sp.", replacement =  "Chrosomus spp.") %>% 
+  sub_values(values = "Cyprinidae", replacement = "Unknown cyprinids") %>% 
+  sub_values(values = "PiNo", replacement = "Pimephales notatus") %>% 
+  sub_values(values = "PiPr", replacement = "Pimephales promelas") %>% 
+  sub_values(values = "SeAt", replacement = "Semotilus atromaculatus") %>% 
+  sub_values(values = "AmNe", replacement = "Ameiurus nebulosus") %>% 
+  sub_values(values = "CaCo", replacement = "Catostomus commersonii") %>% 
+  sub_values(values = "LuCo", replacement = "Luxilus cornutus") %>% 
+  sub_values(values = "EsMa", replacement = "Esox masquinongy") %>% 
+  sub_values(values = "UmLi", replacement = "Umbra limi") %>% 
+  sub_values(values = "RhAt", replacement = "Rhinichthys atratulus")
+
+Table.S10
+
+Table.S10 %>% #Saving gt tab
+  gtsave("Tab_Length_Species.png", paste0(to.figs))
+Table.S10 %>% 
+  gtsave("Table_S10.png", paste0(to.rédaction, "./Support_information/"))
+
+### Method comparison table ----
+
+Lake.sum.method <-  merge(Length.LakeMean.C, Length.LakeMean.MT, by = "Lake")
+Lake.sum.method <-  merge(Lake.sum.method , Length.LakeMean.S, by = "Lake")
+
+Table.S8 <- gt(Lake.sum.method) %>% 
+  cols_label(Mean.x = "Mean", sd.x = "sd", N.x = "N", Mean.y = "Mean", sd.y = "sd", N.y = "N") %>% 
+  tab_spanner("Seine net", columns = c(8,9,10)) %>% 
+  tab_spanner("Minnow trap", columns = c(5,6,7)) %>% 
+  tab_spanner("Combined methods", columns = c(2,3,4)) %>% 
+  tab_header(md("**TABLE S8.** Mean species length within each lake sampled according to the sampling method. Lake Tracy was omitted because of only one sampled fish.")) %>% 
+  tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "left"),
+            locations = cells_title("title")) %>% 
+  tab_options(table.border.top.style = "hidden",
+              row.striping.include_table_body = TRUE,
+              row_group.as_column = TRUE,
+              heading.border.bottom.color = "black") %>% 
+  tab_style(cell_text(color = "black", font = "Calibri light", weight = "bold", size = 9, align = "center", v_align = "middle"),
+            locations = cells_column_labels()) %>% 
+  tab_style(cell_text(color = "black", font = "Calibri light", size = 9, align = "center", v_align = "middle"),
+            locations = cells_body()) %>% 
+  tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "center"),
+            locations = cells_column_spanners()) %>% 
+  tab_style(style= cell_borders(sides = c("bottom", "top"), weight = px(2)), 
+            location = list(cells_column_labels())) %>% 
+  tab_style(cell_text(color = "black", font = "Calibri light", size = 9, align = "center", v_align = "middle", weight = "bold"),
+            locations = cells_body(column = 1)) %>% 
+  tab_style(style= cell_borders(sides = "bottom", weight = px(2)), 
+            location = list(cells_body(row = 14))) %>% 
+  fmt_number(columns = c(2,3,5,6,8,9), decimals = 2) %>% 
+  sub_values(column = 1, values = "Pin_rouge", replacement = "Pin rouge")
+
+Table.S8  
+
+Table.S8 %>% #Saving gt tab
+  gtsave("Tab_Length_Lake.png", paste0(to.figs))
+Table.S8 %>% 
+  gtsave("Table_S8.png", paste0(to.rédaction, "./Support_information/"))
+  
 # ---- Intensity & Length relationships ----
 
 PeFlData <- LengthData %>% 
