@@ -74,6 +74,7 @@ Table.S1 <- gt(LakesCharacteristics) %>% #Creating gt tab and editing style
 
 Table.S1 %>% #Saving gt tab
   gtsave("Tab_GeoMorpho.png", paste0(to.figs))
+
 Table.S1 %>% 
   gtsave("Table_S1.png", paste0(to.rédaction, "./Support_information/"))
 
@@ -296,7 +297,7 @@ SpAbund.T <-SpAbund.T %>%
 
 Table.S7 <- gt(SpAbund.T) %>% #Creating gt tab and editing style
   cols_label(Lake = md("**Lake**"), tot_AmRu = md("***Ambloplites rupestris***"), tot_FuDi = md("***Fundulus diaphanus***"), tot_MiDo = md("***Micropterus dolomieu***"), tot_LeGi = md("***Lepomis gibbosus***"), tot_PeFl = md("***Perca flavescens***"), tot_PiPr = md("***Pimephales promelas***"), tot_ChrosomusSpp. = md("**Chrosomus spp.**"), tot_PiNo = md("***Pimephales notatus***"), tot_SeAt = md("***Semotilus atromaculatus***"), tot_LuCo = md("***Luxilus cornutus***"), tot_AmNe = md("***Ameiurus nebulosus***"), tot_CaCo = md("***Catostomus commersonii***"), tot_EsMa = md("***Esox masquinongy***"), tot_UmLi = md("***Umbra limi***"), tot_RhAt = md("***Rhinichthys atratulus***"), tot_Cyprinidae = md("**Unknown cyprinids**"), tot_Centrarchidae = md("**Unknown centrarchids**"), Total = md("**Total**")) %>% 
-  tab_header(md("**TABLE S7.** Abundance of fish species in the 15 sampled lakes observed in snorkeling transects.")) %>% 
+  tab_header(md("**TABLE S7.** Abundance of fish species in the 15 sampled lakes observed in snorkeling transects. Lakes Beaver, Tracy, Montaubois and St-Onge were not sampled with this method.")) %>% 
   cols_move(columns = c("tot_ChrosomusSpp.", "tot_Cyprinidae", "tot_Centrarchidae"), after = "tot_RhAt") %>% 
   tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "left"),
             locations = cells_title("title")) %>% 

@@ -79,8 +79,8 @@ Land.sum.method <- data.frame(Method = c("Combined", "Minnow trap", "Seine net")
                               sd = c(Landscape.sd.C, Landscape.sd.MT, Landscape.sd.S),
                               N = c(Landscape.N.C,Landscape.N.MT, Landscape.N.S))
 
-Table.SXX <- gt(Land.sum.method) %>% 
-  tab_header(md("**TABLE SXX.** Mean species length in the landscape according to the sampling method.")) %>% 
+Table.S8 <- gt(Land.sum.method) %>% 
+  tab_header(md("**TABLE S8.** Mean species length in the landscape according to the sampling method.")) %>% 
   tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "left"),
             locations = cells_title("title")) %>% 
   tab_options(table.border.top.style = "hidden",
@@ -97,12 +97,12 @@ Table.SXX <- gt(Land.sum.method) %>%
             location = list(cells_body(row = 3))) %>% 
   fmt_number(columns = c(2,3), decimals = 2)
 
-Table.SXX 
+Table.S8 
 
-Table.SXX %>% #Saving gt tab
+Table.S8 %>% #Saving gt tab
   gtsave("Tab_Length_Landscape.png", paste0(to.figs))
-Table.SXX %>% 
-  gtsave("Table_SXX.png", paste0(to.rédaction, "./Support_information/"))
+Table.S8 %>% 
+  gtsave("Table_S8.png", paste0(to.rédaction, "./Support_information/"))
 
 #Data distribution is right-skewed. Use a non parametric test is needed. 
 hist(LengthData$Length)
@@ -139,9 +139,9 @@ Length.SpeciesMean <- LengthData %>% #Summary statistic by species (mean, sd and
   group_by(Species_ID) %>% 
   summarise(Mean = mean(Length), sd = sd(Length), N = n())
 
-Table.S9 <- gt(Length.SpeciesMean) %>% #Creating gt tab and editing style
+Table.LandSpecies <- gt(Length.SpeciesMean) %>% #Creating gt tab and editing style
   cols_label(Species_ID = md("**Species**"), md("**Mean**"), md("**sd**"), md("**N**")) %>% 
-  tab_header(md("**TABLE S9.** Mean fish species length. The fishes were caught with minnow traps and seine nets.")) %>% 
+  tab_header(md("**TABLE X.** Mean fish species length. The fishes were caught with minnow traps and seine nets.")) %>% 
   tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "left"),
             locations = cells_title("title")) %>% 
   tab_options(table.border.top.style = "hidden",
@@ -180,12 +180,7 @@ Table.S9 <- gt(Length.SpeciesMean) %>% #Creating gt tab and editing style
   sub_values(values = "UmLi", replacement = "Umbra limi") %>% 
   sub_values(values = "RhAt", replacement = "Rhinichthys atratulus")
 
-Table.S9
-
-Table.S9 %>% #Saving gt tab
-  gtsave("Tab_Length_Species.png", paste0(to.figs))
-Table.S9 %>% 
-  gtsave("Table_S9.png", paste0(to.rédaction, "./Support_information/"))
+Table.LandSpecies 
 
 ## Lake-scale ----
 
@@ -213,9 +208,9 @@ Length.SpeciesLakeMean <- LengthData %>% #Summarizing number of individuals, mea
   group_by(Lake, Species_ID, .add = TRUE) %>% 
   summarise(Mean = mean(Length), sd = sd(Length), N = n())
 
-Table.S10 <- gt(Length.SpeciesLakeMean) %>% #Creating gt tab and editing style
+Table.LakeSpecies <- gt(Length.SpeciesLakeMean) %>% #Creating gt tab and editing style
   cols_label(Species_ID = md("**Species**"), md("**Mean**"), md("**sd**"), md("**N**")) %>% 
-  tab_header(md("**TABLE S9.** Mean fish species length. The fishes were caught with minnow traps and seine nets.")) %>% 
+  tab_header(md("**TABLE X.** Mean fish species length. The fishes were caught with minnow traps and seine nets.")) %>% 
   tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "left"),
             locations = cells_title("title")) %>% 
   tab_options(table.border.top.style = "hidden",
@@ -258,24 +253,19 @@ Table.S10 <- gt(Length.SpeciesLakeMean) %>% #Creating gt tab and editing style
   sub_values(values = "UmLi", replacement = "Umbra limi") %>% 
   sub_values(values = "RhAt", replacement = "Rhinichthys atratulus")
 
-Table.S10
-
-Table.S10 %>% #Saving gt tab
-  gtsave("Tab_Length_Species.png", paste0(to.figs))
-Table.S10 %>% 
-  gtsave("Table_S10.png", paste0(to.rédaction, "./Support_information/"))
+Table.LakeSpecies
 
 ### Method comparison table ----
 
 Lake.sum.method <-  merge(Length.LakeMean.C, Length.LakeMean.MT, by = "Lake")
 Lake.sum.method <-  merge(Lake.sum.method , Length.LakeMean.S, by = "Lake")
 
-Table.S8 <- gt(Lake.sum.method) %>% 
+Table.S9 <- gt(Lake.sum.method) %>% 
   cols_label(Mean.x = "Mean", sd.x = "sd", N.x = "N", Mean.y = "Mean", sd.y = "sd", N.y = "N") %>% 
   tab_spanner("Seine net", columns = c(8,9,10)) %>% 
   tab_spanner("Minnow trap", columns = c(5,6,7)) %>% 
   tab_spanner("Combined methods", columns = c(2,3,4)) %>% 
-  tab_header(md("**TABLE S8.** Mean species length within each lake sampled according to the sampling method. Lake Tracy was omitted because of only one sampled fish.")) %>% 
+  tab_header(md("**TABLE S9.** Mean species length within each lake sampled according to the sampling method. Lake Tracy was omitted because of only one sampled fish.")) %>% 
   tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "left"),
             locations = cells_title("title")) %>% 
   tab_options(table.border.top.style = "hidden",
@@ -297,12 +287,12 @@ Table.S8 <- gt(Lake.sum.method) %>%
   fmt_number(columns = c(2,3,5,6,8,9), decimals = 2) %>% 
   sub_values(column = 1, values = "Pin_rouge", replacement = "Pin rouge")
 
-Table.S8  
+Table.S9
 
-Table.S8 %>% #Saving gt tab
+Table.S9 %>% #Saving gt tab
   gtsave("Tab_Length_Lake.png", paste0(to.figs))
-Table.S8 %>% 
-  gtsave("Table_S8.png", paste0(to.rédaction, "./Support_information/"))
+Table.S9 %>% 
+  gtsave("Table_S9.png", paste0(to.rédaction, "./Support_information/"))
   
 # ---- Intensity & Length relationships ----
 

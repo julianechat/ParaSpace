@@ -811,7 +811,7 @@ Site.summary.data <- rbind(Site.MT.data, Site.S.data, Site.T.data)
 
 #Table
 Table.S14 <- gt(Site.summary.data, groupname_col = "Method") %>% 
-  tab_header(md("**TABLE S14.** Observed site prevalence estimated by each sampling method. Affiliated lake are given as columns. All values are given in percentage. Samples with no captures were omitted to alleviate the table. Lake Tracy was not included because only one fish was caughted through all methods.")) %>% 
+  tab_header(md("**TABLE S14.** Observed site prevalence estimated by each sampling method. Affiliated lake are given as columns. All values are given in percentage. Samples with no captures were omitted to alleviate the table. Lake Tracy was not included because only one fish was caughted through all methods. Lakes Beaver, Tracy, Montaubois and St-Onge were not sampled with the transect method.")) %>% 
   cols_label(Sampling_ID = md("Sampling ID"), Pin_rouge = md("Pin rouge")) %>% 
   tab_spanner(md("Prevalence (%)"), columns = c(3:16)) %>% 
   tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "center", weight = "bold"),
@@ -836,6 +836,7 @@ Table.S14 <- gt(Site.summary.data, groupname_col = "Method") %>%
   tab_style(style= cell_borders(sides = c("top", "bottom"), weight = px(2)), 
             location = list(cells_row_groups())) %>% 
   fmt_number(decimals = 2)
+
 Table.S14
 
 Table.S14 %>% #Saving gt tab
