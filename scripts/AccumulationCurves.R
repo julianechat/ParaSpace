@@ -29,12 +29,17 @@ library(gt)
 library(broom)
 library(tidyr)
 library(dunn.test)
+library(scales)
+library(tibble)
 
 ## Loading data ----
 
 CombinedData <- read.csv(paste0(to.output, "CombinedData.csv"))
 
 # ---- Data preparation ----
+
+CombinedData <- CombinedData %>% #Muskellunge and brown bullhead individuals are excluded from the prevalence calculus since they are not host of the black spot disease
+  select(!(c(tot_EsMa, inf_EsMa, tot_AmNe, inf_AmNe)))
 
 ## Combined methods ----
 
@@ -47,6 +52,18 @@ Cdata.inf <- Cdata %>%
 
 Cdata.tot <- Cdata %>% 
   select(starts_with("tot")) #Select total community matrix
+
+#LeGi
+CLeGi.inf <- Cdata %>% 
+  select(inf_LeGi) 
+
+CLeGi.tot <- Cdata %>% 
+  select(tot_LeGi)
+
+CLeGi.prev <- CLeGi.inf/CLeGi.tot 
+
+CLeGi <- data.frame(CLeGi.tot, CLeGi.prev)
+CLeGi <- na.omit(CLeGi)
 
 #Infection prevalence data
 Infected <- rowSums(Cdata.inf)
@@ -70,6 +87,18 @@ MTdata.inf <- MTdata %>%
 MTdata.tot <- MTdata %>% 
   select(starts_with("tot")) #Select total community matrix
 
+#LeGi
+MTLeGi.inf <- MTdata %>% 
+  select(inf_LeGi) 
+
+MTLeGi.tot <- MTdata %>% 
+  select(tot_LeGi)
+
+MTLeGi.prev <- MTLeGi.inf/MTLeGi.tot 
+
+MTLeGi <- data.frame(MTLeGi.tot, MTLeGi.prev)
+MTLeGi <- na.omit(MTLeGi)
+
 #Infection prevalence data
 Infected <- rowSums(MTdata.inf)
 Total <- rowSums(MTdata.tot)
@@ -91,6 +120,18 @@ Sdata.inf <- Sdata %>%
 
 Sdata.tot <- Sdata %>% 
   select(starts_with("tot")) #Select total community matrix
+
+#LeGi
+SLeGi.inf <- Sdata %>% 
+  select(inf_LeGi) 
+
+SLeGi.tot <- Sdata %>% 
+  select(tot_LeGi)
+
+SLeGi.prev <- SLeGi.inf/SLeGi.tot 
+
+SLeGi <- data.frame(SLeGi.tot, SLeGi.prev)
+SLeGi <- na.omit(SLeGi)
 
 #Infection prevalence data
 Infected <- rowSums(Sdata.inf)
@@ -114,6 +155,18 @@ Tdata.inf <- Tdata %>%
 Tdata.tot <- Tdata %>% 
   select(starts_with("tot")) #Select total community matrix
 
+#LeGi
+TLeGi.inf <- Tdata %>% 
+  select(inf_LeGi) 
+
+TLeGi.tot <- Tdata %>% 
+  select(tot_LeGi)
+
+TLeGi.prev <- TLeGi.inf/TLeGi.tot 
+
+TLeGi <- data.frame(TLeGi.tot, TLeGi.prev)
+TLeGi <- na.omit(TLeGi)
+
 #Infection prevalence data
 Infected <- rowSums(Tdata.inf)
 Total <- rowSums(Tdata.tot)
@@ -127,12 +180,20 @@ Tdata <- data.frame(Lake, Infected, Total, Prevalence) %>%
 
 ## Minnow trap ----
 
-acc.MT <- specaccum(MTdata.tot, method = "random", permutations = 1000, gamma = "jack1") #Accumulation curve function
+MTdata.tot2 <- MTdata.tot %>% 
+  select(!(tot_Centrarchidae)) %>% 
+  select(!(tot_Cyprinidae))
+
+acc.MT <- specaccum(MTdata.tot2, method = "random", permutations = 1000, gamma = "jack1") #Accumulation curve function
 MT.plot <- plot(acc.MT, col = "#2A5676", xlab = "sampling", ylab = "species")
 
 ## Seine net ----
 
-acc.S <- specaccum(Sdata.tot, method = "random", permutations = 1000, gamma = "jack1") #Accumulation curve function
+Sdata.tot2 <- Sdata.tot %>% 
+  select(!(tot_Centrarchidae)) %>% 
+  select(!(tot_Cyprinidae))
+
+acc.S <- specaccum(Sdata.tot2, method = "random", permutations = 1000, gamma = "jack1") #Accumulation curve function
 S.plot <- plot(acc.S, col = "#999600", xlab = "sampling", ylab = "species")
 
 ## Transect ----
@@ -262,6 +323,9 @@ ggsave(paste0(to.figs, "AccumulationCurves_infection.png"), plot = inf.acc.plot,
 
 # ---- Individuals accumulation curves ---- 
 
+N <- 35 #Maximum number of samples (i)
+Resampling <- 999 #Number of times each i is repeated 
+
 ## Combined methods ----
 
 C.tot <- data.frame()
@@ -364,6 +428,9 @@ ggsave(paste0(to.figs, "AccumulationCurves_individuals.png"), plot = tot.acc.plo
 
 # ---- Prevalence accumulation curves ----
 
+N <- 35 #Maximum number of samples (i)
+Resampling <- 999 #Number of times each i is repeated 
+
 ## Combined methods ----
 
 C.prev <- data.frame()
@@ -384,6 +451,49 @@ C.prev <- C.prev %>%
   mutate(Method = "Combined", .before = "N")
 
 boxplot.prev.C <- boxplot(Prevalence ~ N, data = C.prev)
+
+C.prev$N <- as.factor(C.prev$N)
+C.prev$Prevalence <- C.prev$Prevalence*100
+
+C.intervals <- C.prev %>% 
+  group_by(N) %>% 
+  summarise(mean = mean(Prevalence),
+            sd = sd(Prevalence)) %>% 
+  mutate(Method = "Combined")
+
+C.intervals <- C.intervals %>% 
+  mutate(se = sd/sqrt(999)) %>% 
+  mutate(t.score = qt(p=0.05/2, df=998,lower.tail=F)) %>% 
+  mutate(margin.error = t.score * se) %>% 
+  mutate(lower.bound = mean - margin.error) %>% 
+  mutate(upper.bound = mean + margin.error)
+
+
+N.levels <- levels(C.prev$N)
+C.intervals <- lm(Prevalence ~ N, C.prev)
+C.intervals <- as.data.frame(confint(C.intervals, level = 0.95))
+C.intervals <- C.intervals %>% 
+  mutate(Method = "Combined") %>% 
+  mutate(N = N.levels)
+
+# Calculate the confidence interval
+confint(l.model, level=0.95)
+#LeGi
+C.prev.legi <- data.frame()
+
+for(i in 1:30) {
+  for(j in 1:Resampling) {
+    line <- sample(1:nrow(CLeGi), i) #sample i lines randomly
+    prop.samp <- CLeGi[line, "tot_LeGi"]/sum(CLeGi[line, "tot_LeGi"])
+    w_prev <- CLeGi[line, "inf_LeGi"]*prop.samp
+    Prevalence <- sum(na.omit(w_prev))
+    output <- data.frame(N = i, Resampling = j, Prevalence) #save output in temporary data.frame (changed at each iterations)
+    C.prev.legi <- rbind(C.prev.legi, output)
+  }
+}
+
+C.prev.legi <- C.prev.legi %>% 
+  mutate(Method = "Combined", .before = "N")
 
 ## Minnow trap ----
 
@@ -406,7 +516,40 @@ MT.prev <- MT.prev %>%
 
 boxplot.prev.MT <- boxplot(Prevalence ~ N, data = MT.prev)
 
-## Seine method ----
+MT.prev$N <- as.factor(MT.prev$N)
+MT.prev$Prevalence <- MT.prev$Prevalence*100
+
+MT.intervals <- MT.prev %>% 
+  group_by(N) %>% 
+  summarise(mean = mean(Prevalence),
+            sd = sd(Prevalence)) %>% 
+  mutate(Method = "Minnow trap")
+
+MT.intervals <- MT.intervals %>% 
+  mutate(se = sd/sqrt(999)) %>% 
+  mutate(t.score = qt(p=0.05/2, df=998,lower.tail=F)) %>% 
+  mutate(margin.error = t.score * se) %>% 
+  mutate(lower.bound = mean - margin.error) %>% 
+  mutate(upper.bound = mean + margin.error)
+
+#LeGi
+MT.prev.legi <- data.frame()
+
+for(i in 1:30) {
+  for(j in 1:Resampling) {
+    line <- sample(1:nrow(MTLeGi), i) #sample i lines randomly
+    prop.samp <- MTLeGi[line, "tot_LeGi"]/sum(MTLeGi[line, "tot_LeGi"])
+    w_prev <- MTLeGi[line, "inf_LeGi"]*prop.samp
+    Prevalence <- sum(na.omit(w_prev))
+    output <- data.frame(N = i, Resampling = j, Prevalence) #save output in temporary data.frame (changed at each iterations)
+    MT.prev.legi <- rbind(MT.prev.legi, output)
+  }
+}
+
+MT.prev.legi <- MT.prev.legi %>% 
+  mutate(Method = "Minnow trap", .before = "N")
+
+## Seine ----
 
 S.prev <- data.frame()
 
@@ -426,6 +569,39 @@ S.prev <- S.prev %>%
   mutate(Method = "Seine net", .before = "N")
 
 boxplot.prev.S <- boxplot(Prevalence ~ N, data = S.prev)
+
+S.prev$N <- as.factor(S.prev$N)
+S.prev$Prevalence <- S.prev$Prevalence*100
+
+S.intervals <- S.prev %>% 
+  group_by(N) %>% 
+  summarise(mean = mean(Prevalence),
+            sd = sd(Prevalence)) %>% 
+  mutate(Method = "Seine net")
+
+S.intervals <- S.intervals %>% 
+  mutate(se = sd/sqrt(999)) %>% 
+  mutate(t.score = qt(p=0.05/2, df=998,lower.tail=F)) %>% 
+  mutate(margin.error = t.score * se) %>% 
+  mutate(lower.bound = mean - margin.error) %>% 
+  mutate(upper.bound = mean + margin.error)
+
+#LeGi
+S.prev.legi <- data.frame()
+
+for(i in 1:30) {
+  for(j in 1:Resampling) {
+    line <- sample(1:nrow(SLeGi), i) #sample i lines randomly
+    prop.samp <- SLeGi[line, "tot_LeGi"]/sum(SLeGi[line, "tot_LeGi"])
+    w_prev <- SLeGi[line, "inf_LeGi"]*prop.samp
+    Prevalence <- sum(na.omit(w_prev))
+    output <- data.frame(N = i, Resampling = j, Prevalence) #save output in temporary data.frame (changed at each iterations)
+    S.prev.legi <- rbind(S.prev.legi, output)
+  }
+}
+
+S.prev.legi <- S.prev.legi %>% 
+  mutate(Method = "Seine net", .before = "N")
 
 ## Transect method ----
 
@@ -448,11 +624,76 @@ T.prev <- T.prev %>%
 
 boxplot.prev.T <- boxplot(Prevalence ~ N, data = T.prev)
 
+T.prev$N <- as.factor(T.prev$N)
+T.prev$Prevalence <- T.prev$Prevalence*100
+
+T.intervals <- T.prev %>% 
+  group_by(N) %>% 
+  summarise(mean = mean(Prevalence),
+            sd = sd(Prevalence)) %>% 
+  mutate(Method = "Transect")
+
+T.intervals <- T.intervals %>% 
+  mutate(se = sd/sqrt(999)) %>% 
+  mutate(t.score = qt(p=0.05/2, df=998,lower.tail=F)) %>% 
+  mutate(margin.error = t.score * se) %>% 
+  mutate(lower.bound = mean - margin.error) %>% 
+  mutate(upper.bound = mean + margin.error)
+
+
+#LeGi
+T.prev.legi <- data.frame()
+
+for(i in 1:30) {
+  for(j in 1:Resampling) {
+    line <- sample(1:nrow(TLeGi), i) #sample i lines randomly
+    prop.samp <- TLeGi[line, "tot_LeGi"]/sum(TLeGi[line, "tot_LeGi"])
+    w_prev <- TLeGi[line, "inf_LeGi"]*prop.samp
+    Prevalence <- sum(na.omit(w_prev))
+    output <- data.frame(N = i, Resampling = j, Prevalence) #save output in temporary data.frame (changed at each iterations)
+    T.prev.legi <- rbind(T.prev.legi, output)
+  }
+}
+
+T.prev.legi <- T.prev.legi %>% 
+  mutate(Method = "Transect", .before = "N")
+
 ## Comparative plots ----
 
 df.prev <- rbind(C.prev, MT.prev, S.prev, T.prev)
 df.prev$N <- as.factor(df.prev$N)
 df.prev$Method <- as.factor(df.prev$Method)
+
+#Confidence intervals
+prev.intrervals <- rbind(C.intervals, MT.intervals, S.intervals, T.intervals)
+
+prev.intrervals <- prev.intrervals %>% 
+  relocate(Method, .before = N)
+
+SX <- gt(prev.intrervals, groupname_col = "Method") %>% 
+  tab_header(md("**TABLE SX.** Summary statistics of 999 resampling analyses. All values are given in percentage. N stands for the number of sampling effort implemented in the random resampling loop. Values are grouped according to sampling method")) %>% 
+  cols_label("t.score" = md("t score"), "margin.error" = md("margin error"), "lower.bound" = md("lower bound"), "upper.bound" = md("upper bound")) %>% 
+  tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "left"),
+            locations = cells_title("title")) %>% 
+  tab_style(cell_text(color = "black", font = "Calibri light", weight = "bold", size = 9, align = "center", v_align = "middle"),
+            locations = cells_column_labels()) %>% 
+  tab_style(cell_text(color = "black", font = "Calibri light", size = 9, align = "center", v_align = "middle"),
+            locations = cells_body()) %>% 
+  tab_options(table.border.top.style = "hidden",
+              heading.border.bottom.color = "black",
+              row.striping.include_table_body = TRUE,
+              page.orientation = "paysage",
+              table.width = pct(100)) %>% 
+  tab_style(style= cell_borders(sides = c("bottom", "top"), weight = px(2)), 
+            location = list(cells_column_labels())) %>% 
+  tab_style(style= cell_borders(sides = c("bottom"), weight = px(2)), 
+            location = list(cells_body(rows = 140))) %>% 
+  fmt_number(decimals = 2) 
+
+SX
+
+SX %>% #Saving gt tab
+  gtsave("Tab_ResampledStats.png", paste0(to.figs))
 
 ### Boxplots ----
 
@@ -483,18 +724,24 @@ ggsave(paste0(to.figs, "AccumulationCurves_prevalence_boxplot.png"), plot = boxp
 
 ### Tendency curves ----
 
-prev.acc.plot <- ggplot(df.prev) + 
-  stat_summary(aes(x = N, y = Prevalence, group = Method, color = Method, shape = Method), fun = "mean", size = 1) +
-  stat_smooth(aes(x= N, y = Prevalence, group = Method, color = Method, fill = Method), method = "loess", se = TRUE, level = 0.95, lineend = "round", alpha = 0.3) +
-  scale_y_continuous(labels = scales::percent) +
+prev.acc.plot <- ggplot() + 
+  #stat_summary(aes(x = N, y = Prevalence, group = Method, color = Method, shape = Method), fun = "mean", size = 1, data = df.prev) +
+  geom_point(aes(x = N, y = mean, group = Method, color = Method, shape = Method), data = prev.intrervals) +
+  geom_smooth(aes(x = N, y = mean, group = Method, color = Method, fill = Method), method = "loess", se = FALSE, lineend = "round", alpha = 0.3, data = prev.intrervals) +
+  geom_ribbon(aes(x = N, ymin = lower.bound, ymax = upper.bound, group = Method, color = Method, fill = Method), alpha = 0.3, data = prev.intrervals) +
+  #stat_smooth(aes(x = N, y = Prevalence, group = Method, color = Method, fill = Method), method = "loess", se = FALSE, level = 0.95, lineend = "round", alpha = 0.3, data = df.prev) +
+  #geom_ribbon(aes(x = N, ymin = ymin*100, ymax = ymax*100, group = Method, color = Method), data = prev.intrervals) +
+  #scale_y_continuous(labels = percent) +
   labs(x = "Number of samples", y = "Mean infection prevalence") +
   scale_color_manual(values = c("#7E7E7E", "#2A5676", "#999600", "#966F1E"),
                      aesthetics = c("color", "fill")) +
   scale_shape_manual(values = c(0, 5, 2, 1)) +
   guides(fill = guide_legend(override.aes = list(fill = NA, linetype = 0))) +
   theme(text = element_text(size = 20, family = "Calibri Light", color = "black"),
+        plot.background = element_blank(), 
         panel.background = element_blank(),
-        legend.key = element_rect(fill = NA),
+        panel.grid = element_blank(),
+        legend.key = element_rect(fill = NA, colour = NA),
         axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
         axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
         axis.text.x = element_text(color = "black"),
@@ -506,6 +753,38 @@ prev.acc.plot
 
 ggsave(paste0(to.figs, "AccumulationCurves_prevalence_RangeAxis.png"), plot = prev.acc.plot, dpi = 300, width = 15, height = 10)  
 ggsave(paste0(to.rédaction, "Figures/Figure6_PrevRemsampling.png"), plot = prev.acc.plot, dpi = 300, width = 15, height = 10)
+
+#legi
+df.prev.legi <- rbind(C.prev.legi, MT.prev.legi, S.prev.legi, T.prev.legi)
+df.prev.legi$N <- as.factor(df.prev.legi$N)
+df.prev.legi$Method <- as.factor(df.prev.legi$Method)
+
+prev.acc.plot.legi <- ggplot(df.prev.legi) + 
+  stat_summary(aes(x = N, y = Prevalence, group = Method, color = Method, shape = Method), fun = "mean", size = 1) +
+  stat_smooth(aes(x= N, y = Prevalence, group = Method, color = Method, fill = Method), method = "loess", se = FALSE, level = 0.95, lineend = "round", alpha = 0.3) +
+  scale_y_continuous(labels = scales::percent) +
+  labs(x = "Number of samples", y = "Mean infection prevalence") +
+  scale_color_manual(values = c("#7E7E7E", "#2A5676", "#999600", "#966F1E"),
+                     aesthetics = c("color", "fill")) +
+  scale_shape_manual(values = c(0, 5, 2, 1)) +
+  guides(fill = guide_legend(override.aes = list(fill = NA, linetype = 0))) +
+  theme(text = element_text(size = 20, family = "Calibri Light", color = "black"),
+        plot.background = element_blank(), 
+        panel.background = element_blank(),
+        panel.grid = element_blank(),
+        legend.key = element_rect(fill = NA, colour = NA),
+        axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
+        axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
+        axis.text.x = element_text(color = "black"),
+        axis.text.y = element_text(color = "black"),
+        axis.line.x = element_line(color = "black", lineend = "round"),
+        axis.line.y = element_line(color = "black", lineend = "round"))
+
+
+prev.acc.plot.legi
+
+ggsave(paste0(to.figs, "AccumulationCurves_prevalence_LeGi.png"), plot = prev.acc.plot.legi, dpi = 300, width = 15, height = 10)  
+
 
 ## Resampled mean values extraction ----
 
@@ -523,13 +802,13 @@ prev.resamp$Prevalence <- (prev.resamp$Prevalence)*100 #Converting prevalence in
 prev.resamp <- prev.resamp %>% #Formating data frame
   pivot_wider(names_from = N, values_from = Prevalence) 
   
-Observed = c(29.55, 19.20, 20.44, 35.55) #Adding observed prevalence colum
+Observed = c(29.62, 19.46, 20.45, 35.55) #Adding observed prevalence colum
 prev.resamp <- prev.resamp %>% 
   cbind(Observed = Observed)
 
 #Comparative table
-Table.S15 <- gt(prev.resamp, groupname_col = NA) %>% 
-  tab_header(md("**TABLE S15.** Landscape observed and resampled prevalence estimated by each sampling method. All values are given in percentage.")) %>% 
+S2.S9 <- gt(prev.resamp, groupname_col = NA) %>% 
+  tab_header(md("**TABLE S9.** Landscape observed and resampled prevalence estimated by each sampling method. All values are given in percentage. N stands for the number of according sampling effort.")) %>% 
   cols_label("5" = md("N<sub>5</sub>"), "10" = md("N<sub>10</sub>"), "15" = md("N<sub>15</sub>"), "20" = md("N<sub>20</sub>"), "25" = md("N<sub>25</sub>"), "30" = md("N<sub>30</sub>"), "35" = md("N<sub>35</sub>")) %>% 
   tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "left"),
             locations = cells_title("title")) %>% 
@@ -549,10 +828,12 @@ Table.S15 <- gt(prev.resamp, groupname_col = NA) %>%
   fmt_number(decimals = 2, columns = c(2:8)) %>% 
   cols_move(columns = "Observed", after = "Method")
 
-Table.S15 %>% #Saving gt tab
+S2.S9
+
+S2.S9 %>% #Saving gt tab
   gtsave("Tab_ResampledPrev_Methods.png", paste0(to.figs))
-Table.S15 %>% 
-  gtsave("Table_S15.png", paste0(to.rédaction, "./Support_information/"))
+S2.S9 %>% 
+  gtsave("AppendixS2_TableS9.png", paste0(to.rédaction, "./Support_information/"))
 
 ## Minimum sampling effort (N) ----
 
@@ -596,8 +877,40 @@ wilcox.test(CompFinal.T$Prevalence, Tdata$Prevalence, alternative = "greater", p
 ## Comparison final (N = 35) prevalence between methods ----
 
 kruskal.test(CompFinal$Prevalence, CompFinal$Method)
-dunn.test(CompFinal$Prevalence, CompFinal$Method, method = "bh")
+#Significant difference of methods distribution
+
+dunn.resamp <- dunn.test(CompFinal$Prevalence, CompFinal$Method, method = "bh")
 #Difference between all methods
+
+#Table 
+resamp.method.dunn <- data.frame(cbind("Comparison" = dunn.resamp$comparison, "Adjusted p-value" = dunn.resamp$P.adjusted))
+resamp.method.dunn$Adjusted.p.value <- as.numeric(resamp.method.dunn$Adjusted.p.value)
+
+S2.S8 <- gt(resamp.method.dunn) %>% 
+  cols_label(Adjusted.p.value = md("Adjusted p-value")) %>% 
+  tab_options(table.border.top.style = "hidden",
+              row.striping.include_table_body = TRUE,
+              heading.border.bottom.color = "black") %>% 
+  tab_header(md("**TABLE S8.** Method comparison of landscape final resampled prevalence estimates (N =35). Kruskal-Wallis chi-squared = 1288, p-value = 0. A Benjamini-Hochberg correction is applied on the dunn test.")) %>% 
+  tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "left"),
+            locations = cells_title("title")) %>% 
+  tab_style(cell_text(color = "black", font = "Calibri light", weight = "bold", size = 9, align = "center", v_align = "middle"),
+            locations = cells_column_labels()) %>% 
+  tab_style(cell_text(color = "black", font = "Calibri light", size = 9, align = "center", v_align = "middle"),
+            locations = cells_body()) %>% 
+  tab_style(style= cell_borders(sides = c("bottom", "top"), weight = px(2)), 
+            location = list(cells_column_labels())) %>%           
+  tab_style(style = cell_borders(sides = "bottom", weight = px(2), color = "black"),
+            locations =  cells_body(rows = 6)) %>% 
+  fmt_number(decimals = 3, columns = 2)
+
+S2.S8
+
+S2.S8 %>% #Saving gt tab
+  gtsave("Tab_Resampled35_Methods.png", paste0(to.figs))
+
+S2.S8 %>% 
+  gtsave("AppendixS2_TableS8.png", paste0(to.rédaction, "./Support_information/"))
 
 ##Comparison of observed prevalence by methods ----
 

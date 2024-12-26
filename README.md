@@ -18,7 +18,7 @@ This R project results of a field study that aimed to explore infection prevalen
 
 -   [RStudio Download](https://posit.co/downloads/)
 
-Installation of the following `packages` are also required (all available on CRAN): dplyr, vegan, tidyr, ggplot2, gratia, cowplot, patchwork, colorspace, gt, janitor, splitstackshape, stringr, writexl, tibble, measurements, mgcv, itsadug, broom, sf and ggspatial.
+Installation of the following `packages` are also required (all available on CRAN): dplyr, vegan, tidyr, ggplot2, gratia, cowplot, patchwork, colorspace, gt, janitor, splitstackshape, stringr, writexl, tibble, measurements, mgcv, itsadug, broom, sf , dunn.test and ggspatial.
 
 ## Roadmap
 

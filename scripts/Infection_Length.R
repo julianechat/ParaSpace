@@ -8,7 +8,7 @@
 
 # ---- Script setup ----
 
-## R Setup ----- 
+## R Setup ----
 
 to.data <- "./data/"
 to.script <- "./scripts/"
@@ -25,7 +25,7 @@ library(ggplot2)
 library(cowplot)
 library(splitstackshape)
 library(dunn.test)
-library(tidyr)
+library(tidyverse)
 library(gt)
 
 source(paste0(to.R, "anova.1way.R"))
@@ -34,7 +34,7 @@ source(paste0(to.R, "anova.1way.R"))
 
 Fishing_RawData <- read.csv(paste0(to.data, "Fishing_RawData.csv"), sep=";")
 
-# ---- Mean length calculation ----
+# ---- Length distribution ----
 
 FishData <- Fishing_RawData[-c(596,613),] #Deleting lost data
 
@@ -44,6 +44,108 @@ LengthData <- FishData %>%
   na.omit() #Delete sampling with no fish caught
 
 LengthData <- expandRows(LengthData, "Abundance") #Reshaping data frame for 1 row = 1 individual format
+
+MT <- "#46450E"
+mt <- "#ABA82F"
+S <- "#1B2C38"
+s <- "#4D728D"
+LengthData <- LengthData %>% 
+  mutate(Gear_type=fct_recode(Gear_type, "Seine net" = "Seine")) %>% 
+  mutate(Gear_type=fct_recode(Gear_type, "Minnow trap" = "Minnow_trap"))
+
+Lengthboxplot <- LengthData %>% 
+  filter(Lake == "Cromwell" |Lake == "Coeur"| Lake == "Cornu") %>% 
+  ggplot() +
+  geom_boxplot(aes(y=Length, x= Gear_type, color = Gear_type, fill = Gear_type), alpha = 0.5) +
+  scale_colour_manual(values = c("Seine net"=S, "Minnow trap"=MT), aesthetics = "color") +
+  scale_colour_manual(values = c("Seine net"=s, "Minnow trap"=mt), aesthetics = "fill") +
+  facet_wrap(vars(Lake)) +
+  labs(x = "Fishing gear", y = "Length (cm)") +
+  theme(panel.background = element_blank(),
+        plot.background = element_blank(),
+        axis.line = element_line(color = "black", linewidth = 0.5), 
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.text = element_text(family = "Calibri Light", size = 20),
+        axis.title.y = element_text(family = "Calibri Light", size = 20, vjust = 5),
+        axis.title.x = element_text(family = "Calibri Light", size = 20, vjust = -2),
+        axis.text.x = element_text(angle = 55, hjust = 1),
+        plot.margin = unit(c(1,1,1,1), "cm"),
+        strip.background = element_rect(NA),
+        strip.text = element_text(colour = "black", family = "Calibri Light", size = 20, vjust = 2),
+        legend.title = element_text(size = 20, family = "Calibri Light"),
+        legend.text = element_text(size = 16, family = "Calibri Light"), 
+        legend.key.size = unit(1,"cm"))
+  
+Lengthboxplot
+
+Cornu.MT <- LengthData %>% 
+  filter(Lake == "Cornu") %>% 
+  filter(Gear_type == "Minnow trap")
+
+Cornu.S <- LengthData %>% 
+  filter(Lake == "Cornu") %>% 
+  filter(Gear_type == "Seine net")
+
+shapiro.test(Cornu.MT$Length)
+shapiro.test(Cornu.S$Length)
+t.test(Cornu.MT$Length, Cornu.S$Length)
+
+Coeur.MT <- LengthData %>% 
+  filter(Lake == "Coeur") %>% 
+  filter(Gear_type == "Minnow trap")
+
+Coeur.S <- LengthData %>% 
+  filter(Lake == "Coeur") %>% 
+  filter(Gear_type == "Seine net")
+
+shapiro.test(Coeur.MT$Length)
+shapiro.test(Coeur.S$Length)
+t.test(Coeur.MT$Length, Coeur.S$Length)
+
+Cromwell.MT <- LengthData %>% 
+  filter(Lake == "Cromwell") %>% 
+  filter(Gear_type == "Minnow trap")
+
+Cromwell.S <- LengthData %>% 
+  filter(Lake == "Cromwell") %>% 
+  filter(Gear_type == "Seine net")
+
+shapiro.test(Cromwell.MT$Length)
+shapiro.test(Cromwell.S$Length)
+t.test(Cromwell.MT$Length, Cromwell.S$Length)
+
+
+## Landscape community ----
+
+hist(LengthData$Length)
+
+CommHist <- ggplot(data = LengthData) +
+  geom_histogram(aes(Length), fill = "lightgrey", color = "black") +
+  theme(panel.background = element_blank(),
+        axis.line = element_line(color = "black", linewidth = 0.5), 
+        panel.grid.major = element_blank(),
+        axis.text = element_text(family = "Calibri Light", size = 20),
+        axis.title.y = element_text(family = "Calibri Light", size = 20, vjust = 5),
+        axis.title.x = element_text(family = "Calibri Light", size = 20, vjust = -2),
+        plot.margin = unit(c(1,1,1,1), "cm")) 
+CommHist 
+
+## By species ----
+
+SpHist <- ggplot(data = LengthData) +
+  geom_histogram(aes(Length), fill = "lightgrey", color = "black") +
+  facet_wrap(vars(Species_ID), scales = "free_y", axes = "all_x") +
+  theme(panel.background = element_blank(),
+        axis.line = element_line(color = "black", linewidth = 0.5), 
+        panel.grid.major = element_blank(),
+        axis.text = element_text(family = "Calibri Light", size = 20),
+        axis.title.y = element_text(family = "Calibri Light", size = 20, vjust = 5),
+        axis.title.x = element_text(family = "Calibri Light", size = 20, vjust = -2),
+        plot.margin = unit(c(1,1,1,1), "cm")) 
+SpHist
+
+# ---- Mean length calculation ----
 
 ## Landscape-scale ----
 
@@ -79,8 +181,9 @@ Land.sum.method <- data.frame(Method = c("Combined", "Minnow trap", "Seine net")
                               sd = c(Landscape.sd.C, Landscape.sd.MT, Landscape.sd.S),
                               N = c(Landscape.N.C,Landscape.N.MT, Landscape.N.S))
 
-Table.S8 <- gt(Land.sum.method) %>% 
-  tab_header(md("**TABLE S8.** Mean species length in the landscape according to the sampling method.")) %>% 
+S2.S2 <- gt(Land.sum.method) %>% 
+  tab_header(md("**TABLE S2.** Mean fish species length in the landscape across the different sampling methods.")) %>% 
+  cols_label(Mean = "Mean (cm)", sd = "sd (cm)") %>% 
   tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "left"),
             locations = cells_title("title")) %>% 
   tab_options(table.border.top.style = "hidden",
@@ -95,14 +198,14 @@ Table.S8 <- gt(Land.sum.method) %>%
             location = list(cells_column_labels())) %>% 
   tab_style(style= cell_borders(sides = "bottom", weight = px(2)), 
             location = list(cells_body(row = 3))) %>% 
-  fmt_number(columns = c(2,3), decimals = 2)
+  fmt_number(columns = c(2,3), decimals = 0)
 
-Table.S8 
+S2.S2
 
-Table.S8 %>% #Saving gt tab
+S2.S2 %>% #Saving gt tab
   gtsave("Tab_Length_Landscape.png", paste0(to.figs))
-Table.S8 %>% 
-  gtsave("Table_S8.png", paste0(to.rédaction, "./Support_information/"))
+S2.S2 %>% 
+  gtsave("AppendixS2_TableS2.png", paste0(to.rédaction, "./Support_information/"))
 
 #Data distribution is right-skewed. Use a non parametric test is needed. 
 hist(LengthData$Length)
@@ -161,7 +264,7 @@ Table.LandSpecies <- gt(Length.SpeciesMean) %>% #Creating gt tab and editing sty
             locations = cells_column_labels()) %>% 
   tab_style(style = cell_text(style = "italic"),
             locations = cells_body(columns = 1)) %>% 
-  fmt_number(columns = c(2, 3), decimals = 2) %>% 
+  fmt_number(columns = c(2, 3), decimals = 0) %>% 
   sub_values(values = "AmRu", replacement = "Ambloplites rupestris") %>% 
   sub_values(values = "Centrarchidae", replacement = "Unknown centrarchids") %>% 
   sub_values(values = "FuDi", replacement = "Fundulus diaphanus") %>% 
@@ -234,7 +337,7 @@ Table.LakeSpecies <- gt(Length.SpeciesLakeMean) %>% #Creating gt tab and editing
             locations = cells_body(columns = 1)) %>% 
   tab_style(style = cell_text(style = "italic"),
             locations = cells_body(columns = 2)) %>% 
-  fmt_number(columns = c(2, 3), decimals = 2) %>% 
+  fmt_number(columns = c(2, 3), decimals = 0) %>% 
   sub_values(values = "AmRu", replacement = "Ambloplites rupestris") %>% 
   sub_values(values = "Centrarchidae", replacement = "Unknown centrarchids") %>% 
   sub_values(values = "FuDi", replacement = "Fundulus diaphanus") %>% 
@@ -260,12 +363,12 @@ Table.LakeSpecies
 Lake.sum.method <-  merge(Length.LakeMean.C, Length.LakeMean.MT, by = "Lake")
 Lake.sum.method <-  merge(Lake.sum.method , Length.LakeMean.S, by = "Lake")
 
-Table.S9 <- gt(Lake.sum.method) %>% 
-  cols_label(Mean.x = "Mean", sd.x = "sd", N.x = "N", Mean.y = "Mean", sd.y = "sd", N.y = "N") %>% 
+S2.S3 <- gt(Lake.sum.method) %>% 
+  cols_label(Mean.x = "Mean (cm)", sd.x = "sd (cm)", N.x = "N", Mean.y = "Mean (cm)", sd.y = "sd (cm)", N.y = "N", Mean = "Mean (cm)", sd = "sd (cm)") %>% 
   tab_spanner("Seine net", columns = c(8,9,10)) %>% 
   tab_spanner("Minnow trap", columns = c(5,6,7)) %>% 
   tab_spanner("Combined methods", columns = c(2,3,4)) %>% 
-  tab_header(md("**TABLE S9.** Mean species length within each lake sampled according to the sampling method. Lake Tracy was omitted because of only one sampled fish.")) %>% 
+  tab_header(md("**TABLE S3.** Mean species length within each lake sampled across the different sampling method. Lake Tracy was omitted because of only one sampled fish.")) %>% 
   tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "left"),
             locations = cells_title("title")) %>% 
   tab_options(table.border.top.style = "hidden",
@@ -284,15 +387,15 @@ Table.S9 <- gt(Lake.sum.method) %>%
             locations = cells_body(column = 1)) %>% 
   tab_style(style= cell_borders(sides = "bottom", weight = px(2)), 
             location = list(cells_body(row = 14))) %>% 
-  fmt_number(columns = c(2,3,5,6,8,9), decimals = 2) %>% 
+  fmt_number(columns = c(2,3,5,6,8,9), decimals = 0) %>% 
   sub_values(column = 1, values = "Pin_rouge", replacement = "Pin rouge")
 
-Table.S9
+S2.S3
 
-Table.S9 %>% #Saving gt tab
+ S2.S3 %>% #Saving gt tab
   gtsave("Tab_Length_Lake.png", paste0(to.figs))
-Table.S9 %>% 
-  gtsave("Table_S9.png", paste0(to.rédaction, "./Support_information/"))
+S2.S3 %>% 
+  gtsave("AppendixS2_TableS3.png", paste0(to.rédaction, "./Support_information/"))
   
 # ---- Intensity & Length relationships ----
 
@@ -641,7 +744,7 @@ LeGi.plot.gear <- ggplot(LeGiPrevData.gear , aes(x = Length, y = Prevalence)) +
 
 LeGi.plot.gear
       
-## Perca flavescens ----
+### Perca flavescens ----
 
 PeFl.plot <- ggplot(PeFlPrevData, aes(x = Length, y = Prevalence)) + 
   geom_point(color = "#6C464F", fill ="#6C464F") +
@@ -688,7 +791,15 @@ length.sum.plot <- plot_grid(Comm.boxplot, Comm.plot, LeGi.boxplot, LeGi.plot, P
                              labels = "AUTO", 
                              label_fontface = "plain",
                              label_fontfamily = "Calibri Light", 
-                             label_size = 20)
+                             label_size = 20) +
+  plot_annotation(title = "Figure A1. Relations entre la longueur et les paramètres d’infection chez les communautés littorales de poissons.",
+                  caption = 
+                  "
+                  Les graphiques colorés en gris représentent A) la relation entre la longueur et la classe d’intensité d’infection et B) la relation entre la prévalence et la longueur de toutes espèces de poisson confondues.
+                  Les graphiques colorés en bleu représentent B) la relation entre la longueur et la classe d’intensité d’infection et C) la relation entre la prévalence et la longueur des crapets-soleil.
+                  Les graphiques colorés en pourpre représentent D) la relation entre la longueur et la classe d’intensité d’infection et E) la relation entre la prévalence et la longueur des perchaudes.
+                  Les données comprennent l’ensemble des individus capturés dans le paysage par méthode de pêche (nasse et senne).Aucunes données aberrantes n’ont été omises.", 
+                  theme = theme(plot.caption = element_text(hjust = 0)))
 
 length.sum.plot
 

@@ -50,6 +50,8 @@ TRIT <- st_read(paste0(to.carto, "Lake_shapes/Triton.shp"))
 creeks <- st_read(paste0(to.carto, "Attribute_templates/Template_creeks.shp"))
 lakes <- st_read(paste0(to.carto, "Attribute_templates/Template_lacs.shp"))
 watersheds <- st_read(paste0(to.carto, "Attribute_templates/Watershed_template.shp"))
+roads <- st_read(paste0(to.carto, "Attribute_templates/Template_roads.shp"))
+building <- read_sf(paste0(to.carto, "Attribute_templates/Template_batiments_points.shp"))
 
 # ---- Lake bubble map ----
 
@@ -82,6 +84,10 @@ CROM.plot
 
 CROC.att <- attributes %>% 
   filter(Lake == "Croche")  #Select lake
+Croc.simple <- ggplot()+
+  geom_sf(data = CROC, fill = "#7F7F7F") +
+  theme_void()
+Croc.simple
 
 CROC.plot <- ggplot() + #Bubble map
   geom_sf(data = CROC, fill = "lightblue") +
@@ -268,11 +274,16 @@ cropped.frame2 <- c(xmin = -433485, #Frame for watershed
 cropped.creeks <- st_crop(creeks, cropped.frame) #Crop creeks attributes to determined frame
 cropped.lakes <- st_crop(lakes, cropped.frame) #Crop lakes attributes to determined frame
 cropped.watersheds <- st_crop(watersheds, cropped.frame2) #Crop watershed attributes to determined frame
+cropped.roads <- st_crop(roads, cropped.frame) #Crop roads attributes to determined frame
+cropped.building <- st_crop(building, cropped.frame) #Crop building attributes to determined frame
 
 ## Prevalence data ----
 
 lake.attributes <- CombinedData %>% #Selecting abundance data
   select(Lake, Sampling_method, Site_latitude, Site_longitude, starts_with(c("tot", "inf")))
+
+lake.attributes <- lake.attributes %>% #Muskellunge and brown bullhead individuals are excluded from the prevalence calculus since they are not host of the black spot disease
+  select(!(c(tot_EsMa, inf_EsMa, tot_AmNe, inf_AmNe)))
 
 ### Combined methods ----
 
@@ -282,8 +293,8 @@ lake.attributes.C <- lake.attributes %>% #Lake abundance sums
   summarise(across(.cols = everything(), sum, na.rm = TRUE))
 
 lake.attributes.C <- lake.attributes.C %>% #Creating fish abundance columns
-  mutate(tot_fish = tot_AmRu + tot_FuDi + tot_MiDo + tot_LeGi + tot_PeFl + tot_PiPr + tot_ChrosomusSpp. + tot_PiNo + tot_SeAt + tot_LuCo + tot_AmNe + tot_CaCo + tot_EsMa + tot_UmLi + tot_RhAt + tot_Centrarchidae + tot_Cyprinidae) %>% 
-  mutate(inf_fish = inf_AmRu + inf_FuDi + inf_MiDo + inf_LeGi + inf_PeFl + inf_PiPr + inf_ChrosomusSpp. + inf_PiNo + inf_SeAt + inf_LuCo + inf_AmNe + inf_CaCo + inf_EsMa + inf_UmLi + inf_RhAt + inf_Centrarchidae + inf_Cyprinidae) 
+  mutate(tot_fish = tot_AmRu + tot_FuDi + tot_MiDo + tot_LeGi + tot_PeFl + tot_PiPr + tot_ChrosomusSpp. + tot_PiNo + tot_SeAt + tot_LuCo + tot_CaCo + tot_UmLi + tot_RhAt + tot_Centrarchidae + tot_Cyprinidae) %>% 
+  mutate(inf_fish = inf_AmRu + inf_FuDi + inf_MiDo + inf_LeGi + inf_PeFl + inf_PiPr + inf_ChrosomusSpp. + inf_PiNo + inf_SeAt + inf_LuCo + inf_CaCo + inf_UmLi + inf_RhAt + inf_Centrarchidae + inf_Cyprinidae) 
 
 lake.attributes.C <- lake.attributes.C %>% #Creating prevalence columns
   mutate(prev_fish = inf_fish/tot_fish) %>% 
@@ -304,8 +315,8 @@ lake.attributes.MT <- lake.attributes %>% #Lake abundance sums
   summarise(across(.cols = everything(), sum, na.rm = TRUE))
 
 lake.attributes.MT <- lake.attributes.MT %>% #Creating fish abundance columns
-  mutate(tot_fish = tot_AmRu + tot_FuDi + tot_MiDo + tot_LeGi + tot_PeFl + tot_PiPr + tot_ChrosomusSpp. + tot_PiNo + tot_SeAt + tot_LuCo + tot_AmNe + tot_CaCo + tot_EsMa + tot_UmLi + tot_RhAt + tot_Centrarchidae + tot_Cyprinidae) %>% 
-  mutate(inf_fish = inf_AmRu + inf_FuDi + inf_MiDo + inf_LeGi + inf_PeFl + inf_PiPr + inf_ChrosomusSpp. + inf_PiNo + inf_SeAt + inf_LuCo + inf_AmNe + inf_CaCo + inf_EsMa + inf_UmLi + inf_RhAt + inf_Centrarchidae + inf_Cyprinidae) 
+  mutate(tot_fish = tot_AmRu + tot_FuDi + tot_MiDo + tot_LeGi + tot_PeFl + tot_PiPr + tot_ChrosomusSpp. + tot_PiNo + tot_SeAt + tot_LuCo + tot_CaCo + tot_UmLi + tot_RhAt + tot_Centrarchidae + tot_Cyprinidae) %>% 
+  mutate(inf_fish = inf_AmRu + inf_FuDi + inf_MiDo + inf_LeGi + inf_PeFl + inf_PiPr + inf_ChrosomusSpp. + inf_PiNo + inf_SeAt + inf_LuCo + inf_CaCo + inf_UmLi + inf_RhAt + inf_Centrarchidae + inf_Cyprinidae) 
 
 lake.attributes.MT <- lake.attributes.MT %>% #Creating prevalence columns
   mutate(prev_fish = inf_fish/tot_fish) %>% 
@@ -326,8 +337,8 @@ lake.attributes.S <- lake.attributes %>% #Lake abundance sums
   summarise(across(.cols = everything(), sum, na.rm = TRUE))
 
 lake.attributes.S <- lake.attributes.S %>% #Creating fish abundance columns
-  mutate(tot_fish = tot_AmRu + tot_FuDi + tot_MiDo + tot_LeGi + tot_PeFl + tot_PiPr + tot_ChrosomusSpp. + tot_PiNo + tot_SeAt + tot_LuCo + tot_AmNe + tot_CaCo + tot_EsMa + tot_UmLi + tot_RhAt + tot_Centrarchidae + tot_Cyprinidae) %>% 
-  mutate(inf_fish = inf_AmRu + inf_FuDi + inf_MiDo + inf_LeGi + inf_PeFl + inf_PiPr + inf_ChrosomusSpp. + inf_PiNo + inf_SeAt + inf_LuCo + inf_AmNe + inf_CaCo + inf_EsMa + inf_UmLi + inf_RhAt + inf_Centrarchidae + inf_Cyprinidae) 
+  mutate(tot_fish = tot_AmRu + tot_FuDi + tot_MiDo + tot_LeGi + tot_PeFl + tot_PiPr + tot_ChrosomusSpp. + tot_PiNo + tot_SeAt + tot_LuCo + tot_CaCo + tot_UmLi + tot_RhAt + tot_Centrarchidae + tot_Cyprinidae) %>% 
+  mutate(inf_fish = inf_AmRu + inf_FuDi + inf_MiDo + inf_LeGi + inf_PeFl + inf_PiPr + inf_ChrosomusSpp. + inf_PiNo + inf_SeAt + inf_LuCo + inf_CaCo + inf_UmLi + inf_RhAt + inf_Centrarchidae + inf_Cyprinidae) 
 
 lake.attributes.S <- lake.attributes.S %>% #Creating prevalence columns
   mutate(prev_fish = inf_fish/tot_fish) %>% 
@@ -346,8 +357,8 @@ lake.attributes.T <- lake.attributes %>% #Lake abundance sums
   summarise(across(.cols = everything(), sum, na.rm = TRUE))
 
 lake.attributes.T <- lake.attributes.T %>% #Creating fish abundance columns
-  mutate(tot_fish = tot_AmRu + tot_FuDi + tot_MiDo + tot_LeGi + tot_PeFl + tot_PiPr + tot_ChrosomusSpp. + tot_PiNo + tot_SeAt + tot_LuCo + tot_AmNe + tot_CaCo + tot_EsMa + tot_UmLi + tot_RhAt + tot_Centrarchidae + tot_Cyprinidae) %>% 
-  mutate(inf_fish = inf_AmRu + inf_FuDi + inf_MiDo + inf_LeGi + inf_PeFl + inf_PiPr + inf_ChrosomusSpp. + inf_PiNo + inf_SeAt + inf_LuCo + inf_AmNe + inf_CaCo + inf_EsMa + inf_UmLi + inf_RhAt + inf_Centrarchidae + inf_Cyprinidae) 
+  mutate(tot_fish = tot_AmRu + tot_FuDi + tot_MiDo + tot_LeGi + tot_PeFl + tot_PiPr + tot_ChrosomusSpp. + tot_PiNo + tot_SeAt + tot_LuCo + tot_CaCo + tot_UmLi + tot_RhAt + tot_Centrarchidae + tot_Cyprinidae) %>% 
+  mutate(inf_fish = inf_AmRu + inf_FuDi + inf_MiDo + inf_LeGi + inf_PeFl + inf_PiPr + inf_ChrosomusSpp. + inf_PiNo + inf_SeAt + inf_LuCo + inf_CaCo + inf_UmLi + inf_RhAt + inf_Centrarchidae + inf_Cyprinidae) 
 
 lake.attributes.T <- lake.attributes.T %>% #Creating prevalence columns
   mutate(prev_fish = inf_fish/tot_fish) %>% 
@@ -362,16 +373,18 @@ lake.attributes.T <- Study.map %>%
 LakesMap <- ggplot() + 
   geom_sf(data = cropped.lakes, fill = "lightblue", alpha = 0.5, color = "lightblue") +
   geom_sf(data = cropped.creeks, color = "lightblue", alpha = 0.5) +
-  geom_sf(data = cropped.watersheds, fill = NA, linewidth = 0.5, color = "#467092") +
-  geom_sf(data = lake.attributes.C, fill = "grey60", alpha = 0.8, color = "black", size = 0.5) +
+  #geom_sf(data = cropped.watersheds, fill = NA, linewidth = 0.5, color = "#467092") +
+  geom_sf(data = cropped.building, color = "darkgrey", alpha = 0.5, size = 0.5) +
+  geom_sf(data = cropped.roads, color = "darkgrey", alpha = 0.5, size = 0.5) +
+  geom_sf(data = lake.attributes.C, fill = "#996633", alpha = 0.8, color = "black", size = 0.5) +
   theme(legend.position = c(0.88, 0.15),
         legend.text = element_text(color = "black", size = 9, family = "Calibri Light"),
         legend.title = element_text(color = "black", size = 9, family = "Calibri Bold"),
         legend.key.size = unit(0.5, "cm"),
         legend.key = element_rect(linewidth = 2),
         legend.background = element_blank(), 
-        panel.background = element_rect(fill = "white", color = "black"),
-        plot.background = element_rect(fill = "white"),
+        panel.background = element_rect(fill = NA, color = "black"),
+        plot.background = element_rect(fill = NA),
         panel.grid = element_line(NA), 
         axis.ticks = element_blank(),
         text = element_blank()) +
@@ -382,7 +395,7 @@ LakesMap <- ggplot() +
                    text_family = "Calibri Light") + 
   annotation_north_arrow(location = "tl", 
                          which_north = "true", 
-                         pad_x = unit(0.85, "cm"), 
+                         pad_x = unit(0.55, "cm"), 
                          pad_y = unit(0.65, "cm"), 
                          style = north_arrow_nautical(fill = c("grey60", "white"), line_col = "black", text_size = 10, text_family = "Calibri Light"),
                          height = unit(1, "cm"),
@@ -390,19 +403,21 @@ LakesMap <- ggplot() +
 LakesMap
 
 ggsave(paste0(to.figs, "LakesMaps+BV.png"), plot = LakesMap, dpi = 300, width = 10, height = 15, units = "cm")
-#ggsave(paste0(to.figs, "LakesMaps.png"), plot = LakesMap, dpi = 300, width = 10, height = 15, units = "cm") #change pad_y at 0.55 instead of 0.85 & omit watersheds polygon line
+#ggsave(paste0(to.figs, "LakesMaps.png"), plot = LakesMap, dpi = 300, width = 10, height = 15, units = "cm") #change pad_x at 0.55 instead of 0.85 & omit watersheds polygon line
 
 ### Combined methods ----
 
 FishMap.C <- ggplot() + 
-  geom_sf(data = cropped.lakes, fill = "lightblue", alpha = 0.5, color = "lightblue") +
   geom_sf(data = cropped.creeks, color = "lightblue", alpha = 0.5) +
-  geom_sf(data = cropped.watersheds, fill = NA, linewidth = 0.5, color = "#467092") +
+  geom_sf(data = cropped.building, color = "darkgrey", alpha = 0.5, size = 0.5) +
+  geom_sf(data = cropped.roads, color = "darkgrey", alpha = 0.5, size = 0.5) +
+  #geom_sf(data = cropped.watersheds, fill = NA, linewidth = 0.5, color = "#467092") +
+  geom_sf(data = cropped.lakes, fill = "lightblue", alpha = 0.5, color = "lightblue") +
   geom_sf(data = lake.attributes.C, aes(fill = (prev_fish*100)), color = "black", size = 0.5) +
   scale_fill_continuous_sequential(palette = "YlOrBr", limits = c(0, 100), aesthetics = "fill") +
   theme(legend.position = c(0.88, 0.15),
         legend.text = element_text(color = "black", size = 9, family = "Calibri Light"),
-        legend.title = element_text(color = "black", size = 9, family = "Calibri Bold"),
+        legend.title = element_text(color = "black", size = 9, family = "Calibri Light"),
         legend.key.size = unit(0.5, "cm"),
         legend.key = element_rect(linewidth = 2),
         legend.background = element_blank(), 
@@ -418,7 +433,7 @@ FishMap.C <- ggplot() +
                    text_family = "Calibri Light") + 
   annotation_north_arrow(location = "tl", 
                          which_north = "true", 
-                         pad_x = unit(0.85, "cm"), 
+                         pad_x = unit(0.55, "cm"), 
                          pad_y = unit(0.65, "cm"), 
                          style = north_arrow_nautical(fill = c("grey60", "white"), line_col = "black", text_size = 10, text_family = "Calibri Light"),
                          height = unit(1, "cm"),
@@ -429,23 +444,24 @@ FishMap.C <- ggplot() +
                                frame.colour = "black",
                                frame.linewidth = 0.3,
                                ticks.colour = "black"))
-
 FishMap.C
 
-#ggsave(paste0(to.figs, "PrevalenceMap_Fish_C.png"), plot = FishMap.C, dpi = 300, width = 10, height = 15, units = "cm")
-ggsave(paste0(to.figs, "PrevalenceMap_Fish_C+BV.png"), plot = FishMap.C, dpi = 300, width = 10, height = 15, units = "cm")
+ggsave(paste0(to.figs, "PrevalenceMap_Fish_Combined.png"), plot = FishMap.C, dpi = 300, width = 10, height = 15, units = "cm")
+#ggsave(paste0(to.figs, "PrevalenceMap_Fish_Combined+BV.png"), plot = FishMap.C, dpi = 300, width = 10, height = 15, units = "cm")
 
 ### Minnow traps ----
 
 FishMap.MT <- ggplot() + 
-  geom_sf(data = cropped.lakes, fill = "lightblue", alpha = 0.5, color = "lightblue") +
   geom_sf(data = cropped.creeks, color = "lightblue", alpha = 0.5) +
+  geom_sf(data = cropped.building, color = "darkgrey", alpha = 0.5, size = 0.5) +
+  geom_sf(data = cropped.roads, color = "darkgrey", alpha = 0.5, size = 0.5) +
+  #geom_sf(data = cropped.watersheds, fill = NA, linewidth = 0.5, color = "#467092") +
+  geom_sf(data = cropped.lakes, fill = "lightblue", alpha = 0.5, color = "lightblue") +
   geom_sf(data = lake.attributes.MT, aes(fill = (prev_fish*100)), color = "black", size = 0.5) +
-  geom_sf(data = cropped.watersheds, fill = NA, linewidth = 0.5, color = "#467092") +
   scale_fill_continuous_sequential(palette = "YlOrBr", limits = c(0, 100), aesthetics = "fill") +
   theme(legend.position = c(0.88, 0.15),
         legend.text = element_text(color = "black", size = 9, family = "Calibri Light"),
-        legend.title = element_text(color = "black", size = 9, family = "Calibri Bold"),
+        legend.title = element_text(color = "black", size = 9, family = "Calibri Light"),
         legend.key.size = unit(0.5, "cm"),
         legend.key = element_rect(linewidth = 2),
         legend.background = element_blank(), 
@@ -461,7 +477,7 @@ FishMap.MT <- ggplot() +
                    text_family = "Calibri Light") + 
   annotation_north_arrow(location = "tl", 
                          which_north = "true", 
-                         pad_x = unit(0.85, "cm"), 
+                         pad_x = unit(0.55, "cm"), 
                          pad_y = unit(0.65, "cm"), 
                          style = north_arrow_nautical(fill = c("grey60", "white"), line_col = "black", text_size = 10, text_family = "Calibri Light"),
                          height = unit(1, "cm"),
@@ -474,20 +490,22 @@ FishMap.MT <- ggplot() +
                                ticks.colour = "black"))
 FishMap.MT
 
-#ggsave(paste0(to.figs, "PrevalenceMap_Fish_MinnowTrap.png"), plot = FishMap.MT, dpi = 300, width = 10, height = 15, units = "cm")
-ggsave(paste0(to.figs, "PrevalenceMap_Fish_MinnowTrap+BV.png"), plot = FishMap.MT, dpi = 300, width = 10, height = 15, units = "cm")
+ggsave(paste0(to.figs, "PrevalenceMap_Fish_MinnowTrap.png"), plot = FishMap.MT, dpi = 300, width = 10, height = 15, units = "cm")
+#ggsave(paste0(to.figs, "PrevalenceMap_Fish_MinnowTrap+BV.png"), plot = FishMap.MT, dpi = 300, width = 10, height = 15, units = "cm")
 
 ### Seine net ----
 
 FishMap.S <- ggplot() + 
+  geom_sf(data = cropped.building, color = "darkgrey", alpha = 0.5, size = 0.5) +
+  geom_sf(data = cropped.roads, color = "darkgrey", alpha = 0.5, size = 0.5) +
   geom_sf(data = cropped.lakes, fill = "lightblue", alpha = 0.5, color = "lightblue") +
   geom_sf(data = cropped.creeks, color = "lightblue", alpha = 0.5) +
   geom_sf(data = lake.attributes.S, aes(fill = (prev_fish*100)), color = "black", size = 0.5) +
-  geom_sf(data = cropped.watersheds, fill = NA, linewidth = 0.5, color = "#467092") +
+  #geom_sf(data = cropped.watersheds, fill = NA, linewidth = 0.5, color = "#467092") +
   scale_fill_continuous_sequential(palette = "YlOrBr", limits = c(0, 100), aesthetics = "fill") +
   theme(legend.position = c(0.88, 0.15),
         legend.text = element_text(color = "black", size = 9, family = "Calibri Light"),
-        legend.title = element_text(color = "black", size = 9, family = "Calibri Bold"),
+        legend.title = element_text(color = "black", size = 9, family = "Calibri Light"),
         legend.key.size = unit(0.5, "cm"),
         legend.key = element_rect(linewidth = 2),
         legend.background = element_blank(), 
@@ -503,7 +521,7 @@ FishMap.S <- ggplot() +
                    text_family = "Calibri Light") + 
   annotation_north_arrow(location = "tl", 
                          which_north = "true", 
-                         pad_x = unit(0.85, "cm"), 
+                         pad_x = unit(0.55, "cm"), 
                          pad_y = unit(0.65, "cm"), 
                          style = north_arrow_nautical(fill = c("grey60", "white"), line_col = "black", text_size = 10, text_family = "Calibri Light"),
                          height = unit(1, "cm"),
@@ -516,21 +534,23 @@ FishMap.S <- ggplot() +
                                ticks.colour = "black"))
 FishMap.S
 
-#ggsave(paste0(to.figs, "PrevalenceMap_Fish_Seine.png"), plot = FishMap.S, dpi = 300, width = 10, height = 15, units = "cm")
-ggsave(paste0(to.figs, "PrevalenceMap_Fish_Seine+BV.png"), plot = FishMap.S, dpi = 300, width = 10, height = 15, units = "cm")
+ggsave(paste0(to.figs, "PrevalenceMap_Fish_Seine.png"), plot = FishMap.S, dpi = 300, width = 10, height = 15, units = "cm")
+#ggsave(paste0(to.figs, "PrevalenceMap_Fish_Seine+BV.png"), plot = FishMap.S, dpi = 300, width = 10, height = 15, units = "cm")
 
 ### Transect ----
 
 FishMap.T <- ggplot() + 
+  geom_sf(data = cropped.building, color = "darkgrey", alpha = 0.5, size = 0.5) +
+  geom_sf(data = cropped.roads, color = "darkgrey", alpha = 0.5, size = 0.5) +
   geom_sf(data = cropped.lakes, fill = "lightblue", alpha = 0.5, color = "lightblue") +
   geom_sf(data = cropped.creeks, color = "lightblue", alpha = 0.5) +
   geom_sf(data = lake.attributes.T, aes(fill = (prev_fish*100)), color = "black", size = 0.5) +
-  geom_sf(data = cropped.watersheds, fill = NA, linewidth = 0.5, color = "#467092") +
+  #geom_sf(data = cropped.watersheds, fill = NA, linewidth = 0.5, color = "#467092") +
   scale_fill_continuous_sequential(palette = "YlOrBr", limits = c(0, 100), aesthetics = "fill") +
   scale_continuous_identity(aesthetics = c(0, 1)) +
   theme(legend.position = c(0.88, 0.15),
         legend.text = element_text(color = "black", size = 9, family = "Calibri Light"),
-        legend.title = element_text(color = "black", size = 9, family = "Calibri Bold"),
+        legend.title = element_text(color = "black", size = 9, family = "Calibri Light"),
         legend.key.size = unit(0.5, "cm"),
         legend.key = element_rect(linewidth = 2),
         legend.background = element_blank(), 
@@ -546,7 +566,7 @@ FishMap.T <- ggplot() +
                    text_family = "Calibri Light") + 
   annotation_north_arrow(location = "tl", 
                          which_north = "true", 
-                         pad_x = unit(0.85, "cm"), 
+                         pad_x = unit(0.55, "cm"), 
                          pad_y = unit(0.65, "cm"), 
                          style = north_arrow_nautical(fill = c("grey60", "white"), line_col = "black", text_size = 10, text_family = "Calibri Light"),
                          height = unit(1, "cm"),
@@ -559,8 +579,8 @@ FishMap.T <- ggplot() +
                                ticks.colour = "black"))
 FishMap.T
 
-#ggsave(paste0(to.figs, "PrevalenceMap_Fish_Transect.png"), plot = FishMap.T, dpi = 300, width = 10, height = 15, units = "cm")
-ggsave(paste0(to.figs, "PrevalenceMap_Fish_Transect+BV.png"), plot = FishMap.T, dpi = 300, width = 10, height = 15, units = "cm")
+ggsave(paste0(to.figs, "PrevalenceMap_Fish_Transect.png"), plot = FishMap.T, dpi = 300, width = 10, height = 15, units = "cm")
+#ggsave(paste0(to.figs, "PrevalenceMap_Fish_Transect+BV.png"), plot = FishMap.T, dpi = 300, width = 10, height = 15, units = "cm")
 
 
 ### Summary figure ----
@@ -574,6 +594,7 @@ C.hist <- ggplot(lake.attributes.C, aes(prev_fish)) +
   geom_histogram(bins = 6, fill = "#7E7E7E", color = "black", alpha = 0.8) +
   labs(x = "Prevalence", y = "Frequency") +
   ylim(0,4) +
+  scale_x_continuous(breaks = c(0.0, 0.4, 0.8), labels = c("0", "0.4", "0.8")) +
   theme(text = element_text(size = 9, family = "Calibri Light", color = "black"),
         axis.text.x = element_text(color = "black"),
         axis.text.y = element_text(color = "black"),
@@ -583,12 +604,14 @@ C.hist <- ggplot(lake.attributes.C, aes(prev_fish)) +
 
 C.Grob <- ggplotGrob(C.hist) #Set frequency distribution as a grob
 
-  C.Map.Sum <- ggplot() + 
+C.Map.Sum <- ggplot() + 
+  geom_sf(data = cropped.building, color = "darkgrey", alpha = 0.5, size = 0.5) +
+  geom_sf(data = cropped.roads, color = "darkgrey", alpha = 0.5, size = 0.5) +  
   geom_sf(data = cropped.lakes, fill = "lightblue", alpha = 0.5, color = "lightblue") +
   geom_sf(data = cropped.creeks, color = "lightblue", alpha = 0.5) +
   geom_sf(data = lake.attributes.C, aes(fill = (prev_fish*100)), color = "black", size = 0.5) +
   scale_fill_continuous_sequential(palette = "YlOrBr", limits = c(0, 100), aesthetics = "fill") +
-  labs(tag = "A) Combined methods") +
+  labs(tag = "(a) Combined methods") +
   theme(legend.position = "none",
         panel.background = element_rect(fill = NA, color = "black"),
         plot.background = element_rect(fill = "white"),
@@ -621,10 +644,11 @@ C.Map.Sum
 #D) Minnow trap
 
 #Frequency distribution
-MT.hist <- ggplot(lake.attributes.T, aes(prev_fish)) + 
+MT.hist <- ggplot(lake.attributes.MT, aes(prev_fish)) + 
   geom_histogram(bins = 6, fill = "#2A5676", color = "black", alpha = 0.8) +
   labs(x = "Prevalence", y = "Frequency") + 
   ylim(0,4) +
+  scale_x_continuous(breaks = c(0.0, 0.4, 0.8), labels = c("0", "0.4", "0.8")) +
   theme(text = element_text(size = 9, family = "Calibri Light", color = "black"),
         axis.text.x = element_text(color = "black"),
         axis.text.y = element_text(color = "black"),
@@ -635,14 +659,16 @@ MT.hist <- ggplot(lake.attributes.T, aes(prev_fish)) +
 MT.Grob <- ggplotGrob(MT.hist)
 
 MT.Map.Sum <- ggplot() + 
+  geom_sf(data = cropped.building, color = "darkgrey", alpha = 0.5, size = 0.5) +
+  geom_sf(data = cropped.roads, color = "darkgrey", alpha = 0.5, size = 0.5) +  
   geom_sf(data = cropped.lakes, fill = "lightblue", alpha = 0.5, color = "lightblue") +
   geom_sf(data = cropped.creeks, color = "lightblue", alpha = 0.5) +
   geom_sf(data = lake.attributes.MT, aes(fill = (prev_fish*100)), color = "black", size = 0.5) +
   scale_fill_continuous_sequential(palette = "YlOrBr", limits = c(0, 100), aesthetics = "fill") +
-  labs(tag = "D) Minnow trap") +
+  labs(tag = "(d) Minnow trap") +
   theme(legend.position = c(1.2, 0.2),
         legend.text = element_text(color = "black", size = 9, family = "Calibri Light"),
-        legend.title = element_text(color = "black", size = 9, family = "Calibri Bold"),
+        legend.title = element_text(color = "black", size = 9, family = "Calibri Light"),
         legend.key.size = unit(0.7, "cm"),
         legend.key = element_rect(linewidth = 2),
         legend.background = element_blank(), 
@@ -675,6 +701,7 @@ MT.Map.Sum
 S.hist <- ggplot(lake.attributes.S, aes(prev_fish)) + 
   geom_histogram(bins = 6, fill = "#999600", color = "black", alpha = 0.8) +
   labs(x = "Prevalence", y = "Frequency") + 
+  scale_x_continuous(breaks = c(0.0, 0.4, 0.8), labels = c("0", "0.4", "0.8")) +
   ylim(0,4) +
   theme(text = element_text(size = 9, family = "Calibri Light", color = "black"),
         axis.text.x = element_text(color = "black"),
@@ -686,11 +713,13 @@ S.hist <- ggplot(lake.attributes.S, aes(prev_fish)) +
 S.Grob <- ggplotGrob(S.hist) #Set frequency distribution as a grob
 
 S.Map.Sum <- ggplot() + 
+  geom_sf(data = cropped.building, color = "darkgrey", alpha = 0.5, size = 0.5) +
+  geom_sf(data = cropped.roads, color = "darkgrey", alpha = 0.5, size = 0.5) +  
   geom_sf(data = cropped.lakes, fill = "lightblue", alpha = 0.5, color = "lightblue") +
   geom_sf(data = cropped.creeks, color = "lightblue", alpha = 0.5) +
   geom_sf(data = lake.attributes.S, aes(fill = (prev_fish*100)), color = "black", size = 0.5) +
   scale_fill_continuous_sequential(palette = "YlOrBr", limits = c(0, 100), aesthetics = "fill") +
-  labs(tag = "C) Seine net") +
+  labs(tag = "(c) Seine net") +
   theme(legend.position = "none",
         panel.background = element_rect(fill = NA, color = "black"),
         plot.background = element_rect(fill = "white"),
@@ -712,6 +741,7 @@ S.Map.Sum
 T.hist <- ggplot(lake.attributes.T, aes(prev_fish)) + 
   geom_histogram(bins = 6, fill = "#966F1E", color = "black", alpha = 0.8) +
   labs(x = "Prevalence", y = "Frequency") + 
+  scale_x_continuous(breaks = c(0.0, 0.4, 0.8), labels = c("0", "0.4", "0.8")) +
   ylim(0,4) +
   theme(text = element_text(size = 9, family = "Calibri Light", color = "black"),
         axis.text.x = element_text(color = "black"),
@@ -723,11 +753,13 @@ T.hist <- ggplot(lake.attributes.T, aes(prev_fish)) +
 T.Grob <- ggplotGrob(T.hist)
 
 T.Map.Sum <- ggplot() + 
+  geom_sf(data = cropped.building, color = "darkgrey", alpha = 0.5, size = 0.5) +
+  geom_sf(data = cropped.roads, color = "darkgrey", alpha = 0.5, size = 0.5) +  
   geom_sf(data = cropped.lakes, fill = "lightblue", alpha = 0.5, color = "lightblue") +
   geom_sf(data = cropped.creeks, color = "lightblue", alpha = 0.5) +
   geom_sf(data = lake.attributes.T, aes(fill = (prev_fish*100)), color = "black", size = 0.5) +
   scale_fill_continuous_sequential(palette = "YlOrBr", limits = c(0, 100), aesthetics = "fill") +
-  labs(tag = "B) Transect") +
+  labs(tag = "(b) Transect") +
   theme(legend.position = "none",
         panel.background = element_rect(fill = NA, color = "black"),
         plot.background = element_rect(fill = "white"),
@@ -736,7 +768,7 @@ T.Map.Sum <- ggplot() +
         panel.spacing = margin(0, 0, 0, 0, unit = "mm"),
         axis.text = element_blank(),
         axis.ticks = element_blank(),
-        plot.tag.position = c(0.17, 0.05),
+        plot.tag.position = c(0.175, 0.05),
         plot.tag = element_text(family = "Calibri Light")) +
   annotation_custom(T.Grob, 
                     xmax = -73.935,
@@ -745,7 +777,6 @@ T.Map.Sum <- ggplot() +
                     ymin = 45.965)
 T.Map.Sum
 
-##
 Summary.map <- C.Map.Sum + T.Map.Sum + S.Map.Sum + MT.Map.Sum +
   plot_layout(ncol = 2,
               nrow = 2,
@@ -754,5 +785,207 @@ Summary.map <- C.Map.Sum + T.Map.Sum + S.Map.Sum + MT.Map.Sum +
 
 Summary.map
 
-ggsave(paste0(to.figs, "PrevalenceMapHist_Summary.png"), plot = Summary.map, dpi = 300, width = 20, height = 20, units = "cm")
+ggsave(paste0(to.figs, "PrevalenceMap_Fish_Summary.png"), plot = Summary.map, dpi = 300, width = 20, height = 20, units = "cm")
 ggsave(paste0(to.rédaction, "/Figures/Figure5_MapFreqDistribution.png"), plot = Summary.map, dpi = 300, width = 20, height = 20, units = "cm")
+
+## LeGi maps ----
+
+### Combined methods ----
+
+#Frequency distribution
+C.hist.legi <- ggplot(lake.attributes.C, aes(prev_LeGi)) + 
+  geom_histogram(bins = 6, fill = "#7E7E7E", color = "black", alpha = 0.8) +
+  labs(x = "Prevalence", y = "Frequency") +
+  ylim(0,6) +
+  scale_x_continuous(breaks = c(0.0, 0.4, 0.8), labels = c("0", "0.4", "0.8")) +
+  theme(text = element_text(size = 9, family = "Calibri Light", color = "black"),
+        axis.text.x = element_text(color = "black"),
+        axis.text.y = element_text(color = "black"),
+        panel.background = element_blank(),
+        axis.line.x = element_line(color = "black",lineend = "round"),
+        axis.line.y = element_line(color = "black", lineend = "round"))
+
+C.Grob.legi <- ggplotGrob(C.hist.legi) #Set frequency distribution as a grob
+
+C.Map.Sum.legi <- ggplot() + 
+  geom_sf(data = cropped.building, color = "darkgrey", alpha = 0.5, size = 0.5) +
+  geom_sf(data = cropped.roads, color = "darkgrey", alpha = 0.5, size = 0.5) +  
+  geom_sf(data = cropped.lakes, fill = "lightblue", alpha = 0.5, color = "lightblue") +
+  geom_sf(data = cropped.creeks, color = "lightblue", alpha = 0.5) +
+  geom_sf(data = lake.attributes.C, aes(fill = (prev_LeGi*100)), color = "black", size = 0.5) +
+  scale_fill_continuous_sequential(palette = "YlOrBr", limits = c(0, 100), aesthetics = "fill") +
+  labs(tag = "(a) Combined methods") +
+  theme(legend.position = "none",
+        panel.background = element_rect(fill = NA, color = "black"),
+        plot.background = element_rect(fill = "white"),
+        plot.margin = margin(0, 0, 0, 0, unit = "mm"),
+        panel.spacing = margin(0, 0, 0, 0, unit = "mm"),
+        panel.grid = element_line(NA), 
+        axis.ticks = element_blank(),
+        axis.text = element_blank(),
+        plot.tag.position = c(0.32, 0.05),
+        plot.tag = element_text(family = "Calibri Light")) +
+  annotation_scale(location = "tl", 
+                   bar_cols = c("grey60", "white"),
+                   height = unit(0.25, "cm"),
+                   text_cex = 0.75,
+                   text_family = "Calibri Light") + 
+  annotation_north_arrow(location = "tl", 
+                         which_north = "true", 
+                         pad_x = unit(0.35, "cm"), 
+                         pad_y = unit(0.65, "cm"), 
+                         style = north_arrow_nautical(fill = c("grey60", "white"), line_col = "black", text_size = 10, text_family = "Calibri Light"),
+                         height = unit(1, "cm"),
+                         width = unit(1, "cm")) +
+  annotation_custom(C.Grob.legi, 
+                    xmax = -73.935,
+                    xmin = -73.992,
+                    ymax = 46.005,
+                    ymin = 45.965)
+C.Map.Sum.legi
+
+### Minnow traps ----
+
+MT.hist.legi <- ggplot(lake.attributes.MT, aes(prev_LeGi)) + 
+  geom_histogram(bins = 6, fill = "#2A5676", color = "black", alpha = 0.8) +
+  labs(x = "Prevalence", y = "Frequency") + 
+  ylim(0,6) +
+  scale_x_continuous(breaks = c(0.0, 0.4, 0.8), labels = c("0", "0.4", "0.8")) +
+  theme(text = element_text(size = 9, family = "Calibri Light", color = "black"),
+        axis.text.x = element_text(color = "black"),
+        axis.text.y = element_text(color = "black"),
+        panel.background = element_blank(),
+        axis.line.x = element_line(color = "black", lineend = "round"),
+        axis.line.y = element_line(color = "black", lineend = "round"))
+
+MT.Grob.legi <- ggplotGrob(MT.hist.legi)
+
+MT.Map.Sum.legi <- ggplot() + 
+  geom_sf(data = cropped.building, color = "darkgrey", alpha = 0.5, size = 0.5) +
+  geom_sf(data = cropped.roads, color = "darkgrey", alpha = 0.5, size = 0.5) +  
+  geom_sf(data = cropped.lakes, fill = "lightblue", alpha = 0.5, color = "lightblue") +
+  geom_sf(data = cropped.creeks, color = "lightblue", alpha = 0.5) +
+  geom_sf(data = lake.attributes.MT, aes(fill = (prev_LeGi*100)), color = "black", size = 0.5) +
+  scale_fill_continuous_sequential(palette = "YlOrBr", limits = c(0, 100), aesthetics = "fill") +
+  labs(tag = "(d) Minnow trap") +
+  theme(legend.position = c(1.2, 0.2),
+        legend.text = element_text(color = "black", size = 9, family = "Calibri Light"),
+        legend.title = element_text(color = "black", size = 9, family = "Calibri Light"),
+        legend.key.size = unit(0.7, "cm"),
+        legend.key = element_rect(linewidth = 2),
+        legend.background = element_blank(), 
+        panel.background = element_rect(fill = NA, color = "black"),
+        plot.background = element_rect(fill = "white"),
+        plot.margin = margin(0, 0, 0, 0, unit = "mm"), 
+        panel.spacing = margin(0, 0, 0, 0, unit = "mm"),
+        panel.grid = element_line(NA), 
+        axis.ticks = element_blank(),
+        axis.text = element_blank(),
+        plot.tag.position = c(0.23, 0.05),
+        plot.tag = element_text(family = "Calibri Light")) +
+  guides(fill = guide_colorbar(title = "Prevalence (%)",
+                               label.position = "right",
+                               title.position = "left", title.theme = element_text(angle = 90, size = 12, hjust = 0.5),
+                               frame.colour = "black",
+                               frame.linewidth = 0.3,
+                               ticks.colour = "black")) +
+  annotation_custom(MT.Grob.legi, 
+                    xmax = -73.935,
+                    xmin = -73.992,
+                    ymax = 46.005,
+                    ymin = 45.965)
+
+MT.Map.Sum.legi
+
+### Seine net ----
+
+S.hist.legi <- ggplot(lake.attributes.S, aes(prev_LeGi)) + 
+  geom_histogram(bins = 6, fill = "#999600", color = "black", alpha = 0.8) +
+  labs(x = "Prevalence", y = "Frequency") + 
+  scale_x_continuous(breaks = c(0.0, 0.4, 0.8), labels = c("0", "0.4", "0.8")) +
+  ylim(0,6) +
+  theme(text = element_text(size = 9, family = "Calibri Light", color = "black"),
+        axis.text.x = element_text(color = "black"),
+        axis.text.y = element_text(color = "black"),
+        panel.background = element_blank(),
+        axis.line.x = element_line(color = "black",lineend = "round"),
+        axis.line.y = element_line(color = "black", lineend = "round"))
+
+S.Grob.legi <- ggplotGrob(S.hist.legi) #Set frequency distribution as a grob
+
+S.Map.Sum.legi <- ggplot() + 
+  geom_sf(data = cropped.building, color = "darkgrey", alpha = 0.5, size = 0.5) +
+  geom_sf(data = cropped.roads, color = "darkgrey", alpha = 0.5, size = 0.5) +  
+  geom_sf(data = cropped.lakes, fill = "lightblue", alpha = 0.5, color = "lightblue") +
+  geom_sf(data = cropped.creeks, color = "lightblue", alpha = 0.5) +
+  geom_sf(data = lake.attributes.S, aes(fill = (prev_LeGi*100)), color = "black", size = 0.5) +
+  scale_fill_continuous_sequential(palette = "YlOrBr", limits = c(0, 100), aesthetics = "fill") +
+  labs(tag = "(c) Seine net") +
+  theme(legend.position = "none",
+        panel.background = element_rect(fill = NA, color = "black"),
+        plot.background = element_rect(fill = "white"),
+        plot.margin = margin(0, 0, 0, 0, unit = "mm"), 
+        panel.grid = element_line(NA), 
+        panel.spacing = margin(0, 0, 0, 0, unit = "mm"),
+        axis.ticks = element_blank(),
+        axis.text = element_blank(),
+        plot.tag.position = c(0.185, 0.05),
+        plot.tag = element_text(family = "Calibri Light")) +
+  annotation_custom(S.Grob.legi, 
+                    xmax = -73.935,
+                    xmin = -73.992,
+                    ymax = 46.005,
+                    ymin = 45.965)
+S.Map.Sum.legi
+
+### Transect ----
+
+T.hist.legi <- ggplot(lake.attributes.T, aes(prev_LeGi)) + 
+  geom_histogram(bins = 6, fill = "#966F1E", color = "black", alpha = 0.8) +
+  labs(x = "Prevalence", y = "Frequency") + 
+  scale_x_continuous(breaks = c(0.0, 0.4, 0.8), labels = c("0", "0.4", "0.8")) +
+  ylim(0,6) +
+  theme(text = element_text(size = 9, family = "Calibri Light", color = "black"),
+        axis.text.x = element_text(color = "black"),
+        axis.text.y = element_text(color = "black"),
+        panel.background = element_blank(),
+        axis.line.x = element_line(color = "black",lineend = "round"),
+        axis.line.y = element_line(color = "black", lineend = "round"))
+
+T.Grob.legi <- ggplotGrob(T.hist.legi)
+
+T.Map.Sum.legi <- ggplot() + 
+  geom_sf(data = cropped.building, color = "darkgrey", alpha = 0.5, size = 0.5) +
+  geom_sf(data = cropped.roads, color = "darkgrey", alpha = 0.5, size = 0.5) +  
+  geom_sf(data = cropped.lakes, fill = "lightblue", alpha = 0.5, color = "lightblue") +
+  geom_sf(data = cropped.creeks, color = "lightblue", alpha = 0.5) +
+  geom_sf(data = lake.attributes.T, aes(fill = (prev_LeGi*100)), color = "black", size = 0.5) +
+  scale_fill_continuous_sequential(palette = "YlOrBr", limits = c(0, 100), aesthetics = "fill") +
+  labs(tag = "(b) Transect") +
+  theme(legend.position = "none",
+        panel.background = element_rect(fill = NA, color = "black"),
+        plot.background = element_rect(fill = "white"),
+        plot.margin = margin(0, 0, 0, 0, unit = "mm"), 
+        panel.grid = element_line(NA), 
+        panel.spacing = margin(0, 0, 0, 0, unit = "mm"),
+        axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        plot.tag.position = c(0.175, 0.05),
+        plot.tag = element_text(family = "Calibri Light")) +
+  annotation_custom(T.Grob.legi, 
+                    xmax = -73.935,
+                    xmin = -73.992,
+                    ymax = 46.005,
+                    ymin = 45.965)
+T.Map.Sum.legi
+
+Summary.map.legi <- C.Map.Sum.legi + T.Map.Sum.legi + S.Map.Sum.legi + MT.Map.Sum.legi +
+  plot_layout(ncol = 2,
+              nrow = 2,
+              tag_level = "keep",
+              guides = "keep")
+
+Summary.map.legi
+
+ggsave(paste0(to.figs, "PrevalenceMap_LeGi_Summary.png"), plot = Summary.map.legi, dpi = 500, width = 20, height = 20, units = "cm")
+

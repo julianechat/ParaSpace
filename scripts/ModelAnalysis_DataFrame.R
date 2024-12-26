@@ -77,15 +77,20 @@ mod.data <- merge(mod.data, Biotic.L, by = "Lake")
 mod.data <- mod.data %>% 
   mutate(tot_fish = tot_AmRu + tot_MiDo + tot_LeGi + tot_PeFl + tot_Cyprinidae) %>% #Create total fish abundance column
   mutate(inf_fish = inf_AmRu + inf_MiDo + inf_LeGi + inf_PeFl + inf_Cyprinidae) #Create infected fish abundance column
-  
+
+mod.data2 <-   mod.data %>% 
+  mutate(tot_fish = tot_AmRu + tot_MiDo + tot_LeGi + tot_PeFl + tot_Cyprinidae) %>% #Create total fish abundance column
+  mutate(inf_fish = inf_AmRu + inf_MiDo + inf_LeGi + inf_PeFl + inf_Cyprinidae) #Create infected fish abundance column
+
 mod.data <- mod.data %>% 
-  mutate(prev_fish = inf_fish/tot_fish) #Create prevalence column
+  mutate(prev_fish = inf_fish/tot_fish) %>% 
+  mutate(prev_LeGi = inf_LeGi/tot_LeGi)#Create prevalence column
 
 ## Variable selection ----
 
 mod.data <- mod.data %>% 
   select(Sampling_ID, Lake, Watershed,
-         inf_fish, tot_fish, prev_fish, tot_Cyprinidae,
+         inf_fish, tot_fish, prev_fish, inf_LeGi, tot_LeGi, prev_LeGi, tot_Cyprinidae,
          Silt, Sand, Rock, Boulder, Macrophyte, Site_depth, Trunk,
          Temperature, Conductivity, DO, Turbidity, pH, 
          TOC, TN, TP, 

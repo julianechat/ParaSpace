@@ -28,6 +28,7 @@ library(writexl)
 library(splitstackshape)
 library(janitor)
 library(gt)
+library(patchwork)
 
 ## Loading data ----
 
@@ -40,6 +41,9 @@ CombinedData <- read.csv(paste0(to.output, "CombinedData.csv"))
 #Lake Tracy is included at landscape scale
 #Prevalence is equal to abundance of infected fishes (from all lakes) divided by the total of fishes
 
+CombinedData <- CombinedData %>% #Muskellunge and brown bullhead individuals are excluded from the prevalence calculus since they are not host of the black spot disease
+  select(!(c(tot_EsMa, inf_EsMa, tot_AmNe, inf_AmNe)))
+
 ### Combined methods ----
 
 Land.pool.C <- CombinedData %>% #Selecting abundance data
@@ -47,7 +51,7 @@ Land.pool.C <- CombinedData %>% #Selecting abundance data
   na.omit()
 
 Land.pool.inf.C <- Land.pool.C %>% #Landscape infected fish abundance
-  select(starts_with("inf"))
+  select(starts_with("inf")) 
 Land.pool.inf.C <- sum(Land.pool.inf.C)
 
 Land.pool.tot.C <- Land.pool.C %>% #Landscape total fish abundance
@@ -120,8 +124,8 @@ Land.summary.data <- data.frame(rbind(Land.C.data, Land.MT.data, Land.S.data, La
 Land.summary.data$Prevalence <- as.numeric(Land.summary.data$Prevalence)
 
 #Table
-Table.S12 <- gt(Land.summary.data) %>% 
-  tab_header(md("**TABLE S12.** Observed landscape prevalence estimated by each sampling method. All values are given in percentage.")) %>% 
+S2.S5 <- gt(Land.summary.data) %>% 
+  tab_header(md("**TABLE S5.** Observed landscape-scale fish community prevalence estimated by each method. All values are given in percentage.")) %>% 
   cols_label(Prevalence = md("Prevalence (%)")) %>% 
   tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "left"),
             locations = cells_title("title")) %>% 
@@ -138,13 +142,14 @@ Table.S12 <- gt(Land.summary.data) %>%
             location = list(cells_column_labels())) %>% 
   tab_style(style= cell_borders(sides = c("bottom"), weight = px(2)), 
             location = list(cells_body(rows = 4))) %>% 
-  fmt_number(decimals = 2)
-Table.S12
+  fmt_number(decimals = 0)
 
-Table.S12 %>% #Saving gt tab
+S2.S5
+
+S2.S5 %>% #Saving gt tab
   gtsave("Tab_LandscapePrev_Methods.png", paste0(to.figs))
-Table.S12 %>% 
-  gtsave("Table_S12.png", paste0(to.rédaction, "./Support_information/"))
+S2.S5 %>% 
+  gtsave("AppendixS2_TableS5.pdf", paste0(to.rédaction, "./Support_information/"))
 
 ## Species prevalence ----
 
@@ -172,9 +177,7 @@ Land.sp.prev.C <- Land.sp.prev.C %>% #Landscape prevalence by species in percent
   mutate(prev_Cyprinidae = (inf_Cyprinidae/tot_Cyprinidae)*100, .keep = "unused") %>% 
   mutate(prev_SeAt = (inf_SeAt/tot_SeAt)*100, .keep = "unused") %>%
   mutate(prev_LuCo = (inf_LuCo/tot_LuCo)*100, .keep = "unused") %>%
-  mutate(prev_AmNe = (inf_AmNe/tot_AmNe)*100, .keep = "unused") %>%
   mutate(prev_CaCo = (inf_CaCo/tot_CaCo)*100, .keep = "unused") %>%
-  mutate(prev_EsMa = (inf_EsMa/tot_EsMa)*100, .keep = "unused") %>%
   mutate(prev_UmLi = (inf_UmLi/tot_UmLi)*100, .keep = "unused") %>%
   mutate(prev_RhAt = (inf_RhAt/tot_RhAt)*100, .keep = "unused")
 
@@ -203,9 +206,7 @@ Land.sp.prev.MT <- Land.sp.prev.MT %>% #Landscape prevalence by species in perce
   mutate(prev_Cyprinidae = (inf_Cyprinidae/tot_Cyprinidae)*100, .keep = "unused") %>% 
   mutate(prev_SeAt = (inf_SeAt/tot_SeAt)*100, .keep = "unused") %>%
   mutate(prev_LuCo = (inf_LuCo/tot_LuCo)*100, .keep = "unused") %>%
-  mutate(prev_AmNe = (inf_AmNe/tot_AmNe)*100, .keep = "unused") %>%
   mutate(prev_CaCo = (inf_CaCo/tot_CaCo)*100, .keep = "unused") %>%
-  mutate(prev_EsMa = (inf_EsMa/tot_EsMa)*100, .keep = "unused") %>%
   mutate(prev_UmLi = (inf_UmLi/tot_UmLi)*100, .keep = "unused") %>%
   mutate(prev_RhAt = (inf_RhAt/tot_RhAt)*100, .keep = "unused")
 
@@ -234,9 +235,7 @@ Land.sp.prev.S <- Land.sp.prev.S %>% #Landscape prevalence by species in percent
   mutate(prev_Cyprinidae = (inf_Cyprinidae/tot_Cyprinidae)*100, .keep = "unused") %>% 
   mutate(prev_SeAt = (inf_SeAt/tot_SeAt)*100, .keep = "unused") %>%
   mutate(prev_LuCo = (inf_LuCo/tot_LuCo)*100, .keep = "unused") %>%
-  mutate(prev_AmNe = (inf_AmNe/tot_AmNe)*100, .keep = "unused") %>%
   mutate(prev_CaCo = (inf_CaCo/tot_CaCo)*100, .keep = "unused") %>%
-  mutate(prev_EsMa = (inf_EsMa/tot_EsMa)*100, .keep = "unused") %>%
   mutate(prev_UmLi = (inf_UmLi/tot_UmLi)*100, .keep = "unused") %>%
   mutate(prev_RhAt = (inf_RhAt/tot_RhAt)*100, .keep = "unused")
 
@@ -265,9 +264,7 @@ Land.sp.prev.T <- Land.sp.prev.T %>%  #Landscape prevalence by species in percen
   mutate(prev_Cyprinidae = (inf_Cyprinidae/tot_Cyprinidae)*100, .keep = "unused") %>% 
   mutate(prev_SeAt = (inf_SeAt/tot_SeAt)*100, .keep = "unused") %>%
   mutate(prev_LuCo = (inf_LuCo/tot_LuCo)*100, .keep = "unused") %>%
-  mutate(prev_AmNe = (inf_AmNe/tot_AmNe)*100, .keep = "unused") %>%
   mutate(prev_CaCo = (inf_CaCo/tot_CaCo)*100, .keep = "unused") %>%
-  mutate(prev_EsMa = (inf_EsMa/tot_EsMa)*100, .keep = "unused") %>%
   mutate(prev_UmLi = (inf_UmLi/tot_UmLi)*100, .keep = "unused") %>%
   mutate(prev_RhAt = (inf_RhAt/tot_RhAt)*100, .keep = "unused")
 
@@ -283,16 +280,16 @@ Land.sp.sum.T <- cbind(Method = "Transect", Land.sp.prev.T)
 Land.sp.sum.data <- data.frame(rbind(Land.sp.sum.C, Land.sp.sum.MT, Land.sp.sum.S, Land.sp.sum.T), row.names = NULL)
 
 #Adjusting format
-Land.sp.sum.data <- pivot_longer(Land.sp.sum.data, cols = c(2:18), names_to = "Species", values_to = "Prevalence")
+Land.sp.sum.data <- pivot_longer(Land.sp.sum.data, cols = c(2:16), names_to = "Species", values_to = "Prevalence")
 Land.sp.sum.data <- pivot_wider(Land.sp.sum.data, names_from = "Method", values_from = "Prevalence")
 
 #Renaming species ID
-Species <- c("Ambloplites rupestris", "Fundulus diaphanus", "Micropterus dolomieu","Unknown centrarchids", "Lepomis gibbosus", "Perca flavescens", "Pimephales promelas", "Chrosomus spp.", "Pimephales notatus", "Unknown cyprinids", "Semotilus atromaculatus", "Luxilus cornutus", "Ameiurus nebulosus", "Catostomus commersonii", "Esox masquinongy", "Umbra limi", "Rhinichthys atratulus")
+Species <- c("Ambloplites rupestris", "Fundulus diaphanus", "Micropterus dolomieu","Unknown centrarchids", "Lepomis gibbosus", "Perca flavescens", "Pimephales promelas", "Chrosomus spp.", "Pimephales notatus", "Unknown cyprinids", "Semotilus atromaculatus", "Luxilus cornutus", "Catostomus commersonii", "Umbra limi", "Rhinichthys atratulus")
 Land.sp.sum.data$Species <- Species
 
 #Table
-Table.S18 <- gt(Land.sp.sum.data) %>% 
-  tab_header(md("**TABLE S18.** Host specificity of the black spot disease at landscape-scale accrording to the different sampling methods. NaN means that no fish were caught in the corresponding category.")) %>% 
+S2.S12 <- gt(Land.sp.sum.data) %>% 
+  tab_header(md("**TABLE S12.** Host specificity of the black spot disease at landscape-scale according to the different sampling methods. NaN means that no fish were caught in the corresponding category. All values are in percentage.")) %>% 
   tab_spanner("Method", columns = c(2:5)) %>% 
   tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "left"),
             locations = cells_title("title")) %>% 
@@ -303,7 +300,7 @@ Table.S18 <- gt(Land.sp.sum.data) %>%
   tab_style(cell_text(color = "black", font = "Calibri light", size = 9, align = "center", v_align = "middle"),
             locations = cells_body()) %>% 
   tab_style(cell_text(color = "black", font = "Calibri light", size = 9, align = "center", v_align = "middle", style = "italic"),
-            locations = cells_body(columns = 1, rows = c(1:3, 5:9, 11:17))) %>% 
+            locations = cells_body(columns = 1, rows = c(1:3, 5:9, 11:15))) %>% 
   tab_options(table.border.top.style = "hidden",
               heading.border.bottom.color = "black",
               row.striping.include_table_body = TRUE,
@@ -312,14 +309,15 @@ Table.S18 <- gt(Land.sp.sum.data) %>%
   tab_style(style= cell_borders(sides = c("bottom", "top"), weight = px(2)), 
             location = list(cells_column_labels())) %>% 
   tab_style(style= cell_borders(sides = c("bottom"), weight = px(2)), 
-            location = list(cells_body(rows = 17))) %>% 
-  fmt_number(decimals = 2)
-Table.S18
+            location = list(cells_body(rows = 15))) %>% 
+  fmt_number(decimals = 0)
 
-Table.S18 %>% #Saving gt tab
+S2.S12
+
+S2.S12 %>% #Saving gt tab
   gtsave("Tab_LandscapeSpec_Methods.png", paste0(to.figs))
-Table.S18 %>% 
-  gtsave("Table_S18.png", paste0(to.rédaction, "./Support_information/"))
+Table.S15 %>% 
+  gtsave("Table_S15.png", paste0(to.rédaction, "./Support_information/"))
 
 # ---- Lake prevalence ----
 
@@ -359,7 +357,39 @@ Lake.mean.C <- weighted.mean(Lake.pool.prev.C$prev_fish, Lake.pool.prev.C$tot_fi
 
 Lake.C.tab <- Lake.pool.prev.C %>% 
   mutate(Method = "Combined", .after = Lake)
-  
+
+### Fishing methods ----
+
+Lake.pool.F <- CombinedData %>% #Selecting abundance data
+  filter(Sampling_method == "Minnow_trap"| Sampling_method == "Seine") %>% 
+  select(Lake, starts_with(c("tot", "inf"))) %>% 
+  na.omit()
+
+Lake.pool.F <- Lake.pool.F %>% #Summarizing abundance columns by lake
+  group_by(Lake) %>% 
+  summarise(across(.cols = everything(), sum))
+
+Lake.pool.inf.F <- Lake.pool.F %>% #Summarizing lake infected community abundance 
+  select(Lake, starts_with("inf")) %>% 
+  adorn_totals(where = "col", name = "inf_fish")
+
+Lake.pool.inf.F <- Lake.pool.inf.F %>% #Extracting lake infected community abundances
+  select(Lake, inf_fish)
+
+Lake.pool.tot.F <- Lake.pool.F %>% #Summarizing lake total community abundance 
+  select(Lake, starts_with("tot")) %>% 
+  adorn_totals(where = "col", name = "tot_fish")
+
+Lake.pool.tot.F <- Lake.pool.tot.F %>% #Extracting lake infected community abundances
+  select(Lake, tot_fish)
+
+Lake.pool.prev.F <- merge(Lake.pool.inf.F, Lake.pool.tot.F, by = "Lake") %>% #Lake communities prevalence in percentage
+  mutate(prev_fish = (inf_fish/tot_fish)*100)
+
+Lake.mean.C <- weighted.mean(Lake.pool.prev.C$prev_fish, Lake.pool.prev.C$tot_fish) #Regional prevalence by mean of lake communities prevalence
+
+Lake.C.tab <- Lake.pool.prev.C %>% 
+  mutate(Method = "Combined", .after = Lake)
 ### Minnow trap ----
 
 Lake.pool.MT <- CombinedData %>% 
@@ -489,8 +519,8 @@ Lake.S.data <- Lake.S.data %>%
 Lake.summary.data <- rbind(Lake.C.data, Lake.MT.data, Lake.S.data, Lake.T.data)
 
 #Table
-Table.S13 <- gt(Lake.summary.data) %>% 
-  tab_header(md("**TABLE S13.** Observed lake prevalence estimated by each sampling method. All values are given in percentage. Lake Tracy was not included because only one fish was caughted through all methods. NAs mean that the lake was not sampled with the corresponding method.")) %>% 
+S2.S6 <- gt(Lake.summary.data) %>% 
+  tab_header(md("**TABLE S6.** Observed lake-scale fish community prevalence estimated by each method. All values are given in percentage. Lake Tracy was not included because only one fish was caughted through all methods. NAs mean that the lake was not sampled with the corresponding method.")) %>% 
   cols_label(Pin_rouge = md("Pin rouge")) %>% 
   tab_spanner(md("Prevalence (%)"), columns = c(2:15)) %>% 
   tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "center", weight = "bold"),
@@ -510,13 +540,92 @@ Table.S13 <- gt(Lake.summary.data) %>%
             location = list(cells_column_labels())) %>% 
   tab_style(style= cell_borders(sides = c("bottom"), weight = px(2)), 
             location = list(cells_body(rows = 4))) %>% 
-  fmt_number(decimals = 2)
-Table.S13
+  fmt_number(decimals = 0)
 
-Table.S13 %>% #Saving gt tab
+S2.S6
+
+S2.S6 %>% #Saving gt tab
   gtsave("Tab_LakePrev_Methods.png", paste0(to.figs))
-Table.S13 %>% 
-  gtsave("Table_S13.png", paste0(to.rédaction, "./Support_information/"))
+S2.S6 %>% 
+  gtsave("AppendixS2_TableS6.png", paste0(to.rédaction, "./Support_information/"))
+
+### Relationship between sample abundance and prevalence ----
+
+#Transect 
+T.PA <- ggplot() +
+  geom_point(aes(x = tot_fish, y = prev_fish), color = "#966F1E", data = Lake.T.tab) +
+  labs(title = "Transect") +
+  theme(text = element_text(size = 20, family = "Calibri Light", color = "black"),
+        panel.background = element_blank(),
+        legend.key = element_rect(fill = NA),
+        plot.title = element_text(hjust = 0.5),
+        axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
+        axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
+        axis.text.x = element_text(color = "black"),
+        axis.text.y = element_text(color = "black"),
+        axis.line.x = element_line(color = "black", lineend = "round"),
+        axis.line.y = element_line(color = "black", lineend = "round"))
+
+cor.test(Lake.T.tab$tot_fish, Lake.T.tab$prev_fish)
+#0.10
+
+#Minnow trap
+MT.PA <- ggplot() +
+  geom_point(aes(x = tot_fish, y = prev_fish), color = "#2A5676", data = Lake.MT.tab) +
+  labs(title = "Minnow trap") +
+  theme(text = element_text(size = 20, family = "Calibri Light", color = "black"),
+        panel.background = element_blank(),
+        legend.key = element_rect(fill = NA),
+        plot.title = element_text(hjust = 0.5),
+        axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
+        axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
+        axis.text.x = element_text(color = "black"),
+        axis.text.y = element_text(color = "black"),
+        axis.line.x = element_line(color = "black", lineend = "round"),
+        axis.line.y = element_line(color = "black", lineend = "round"))
+
+cor.test(Lake.MT.tab$tot_fish, Lake.MT.tab$prev_fish)
+#-0.34
+
+#Seine net
+S.PA <- ggplot() +
+  geom_point(aes(x = tot_fish, y = prev_fish), color = "#999600", data = Lake.S.tab) +
+  labs(title = "Seine net") +
+  theme(text = element_text(size = 20, family = "Calibri Light", color = "black"),
+        panel.background = element_blank(),
+        legend.key = element_rect(fill = NA),
+        plot.title = element_text(hjust = 0.5),
+        axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
+        axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
+        axis.text.x = element_text(color = "black"),
+        axis.text.y = element_text(color = "black"),
+        axis.line.x = element_line(color = "black", lineend = "round"),
+        axis.line.y = element_line(color = "black", lineend = "round"))
+
+cor.test(Lake.S.tab$tot_fish, Lake.S.tab$prev_fish)
+#-0.48
+
+#Combined methods
+C.PA <- ggplot() +
+  geom_point(aes(x = tot_fish, y = prev_fish), color = "#7E7E7E", data = Lake.C.tab) +
+  labs(title = "Combined") +
+  theme(text = element_text(size = 20, family = "Calibri Light", color = "black"),
+        panel.background = element_blank(),
+        legend.key = element_rect(fill = NA),
+        plot.title = element_text(hjust = 0.5),
+        axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
+        axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
+        axis.text.x = element_text(color = "black"),
+        axis.text.y = element_text(color = "black"),
+        axis.line.x = element_line(color = "black", lineend = "round"),
+        axis.line.y = element_line(color = "black", lineend = "round"))
+
+cor.test(Lake.C.tab$tot_fish, Lake.C.tab$prev_fish)
+#-0.19
+
+library(patchwork)
+Sum.PA <- C.PA + MT.PA + S.PA + T.PA +
+  plot_layout(ncol = 4, nrow = 1)
 
 ## Species prevalence by methods ----
 
@@ -530,7 +639,7 @@ Lake.sp.C <- Lake.sp.C %>% #Summarizing Lakeal species abundance
   group_by(Lake) %>% 
   summarise(across(.cols = everything(), sum))
 
-Lake.sp.prev.C <- Lake.sp.C %>% #Lakeal prevalence by species
+Lake.sp.prev.C <- Lake.sp.C %>% #Lake prevalence by species
   mutate(prev_AmRu = (inf_AmRu/tot_AmRu)*100, .keep = "unused") %>% 
   mutate(prev_FuDi = (inf_FuDi/tot_FuDi)*100, .keep = "unused") %>%
   mutate(prev_MiDo = (inf_MiDo/tot_MiDo)*100, .keep = "unused") %>%
@@ -543,15 +652,13 @@ Lake.sp.prev.C <- Lake.sp.C %>% #Lakeal prevalence by species
   mutate(prev_Cyprinidae = (inf_Cyprinidae/tot_Cyprinidae)*100, .keep = "unused") %>% 
   mutate(prev_SeAt = (inf_SeAt/tot_SeAt)*100, .keep = "unused") %>%
   mutate(prev_LuCo = (inf_LuCo/tot_LuCo)*100, .keep = "unused") %>%
-  mutate(prev_AmNe = (inf_AmNe/tot_AmNe)*100, .keep = "unused") %>%
   mutate(prev_CaCo = (inf_CaCo/tot_CaCo)*100, .keep = "unused") %>%
-  mutate(prev_EsMa = (inf_EsMa/tot_EsMa)*100, .keep = "unused") %>%
   mutate(prev_UmLi = (inf_UmLi/tot_UmLi)*100, .keep = "unused") %>%
   mutate(prev_RhAt = (inf_RhAt/tot_RhAt)*100, .keep = "unused")
 
-Table.A1 <- gt(Lake.sp.prev.C) %>% 
-  tab_header(md("**TABLE A1.** Prévalence d'infection pour chaque espèce de poisson dans les lacs échantillonnés. NaN indique qu'aucun individu n'a été observé pour la catégorie correspondante. Les valeurs de prévalence sont présentées en pourcentage.")) %>% 
-  cols_label(prev_AmRu = md("*Ambloplites rupestris*"), prev_FuDi = md("*Fundulus diaphanus*"), prev_MiDo = md("*Micropterus dolomieu*"), prev_Centrarchidae = md("Unknown centrarchids"), prev_LeGi = md("*Lepomis gibbosus*"), prev_PeFl = md("*Perca flavescens*"), prev_PiPr = md("*Pimephales promelas*"), prev_ChrosomusSpp. = md("*Chrosomus* spp."), prev_PiNo = md("*Pimephales notatus*"), prev_Cyprinidae = md("Unknown cyprinids"), prev_SeAt = md("*Semotilus atromaculatus*"), prev_LuCo = md("*Luxilus cornutus*"), prev_AmNe = md("*Ameiurus nebulosus*"), prev_CaCo = md("*Catostomus commersonii*"), prev_EsMa = md("*Esox masquinongy*"), prev_UmLi = md("*Umbra limi*"), prev_RhAt = md("*Rhinichthys atratulus*")) %>% 
+Tableau.A1 <- gt(Lake.sp.prev.C) %>% 
+  tab_header(md("**TABLEAU A1.** Prévalence d'infection de chaque espèce de poisson dans chacun des lacs échantillonnés. NaN indique qu'aucun individu n'a été observé pour la catégorie correspondante. Les valeurs de prévalence sont présentées en pourcentage.")) %>% 
+  cols_label(prev_AmRu = md("*Ambloplites rupestris*"), prev_FuDi = md("*Fundulus diaphanus*"), prev_MiDo = md("*Micropterus dolomieu*"), prev_Centrarchidae = md("Unknown centrarchids"), prev_LeGi = md("*Lepomis gibbosus*"), prev_PeFl = md("*Perca flavescens*"), prev_PiPr = md("*Pimephales promelas*"), prev_ChrosomusSpp. = md("*Chrosomus* spp."), prev_PiNo = md("*Pimephales notatus*"), prev_Cyprinidae = md("Unknown cyprinids"), prev_SeAt = md("*Semotilus atromaculatus*"), prev_LuCo = md("*Luxilus cornutus*"), prev_CaCo = md("*Catostomus commersonii*"), prev_UmLi = md("*Umbra limi*"), prev_RhAt = md("*Rhinichthys atratulus*")) %>% 
   tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "left"),
             locations = cells_title("title")) %>% 
   tab_style(cell_text(color = "black", font = "Calibri light", weight = "bold", size = 9, align = "center", v_align = "middle"),
@@ -568,11 +675,12 @@ Table.A1 <- gt(Lake.sp.prev.C) %>%
   tab_style(style= cell_borders(sides = c("bottom"), weight = px(2)), 
             location = list(cells_body(rows = 14))) %>% 
   sub_values(values = "Pin_rouge", replacement = "Pin rouge") %>% 
-  fmt_number(decimals = 2)
-Table.A1 
+  fmt_number(decimals = 0)
 
-Table.A1 %>% #Saving gt tab
-  gtsave("Tab_LakeSpec.html", paste0(to.figs))
+Tableau.A1 
+
+Tableau.A1 %>% #Saving gt tab
+  gtsave("Tab_LakeSpec.png", paste0(to.figs))
 
 ### Minnow trap ----
 
@@ -598,9 +706,7 @@ Lake.sp.prev.MT <- Lake.sp.MT %>% #Lakeal prevalence by species
   mutate(prev_Cyprinidae = (inf_Cyprinidae/tot_Cyprinidae)*100, .keep = "unused") %>% 
   mutate(prev_SeAt = (inf_SeAt/tot_SeAt)*100, .keep = "unused") %>%
   mutate(prev_LuCo = (inf_LuCo/tot_LuCo)*100, .keep = "unused") %>%
-  mutate(prev_AmNe = (inf_AmNe/tot_AmNe)*100, .keep = "unused") %>%
   mutate(prev_CaCo = (inf_CaCo/tot_CaCo)*100, .keep = "unused") %>%
-  mutate(prev_EsMa = (inf_EsMa/tot_EsMa)*100, .keep = "unused") %>%
   mutate(prev_UmLi = (inf_UmLi/tot_UmLi)*100, .keep = "unused") %>%
   mutate(prev_RhAt = (inf_RhAt/tot_RhAt)*100, .keep = "unused")
 
@@ -628,9 +734,7 @@ Lake.sp.prev.S <- Lake.sp.S %>% #Lakeal prevalence by species
   mutate(prev_Cyprinidae = (inf_Cyprinidae/tot_Cyprinidae)*100, .keep = "unused") %>% 
   mutate(prev_SeAt = (inf_SeAt/tot_SeAt)*100, .keep = "unused") %>%
   mutate(prev_LuCo = (inf_LuCo/tot_LuCo)*100, .keep = "unused") %>%
-  mutate(prev_AmNe = (inf_AmNe/tot_AmNe)*100, .keep = "unused") %>%
   mutate(prev_CaCo = (inf_CaCo/tot_CaCo)*100, .keep = "unused") %>%
-  mutate(prev_EsMa = (inf_EsMa/tot_EsMa)*100, .keep = "unused") %>%
   mutate(prev_UmLi = (inf_UmLi/tot_UmLi)*100, .keep = "unused") %>%
   mutate(prev_RhAt = (inf_RhAt/tot_RhAt)*100, .keep = "unused")
 
@@ -641,11 +745,11 @@ Lake.sp.T <- CombinedData %>%
   select(Lake, starts_with(c("tot", "inf"))) %>% #Selecting abundance data
   na.omit()
 
-Lake.sp.T <- Lake.sp.T %>% #Summarizing Lakeal species abundance
+Lake.sp.T <- Lake.sp.T %>% #Summarizing Lake species abundance
   group_by(Lake) %>% 
   summarise(across(.cols = everything(), sum))
 
-Lake.sp.prev.T <- Lake.sp.T %>% #Lakeal prevalence by species
+Lake.sp.prev.T <- Lake.sp.T %>% #Lake prevalence by species
   mutate(prev_AmRu = (inf_AmRu/tot_AmRu)*100, .keep = "unused") %>% 
   mutate(prev_FuDi = (inf_FuDi/tot_FuDi)*100, .keep = "unused") %>%
   mutate(prev_MiDo = (inf_MiDo/tot_MiDo)*100, .keep = "unused") %>%
@@ -658,9 +762,7 @@ Lake.sp.prev.T <- Lake.sp.T %>% #Lakeal prevalence by species
   mutate(prev_Cyprinidae = (inf_Cyprinidae/tot_Cyprinidae)*100, .keep = "unused") %>% 
   mutate(prev_SeAt = (inf_SeAt/tot_SeAt)*100, .keep = "unused") %>%
   mutate(prev_LuCo = (inf_LuCo/tot_LuCo)*100, .keep = "unused") %>%
-  mutate(prev_AmNe = (inf_AmNe/tot_AmNe)*100, .keep = "unused") %>%
   mutate(prev_CaCo = (inf_CaCo/tot_CaCo)*100, .keep = "unused") %>%
-  mutate(prev_EsMa = (inf_EsMa/tot_EsMa)*100, .keep = "unused") %>%
   mutate(prev_UmLi = (inf_UmLi/tot_UmLi)*100, .keep = "unused") %>%
   mutate(prev_RhAt = (inf_RhAt/tot_RhAt)*100, .keep = "unused")
 
@@ -810,8 +912,8 @@ Site.T.data <- Site.T.data %>%
 Site.summary.data <- rbind(Site.MT.data, Site.S.data, Site.T.data)
 
 #Table
-Table.S14 <- gt(Site.summary.data, groupname_col = "Method") %>% 
-  tab_header(md("**TABLE S14.** Observed site prevalence estimated by each sampling method. Affiliated lake are given as columns. All values are given in percentage. Samples with no captures were omitted to alleviate the table. Lake Tracy was not included because only one fish was caughted through all methods. Lakes Beaver, Tracy, Montaubois and St-Onge were not sampled with the transect method.")) %>% 
+S2.S7 <- gt(Site.summary.data, groupname_col = "Method") %>% 
+  tab_header(md("**TABLE S7.** Observed site-scale fish prevalence estimated by each method. Affiliated lake are given as columns. All values are given in percentage. Samples with no captures were omitted to alleviate the table. Lake Tracy was not included because only one fish was caught through all methods. Lakes Beaver, Tracy, Montaubois and St-Onge were not sampled with the transect method.")) %>% 
   cols_label(Sampling_ID = md("Sampling ID"), Pin_rouge = md("Pin rouge")) %>% 
   tab_spanner(md("Prevalence (%)"), columns = c(3:16)) %>% 
   tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "center", weight = "bold"),
@@ -832,18 +934,119 @@ Table.S14 <- gt(Site.summary.data, groupname_col = "Method") %>%
   tab_style(style= cell_borders(sides = c("bottom", "top"), weight = px(2)), 
             location = list(cells_column_labels())) %>% 
   tab_style(style= cell_borders(sides = c("bottom"), weight = px(2)), 
-            location = list(cells_body(rows = 229))) %>% 
+            location = list(cells_body(rows = 225))) %>% 
   tab_style(style= cell_borders(sides = c("top", "bottom"), weight = px(2)), 
             location = list(cells_row_groups())) %>% 
-  fmt_number(decimals = 2)
+  fmt_number(decimals = 0)
 
-Table.S14
+S2.S7
 
-Table.S14 %>% #Saving gt tab
+S2.S7 %>% #Saving gt tab
   gtsave("Tab_SitePrev_Methods.png", paste0(to.figs))
-Table.S14 %>% 
-  gtsave("Table_S14.png", paste0(to.rédaction, "./Support_information/"))
+Table.S10 %>% 
+  gtsave("Table_S10.png", paste0(to.rédaction, "./Support_information/"))
 
+### Relationship between prevalence and fish abundance
+
+#Transect 
+T.PA <- ggplot() +
+  geom_point(aes(x = tot_fish, y = prev_fish), color = "#966F1E", data = Site.pool.prev.T) +
+  geom_smooth(aes(x = tot_fish, y = prev_fish), color = "#966F1E", method = "gam", data = Site.pool.prev.T) +
+  labs(title = "Transect") +
+  scale_y_continuous(
+    breaks = seq(0, 100, 20),
+    limits = c(0, 100),
+    oob = scales::squish) +
+  theme(text = element_text(size = 20, family = "Calibri Light", color = "black"),
+        panel.background = element_blank(),
+        legend.key = element_rect(fill = NA),
+        plot.title = element_text(hjust = 0.5),
+        axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
+        axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
+        axis.text.x = element_text(color = "black"),
+        axis.text.y = element_text(color = "black"),
+        axis.line.x = element_line(color = "black", lineend = "round"),
+        axis.line.y = element_line(color = "black", lineend = "round"))
+T.PA
+
+cor.test(Site.pool.prev.T$tot_fish, Site.pool.prev.T$prev_fish)
+#-0.26
+
+#Minnow trap
+MT.PA <- ggplot() +
+  geom_point(aes(x = tot_fish, y = prev_fish), color = "#2A5676", data = Site.pool.prev.MT) +
+  geom_smooth(aes(x = tot_fish, y = prev_fish), color = "#2A5676", method = "gam",  data = Site.pool.prev.MT) +
+  labs(title = "Minnow trap") +
+  scale_y_continuous(
+    breaks = seq(0, 100, 20),
+    limits = c(0, 100),
+    oob = scales::squish) +
+  theme(text = element_text(size = 20, family = "Calibri Light", color = "black"),
+        panel.background = element_blank(),
+        legend.key = element_rect(fill = NA),
+        plot.title = element_text(hjust = 0.5),
+        axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
+        axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
+        axis.text.x = element_text(color = "black"),
+        axis.text.y = element_text(color = "black"),
+        axis.line.x = element_line(color = "black", lineend = "round"),
+        axis.line.y = element_line(color = "black", lineend = "round"))
+MT.PA
+
+cor.test(Site.pool.prev.MT$tot_fish, Site.pool.prev.MT$prev_fish)
+#-0.27
+
+#Seine net
+S.PA <- ggplot() +
+  geom_point(aes(x = tot_fish, y = prev_fish), color = "#999600", data = Site.pool.prev.S) +
+  geom_smooth(aes(x = tot_fish, y = prev_fish), color = "#999600", method = "gam", data = Site.pool.prev.S) +
+  labs(title = "Seine net") +
+  scale_y_continuous(
+    breaks = seq(0, 100, 20),
+    limits = c(0, 100),
+    oob = scales::squish) +
+  theme(text = element_text(size = 20, family = "Calibri Light", color = "black"),
+        panel.background = element_blank(),
+        legend.key = element_rect(fill = NA),
+        plot.title = element_text(hjust = 0.5),
+        axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
+        axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
+        axis.text.x = element_text(color = "black"),
+        axis.text.y = element_text(color = "black"),
+        axis.line.x = element_line(color = "black", lineend = "round"),
+        axis.line.y = element_line(color = "black", lineend = "round"))
+S.PA
+
+cor.test(Site.pool.prev.S$tot_fish, Site.pool.prev.S$prev_fish)
+#-0.34
+
+#Combined methods
+C.PA <- ggplot() +
+  geom_point(aes(x = tot_fish, y = prev_fish), color = "#7E7E7E", data = Site.pool.prev.C) +
+  geom_smooth(aes(x = tot_fish, y = prev_fish), color = "#7E7E7E", method = "gam", data = Site.pool.prev.C) +
+  labs(title = "Combined") +
+  scale_y_continuous(
+    breaks = seq(0, 100, 20),
+    limits = c(0, 100),
+    oob = scales::squish) +
+  theme(text = element_text(size = 20, family = "Calibri Light", color = "black"),
+        panel.background = element_blank(),
+        legend.key = element_rect(fill = NA),
+        plot.title = element_text(hjust = 0.5),
+        axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
+        axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
+        axis.text.x = element_text(color = "black"),
+        axis.text.y = element_text(color = "black"),
+        axis.line.x = element_line(color = "black", lineend = "round"),
+        axis.line.y = element_line(color = "black", lineend = "round"))
+C.PA
+
+cor.test(Site.pool.prev.C$tot_fish, Site.pool.prev.C$prev_fish)
+#-0.18
+
+Sum.PA <- C.PA + MT.PA + S.PA + T.PA +
+  plot_layout(ncol = 4, nrow = 1)
+Sum.PA
 ## Species prevalence by transect ----
 
 Site.sp.T <- CombinedData %>% 
@@ -864,8 +1067,6 @@ Site.sp.prev.T <- Site.sp.T %>% #Site-scale prevalence by species
   mutate(prev_Cyprinidae = (inf_Cyprinidae/tot_Cyprinidae)*100, .keep = "unused") %>% 
   mutate(prev_SeAt = (inf_SeAt/tot_SeAt)*100, .keep = "unused") %>%
   mutate(prev_LuCo = (inf_LuCo/tot_LuCo)*100, .keep = "unused") %>%
-  mutate(prev_AmNe = (inf_AmNe/tot_AmNe)*100, .keep = "unused") %>%
   mutate(prev_CaCo = (inf_CaCo/tot_CaCo)*100, .keep = "unused") %>%
-  mutate(prev_EsMa = (inf_EsMa/tot_EsMa)*100, .keep = "unused") %>%
   mutate(prev_UmLi = (inf_UmLi/tot_UmLi)*100, .keep = "unused") %>%
   mutate(prev_RhAt = (inf_RhAt/tot_RhAt)*100, .keep = "unused")

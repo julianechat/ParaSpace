@@ -34,6 +34,9 @@ CombinedData <- read.csv(paste0(to.output, "CombinedData.csv"))
 CombinedData <- CombinedData %>% 
   filter(!(Lake == "Tracy")) #Deleting lake Tracy because of insufficient data
 
+CombinedData <- CombinedData %>% #Muskellunge and brown bullhead individuals are excluded from the prevalence calculus since they are not host of the black spot disease
+  select(!(c(inf_EsMa, tot_EsMa, inf_AmNe, tot_AmNe)))
+
 ## Combined methods ----
 
 C.prev <- CombinedData %>% 
@@ -45,8 +48,8 @@ C.prev <- C.prev %>%
   summarise(across(.cols = everything(), sum))
 
 C.prev <- C.prev %>%  #Sum total and infected fish abundance within lakes
-  mutate(tot_fish = tot_AmRu + tot_FuDi + tot_MiDo + tot_LeGi + tot_PeFl + tot_PiPr + tot_ChrosomusSpp. + tot_PiNo + tot_SeAt + tot_LuCo + tot_AmNe + tot_CaCo + tot_EsMa + tot_UmLi + tot_RhAt + tot_Centrarchidae + tot_Cyprinidae, .keep = "unused") %>% 
-  mutate(inf_fish = inf_AmRu + inf_FuDi + inf_MiDo + inf_LeGi + inf_PeFl + inf_PiPr + inf_ChrosomusSpp. + inf_PiNo + inf_SeAt + inf_LuCo + inf_AmNe + inf_CaCo + inf_EsMa + inf_UmLi + inf_RhAt + inf_Centrarchidae + inf_Cyprinidae, .keep = "unused") 
+  mutate(tot_fish = tot_AmRu + tot_FuDi + tot_MiDo + tot_LeGi + tot_PeFl + tot_PiPr + tot_ChrosomusSpp. + tot_PiNo + tot_SeAt + tot_LuCo + tot_CaCo + tot_UmLi + tot_RhAt + tot_Centrarchidae + tot_Cyprinidae, .keep = "unused") %>% 
+  mutate(inf_fish = inf_AmRu + inf_FuDi + inf_MiDo + inf_LeGi + inf_PeFl + inf_PiPr + inf_ChrosomusSpp. + inf_PiNo + inf_SeAt + inf_LuCo + inf_CaCo + inf_UmLi + inf_RhAt + inf_Centrarchidae + inf_Cyprinidae, .keep = "unused") 
 
 C.prev <- C.prev %>% #Calculate community level prevalence for each lake
   mutate(prev_fish = (inf_fish/tot_fish)*100)
@@ -63,8 +66,8 @@ T.prev <- T.prev %>%
   summarise(across(.cols = everything(), sum))
 
 T.prev <- T.prev %>% #Sum total and infected fish abundance within lakes
-  mutate(tot_fish = tot_AmRu + tot_FuDi + tot_MiDo + tot_LeGi + tot_PeFl + tot_PiPr + tot_ChrosomusSpp. + tot_PiNo + tot_SeAt + tot_LuCo + tot_AmNe + tot_CaCo + tot_EsMa + tot_UmLi + tot_RhAt + tot_Centrarchidae + tot_Cyprinidae, .keep = "unused") %>% 
-  mutate(inf_fish = inf_AmRu + inf_FuDi + inf_MiDo + inf_LeGi + inf_PeFl + inf_PiPr + inf_ChrosomusSpp. + inf_PiNo + inf_SeAt + inf_LuCo + inf_AmNe + inf_CaCo + inf_EsMa + inf_UmLi + inf_RhAt + inf_Centrarchidae + inf_Cyprinidae, .keep = "unused") 
+  mutate(tot_fish = tot_AmRu + tot_FuDi + tot_MiDo + tot_LeGi + tot_PeFl + tot_PiPr + tot_ChrosomusSpp. + tot_PiNo + tot_SeAt + tot_LuCo + tot_CaCo + tot_UmLi + tot_RhAt + tot_Centrarchidae + tot_Cyprinidae, .keep = "unused") %>% 
+  mutate(inf_fish = inf_AmRu + inf_FuDi + inf_MiDo + inf_LeGi + inf_PeFl + inf_PiPr + inf_ChrosomusSpp. + inf_PiNo + inf_SeAt + inf_LuCo + inf_CaCo + inf_UmLi + inf_RhAt + inf_Centrarchidae + inf_Cyprinidae, .keep = "unused") 
 
 T.prev <- T.prev %>% #Calculate community level prevalence for each lake
   mutate(prev_fish = (inf_fish/tot_fish)*100)
@@ -81,8 +84,8 @@ S.prev <- S.prev %>%
   summarise(across(.cols = everything(), sum))
 
 S.prev <- S.prev %>% #Sum total and infected fish abundance within lakes
-  mutate(tot_fish = tot_AmRu + tot_FuDi + tot_MiDo + tot_LeGi + tot_PeFl + tot_PiPr + tot_ChrosomusSpp. + tot_PiNo + tot_SeAt + tot_LuCo + tot_AmNe + tot_CaCo + tot_EsMa + tot_UmLi + tot_RhAt + tot_Centrarchidae + tot_Cyprinidae, .keep = "unused") %>% 
-  mutate(inf_fish = inf_AmRu + inf_FuDi + inf_MiDo + inf_LeGi + inf_PeFl + inf_PiPr + inf_ChrosomusSpp. + inf_PiNo + inf_SeAt + inf_LuCo + inf_AmNe + inf_CaCo + inf_EsMa + inf_UmLi + inf_RhAt + inf_Centrarchidae + inf_Cyprinidae, .keep = "unused") 
+  mutate(tot_fish = tot_AmRu + tot_FuDi + tot_MiDo + tot_LeGi + tot_PeFl + tot_PiPr + tot_ChrosomusSpp. + tot_PiNo + tot_SeAt + tot_LuCo + tot_CaCo + tot_UmLi + tot_RhAt + tot_Centrarchidae + tot_Cyprinidae, .keep = "unused") %>% 
+  mutate(inf_fish = inf_AmRu + inf_FuDi + inf_MiDo + inf_LeGi + inf_PeFl + inf_PiPr + inf_ChrosomusSpp. + inf_PiNo + inf_SeAt + inf_LuCo + inf_CaCo + inf_UmLi + inf_RhAt + inf_Centrarchidae + inf_Cyprinidae, .keep = "unused") 
 
 S.prev <- S.prev %>% #Calculate community level prevalence for each lake
   mutate(prev_fish = (inf_fish/tot_fish)*100)
@@ -99,8 +102,8 @@ MT.prev <- MT.prev %>%
   summarise(across(.cols = everything(), sum))
 
 MT.prev <- MT.prev %>%  #Sum total and infected fish abundance within lakes
-  mutate(tot_fish = tot_AmRu + tot_FuDi + tot_MiDo + tot_LeGi + tot_PeFl + tot_PiPr + tot_ChrosomusSpp. + tot_PiNo + tot_SeAt + tot_LuCo + tot_AmNe + tot_CaCo + tot_EsMa + tot_UmLi + tot_RhAt + tot_Centrarchidae + tot_Cyprinidae, .keep = "unused") %>% 
-  mutate(inf_fish = inf_AmRu + inf_FuDi + inf_MiDo + inf_LeGi + inf_PeFl + inf_PiPr + inf_ChrosomusSpp. + inf_PiNo + inf_SeAt + inf_LuCo + inf_AmNe + inf_CaCo + inf_EsMa + inf_UmLi + inf_RhAt + inf_Centrarchidae + inf_Cyprinidae, .keep = "unused") 
+  mutate(tot_fish = tot_AmRu + tot_FuDi + tot_MiDo + tot_LeGi + tot_PeFl + tot_PiPr + tot_ChrosomusSpp. + tot_PiNo + tot_SeAt + tot_LuCo + tot_CaCo + tot_UmLi + tot_RhAt + tot_Centrarchidae + tot_Cyprinidae, .keep = "unused") %>% 
+  mutate(inf_fish = inf_AmRu + inf_FuDi + inf_MiDo + inf_LeGi + inf_PeFl + inf_PiPr + inf_ChrosomusSpp. + inf_PiNo + inf_SeAt + inf_LuCo + inf_CaCo + inf_UmLi + inf_RhAt + inf_Centrarchidae + inf_Cyprinidae, .keep = "unused") 
 
 MT.prev <- MT.prev %>% #Calculate community level prevalence for each lake
   mutate(prev_fish = (inf_fish/tot_fish)*100)
@@ -117,8 +120,8 @@ Large.prev <- Large.prev %>%
   summarise(across(.cols = everything(), sum))
 
 Large.prev <- Large.prev %>% #Sum total and infected fish abundance within lakes
-  mutate(tot_fish = tot_AmRu + tot_FuDi + tot_MiDo + tot_LeGi + tot_PeFl + tot_PiPr + tot_ChrosomusSpp. + tot_PiNo + tot_SeAt + tot_LuCo + tot_AmNe + tot_CaCo + tot_EsMa + tot_UmLi + tot_RhAt + tot_Centrarchidae + tot_Cyprinidae, .keep = "unused") %>% 
-  mutate(inf_fish = inf_AmRu + inf_FuDi + inf_MiDo + inf_LeGi + inf_PeFl + inf_PiPr + inf_ChrosomusSpp. + inf_PiNo + inf_SeAt + inf_LuCo + inf_AmNe + inf_CaCo + inf_EsMa + inf_UmLi + inf_RhAt + inf_Centrarchidae + inf_Cyprinidae, .keep = "unused") 
+  mutate(tot_fish = tot_AmRu + tot_FuDi + tot_MiDo + tot_LeGi + tot_PeFl + tot_PiPr + tot_ChrosomusSpp. + tot_PiNo + tot_SeAt + tot_LuCo + tot_CaCo + tot_UmLi + tot_RhAt + tot_Centrarchidae + tot_Cyprinidae, .keep = "unused") %>% 
+  mutate(inf_fish = inf_AmRu + inf_FuDi + inf_MiDo + inf_LeGi + inf_PeFl + inf_PiPr + inf_ChrosomusSpp. + inf_PiNo + inf_SeAt + inf_LuCo + inf_CaCo + inf_UmLi + inf_RhAt + inf_Centrarchidae + inf_Cyprinidae, .keep = "unused") 
 
 Large.prev <- Large.prev %>% #Calculate community level prevalence for each lake
   mutate(prev_fish = (inf_fish/tot_fish)*100)
@@ -135,8 +138,8 @@ Small.prev <- Small.prev %>%
   summarise(across(.cols = everything(), sum))
 
 Small.prev <- Small.prev %>% #Sum total and infected fish abundance within lakes
-  mutate(tot_fish = tot_AmRu + tot_FuDi + tot_MiDo + tot_LeGi + tot_PeFl + tot_PiPr + tot_ChrosomusSpp. + tot_PiNo + tot_SeAt + tot_LuCo + tot_AmNe + tot_CaCo + tot_EsMa + tot_UmLi + tot_RhAt + tot_Centrarchidae + tot_Cyprinidae, .keep = "unused") %>% 
-  mutate(inf_fish = inf_AmRu + inf_FuDi + inf_MiDo + inf_LeGi + inf_PeFl + inf_PiPr + inf_ChrosomusSpp. + inf_PiNo + inf_SeAt + inf_LuCo + inf_AmNe + inf_CaCo + inf_EsMa + inf_UmLi + inf_RhAt + inf_Centrarchidae + inf_Cyprinidae, .keep = "unused") 
+  mutate(tot_fish = tot_AmRu + tot_FuDi + tot_MiDo + tot_LeGi + tot_PeFl + tot_PiPr + tot_ChrosomusSpp. + tot_PiNo + tot_SeAt + tot_LuCo + tot_CaCo + tot_UmLi + tot_RhAt + tot_Centrarchidae + tot_Cyprinidae, .keep = "unused") %>% 
+  mutate(inf_fish = inf_AmRu + inf_FuDi + inf_MiDo + inf_LeGi + inf_PeFl + inf_PiPr + inf_ChrosomusSpp. + inf_PiNo + inf_SeAt + inf_LuCo + inf_CaCo + inf_UmLi + inf_RhAt + inf_Centrarchidae + inf_Cyprinidae, .keep = "unused") 
 
 Small.prev <- Small.prev %>% #Calculate community level prevalence for each lake
   mutate(prev_fish = (inf_fish/tot_fish)*100)
@@ -213,9 +216,9 @@ ggsave(paste0(to.figs, "FrequencyDistribution_Seine.png"), plot = S.hist, dpi = 
 
 ## Minnow trap ----
 
-MT.plain.hist <- hist(T.prev$prev_fish)
+MT.plain.hist <- hist(MT.prev$prev_fish)
 
-MT.hist <- ggplot(T.prev, aes(prev_fish)) + 
+MT.hist <- ggplot(MT.prev, aes(prev_fish)) + 
   geom_histogram(bins = 6, fill = "#2A5676", color = "black", alpha = 0.8) +
   labs(x = "Prevalence", y = "Frequency", title = "Minnow trap") + 
   ylim(0,5) +

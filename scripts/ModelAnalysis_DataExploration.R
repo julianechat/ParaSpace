@@ -10,7 +10,7 @@
 
 ## R Setup ----
 
-to.data <- "./data/"
+to.data <- "./data/" 
 to.script <- "./scripts/"
 to.output <- "./output/"
 to.figs <- "./figs/"
