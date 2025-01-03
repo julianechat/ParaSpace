@@ -24,12 +24,16 @@ library(dplyr)
 library(ggplot2)
 library(splitstackshape)
 library(patchwork)
+library(mgcv)
+library(gratia)
+
+source(paste0(to.R, "inverse_logit_trans.R"))
 
 ## Loading data ----
 
 FishingData <- read.csv(paste0(to.data, "Fishing_RawData.csv"), sep = ";")
 CombinedData <- read.csv(paste0(to.output, "CombinedData.csv"))
-mod.data <- read.csv(paste0(to.output, "ModelAnalysis_Corrected.csv"))
+mod.data <- read.csv(paste0(to.output, "ModelAnalysis_DataFrame.csv"))
 
 # ----  Frequency distribution ----
 
@@ -416,9 +420,9 @@ Summary.plot
 ggsave(paste0(to.figs, "FrequencyDistribution_Exclusion.png"), plot = Summary.plot, dpi = 300, width = 15, height = 17)
 
 
-# ---- LeGi GAMMs ----
+# ---- LeGi & hosts GAMMs ----
 
-mod.data <- read.csv(paste0(to.output, "ModelAnalysis_Corrected.csv"))
+mod.data$Lake <- as.factor(mod.data$Lake)
 
 ## Null ----
 NULL.GAMM.legi <- gam(cbind(inf_LeGi, tot_LeGi - inf_LeGi) ~ s(Lake, bs = "re"),
@@ -428,7 +432,14 @@ summary(NULL.GAMM.legi)
 #Adj. R-sq. = 0.869
 #Deviance explained = 87.2%
 
-### LeGi ----
+NULL.GAMM.host <- gam(cbind(inf_host, tot_host - inf_host) ~ s(Lake, bs = "re"),
+                      family = quasibinomial, data = mod.data, method = "ML")
+summary(NULL.GAMM.host) 
+#Variable significant
+#Adj. R-sq. = 0.838
+#Deviance explained = 85%
+
+## TNTP ----
 TNTP.GAMM.legi <- gam(cbind(inf_LeGi, tot_LeGi - inf_LeGi) ~ s(TN_TP, bs = "cr") + s(Lake, bs = "re"),
                       family = quasibinomial, data = mod.data, method = "ML")
 summary(TNTP.GAMM.legi) 
@@ -471,15 +482,29 @@ TNTP.legi.pe <- TNTP.legi.sm %>%
         plot.title = element_blank())
 TNTP.legi.pe
 
+TNTP.GAMM.host <- gam(cbind(inf_host, tot_host - inf_host) ~ s(TN_TP, bs = "cs") + s(Lake, bs = "re"),
+                      family = quasibinomial, data = mod.data, method = "ML")
+summary(TNTP.GAMM.host) 
+#Variable not significant
+#Adj. R-sq. = 0.847
+#Deviance explained = 85.8%
+
 ## Nitrogen ----
 
-TN.GAMM.legi <- gam(cbind(inf_LeGi, tot_LeGi - inf_LeGi) ~ s(TN, bs = "cr") + s(Lake, bs = "re"),
+TN.GAMM.legi <- gam(cbind(inf_LeGi, tot_LeGi - inf_LeGi) ~ s(TN, bs = "cs") + s(Lake, bs = "re"),
                     family = quasibinomial, data = mod.data, method = "ML")
 summary(TN.GAMM.legi) 
 
 #TN unsignificative
 #Adj. R-sq. = 0.87
 #Deviance explained = 88%
+
+TN.GAMM.host <- gam(cbind(inf_host, tot_host - inf_host) ~ s(TN, bs = "cs") + s(Lake, bs = "re"),
+                      family = quasibinomial, data = mod.data, method = "ML")
+summary(TN.GAMM.host) 
+#Variable significant
+#Adj. R-sq. = 0.838
+#Deviance explained = 85%
 
 ## Phosphorus ----
 
@@ -524,12 +549,21 @@ TP.legi.pe <- TP.legi.sm %>%
         plot.title = element_blank())
 TP.legi.pe
 
+TP.GAMM.host <- gam(cbind(inf_host, tot_host - inf_host) ~ s(TP, bs = "cs") + s(Lake, bs = "re"),
+                    family = quasibinomial, data = mod.data, method = "ML")
+summary(TP.GAMM.host) 
+
+
 ## Carbon ----
 
 TOC.GAMM.legi <- gam(cbind(inf_LeGi, tot_LeGi - inf_LeGi) ~ s(TOC, bs = "cs") + s(Lake, bs = "re"),
                      family = quasibinomial, data = mod.data, method = "ML")
 summary(TOC.GAMM.legi) 
 #TOC not significant
+
+TOC.GAMM.host <- gam(cbind(inf_host, tot_host - inf_host) ~ s(TOC, bs = "cs") + s(Lake, bs = "re"),
+                    family = quasibinomial, data = mod.data, method = "ML")
+summary(TOC.GAMM.host) 
 
 ## Silt ----
 
@@ -544,6 +578,14 @@ draw.SILT.legi <- draw(SILT.GAMM.legi, unconditional = TRUE, overall_uncertainty
   scale_y_continuous(trans = inverse_logit_trans)
 draw.SILT.legi #Significativity not ok
 
+SILT.GAMM.host <- gam(cbind(inf_host, tot_host - inf_host) ~ s(Silt, bs = "cs") + s(Lake, bs = "re"),
+                    family = quasibinomial, data = mod.data, method = "ML")
+summary(SILT.GAMM.host) 
+
+draw.SILT.host <- draw(SILT.GAMM.host, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
+  scale_y_continuous(trans = inverse_logit_trans)
+draw.SILT.host #Significativity not ok
+
 ## Sand ----
 
 ### Legi ----
@@ -552,6 +594,11 @@ SAND.GAMM.legi <- gam(cbind(inf_LeGi, tot_LeGi - inf_LeGi) ~ s(Sand, bs = "cs") 
                       family = quasibinomial, data = mod.data, method = "ML")
 summary(SAND.GAMM.legi) 
 #Unsignificative
+
+SAND.GAMM.host <- gam(cbind(inf_host, tot_host - inf_host) ~ s(Sand, bs = "cs") + s(Lake, bs = "re"),
+                      family = quasibinomial, data = mod.data, method = "ML")
+summary(SAND.GAMM.host) 
+
 
 ## Rock ----
 
@@ -566,6 +613,14 @@ draw.ROCK.legi <- draw(ROCK.GAMM.legi, unconditional = TRUE, overall_uncertainty
   scale_y_continuous(trans = inverse_logit_trans)
 draw.ROCK.legi #Significativity not ok
 
+ROCK.GAMM.host <- gam(cbind(inf_host, tot_host - inf_host) ~ s(Rock, bs = "cs") + s(Lake, bs = "re"),
+                      family = quasibinomial, data = mod.data, method = "ML")
+summary(ROCK.GAMM.host) 
+
+draw.ROCK.host <- draw(ROCK.GAMM.host, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
+  scale_y_continuous(trans = inverse_logit_trans)
+draw.ROCK.host #Significativity not ok
+
 ## Boulder ----
 
 BOULD.GAMM.legi <- gam(cbind(inf_LeGi, tot_LeGi - inf_LeGi) ~ s(Boulder, bs = "cs") + s(Lake, bs = "re"),
@@ -573,12 +628,24 @@ BOULD.GAMM.legi <- gam(cbind(inf_LeGi, tot_LeGi - inf_LeGi) ~ s(Boulder, bs = "c
 summary(BOULD.GAMM.legi) 
 #Unsignificative
 
+BOULD.GAMM.host <- gam(cbind(inf_host, tot_host - inf_host) ~ s(Boulder, bs = "cs") + s(Lake, bs = "re"),
+                      family = quasibinomial, data = mod.data, method = "ML")
+summary(BOULD.GAMM.host) 
+
+draw.BOULD.host <- draw(BOULD.GAMM.host, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
+  scale_y_continuous(trans = inverse_logit_trans)
+draw.BOULD.host #Significativity not ok
+
 ## Macrophyte cover ----
 
 MACRO.GAMM.legi <- gam(cbind(inf_LeGi, tot_LeGi - inf_LeGi) ~ s(Macrophyte, bs = "cs") + s(Lake, bs = "re"),
                        family = quasibinomial, data = mod.data, method = "ML")
 summary(MACRO.GAMM.legi) 
 #Unsignificant
+
+MACRO.GAMM.host <- gam(cbind(inf_host, tot_host - inf_host) ~ s(Macrophyte, bs = "cs") + s(Lake, bs = "re"),
+                       family = quasibinomial, data = mod.data, method = "ML")
+summary(MACRO.GAMM.host) 
 
 ## Transect depth ----
 
@@ -592,6 +659,14 @@ draw.DEPTH.legi <- draw(DEPTH.GAMM.legi, unconditional = TRUE, overall_uncertain
   scale_y_continuous(trans = inverse_logit_trans)
 draw.DEPTH.legi #Significativity not ok
 
+DEPTH.GAMM.host <- gam(cbind(inf_host, tot_host - inf_host) ~ s(Site_depth, bs = "cs") + s(Lake, bs = "re"),
+                       family = quasibinomial, data = mod.data, method = "ML")
+summary(DEPTH.GAMM.host) 
+
+draw.DEPTH.host <- draw(DEPTH.GAMM.host, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
+  scale_y_continuous(trans = inverse_logit_trans)
+draw.DEPTH.host #Significativity not ok
+
 ## Trunk ----
 
 TRUNK.GAMM.legi <- gam(cbind(inf_LeGi, tot_LeGi - inf_LeGi) ~ s(Trunk, bs = "cs") + s(Lake, bs = "re"),
@@ -599,9 +674,11 @@ TRUNK.GAMM.legi <- gam(cbind(inf_LeGi, tot_LeGi - inf_LeGi) ~ s(Trunk, bs = "cs"
 summary(TRUNK.GAMM.legi) 
 #Trunk is not significant
 
-## Temperature ----
+TRUNK.GAMM.host <- gam(cbind(inf_host, tot_host - inf_host) ~ s(Trunk, bs = "cs") + s(Lake, bs = "re"),
+                       family = quasibinomial, data = mod.data, method = "ML")
+summary(TRUNK.GAMM.host) 
 
-### LeGi ----
+## Temperature ----
 
 TEMP.GAMM.legi <- gam(cbind(inf_LeGi, tot_LeGi - inf_LeGi) ~ s(Temperature, bs = "cs") + s(Lake, bs = "re"),
                       family = quasibinomial, data = mod.data, method = "ML")
@@ -643,6 +720,14 @@ Temp.legi.pe <- Temp.legi.sm %>%
         plot.caption = element_blank(),
         plot.title = element_blank())
 Temp.legi.pe
+
+TEMP.GAMM.host <- gam(cbind(inf_host, tot_host - inf_host) ~ s(Temperature, bs = "cs") + s(Lake, bs = "re"),
+                       family = quasibinomial, data = mod.data, method = "ML")
+summary(TEMP.GAMM.host) 
+
+draw.TEMP.host <- draw(TEMP.GAMM.host, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
+  scale_y_continuous(trans = inverse_logit_trans)
+draw.TEMP.host
 
 ## Turbidity ----
 
@@ -686,9 +771,15 @@ TURB.legi.pe <- TURB.legi.sm %>%
         plot.title = element_blank())
 TURB.legi.pe
 
-## PH ----
+TURB.GAMM.host <- gam(cbind(inf_host, tot_host - inf_host) ~ s(Turbidity, bs = "cs") + s(Lake, bs = "re"),
+                      family = quasibinomial, data = mod.data, method = "ML")
+summary(TURB.GAMM.host) 
 
-### LeGi ----
+draw.TURB.host <- draw(TURB.GAMM.host, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
+  scale_y_continuous(trans = inverse_logit_trans)
+draw.TURB.host
+
+## PH ----
 
 PH.GAMM.legi <- gam(cbind(inf_LeGi, tot_LeGi - inf_LeGi) ~ s(pH, bs = "cs") + s(Lake, bs = "re"),
                     family = quasibinomial, data = mod.data, method = "ML")
@@ -701,6 +792,14 @@ draw.PH.legi <- draw(PH.GAMM.legi, unconditional = TRUE, overall_uncertainty = T
   scale_y_continuous(trans = inverse_logit_trans) 
 draw.PH.legi
 #Significativity not OK
+
+PH.GAMM.host <- gam(cbind(inf_host, tot_host - inf_host) ~ s(pH, bs = "cs") + s(Lake, bs = "re"),
+                      family = quasibinomial, data = mod.data, method = "ML")
+summary(PH.GAMM.host) 
+
+draw.PH.host <- draw(PH.GAMM.host, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) +
+  scale_y_continuous(trans = inverse_logit_trans) 
+draw.PH.host
 
 ## Dissolved oxygen ----
 
@@ -744,12 +843,28 @@ DO.legi.pe <- DO.legi.sm %>%
         plot.title = element_blank())
 DO.legi.pe
 
+DO.GAMM.host <- gam(cbind(inf_host, tot_host - inf_host) ~ s(DO, bs = "cs") + s(Lake, bs = "re"),
+                    family = quasibinomial, data = mod.data, method = "ML")
+summary(DO.GAMM.host) 
+
+draw.DO.host <- draw(DO.GAMM.host, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
+  scale_y_continuous(trans = inverse_logit_trans) 
+draw.DO.host
+
 ## Conductivity ----
 
 COND.GAMM.legi <- gam(cbind(inf_LeGi, tot_LeGi - inf_LeGi) ~ s(Conductivity, bs = "cs") + s(Lake, bs = "re"),
                       family = quasibinomial, data = mod.data, method = "ML")
 summary(COND.GAMM.legi) 
 #Not significant
+
+COND.GAMM.host <- gam(cbind(inf_host, tot_host - inf_host) ~ s(Conductivity, bs = "cs") + s(Lake, bs = "re"),
+                    family = quasibinomial, data = mod.data, method = "ML")
+summary(COND.GAMM.host) 
+
+draw.COND.host <- draw(COND.GAMM.host, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
+  scale_y_continuous(trans = inverse_logit_trans) 
+draw.COND.host
 
 ## Area:Perimeter ratio ----
 
@@ -793,12 +908,24 @@ AREAPERI.legi.pe <- AREAPERI.legi.sm %>%
         plot.title = element_blank())
 AREAPERI.legi.pe
 
+AREAPERI.GAMM.host <- gam(cbind(inf_host, tot_host - inf_host) ~ s(Area_Perimeter, bs = "cs") + s(Lake, bs = "re"),
+                      family = quasibinomial, data = mod.data, method = "ML")
+summary(AREAPERI.GAMM.host) 
+
+draw.AREAPERI.host <- draw(AREAPERI.GAMM.host, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
+  scale_y_continuous(trans = inverse_logit_trans)
+draw.AREAPERI.host
+
 ## Surface area ----
 
 AREA.GAMM.legi <- gam(cbind(inf_LeGi, tot_LeGi - inf_LeGi) ~ s(Lake_area, bs = "cs") + s(Lake, bs = "fs"),
                       family = quasibinomial, data = mod.data, method = "ML")
 summary(AREA.GAMM.legi) 
 #not significant
+
+AREA.GAMM.host <- gam(cbind(inf_host, tot_host - inf_host) ~ s(Lake_area, bs = "cs") + s(Lake, bs = "re"),
+                          family = quasibinomial, data = mod.data, method = "ML")
+summary(AREA.GAMM.host) 
 
 ## Perimeter ----
 
@@ -807,12 +934,20 @@ PERI.GAMM.legi <- gam(cbind(inf_LeGi, tot_LeGi - inf_LeGi) ~ s(Perimeter, bs = "
 summary(PERI.GAMM.legi) 
 #Not significant
 
+PERI.GAMM.host <- gam(cbind(inf_host, tot_host - inf_host) ~ s(Perimeter, bs = "cs") + s(Lake, bs = "re"),
+                      family = quasibinomial, data = mod.data, method = "ML")
+summary(PERI.GAMM.host) 
+
 ## Lake mean depth ----
 
 MDEPTH.GAMM.legi <- gam(cbind(inf_LeGi, tot_LeGi - inf_LeGi) ~ s(Mean_depth, bs = "cs") + s(Lake, bs = "re"),
                         family = quasibinomial, data = mod.data, method = "ML")
 summary(MDEPTH.GAMM.legi) 
 #Mean depth is not significant
+
+MDEPTH.GAMM.host <- gam(cbind(inf_host, tot_host - inf_host) ~ s(Mean_depth, bs = "cs") + s(Lake, bs = "re"),
+                      family = quasibinomial, data = mod.data, method = "ML")
+summary(MDEPTH.GAMM.host) 
 
 ## Maximum depth ----
 
@@ -821,12 +956,20 @@ XDEPTH.GAMM.legi <- gam(cbind(inf_LeGi, tot_LeGi - inf_LeGi) ~ s(Max_depth, bs =
 summary(XDEPTH.GAMM.legi) 
 #Maximum depth is not significant
 
+XDEPTH.GAMM.host <- gam(cbind(inf_host, tot_host - inf_host) ~ s(Max_depth, bs = "cs") + s(Lake, bs = "re"),
+                      family = quasibinomial, data = mod.data, method = "ML")
+summary(XDEPTH.GAMM.host) 
+
 ## Distance to nearest lake ----
 
 NEAR.GAMM.legi <- gam(cbind(inf_LeGi, tot_LeGi - inf_LeGi) ~ s(Connectivity, bs = "cs") + s(Lake, bs = "re"),
                       family = quasibinomial, data = mod.data, method = "ML")
 summary(NEAR.GAMM.legi) 
 #Distance to nearest lake is not significant
+
+NEAR.GAMM.host <- gam(cbind(inf_host, tot_host - inf_host) ~ s(Connectivity, bs = "cs") + s(Lake, bs = "re"),
+                      family = quasibinomial, data = mod.data, method = "ML")
+summary(NEAR.GAMM.host) 
 
 ## Water residence time ----
 
@@ -835,6 +978,10 @@ WRT.GAMM.legi <- gam(cbind(inf_LeGi, tot_LeGi - inf_LeGi) ~ s(WRT, bs = "cs") + 
 summary(WRT.GAMM.legi) 
 #WRT is not significant
 
+WRT.GAMM.host <- gam(cbind(inf_host, tot_host - inf_host) ~ s(WRT, bs = "cs") + s(Lake, bs = "re"),
+                      family = quasibinomial, data = mod.data, method = "ML")
+summary(WRT.GAMM.host) 
+
 ## Drainage area ----
 
 DRAIN.GAMM.legi <- gam(cbind(inf_LeGi, tot_LeGi - inf_LeGi) ~ s(Drainage_area, bs = "cs") + s(Lake, bs = "re"),
@@ -842,12 +989,24 @@ DRAIN.GAMM.legi <- gam(cbind(inf_LeGi, tot_LeGi - inf_LeGi) ~ s(Drainage_area, b
 summary(DRAIN.GAMM.legi) 
 #Drainage area is not significant
 
+DRAIN.GAMM.host <- gam(cbind(inf_host, tot_host - inf_host) ~ s(Drainage_area, bs = "cs") + s(Lake, bs = "re"),
+                      family = quasibinomial, data = mod.data, method = "ML")
+summary(DRAIN.GAMM.host) 
+
 ## Elevation ----
 
 ELEV.GAMM.legi <- gam(cbind(inf_LeGi, tot_LeGi - inf_LeGi) ~ s(Elevation, bs = "cs") + s(Lake, bs = "re"),
                       family = quasibinomial, data = mod.data, method = "ML")
 summary(ELEV.GAMM.legi) 
 #Elevation is not significant
+
+ELEV.GAMM.host <- gam(cbind(inf_host, tot_host - inf_host) ~ s(Elevation, bs = "cs") + s(Lake, bs = "re"),
+                      family = quasibinomial, data = mod.data, method = "ML")
+summary(ELEV.GAMM.host) 
+
+draw.ELEV.host <- draw(ELEV.GAMM.host, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
+  scale_y_continuous(trans = inverse_logit_trans)
+draw.ELEV.host
 
 ## Fish abundance ----
 
@@ -891,11 +1050,23 @@ FISH.legi.pe <- FISH.legi.sm %>%
         plot.title = element_blank()) 
 FISH.legi.pe
 
+FISH.GAMM.host <- gam(cbind(inf_host, tot_host - inf_host) ~ s(tot_fish, bs = "cs") + s(Lake, bs = "re"),
+                      family = quasibinomial, data = mod.data, method = "ML")
+summary(FISH.GAMM.host) 
+
+draw.FISH.host <- draw(FISH.GAMM.host, unconditional = TRUE, overall_uncertainty = TRUE, select = 1) + 
+  scale_y_continuous(trans = inverse_logit_trans)
+draw.FISH.host
+
 ## Non-host abundance ----
 
 NONHOST.GAMM.legi <- gam(cbind(inf_LeGi, tot_LeGi - inf_LeGi) ~ s(tot_Cyprinidae, bs = "cs") + s(Lake, bs = "re"),
                          family = quasibinomial, data = mod.data, method = "ML")
 summary(NONHOST.GAMM.legi)
+
+NONHOST.GAMM.host <- gam(cbind(inf_host, tot_host - inf_host) ~ s(tot_Cyprinidae, bs = "cs") + s(Lake, bs = "re"),
+                         family = quasibinomial, data = mod.data, method = "ML")
+summary(NONHOST.GAMM.host)
 
 ## Species richness ----
 
@@ -904,12 +1075,20 @@ SP.GAMM.legi <- gam(cbind(inf_LeGi, tot_LeGi - inf_LeGi) ~ s(Species_richness, b
 summary(SP.GAMM.legi) 
 #Species richness is not significant
 
+SP.GAMM.host <- gam(cbind(inf_host, tot_host - inf_host) ~ s(Species_richness, bs = "cs", k = 5) + s(Lake, bs = "re"),
+                    family = quasibinomial, data = mod.data, method = "ML")
+summary(SP.GAMM.host) 
+
 ## Diversity index ----
 
 DIVERS.GAMM.legi <- gam(cbind(inf_LeGi, tot_LeGi - inf_LeGi) ~ s(Diversity, bs = "cs") + s(Lake, bs = "re"),
                         family = quasibinomial, data = mod.data, method = "ML")
 summary(DIVERS.GAMM.legi) 
 #Not significant
+
+DIVERS.GAMM.host <- gam(cbind(inf_host, tot_host - inf_host) ~ s(Diversity, bs = "cs") + s(Lake, bs = "re"),
+                        family = quasibinomial, data = mod.data, method = "ML")
+summary(DIVERS.GAMM.host)
 
 ## Envenness ----
 
@@ -918,6 +1097,10 @@ EVEN.GAMM.legi <- gam(cbind(inf_LeGi, tot_LeGi - inf_LeGi) ~ s(Evenness, bs = "c
 summary(EVEN.GAMM.legi) 
 #Diversity is not significant
 
+EVEN.GAMM.host <- gam(cbind(inf_host, tot_host - inf_host) ~ s(Evenness, bs = "cs") + s(Lake, bs = "re"),
+                      family = quasibinomial, data = mod.data, method = "ML")
+summary(EVEN.GAMM.host) 
+
 ## Summary plot ----
 Summary.plot.legi <- (TURB.legi.pe + Temp.legi.pe + DO.legi.pe + TNTP.legi.pe + TP.legi.pe + AREAPERI.legi.pe + FISH.legi.pe) +
   plot_layout(ncol =4, nrow = 2) &
@@ -925,3 +1108,104 @@ Summary.plot.legi <- (TURB.legi.pe + Temp.legi.pe + DO.legi.pe + TNTP.legi.pe + 
 
 ggsave(paste0(to.figs, "GAMMs_PartialEffects_LeGi.png"), plot = Summary.plot.legi, dpi = 500, width = 45, height = 20)
 
+# ---- Accumulation legi ----
+
+#LeGi
+C.prev.legi <- data.frame()
+
+for(i in 1:30) {
+  for(j in 1:Resampling) {
+    line <- sample(1:nrow(CLeGi), i) #sample i lines randomly
+    prop.samp <- CLeGi[line, "tot_LeGi"]/sum(CLeGi[line, "tot_LeGi"])
+    w_prev <- CLeGi[line, "inf_LeGi"]*prop.samp
+    Prevalence <- sum(na.omit(w_prev))
+    output <- data.frame(N = i, Resampling = j, Prevalence) #save output in temporary data.frame (changed at each iterations)
+    C.prev.legi <- rbind(C.prev.legi, output)
+  }
+}
+
+C.prev.legi <- C.prev.legi %>% 
+  mutate(Method = "Combined", .before = "N")
+
+#LeGi
+MT.prev.legi <- data.frame()
+
+for(i in 1:30) {
+  for(j in 1:Resampling) {
+    line <- sample(1:nrow(MTLeGi), i) #sample i lines randomly
+    prop.samp <- MTLeGi[line, "tot_LeGi"]/sum(MTLeGi[line, "tot_LeGi"])
+    w_prev <- MTLeGi[line, "inf_LeGi"]*prop.samp
+    Prevalence <- sum(na.omit(w_prev))
+    output <- data.frame(N = i, Resampling = j, Prevalence) #save output in temporary data.frame (changed at each iterations)
+    MT.prev.legi <- rbind(MT.prev.legi, output)
+  }
+}
+
+MT.prev.legi <- MT.prev.legi %>% 
+  mutate(Method = "Minnow trap", .before = "N")
+
+#LeGi
+S.prev.legi <- data.frame()
+
+for(i in 1:30) {
+  for(j in 1:Resampling) {
+    line <- sample(1:nrow(SLeGi), i) #sample i lines randomly
+    prop.samp <- SLeGi[line, "tot_LeGi"]/sum(SLeGi[line, "tot_LeGi"])
+    w_prev <- SLeGi[line, "inf_LeGi"]*prop.samp
+    Prevalence <- sum(na.omit(w_prev))
+    output <- data.frame(N = i, Resampling = j, Prevalence) #save output in temporary data.frame (changed at each iterations)
+    S.prev.legi <- rbind(S.prev.legi, output)
+  }
+}
+
+S.prev.legi <- S.prev.legi %>% 
+  mutate(Method = "Seine net", .before = "N")
+
+#LeGi
+T.prev.legi <- data.frame()
+
+for(i in 1:30) {
+  for(j in 1:Resampling) {
+    line <- sample(1:nrow(TLeGi), i) #sample i lines randomly
+    prop.samp <- TLeGi[line, "tot_LeGi"]/sum(TLeGi[line, "tot_LeGi"])
+    w_prev <- TLeGi[line, "inf_LeGi"]*prop.samp
+    Prevalence <- sum(na.omit(w_prev))
+    output <- data.frame(N = i, Resampling = j, Prevalence) #save output in temporary data.frame (changed at each iterations)
+    T.prev.legi <- rbind(T.prev.legi, output)
+  }
+}
+
+T.prev.legi <- T.prev.legi %>% 
+  mutate(Method = "Transect", .before = "N")
+
+
+#legi
+df.prev.legi <- rbind(C.prev.legi, MT.prev.legi, S.prev.legi, T.prev.legi)
+df.prev.legi$N <- as.factor(df.prev.legi$N)
+df.prev.legi$Method <- as.factor(df.prev.legi$Method)
+
+prev.acc.plot.legi <- ggplot(df.prev.legi) + 
+  stat_summary(aes(x = N, y = Prevalence, group = Method, color = Method, shape = Method), fun = "mean", size = 1) +
+  stat_smooth(aes(x= N, y = Prevalence, group = Method, color = Method, fill = Method), method = "loess", se = FALSE, level = 0.95, lineend = "round", alpha = 0.3) +
+  scale_y_continuous(labels = scales::percent) +
+  labs(x = "Number of samples", y = "Mean infection prevalence") +
+  scale_color_manual(values = c("#7E7E7E", "#2A5676", "#999600", "#966F1E"),
+                     aesthetics = c("color", "fill")) +
+  scale_shape_manual(values = c(0, 5, 2, 1)) +
+  guides(fill = guide_legend(override.aes = list(fill = NA, linetype = 0))) +
+  theme(text = element_text(size = 20, family = "Calibri Light", color = "black"),
+        plot.background = element_blank(), 
+        panel.background = element_blank(),
+        panel.grid = element_blank(),
+        legend.key = element_rect(fill = NA, colour = NA),
+        axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
+        axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
+        axis.text.x = element_text(color = "black"),
+        axis.text.y = element_text(color = "black"),
+        axis.line.x = element_line(color = "black", lineend = "round"),
+        axis.line.y = element_line(color = "black", lineend = "round"))
+
+
+prev.acc.plot.legi
+
+ggsave(paste0(to.figs, "AccumulationCurves_prevalence_LeGi.png"), plot = prev.acc.plot.legi, dpi = 300, width = 15, height = 10)  

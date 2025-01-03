@@ -303,7 +303,7 @@ S2.S1
 
 S2.S1 %>% #Saving gt tab
   gtsave("Tab_SpAbund_Methods.html", paste0(to.figs))
-Table.S4 %>% 
+S2.S1 %>% 
   gtsave("Table_S4.png", paste0(to.rédaction, "./Support_information/"), vwidth = 2000, vheight = 1000)
 
 # ---- Table S7 : Species' black spot infection references ----
@@ -348,7 +348,7 @@ S2.S4 %>% #Saving gt tab
 S2.S4 %>% 
   gtsave("AppendixS2_TableS4.png", paste0(to.rédaction, "./Support_information/"))
 
-# ---- Table S14 : Site characteristics ----
+# ---- Table S12 : Site characteristics ----
 
 Site.desc <- CombinedData %>% #Select habitat and water parameters data
   filter(Sampling_method == "Transect") %>% 
@@ -361,13 +361,13 @@ Site.desc <- CombinedData %>% #Select habitat and water parameters data
 Site.desc$Lake <- Site.desc$Lake %>% #Change lake pin rouge name
   str_replace_all("Pin_rouge", "Pin rouge")
 
-S2.S11 <- gt(Site.desc, groupname_col = "Lake") %>% #Creating gt tab and editing style
+S2.S12 <- gt(Site.desc, groupname_col = "Lake") %>% #Creating gt tab and editing style
   cols_label(Sampling_ID = md("Sampling_ID"), 
              Temperature = md("Temperature (°C)"), Conductivity = md("Conductivity (μS/cm)"), DO = md("Dissolved oxygen (%)"), Turbidity = md("Turbidity (NTU)"), pH = md("pH"), 
              TOC = md("TOC (mg/L)"), TN = md("TN (mg/L)"), TP = md("TP (mg/L)"),
              Silt = md("Silt (%)"), Sand = md("Sand (%)"), Rock = md("Rock (%)"), Boulder = md("Boulder (%)"),
              Macrophyte = md("Macrophyte (%)"), Site_depth = md("Mean depth (cm)")) %>% 
-  tab_header(md("**TABLE S11.** Transect sites water and habitat characteristics. The results are grouped by lake.")) %>% 
+  tab_header(md("**TABLE S12.** Transect sites water and habitat characteristics. The results are grouped by lake.")) %>% 
   tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "left"),
             locations = cells_title("title")) %>% 
   tab_options(table.border.top.style = "hidden",
@@ -393,9 +393,9 @@ S2.S11 <- gt(Site.desc, groupname_col = "Lake") %>% #Creating gt tab and editing
   tab_style(style = cell_borders(side = "bottom", weight = px(2), color = "darkgrey"),
             locations = cells_body(rows = c(6, 8, 12, 16 ,18, 21, 24, 29, 32, 35, 39, 42, 44, 46)))
  
-S2.S11
+S2.S12
 
-S2.S11 %>% #Saving gt tab
+S2.S12 %>% #Saving gt tab
   gtsave("Tab_SiteDescription.png", paste0(to.figs))
-Table.S14 %>% 
-  gtsave("Table_S14.png", paste0(to.rédaction, "./Support_information/"))
+S2.S12 %>% 
+  gtsave("AppendixS2_Table_S12.png", paste0(to.rédaction, "./Support_information/"))

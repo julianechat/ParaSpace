@@ -262,7 +262,7 @@ MACRO.pe <- MACRO.sm %>%
   scale_y_continuous(trans = inverse_logit_trans) +
   labs(x = "Macrophyte coverage (%)", y = "Partial effect (prevalence)", tag = "(f)") +
   theme(text = element_text(size = 20, 
-                            family = "Calibri Light", 
+                            family = "Helvetica", 
                             color = "black"),
         axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
         axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
@@ -370,7 +370,7 @@ TEMP.pe <- TEMP.sm %>%
   scale_y_continuous(trans = inverse_logit_trans) +
   labs(x = "Temperature (°C)", y = "Partial effect (prevalence)", tag = "(c)") +
   theme(text = element_text(size = 20, 
-                            family = "Calibri Light", 
+                            family = "Helvetica", 
                             color = "black"),
         axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
         axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
@@ -477,7 +477,7 @@ PH.pe <- PH.sm %>%
   scale_y_continuous(trans = inverse_logit_trans) +
   labs(x = "pH", y = "Partial effect(prevalence)", tag = "(d)") +
   theme(text = element_text(size = 20, 
-                            family = "Calibri Light", 
+                            family = "Helvetica", 
                             color = "black"),
         axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
         axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
@@ -594,7 +594,7 @@ COND.pe <- COND.sm %>%
   scale_y_continuous(trans = inverse_logit_trans) +
   labs(x = "Conductivity (μS/cm)", y = "Partial effect (prevalence)", tag = "(e)") +
   theme(text = element_text(size = 20, 
-                            family = "Calibri Light", 
+                            family = "Helvetica", 
                             color = "black"),
         axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
         axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
@@ -676,7 +676,7 @@ AREAPERI.pe <- AREAPERI.sm %>%
   scale_y_continuous(trans = inverse_logit_trans) +
   labs(x = "Area:Perimeter (m)", y = "Partial effect (prevalence)", tag = "(g)") +
   theme(text = element_text(size = 20, 
-                            family = "Calibri Light", 
+                            family = "Helvetica", 
                             color = "black"),
         axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
         axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
@@ -750,7 +750,7 @@ AREA.pe <- AREA.sm %>%
   scale_y_continuous(trans = inverse_logit_trans) +
   labs(x = expression(paste("Surface area ","(m"^2,")")), y = "Partial effect (prevalence)", tag = "(h)") +
   theme(text = element_text(size = 20, 
-                            family = "Calibri Light", 
+                            family = "Helvetica", 
                             color = "black"),
         axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
         axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
@@ -924,7 +924,7 @@ FISH.pe <- FISH.sm %>%
   scale_y_continuous(trans = inverse_logit_trans) +
   labs(x = "Fish abundance", y = "Partial effect (prevalence)", tag = "(b)") +
   theme(text = element_text(size = 20, 
-                            family = "Calibri Light", 
+                            family = "Helvetica", 
                             color = "black"),
         axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
         axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
@@ -999,7 +999,7 @@ NONHOST.pe <- NONHOST.sm %>%
   scale_y_continuous(trans = inverse_logit_trans) +
   labs(x = "Non-host abundance", y = "Partial effect (prevalence)", tag = "(a)") +
   theme(text = element_text(size = 20, 
-                            family = "Calibri Light", 
+                            family = "Helvetica", 
                             color = "black"),
         axis.title.x = element_text(margin = unit(c(7, 0, 0, 0), "mm")),
         axis.title.y = element_text(margin = unit(c(0, 7, 0, 0), "mm")),
@@ -1226,12 +1226,12 @@ dev.off()
 
 Summary.plot <- NONHOST.pe + FISH.pe + TEMP.pe + PH.pe + COND.pe + MACRO.pe + AREAPERI.pe + AREA.pe +
   plot_layout(ncol = 2, nrow = 4, tag_level = "new") &
-  theme(text = element_text(family = "Calibri Light", size = 40, color = "black"),
+  theme(text = element_text(family = "Helvetica", size = 28, color = "black"),
         plot.tag.position = c(0,1), 
         plot.margin = unit(c(1.5,0.5,1,1.5), "cm"),
         plot.tag = element_text(hjust = 1.3, vjust = -1.5))
 
-ggsave(paste0(to.figs, "GAMMs_PartialEffects.png"), plot = Summary.plot, dpi = 300, width = 20, height = 28)
+ggsave(paste0(to.figs, "GAMMs_PartialEffects.png"), plot = Summary.plot, dpi = 500, width = 20, height = 28)
 ggsave(paste0(to.rédaction, "Figures/Figure7_GAMMs.png"), plot = Summary.plot, dpi = 300, width = 45, height = 28)
 
 ## Model parametric coefficient and smooth terms summary table ----
@@ -1486,7 +1486,7 @@ tab.EVEN.smooth <- tidy(EVEN.GAMM, parametric = FALSE) %>%
 tab.EVEN <- merge(tab.EVEN.par, tab.EVEN.smooth, all = TRUE)
 
 #Creating summary table
-S2.S10 <- rbind(tab.NULL, tab.TNTP, tab.TN, tab.TP, tab.TOC,
+S2.S11 <- rbind(tab.NULL, tab.TNTP, tab.TN, tab.TP, tab.TOC,
                            tab.SILT, tab.SAND, tab.ROCK, tab.BOULD, tab.MACRO, tab.DEPTH, tab.TRUNK, 
                            tab.TEMP, tab.TURB, tab.PH, tab.DO, tab.COND, 
                            tab.AREAPERI, tab.AREA, tab.PERI, tab.MDEPTH, tab.XDEPTH, 
@@ -1589,7 +1589,7 @@ S2.S10 <- rbind(tab.NULL, tab.TNTP, tab.TN, tab.TP, tab.TOC,
     rows = c(90:92)) %>% 
   cols_hide(c("ref.df", "Deviance")) %>% 
   cols_label(term = md("**Term**"), statistic = md("**Statistic**"), p.value = md("**p-value**"), estimate = md("**Estimate**"), std.error = md("**Standard error**"), edf = md("**edf**")) %>% 
-  tab_header(md("**TABLE S10.** Estimated parametric coefficients and approximate significance of smooth terms of the fine-scale prevalence community GAMMs. The deviance explained (D<sup>2</sup>) is given for every model as a measure of the model fit.")) %>% 
+  tab_header(md("**TABLE S11.** Estimated parametric coefficients and approximate significance of smooth terms of the fine-scale prevalence community GAMMs. The deviance explained (D<sup>2</sup>) is given for every model as a measure of the model fit.")) %>% 
   tab_spanner(label = "Parametric coefficient", columns = c("estimate", "std.error", "statistic", "p.value")) %>% 
   tab_spanner(label = "Smooth terms", columns = c("statistic", "p.value", "edf")) %>% 
   tab_footnote(footnote = "Effective degrees of freedom", 
@@ -1624,9 +1624,9 @@ S2.S10 <- rbind(tab.NULL, tab.TNTP, tab.TN, tab.TP, tab.TOC,
   tab_style(style = cell_borders(side = "bottom", weight = px(2), color = "black"),
             locations = cells_row_groups(groups = "<p>Null<br>(D<sup>2</sup> = 69.64%)</p>")) 
 
-S2.S10
+S2.S11
 
-S2.S10 %>% #Saving gt tab
+S2.S11 %>% #Saving gt tab
   gtsave("Tab_GAMMs_summary.png", paste0(to.figs))
-S2.S10 %>% 
-  gtsave("AppendixS2_TableS10.png", paste0(to.rédaction, "./Support_information/"))  
+S2.S11 %>% 
+  gtsave("AppendixS2_TableS11.png", paste0(to.rédaction, "./Support_information/"))  

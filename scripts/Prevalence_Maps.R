@@ -416,8 +416,8 @@ FishMap.C <- ggplot() +
   geom_sf(data = lake.attributes.C, aes(fill = (prev_fish*100)), color = "black", size = 0.5) +
   scale_fill_continuous_sequential(palette = "YlOrBr", limits = c(0, 100), aesthetics = "fill") +
   theme(legend.position = c(0.88, 0.15),
-        legend.text = element_text(color = "black", size = 9, family = "Calibri Light"),
-        legend.title = element_text(color = "black", size = 9, family = "Calibri Light"),
+        legend.text = element_text(color = "black", size = 9, family = "Helvetica"),
+        legend.title = element_text(color = "black", size = 9, family = "Helvetica"),
         legend.key.size = unit(0.5, "cm"),
         legend.key = element_rect(linewidth = 2),
         legend.background = element_blank(), 
@@ -430,7 +430,7 @@ FishMap.C <- ggplot() +
                    bar_cols = c("grey60", "white"),
                    height = unit(0.25, "cm"),
                    text_cex = 0.75,
-                   text_family = "Calibri Light") + 
+                   text_family = "Helvetica") + 
   annotation_north_arrow(location = "tl", 
                          which_north = "true", 
                          pad_x = unit(0.55, "cm"), 
@@ -595,7 +595,7 @@ C.hist <- ggplot(lake.attributes.C, aes(prev_fish)) +
   labs(x = "Prevalence", y = "Frequency") +
   ylim(0,4) +
   scale_x_continuous(breaks = c(0.0, 0.4, 0.8), labels = c("0", "0.4", "0.8")) +
-  theme(text = element_text(size = 9, family = "Calibri Light", color = "black"),
+  theme(text = element_text(size = 10, family = "Helvetica", color = "black"),
         axis.text.x = element_text(color = "black"),
         axis.text.y = element_text(color = "black"),
         panel.background = element_blank(),
@@ -621,17 +621,17 @@ C.Map.Sum <- ggplot() +
         axis.ticks = element_blank(),
         axis.text = element_blank(),
         plot.tag.position = c(0.32, 0.05),
-        plot.tag = element_text(family = "Calibri Light")) +
+        plot.tag = element_text(family = "Helvetica", size = 12)) +
   annotation_scale(location = "tl", 
                    bar_cols = c("grey60", "white"),
                    height = unit(0.25, "cm"),
                    text_cex = 0.75,
-                   text_family = "Calibri Light") + 
+                   text_family = "Helvetica") + 
   annotation_north_arrow(location = "tl", 
                          which_north = "true", 
                          pad_x = unit(0.35, "cm"), 
                          pad_y = unit(0.65, "cm"), 
-                         style = north_arrow_nautical(fill = c("grey60", "white"), line_col = "black", text_size = 10, text_family = "Calibri Light"),
+                         style = north_arrow_nautical(fill = c("grey60", "white"), line_col = "black", text_size = 10, text_family = "Helvetica"),
                          height = unit(1, "cm"),
                          width = unit(1, "cm")) +
     annotation_custom(C.Grob, 
@@ -649,7 +649,7 @@ MT.hist <- ggplot(lake.attributes.MT, aes(prev_fish)) +
   labs(x = "Prevalence", y = "Frequency") + 
   ylim(0,4) +
   scale_x_continuous(breaks = c(0.0, 0.4, 0.8), labels = c("0", "0.4", "0.8")) +
-  theme(text = element_text(size = 9, family = "Calibri Light", color = "black"),
+  theme(text = element_text(size = 10, family = "Helvetica", color = "black"),
         axis.text.x = element_text(color = "black"),
         axis.text.y = element_text(color = "black"),
         panel.background = element_blank(),
@@ -667,8 +667,8 @@ MT.Map.Sum <- ggplot() +
   scale_fill_continuous_sequential(palette = "YlOrBr", limits = c(0, 100), aesthetics = "fill") +
   labs(tag = "(d) Minnow trap") +
   theme(legend.position = c(1.2, 0.2),
-        legend.text = element_text(color = "black", size = 9, family = "Calibri Light"),
-        legend.title = element_text(color = "black", size = 9, family = "Calibri Light"),
+        legend.text = element_text(color = "black", size = 8, family = "Helvetica"),
+        legend.title = element_text(color = "black", size = 8, family = "Helvetica"),
         legend.key.size = unit(0.7, "cm"),
         legend.key = element_rect(linewidth = 2),
         legend.background = element_blank(), 
@@ -680,7 +680,7 @@ MT.Map.Sum <- ggplot() +
         axis.ticks = element_blank(),
         axis.text = element_blank(),
         plot.tag.position = c(0.23, 0.05),
-        plot.tag = element_text(family = "Calibri Light")) +
+        plot.tag = element_text(family = "Helvetica", size = 12)) +
   guides(fill = guide_colorbar(title = "Prevalence (%)",
                                label.position = "right",
                                title.position = "left", title.theme = element_text(angle = 90, size = 12, hjust = 0.5),
@@ -703,7 +703,7 @@ S.hist <- ggplot(lake.attributes.S, aes(prev_fish)) +
   labs(x = "Prevalence", y = "Frequency") + 
   scale_x_continuous(breaks = c(0.0, 0.4, 0.8), labels = c("0", "0.4", "0.8")) +
   ylim(0,4) +
-  theme(text = element_text(size = 9, family = "Calibri Light", color = "black"),
+  theme(text = element_text(size = 10, family = "Helvetica", color = "black"),
         axis.text.x = element_text(color = "black"),
         axis.text.y = element_text(color = "black"),
         panel.background = element_blank(),
@@ -728,8 +728,8 @@ S.Map.Sum <- ggplot() +
         panel.spacing = margin(0, 0, 0, 0, unit = "mm"),
         axis.ticks = element_blank(),
         axis.text = element_blank(),
-        plot.tag.position = c(0.185, 0.05),
-        plot.tag = element_text(family = "Calibri Light")) +
+        plot.tag.position = c(0.195, 0.05),
+        plot.tag = element_text(family = "Helvetica", size = 12)) +
   annotation_custom(S.Grob, 
                     xmax = -73.935,
                     xmin = -73.992,
@@ -743,7 +743,7 @@ T.hist <- ggplot(lake.attributes.T, aes(prev_fish)) +
   labs(x = "Prevalence", y = "Frequency") + 
   scale_x_continuous(breaks = c(0.0, 0.4, 0.8), labels = c("0", "0.4", "0.8")) +
   ylim(0,4) +
-  theme(text = element_text(size = 9, family = "Calibri Light", color = "black"),
+  theme(text = element_text(size = 10, family = "Helvetica", color = "black"),
         axis.text.x = element_text(color = "black"),
         axis.text.y = element_text(color = "black"),
         panel.background = element_blank(),
@@ -768,8 +768,8 @@ T.Map.Sum <- ggplot() +
         panel.spacing = margin(0, 0, 0, 0, unit = "mm"),
         axis.text = element_blank(),
         axis.ticks = element_blank(),
-        plot.tag.position = c(0.175, 0.05),
-        plot.tag = element_text(family = "Calibri Light")) +
+        plot.tag.position = c(0.185, 0.05),
+        plot.tag = element_text(family = "Helvetica", size = 12)) +
   annotation_custom(T.Grob, 
                     xmax = -73.935,
                     xmin = -73.992,
@@ -785,7 +785,7 @@ Summary.map <- C.Map.Sum + T.Map.Sum + S.Map.Sum + MT.Map.Sum +
 
 Summary.map
 
-ggsave(paste0(to.figs, "PrevalenceMap_Fish_Summary.png"), plot = Summary.map, dpi = 300, width = 20, height = 20, units = "cm")
+ggsave(paste0(to.figs, "PrevalenceMap_Fish_Summary.pdf"), plot = Summary.map, dpi = 500, width = 20, height = 20, units = "cm")
 ggsave(paste0(to.rédaction, "/Figures/Figure5_MapFreqDistribution.png"), plot = Summary.map, dpi = 300, width = 20, height = 20, units = "cm")
 
 ## LeGi maps ----

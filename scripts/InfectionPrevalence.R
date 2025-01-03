@@ -288,8 +288,8 @@ Species <- c("Ambloplites rupestris", "Fundulus diaphanus", "Micropterus dolomie
 Land.sp.sum.data$Species <- Species
 
 #Table
-S2.S12 <- gt(Land.sp.sum.data) %>% 
-  tab_header(md("**TABLE S12.** Host specificity of the black spot disease at landscape-scale according to the different sampling methods. NaN means that no fish were caught in the corresponding category. All values are in percentage.")) %>% 
+S2.S13 <- gt(Land.sp.sum.data) %>% 
+  tab_header(md("**TABLE S13.** Host specificity of the black spot disease at landscape-scale according to the different sampling methods. NaN means that no fish were caught in the corresponding category. All values are in percentage.")) %>% 
   tab_spanner("Method", columns = c(2:5)) %>% 
   tab_style(cell_text(color = "black", font = "Calibri Light", size = 9, align = "left"),
             locations = cells_title("title")) %>% 
@@ -312,12 +312,12 @@ S2.S12 <- gt(Land.sp.sum.data) %>%
             location = list(cells_body(rows = 15))) %>% 
   fmt_number(decimals = 0)
 
-S2.S12
+S2.S13
 
-S2.S12 %>% #Saving gt tab
+S2.S13 %>% #Saving gt tab
   gtsave("Tab_LandscapeSpec_Methods.png", paste0(to.figs))
-Table.S15 %>% 
-  gtsave("Table_S15.png", paste0(to.rédaction, "./Support_information/"))
+S2.S13 %>% 
+  gtsave("AppendixS2_Table_S13.png", paste0(to.rédaction, "./Support_information/"))
 
 # ---- Lake prevalence ----
 
@@ -943,7 +943,7 @@ S2.S7
 
 S2.S7 %>% #Saving gt tab
   gtsave("Tab_SitePrev_Methods.png", paste0(to.figs))
-Table.S10 %>% 
+S2.S7 %>% 
   gtsave("Table_S10.png", paste0(to.rédaction, "./Support_information/"))
 
 ### Relationship between prevalence and fish abundance
