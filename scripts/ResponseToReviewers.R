@@ -24,6 +24,7 @@ library(dplyr)
 library(ggplot2)
 library(splitstackshape)
 library(patchwork)
+library(cowplot)
 library(mgcv)
 library(gratia)
 
@@ -734,6 +735,8 @@ draw.TEMP.host
 TURB.GAMM.legi <- gam(cbind(inf_LeGi, tot_LeGi - inf_LeGi) ~ s(Turbidity, bs = "cs") + s(Lake, bs = "re"),
                       family = quasibinomial, data = mod.data, method = "ML")
 summary(TURB.GAMM.legi) 
+
+
 #All variables are significant
 #Adj. R-sq. = 0.939
 #Deviance explained = 93.7%
@@ -1108,6 +1111,11 @@ Summary.plot.legi <- (TURB.legi.pe + Temp.legi.pe + DO.legi.pe + TNTP.legi.pe + 
 
 ggsave(paste0(to.figs, "GAMMs_PartialEffects_LeGi.png"), plot = Summary.plot.legi, dpi = 500, width = 45, height = 20)
 
+Summary.plot.host <- draw.TURB.host + draw.DO.host + draw.AREAPERI.host + draw.FISH.host +
+  plot_layout(ncol = 2, nrow = 2) &
+  theme(text = element_text(family = "Calibri Light", size = 40, color = "black"))
+
+ggsave(paste0(to.figs, "GAMMs_PartialEffects_Hosts.png"), plot = Summary.plot.host, dpi = 500, width = 45, height = 20)
 # ---- Accumulation legi ----
 
 #LeGi
